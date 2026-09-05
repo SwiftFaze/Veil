@@ -43,4 +43,12 @@ class ClassSandboxModelTest {
         assertEquals(70, stats.getMaxHp());
         assertEquals(100, stats.getMaxMana());
     }
+
+    @Test
+    void looksUpIdByClassName() {
+        ClassSandboxModel model = new ClassSandboxModel();
+
+        assertEquals("core:warrior", model.idFor("Warrior"));
+        assertEquals("core:mage", model.idFor("Mage"));
+    }
 }

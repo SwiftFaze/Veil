@@ -36,7 +36,7 @@ Feature: Mod loader (external mods/ directory)
 
   # Non-goals:
   #   - Data-driving Tile, PlayerClass, items, quests, or maps — separate
-  #     follow-on issues (#49, #50, #51, #52, #53), see specs/intent/mod-loader.md.
+  #     follow-on issues (#49, #50, #51, #52, #53).
   #   - Embedded scripting or the "calc" expression parser — buildings have
   #     no numeric tuning fields, so this doesn't arise until the Tile/
   #     PlayerClass phases.
@@ -79,5 +79,4 @@ Feature: Mod loader (external mods/ directory)
   #     from that JSON.
   #
   # Open questions:
-  #   None outstanding — see specs/intent/mod-loader.md's Clarifications
-  #   section.
+  #   None outstanding.

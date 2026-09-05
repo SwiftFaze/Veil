@@ -3,3 +3,9 @@
 /dependency-reduced-pom.xml
 /wiki/
 /settings.json
+
+# Intent docs are local scratch (see specs/intent/README.md) — never committed except the two
+# files the pipeline itself depends on.
+/specs/intent/*
+!/specs/intent/README.md
+!/specs/intent/TEMPLATE.md

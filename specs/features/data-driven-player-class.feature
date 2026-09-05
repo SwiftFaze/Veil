@@ -61,16 +61,15 @@ Feature: Data-driven PlayerClass (JSON base stats + growth curves)
     Then a ModLoadException is thrown wrapping the underlying cause
 
   # Non-goals:
-  #   - Items, quests, maps — separate follow-on issues, see
-  #     specs/intent/data-driven-player-class.md.
+  #   - Items, quests, maps — separate follow-on issues.
   #   - Any runtime level-up trigger or mechanic — Level.java/PlayerInfo.java
   #     are untouched; growth is a directly-callable capability, not a wired
-  #     game event. See specs/intent/data-driven-player-class.md's Scope.
+  #     game event.
   #   - Re-testing "a new player defaults to Warrior" — already covered by
   #     specs/features/default-player-class.feature, which must keep
   #     passing unmodified against the ModRegistry-backed PlayerClass.
   #   - Extending the stat registry to derived stats (attackPower, defense)
-  #     — out of scope per the intent doc; items would need this later.
+  #     — out of scope for now; items would need this later.
   #
   # Risks:
   #   - core:warrior/core:mage base stat values must exactly match today's
@@ -81,17 +80,15 @@ Feature: Data-driven PlayerClass (JSON base stats + growth curves)
   #     depend on PlayerClass/PlayerClassLoader via ClassSandboxModel; both
   #     must keep passing unmodified (Gherkin text unchanged) once
   #     ClassSandboxModel moves to the ModRegistry-backed PlayerClass.
-  #   - specs/features/data-driven-player-classes.feature and
-  #     specs/intent/restructure-solid-base.md's classpath-based mechanism
-  #     are superseded by this file and by mods/core/classes/*.json; the old
-  #     feature file, PlayerClassLoader, and src/main/resources/classes/*.json
-  #     are removed in the same change per the intent doc's Scope.
+  #   - specs/features/data-driven-player-classes.feature and the old
+  #     classpath-based PlayerClassLoader mechanism are superseded by this
+  #     file and by mods/core/classes/*.json; the old feature file,
+  #     PlayerClassLoader, and src/main/resources/classes/*.json are
+  #     removed in the same change.
   #   - `level` is 0-indexed, matching Level.getCurrentLevel()'s existing
   #     convention (PlayerInfoPanel already displays "LV " + currentLevel
-  #     with no offset, and Level starts currentLevel at 0) — see
-  #     specs/intent/data-driven-player-class.md's Clarifications.
+  #     with no offset, and Level starts currentLevel at 0).
   #
   # Open questions:
-  #   None outstanding — see specs/intent/data-driven-player-class.md's
-  #   Clarifications section (growth calc semantics, calc grammar scope,
-  #   rounding rule, and optional base/growth fields all resolved there).
+  #   None outstanding (growth calc semantics, calc grammar scope,
+  #   rounding rule, and optional base/growth fields all resolved).

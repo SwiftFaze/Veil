@@ -3,7 +3,7 @@ Feature: Slider widget
   framework from ui-component-framework.feature. Left/Right adjusts the
   current value by a fixed step within a caller-supplied [min, max]
   range. New scope surfaced by issue #54 (settings screen's brightness/
-  volume items) — see specs/intent/startup-and-settings-screens.md.
+  volume items).
   Unlike the list/table/radio-group widgets, a slider does not wrap
   around at its ends: min and max are hard bounds, not cyclic.
 
@@ -37,13 +37,12 @@ Feature: Slider widget
   #   - Mouse dragging — this game is keyboard-only by design.
   #   - Persisting the adjusted value, or applying it to real
   #     brightness/volume/rendering/audio systems — no such systems exist
-  #     yet (see specs/intent/startup-and-settings-screens.md's Scope).
+  #     yet.
   #
   # Risks:
   #   - This widget has no precedent elsewhere in the framework (list/
   #     table/radio-group all wrap; this deliberately doesn't) — the
-  #     no-wrap behavior was confirmed at Step 3 approval (2026-08-30)
-  #     (see specs/intent/startup-and-settings-screens.md's Constraints).
+  #     no-wrap behavior was confirmed at Step 3 approval (2026-08-30).
   #
   # Open questions:
   #   - None for this widget specifically.

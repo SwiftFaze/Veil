@@ -5,8 +5,7 @@ Feature: Controls hint bar
   in-game/movement view) pushes its own hint list into it via a shared
   push API, and hints update at row/sub-focus granularity as focus moves
   within a screen, not only on screen switches. Contextual world-action
-  hints (e.g. "[e]-Open door") are out of scope, tracked in #133. See
-  specs/intent/controls-hint-bar.md.
+  hints (e.g. "[e]-Open door") are out of scope, tracked in #133.
 
   Background:
     Given the game window is shown
@@ -82,16 +81,14 @@ Feature: Controls hint bar
   #     detection that don't exist yet. Tracked in #133.
   #   - Wiring the hint bar into the *live* composition root
   #     (Main.buildGameCard/buildUIScreens) for Inventory, Codex, and the
-  #     in-game view - that composition root is mid-rebuild (see
-  #     specs/intent/shared-list-detail-ui-contract.md), so those three
+  #     in-game view - that composition root is mid-rebuild, so those three
   #     screens' scenarios above exercise the panel classes directly, the
   #     same way settings-screen.feature exercises SettingsScreenPanel
   #     directly rather than through Main. Title/Settings/Keybinds are not
   #     affected by that rebuild and can wire into Main normally.
   #   - Fixing SettingsKeybindsPanel's press-any-key capture to let Escape
   #     actually cancel instead of rebinding to Escape - a pre-existing
-  #     behavior question, deliberately not touched here (see
-  #     specs/intent/controls-hint-bar.md's Clarifications); the hint bar
+  #     behavior question, deliberately not touched here; the hint bar
   #     just describes that behavior accurately as-is.
   #   - Any visual styling of the bar itself (colors, font, layout within
   #     the bar) - covered by this project's Swing visual-verification
@@ -126,5 +123,4 @@ Feature: Controls hint bar
   #
   # Open questions:
   #   None remaining - all raised during spec drafting (including a
-  #   second round after the first playtest) are recorded in
-  #   specs/intent/controls-hint-bar.md's Clarifications.
+  #   second round after the first playtest) were resolved before merge.

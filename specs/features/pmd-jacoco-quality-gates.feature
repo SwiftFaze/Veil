@@ -81,5 +81,4 @@ Feature: PMD and JaCoCo CI-enforced quality gates
   # Open questions:
   #   - None outstanding — the exclusion-list derivation method and the
   #     PIT stale-entry cleanup were both settled via a grilling round
-  #     during spec drafting (see Clarifications in
-  #     specs/intent/pmd-jacoco-quality-gates.md).
+  #     during spec drafting.

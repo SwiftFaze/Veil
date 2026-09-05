@@ -4,9 +4,8 @@ import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.GameListener;
 
 /**
- * Minimal stopgap wiring so the I/X toggles keep working with EastPanel gone
- * (see specs/intent/shared-list-detail-ui-contract.md's Clarifications) — no
- * sidebar, no player-info display, just open/close/mutual-exclusion between
+ * Minimal stopgap wiring so the I/X toggles keep working with EastPanel gone —
+ * no sidebar, no player-info display, just open/close/mutual-exclusion between
  * the inventory and codex popups, same behavior EastPanel used to provide.
  */
 public class PopupToggleListener implements GameListener {
@@ -20,8 +19,7 @@ public class PopupToggleListener implements GameListener {
 
     @Override
     public void updatePlayer(Player player) {
-        // No player-info display right now — removed with the rest of the early UI
-        // shell (see specs/intent/shared-list-detail-ui-contract.md's Clarifications).
+        // No player-info display right now — removed with the rest of the early UI shell.
     }
 
     @Override

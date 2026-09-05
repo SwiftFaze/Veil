@@ -3,6 +3,7 @@ package com.swiftfaze.veil.ui;
 import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
+import com.swiftfaze.veil.ui.widget.HeaderWidget;
 import com.swiftfaze.veil.ui.widget.ListWidget;
 import com.swiftfaze.veil.ui.widget.PopupWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
@@ -31,7 +32,7 @@ public class InventoryPanel extends PopupWidget {
         Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         setBorder(BorderFactory.createCompoundBorder(bottomLine, padding));
 
-        addContent(makeTitleLabel());
+        addContent(new HeaderWidget("Inventory"));
 
         itemList = new ListWidget<>(Item::getName);
         itemList.setWrapAround(false);
@@ -135,14 +136,6 @@ public class InventoryPanel extends PopupWidget {
                 : new ControlsHintBarWidget.Hint("right", "View details"));
         hints.addAll(LIST_HINTS_TAIL);
         hintBar.setHints(hints);
-    }
-
-    private JLabel makeTitleLabel() {
-        JLabel titleLabel = new JLabel("Inventory");
-        titleLabel.setForeground(WidgetTheme.NORMAL_TEXT);
-        titleLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
-        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        return titleLabel;
     }
 
     private void bindDropKey() {

@@ -70,6 +70,10 @@ public final class ModLoader {
             loadThemes(modsRoot, manifest, themesById, owningThemeModById);
         }
 
+        logger.info("Loaded {} mod(s) [{}]: {} tiles, {} buildings, {} classes, {} items, {} quests, {} themes",
+                modLoadOrder.size(), String.join(", ", modLoadOrder), tilesById.size(), buildingsById.size(),
+                classesById.size(), itemsById.size(), questsById.size(), themesById.size());
+
         ModRegistry.RegistryMaps maps = new ModRegistry.RegistryMaps(buildingsById, tilesById, classesById, itemsById, questsById, themesById);
         return new ModRegistry(maps, modLoadOrder);
     }
@@ -254,7 +258,7 @@ public final class ModLoader {
 
         context.registry().put(id, value);
         context.owningModById().put(id, modId);
-        logger.info("Loaded {} '{}' from mod '{}'", context.contentType().toLowerCase(), id, modId);
+        logger.debug("Loaded {} '{}' from mod '{}'", context.contentType().toLowerCase(), id, modId);
     }
 
     private static Set<String> loadStatRegistry(Path modsRoot) {

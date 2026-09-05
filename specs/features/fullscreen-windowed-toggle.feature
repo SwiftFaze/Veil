@@ -6,7 +6,7 @@ Feature: Fullscreen/Windowed toggle applies live to the game window
   hot-reset dev feature is removed entirely as part of this change — real
   launches already pick up the persisted window mode directly, making F5's
   dispose/rebuild cycle both redundant and an awkward extra path to keep
-  correct. See specs/intent/fullscreen-windowed-toggle.md.
+  correct.
 
   Scenario: Toggling Fullscreen right switches the live game window to Fullscreen
     Given the settings screen is shown
@@ -88,5 +88,4 @@ Feature: Fullscreen/Windowed toggle applies live to the game window
   #   - None outstanding — all Step 2 clarification-round questions
   #     (initial-launch application, Reset to Defaults live-applying,
   #     minimum window size, and the mid-implementation F5-removal request)
-  #     were resolved; see specs/intent/fullscreen-windowed-toggle.md's
-  #     Clarifications section.
+  #     were resolved.

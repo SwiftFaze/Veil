@@ -5,6 +5,7 @@ import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
+import com.swiftfaze.veil.ui.widget.HeaderWidget;
 import com.swiftfaze.veil.ui.widget.ListWidget;
 import com.swiftfaze.veil.ui.widget.PopupWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
@@ -61,7 +62,7 @@ public class CodexPanel extends PopupWidget {
         Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         setBorder(BorderFactory.createCompoundBorder(bottomLine, padding));
 
-        addContent(makeTitleLabel());
+        addContent(new HeaderWidget("Codex"));
         addContent(buildTabRow());
 
         entryList = new ListWidget<>(Inspectable::getName);
@@ -251,14 +252,6 @@ public class CodexPanel extends PopupWidget {
                 : new ControlsHintBarWidget.Hint("right", "View details"));
         hints.addAll(TAB_HINTS_TAIL);
         hintBar.setHints(hints);
-    }
-
-    private JLabel makeTitleLabel() {
-        JLabel titleLabel = new JLabel("Codex");
-        titleLabel.setForeground(WidgetTheme.NORMAL_TEXT);
-        titleLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
-        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        return titleLabel;
     }
 
     private JPanel buildTabRow() {

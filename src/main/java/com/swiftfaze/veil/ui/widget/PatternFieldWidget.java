@@ -17,6 +17,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 /**
@@ -51,6 +52,9 @@ public class PatternFieldWidget extends Widget {
     private final JTextField textField;
     private final String fieldLabel;
     private boolean hasFocus = false;
+    private boolean validityColoringEnabled = true;
+    private String placeholder;
+    private Consumer<String> onInputChanged = input -> { };
 
     public PatternFieldWidget(String pattern) {
         this(pattern, null);
@@ -59,7 +63,7 @@ public class PatternFieldWidget extends Widget {
     public PatternFieldWidget(String pattern, String fieldLabel) {
         this.pattern = Pattern.compile(pattern);
         this.fieldLabel = fieldLabel;
-        this.textField = new JTextField();
+        this.textField = new PlaceholderTextField();
         setFocusable(false); // the text field is the real focus target, not this outer panel
 
         textField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
@@ -98,6 +102,34 @@ public class PatternFieldWidget extends Widget {
 
     public boolean patternIsValid() {
         return pattern.matcher(textField.getText()).matches();
+    }
+
+    public JTextField getTextField() {
+        return textField;
+    }
+
+    /**
+     * Gray hint text shown in place of the real value while the field is empty (e.g.
+     * "Search by name, category, or mod...") — cleared automatically the moment any real
+     * input is typed, same as a browser's native placeholder.
+     */
+    public void setPlaceholder(String placeholder) {
+        this.placeholder = placeholder;
+        textField.repaint();
+    }
+
+    /**
+     * Disables the red/green valid/invalid border and text coloring — for a consumer reusing
+     * this widget's outlined-field look for free-text input that has no pattern to validate
+     * against (e.g. a search box), where "invalid" has no meaning. Enabled by default.
+     */
+    public void setValidityColoringEnabled(boolean enabled) {
+        this.validityColoringEnabled = enabled;
+        updateAppearance();
+    }
+
+    public void setOnInputChanged(Consumer<String> onInputChanged) {
+        this.onInputChanged = onInputChanged;
     }
 
     /**
@@ -169,10 +201,11 @@ public class PatternFieldWidget extends Widget {
         Color stateColor = stateColor();
         textField.setForeground(getInput().isEmpty() ? WidgetTheme.NORMAL_TEXT : stateColor);
         setBorder(buildBorder(stateColor));
+        onInputChanged.accept(getInput());
     }
 
     private Color stateColor() {
-        if (getInput().isEmpty()) {
+        if (!validityColoringEnabled || getInput().isEmpty()) {
             return WidgetTheme.NORMAL_TEXT;
         }
         return patternIsValid() ? WidgetTheme.VALID_HIGHLIGHT : WidgetTheme.INVALID_HIGHLIGHT;
@@ -187,12 +220,33 @@ public class PatternFieldWidget extends Widget {
         Border outline = hasFocus
                 ? BorderFactory.createLineBorder(color, FOCUSED_BORDER_WIDTH)
                 : BorderFactory.createMatteBorder(0, 0, UNFOCUSED_BORDER_WIDTH, 0, color);
-        Border padded = BorderFactory.createCompoundBorder(outline, BorderFactory.createEmptyBorder(4, 6, 4, 6));
+        Border padded = BorderFactory.createCompoundBorder(outline, BorderFactory.createEmptyBorder(4, 8, 4, 8));
         if (fieldLabel == null) {
             return padded;
         }
         return BorderFactory.createTitledBorder(
                 padded, fieldLabel, TitledBorder.LEADING, TitledBorder.DEFAULT_POSITION, LABEL_FONT, color);
+    }
+
+    /**
+     * A plain {@link JTextField} that also paints gray placeholder text over itself while
+     * empty — a minimal override rather than a separate overlaid label, since a label would
+     * need its own positioning kept in sync with the field's insets/font.
+     */
+    private class PlaceholderTextField extends JTextField {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (placeholder == null || !getText().isEmpty()) {
+                return;
+            }
+            FontMetrics metrics = g.getFontMetrics(getFont());
+            int x = getInsets().left;
+            int y = (getHeight() - metrics.getHeight()) / 2 + metrics.getAscent();
+            g.setColor(WidgetTheme.DIMMED_TEXT);
+            g.setFont(getFont());
+            g.drawString(placeholder, x, y);
+        }
     }
 
     /**

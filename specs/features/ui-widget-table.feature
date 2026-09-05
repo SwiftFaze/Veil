@@ -7,9 +7,6 @@ Feature: Table widget
   active navigation target. Proven in isolation below. Its former real
   consumers — the rebuilt inventory popup's field/value and effects
   tables — were removed alongside EastPanel; see the trailing Risks note.
-  See specs/intent/ui-widget-library.md, including its two rounds of Step
-  4.5 playtest Clarifications for why the details pane used to look and
-  navigate the way it did.
 
   Scenario: Navigating a table widget down moves the selection to the next row
     Given a table widget with rows "Sword", "Shield", "Potion" and row 1 selected
@@ -49,8 +46,8 @@ Feature: Table widget
     Then the confirmed row is "Shield"
 
   # Non-goals:
-  #   - Cell-level confirm (as opposed to row-level) — decided against in
-  #     specs/intent/ui-widget-library.md's Clarifications.
+  #   - Cell-level confirm (as opposed to row-level) — decided against
+  #     during spec drafting.
   #   - Scrolling behavior specifics — TerminalScrollBarUI is reused
   #     as-is from the existing framework, nothing new to prove there.
   #   - Any mouse/pointer handling — this game is keyboard-only by
@@ -73,8 +70,7 @@ Feature: Table widget
   #     region with the item list) — nine scenarios in total. Those
   #     consumers were removed when EastPanel/NorthPanel/SouthPanel/
   #     PlayerInfoPanel/TerminalPanel were deleted as unrelated
-  #     early-scaffolding cleanup (see
-  #     specs/intent/shared-list-detail-ui-contract.md's Clarifications).
+  #     early-scaffolding cleanup.
   #     TableWidget itself is untouched and still fully proven in
   #     isolation above.
   #

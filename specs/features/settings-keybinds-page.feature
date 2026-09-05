@@ -9,10 +9,9 @@ Feature: Settings keybinds page
   pending edits with a confirmation gate, Reset to Defaults gets its own
   confirmation) live in settings-persistence.feature, which supersedes
   this file's former "Reset to Defaults is the only real action, Apply/
-  Cancel/Go back behave identically" framing — see
-  specs/intent/settings-persistence.md. Still no real rebinding into
+  Cancel/Go back behave identically" framing. Still no real rebinding into
   input dispatch (Keybindings.java's KeyStroke constants are unrelated
-  and untouched). See specs/intent/startup-and-settings-screens.md.
+  and untouched).
 
   Background:
     Given the keybinds page is shown

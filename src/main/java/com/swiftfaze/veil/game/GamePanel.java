@@ -30,7 +30,6 @@ public class GamePanel extends JPanel {
         setPreferredSize(new Dimension(GAME_WINDOW_WIDTH * TILE_WIDTH, GAME_WINDOW_HEIGHT * TILE_HEIGHT));
         setBackground(Color.BLACK);
         setFocusable(true);
-        setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2));
 
         player.setPosition(DEFAULT_PLAYER_START_X, DEFAULT_PLAYER_START_Y);
 

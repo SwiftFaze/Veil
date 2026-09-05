@@ -79,9 +79,8 @@ public class Main {
         return gamePanel;
     }
 
-    // Minimal stopgap wiring so the I/X toggles keep working with EastPanel gone (see
-    // specs/intent/shared-list-detail-ui-contract.md's Clarifications) — no sidebar, no
-    // player-info display, just enough plumbing for the two popups to open/close/exclude
+    // Minimal stopgap wiring so the I/X toggles keep working with EastPanel gone — no
+    // sidebar, no player-info display, just enough plumbing for the two popups to open/close/exclude
     // each other and hand focus back to the game on dismiss, same as EastPanel used to.
     private static void wirePopups(GamePanel gamePanel, InventoryPanel inventoryPanel, CodexPanel codexPanel,
                                     PauseMenuPopup pauseMenuPopup, ControlsHintBarWidget hintBar) {
@@ -175,6 +174,11 @@ public class Main {
 
     private static void configureAndShowFrame(JFrame frame, JPanel cardPanel, CardLayout cardLayout,
                                                ControlsHintBarWidget hintBar, Map<String, JComponent> cards) {
+        // Border lives on the frame's content pane, not on any individual screen, so it's
+        // flush against the true window edge and shows on every card (title/settings/
+        // keybinds/game) uniformly rather than only around whichever panel drew its own.
+        ((JComponent) frame.getContentPane()).setBorder(
+                BorderFactory.createLineBorder(WidgetTheme.WINDOW_BORDER, 2));
         frame.setLayout(new BorderLayout());
         frame.add(cardPanel, BorderLayout.CENTER);
         frame.add(hintBar, BorderLayout.SOUTH);

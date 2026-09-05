@@ -30,6 +30,7 @@ that change's definition of done, not separate cleanup.
 | `default-player-class.feature` | New player defaults to the Warrior class |
 | `data-driven-player-class.feature` | Data-driven PlayerClass loaded from `mods/core/classes/*.json` with per-level stat growth |
 | `class-stats-sandbox.feature` | Dev-only `ClassSandbox` stat display |
+| `sandbox-dev-console.feature` | Searchable dev-console provider framework the sandbox's menu/search/keybinding shell is generalized into, with `ClassSandboxPanel` as its first registered provider |
 | `data-driven-tile.feature` | Tile definitions loaded from JSON + registry |
 | `data-driven-item.feature` | Item definitions loaded from JSON + stat registry, minimal InventoryPanel wiring |
 | `data-driven-quest.feature` | Quest definitions loaded from JSON + item registry, minimal per-player quest-state tracking |
@@ -40,7 +41,7 @@ that change's definition of done, not separate cleanup.
 | `camera-behavior.feature` | Camera follow/scroll behavior; viewport resizing (tracking a resizable Windowed frame's live panel size) and its 5x5-tile minimum-size floor, added for `fullscreen-windowed-toggle.feature` |
 | `keyboard-input-and-menu-navigation.feature` | Key Bindings input and menu navigation |
 | `installer-mods-bundling.feature` | jpackage installer build bundles `mods/core` alongside the executable |
-| `ui-component-framework.feature` | Shared terminal-style widget framework (list/button/popup, focus manager, selected-state styling), proven by `ClassSandboxPanel` and in isolation; supersedes SelectableMenu-based scenarios previously in `keyboard-input-and-menu-navigation.feature`, `ui-panel-rendering-and-composition.feature`, `class-sandbox-panel-selection.feature`, and `data-driven-item.feature`. Its former in-game inventory-popup proof case was removed alongside `EastPanel` (see Clarifications in `specs/intent/shared-list-detail-ui-contract.md`) |
+| `ui-component-framework.feature` | Shared terminal-style widget framework (list/button/popup, focus manager, selected-state styling), proven by `ClassSandboxPanel` and in isolation; supersedes SelectableMenu-based scenarios previously in `keyboard-input-and-menu-navigation.feature`, `ui-panel-rendering-and-composition.feature`, `class-sandbox-panel-selection.feature`, and `data-driven-item.feature`. Its former in-game inventory-popup proof case was removed alongside `EastPanel` |
 | `ui-widget-table.feature` | Keyboard-navigable, full-width, bordered table widget (row/column selection, wrap-around, row-level confirm, header row, non-selectable mode), proven in isolation; its former real consumers (the inventory popup's field/value and effects tables) were removed alongside `EastPanel` |
 | `ui-widget-radio-group.feature` | Single-select radio group widget (vertical by default, optional horizontal), proven in isolation; its former real consumer (the inventory popup's "Drop item?" confirmation) was removed alongside `EastPanel` |
 | `ui-widget-pattern-field.feature` | Regex-pattern-validated text field widget (valid/invalid state via a new WidgetTheme color) — no real consumer yet, proven in isolation |

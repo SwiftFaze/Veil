@@ -16,10 +16,8 @@ Feature: Mod loader failure path
   # Non-goals:
   #   - Any functional/behavior change to ModLoader — this is failure-path
   #     test coverage only, mirroring the prior BuildingLoader/
-  #     BuildingException coverage (see
-  #     specs/intent/class-sandbox-panel-and-building-exception-coverage.md),
-  #     migrated to ModLoader/ModLoadException as part of
-  #     specs/intent/mod-loader.md's phase-1 refactor.
+  #     BuildingException coverage, migrated to ModLoader/ModLoadException
+  #     as part of the mod-loader phase-1 refactor.
   #   - The happy path (loading valid mod content) — covered by
   #     specs/features/mod-loader.feature and ModLoaderIT.
   #

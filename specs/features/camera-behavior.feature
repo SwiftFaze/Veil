@@ -5,8 +5,7 @@ Feature: Camera behavior
   translates world coordinates into screen coordinates. The viewport itself
   is resizable after construction, tracking the game panel's live pixel size
   so a resizable Windowed frame reveals more or less of the map around the
-  player as it's resized (see specs/intent/fullscreen-windowed-toggle.md);
-  resizing below a small minimum clamps to that floor rather than shrinking
+  player as it's resized; resizing below a small minimum clamps to that floor rather than shrinking
   the viewport to zero or negative tiles.
 
   Background:
@@ -47,9 +46,8 @@ Feature: Camera behavior
 
   # Non-goals:
   #   - Edge-of-map clamping, zoom, panning, or floor/depth-aware behavior —
-  #     out of scope per specs/intent/camera-behavior.md; the scenario above
-  #     documents the current unclamped behavior, it does not request
-  #     clamping be added.
+  #     out of scope; the scenario above documents the current unclamped
+  #     behavior, it does not request clamping be added.
   #   - Pixel-level Swing rendering output — only the Camera domain object's
   #     offset math is covered, not Graphics2D calls. How GamePanel derives
   #     the resize call's width/height from its own live pixel size (and
@@ -64,9 +62,7 @@ Feature: Camera behavior
   #     external dependencies and no branching logic beyond the two
   #     arithmetic assignments in centerOn.
   #   - The 5x5-tile minimum-viewport floor is this spec's own concrete
-  #     choice for the "small sane minimum" agreed in
-  #     specs/intent/fullscreen-windowed-toggle.md's Clarifications — chosen
-  #     for this file at Step 2, not dictated by the intent doc itself.
+  #     choice for the "small sane minimum" agreed during Step 2 drafting.
   #
   # Open questions:
   #   - None. Camera has no validation/error paths (no exceptions, no bounds

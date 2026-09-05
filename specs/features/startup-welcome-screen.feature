@@ -3,8 +3,7 @@ Feature: Startup welcome screen
   font, with a graceful fallback — see below) and a menu (Continue, New,
   Load, Settings, Exit), replacing today's direct-to-world launch. Built
   on the current ListWidget/ButtonWidget framework, not the deleted
-  MenuPanel/SelectableMenu the source issue's text refers to — see
-  specs/intent/startup-and-settings-screens.md's Constraints.
+  MenuPanel/SelectableMenu the source issue's text refers to.
 
   Scenario: Launching the game shows the title screen
     Given the game is launched
@@ -51,9 +50,8 @@ Feature: Startup welcome screen
   #   - Any decorative ASCII art, logo, or border — v1 is title text +
   #     menu only.
   #   - Asserting the actual Delta Corps Priest 1 glyphs render
-  #     correctly — that font file isn't in the repo yet (see
-  #     specs/intent/startup-and-settings-screens.md's Open questions)
-  #     and is a manual/visual concern once it's supplied, not something
+  #     correctly — that font file isn't in the repo yet, and is a
+  #     manual/visual concern once it's supplied, not something
   #     a Gherkin scenario can usefully check either way.
   #   - Exit's actual window-close behavior beyond "the game exits" —
   #     standard JFrame close, nothing new to prove.
@@ -72,5 +70,4 @@ Feature: Startup welcome screen
   #     precedent (ui-component-framework.feature).
   #
   # Open questions:
-  #   - Where the actual Delta Corps Priest 1 .ttf comes from — see
-  #     specs/intent/startup-and-settings-screens.md's Open questions.
+  #   - Where the actual Delta Corps Priest 1 .ttf comes from.

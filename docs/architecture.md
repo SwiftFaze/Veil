@@ -53,7 +53,7 @@ production call sites (`registry.getTile(CoreTiles.GRASS)`) so they keep
 some compile-time safety without `Tile` itself being an enum. Walkability
 and rendering are entirely data-driven off these tile definitions, there's
 no separate collision or sprite system. This is phase 2 of the
-data-driven-mod-content initiative; see `specs/intent/data-driven-tile.md`.
+data-driven-mod-content initiative.
 
 **Buildings** are authored as JSON blueprints under `mods/core/buildings/`
 (a flat 2D array of namespaced tile IDs — `{"id", "name", "type", "width",
@@ -68,7 +68,7 @@ would use. `ModLoader` makes two full passes over mods in dependency order:
 first to load all tiles from `tiles/*.json` into a registry, then to load
 all buildings from `buildings/*.json` with tile references resolved against
 the tile registry. This is phase 2 of a larger data-driven-mod-content
-initiative; see `specs/intent/mod-loader.md` and `specs/intent/data-driven-tile.md`.
+initiative.
 
 **Player movement** (`entities/player/Player.java`): each directional move
 checks whether the target tile is walkable and, if so, moves onto it —
@@ -110,7 +110,7 @@ inventory-management system exists to consume it. `InventoryPanel` takes
 wiring now happens in `Main.wirePopups` rather than `EastPanel`'s
 constructor, removed along with the rest of the early UI shell (see
 `docs/screens.md`'s "UI shell" note). This is phase 4 of the
-data-driven-mod-content initiative; see `specs/intent/data-driven-item.md`.
+data-driven-mod-content initiative.
 
 **Quests** (`entities/quests/Quest.java`): a plain data holder (name, an
 `objective` — `{type, target, count}`, fixed to `"kill"` this slice — and
@@ -133,8 +133,7 @@ and no persistence across restarts — no game-save/progress system exists in
 the project yet (distinct from the settings-only persistence in
 `com.swiftfaze.veil.config`, see `docs/screens.md`'s "Settings persistence" —
 per-installation config, not per-playthrough save data, different lifecycle).
-This is phase 5 of the data-driven-mod-content initiative;
-see `specs/intent/data-driven-quest.md`.
+This is phase 5 of the data-driven-mod-content initiative.
 
 **Rendering contracts**: `Positionable` (x/y) → `DrawableAsciiEntity` (adds
 glyph/color/`render`) is what `GamePanel` iterates over in `entitiesToDraw`

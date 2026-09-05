@@ -4,8 +4,7 @@ Feature: Persist windowed game window size in settings
   persists whatever size the window last had in Windowed mode when the
   app quit; the next launch (and any Fullscreen -> Windowed switch
   mid-session) restores that size, clamped to the current screen's
-  bounds, instead of the default pack() size. See
-  specs/intent/persist-windowed-window-size.md.
+  bounds, instead of the default pack() size.
 
   Scenario: A fresh install with no saved window size defaults to letting the window size itself
     Given no settings file exists next to the install
@@ -96,6 +95,4 @@ Feature: Persist windowed game window size in settings
   # Open questions:
   #   - None outstanding — all 5 clarification-round questions (testability
   #     boundary, field shape, default sentinel, capture trigger mechanism,
-  #     clamping precedence) were resolved; see
-  #     specs/intent/persist-windowed-window-size.md's Clarifications
-  #     section.
+  #     clamping precedence) were resolved.
