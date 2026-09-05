@@ -48,4 +48,4 @@ Feature: ESC opens a pause menu overlay
   #   unlike the old resetGame()/F5 hot-reset it replaced, it's now plain GamePanel logic.
 
   # Open questions:
-  # - Interaction with Inventory/Codex popups already being open when ESC is pressed is resolved per Swing's focus-dispatch priority: pressing ESC while Inventory/Codex holds focus closes that popup (their own dismiss binding at WHEN_ANCESTOR_OF_FOCUSED_COMPONENT wins); pressing ESC again opens pause menu. No extra code needed. See specs/intent/pause-screen-esc.md.
+  # - Interaction with Inventory/Codex popups already being open when ESC is pressed is resolved per Swing's focus-dispatch priority: pressing ESC while Inventory/Codex holds focus closes that popup (their own dismiss binding at WHEN_ANCESTOR_OF_FOCUSED_COMPONENT wins); pressing ESC again opens pause menu. No extra code needed.

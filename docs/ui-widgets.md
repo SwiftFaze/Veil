@@ -3,15 +3,17 @@
 The reusable Swing widget library in `ui/widget/`, and the theming system
 that colors it. For how these compose into actual game screens, see
 `docs/screens.md`; for the self-describing data contract screens use to
-feed list/detail widgets, see `docs/components.md`.
+feed list/detail widgets, see `docs/components.md`; for the concrete
+spacing/typography/color rules a panel or widget should follow, see
+`docs/ui-styling.md`.
 
 **Widget theming** (`mods/<modid>/themes/*.json`): a directory of files, one
 theme per file, matching the `tiles/`/`items/`/`quests/` directory-of-many-files
-convention (not the `stats.json` singleton) — each file defining all 11 colors
+convention (not the `stats.json` singleton) — each file defining all 12 colors
 `WidgetTheme` (see below) exposes as static fields: `SELECTED_HIGHLIGHT`,
 `SELECTED_TEXT`, `NORMAL_TEXT`, `DIMMED_TEXT`, `BACKGROUND`, `INVALID_HIGHLIGHT`,
 `VALID_HIGHLIGHT`, `TABLE_HEADER_BACKGROUND`, `BORDER`, `SCROLLBAR_THUMB`,
-`ACCENT` (`WidgetColorTheme.REQUIRED_KEYS`), each an `{r, g, b}` object using
+`ACCENT`, `WINDOW_BORDER` (`WidgetColorTheme.REQUIRED_KEYS`), each an `{r, g, b}` object using
 the same color shape tiles already use (`ModLoader.readColor`). `BORDER` was
 named `TABLE_BORDER` until the UI color-cleanup sweep below broadened its use
 well beyond tables (every panel border in `ui/`) — the old name was misleading
@@ -21,7 +23,13 @@ started reusing it, so it was renamed to the general-purpose `BORDER`. `ACCENT`
 the widget library's original `SELECTED_HIGHLIGHT` color from before an earlier
 commit switched selection highlighting to neutral gray, and `NorthPanel`'s
 title and `ClassSandboxPanel`'s selected-row color still used that literal
-directly. Loaded by `ModLoader.loadThemes`/`loadTheme` — shaped like
+directly. `WINDOW_BORDER` (white by default) was added when a UI-compliance
+audit caught `Main.java`'s frame content-pane border and
+`sandbox/DevConsolePanel`'s own border both hardcoding `Color.WHITE` instead
+of resolving to a theme key — a distinct semantic role from `BORDER` (used
+for internal panel/widget chrome, gray by default) since the two need to
+diverge visually: the outermost window edge stays bright regardless of what
+internal borders are themed to, so it can't just reuse `BORDER`. Loaded by `ModLoader.loadThemes`/`loadTheme` — shaped like
 `loadTiles`/`loadTile`'s directory scan, still routed through
 `registerWithCollisionCheck` for id/`overrides` parity with every other content
 type — into a `WidgetColorTheme` (id + `Map<String, Color>`,
@@ -41,14 +49,14 @@ either: every hardcoded `Color` literal across `ui/`, `ui/widget/`, and the dev
 `sandbox/ClassSandboxPanel` was swept to reference a `WidgetTheme` field instead
 (gameplay/world rendering — `Player`, `WorldScene`, `GamePanel` — stays
 hardcoded, since those colors are game content, not UI chrome). This is the
-widget-theming initiative; see `specs/intent/widget-theming.md`.
+widget-theming initiative.
 
 A small reusable widget framework lives in `ui/widget/`: `Widget` (base
 `JPanel` — themed background via `WidgetTheme.BACKGROUND`, focusable),
 `FocusManager` (a modal-open flag a popup's content can consult), `WidgetTheme`
-(11 mutable `static Color` fields — `SELECTED_HIGHLIGHT`/`SELECTED_TEXT`/
+(12 mutable `static Color` fields — `SELECTED_HIGHLIGHT`/`SELECTED_TEXT`/
 `NORMAL_TEXT`/`DIMMED_TEXT`/`BACKGROUND`/`INVALID_HIGHLIGHT`/`VALID_HIGHLIGHT`/
-`TABLE_HEADER_BACKGROUND`/`BORDER`/`SCROLLBAR_THUMB`/`ACCENT` — hardcoded as
+`TABLE_HEADER_BACKGROUND`/`BORDER`/`SCROLLBAR_THUMB`/`ACCENT`/`WINDOW_BORDER` — hardcoded as
 field initializers so any widget built without `ModLoader` ever running still
 gets sane defaults, but overwritten from a loaded `WidgetColorTheme` via
 `applyTheme` at startup; see "Widget theming" above), `ListWidget<T>` (a
@@ -74,7 +82,20 @@ the initial display too, `selectAndHighlightOption(index)` moves both
 together, added for `SettingsScreenPanel`'s persisted Fullscreen/Font/Theme
 rows, see "Settings persistence" in `docs/screens.md`),
 `PatternFieldWidget` (a text-input field validating its content against a
-caller-supplied regex pattern), `PopupWidget` (a dismissible overlay,
+caller-supplied regex pattern; `setPlaceholder()` shows gray hint text
+while empty, `setValidityColoringEnabled(false)` turns off the red/green
+border and text coloring for a consumer with no pattern to validate
+against, and `getTextField()`/`setOnInputChanged()` let a consumer bind
+its own keys or react to input without depending on the pattern-matching
+behavior — added for `sandbox/DevConsolePanel`'s search field, which
+reuses the widget's outlined-field look and block cursor for free-text
+search rather than hand-rolling a lookalike),
+`HeaderWidget` (a bordered, full-width, center-aligned title bar with
+`setTitle()`/`getTitle()` and a bottom margin baked into its own border
+so a consumer stacking content below it in a `BoxLayout` gets a gap for
+free — added for `sandbox/ClassDetailPanel`'s class-name heading and
+`sandbox/DevConsolePanel`'s own "Dev Console" title),
+`PopupWidget` (a dismissible overlay,
 keyboard-only like the rest of this game — no Close button, since it never
 responded to anything but a click; `open()`/`dismiss()` manage visibility and
 focus, Escape dismisses it, and `onUp()`/`onDown()`/`onLeft()`/`onRight()`

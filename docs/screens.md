@@ -8,8 +8,7 @@ data contract Inventory and Codex use to display domain content, see
 
 **UI shell** (`ui/`): removed (`EastPanel`, `NorthPanel`, `SouthPanel`,
 `PlayerInfoPanel`, `TerminalPanel`) as early scaffolding pending a proper
-reimplementation — `GamePanel` currently has no sidebar and no title bar
-(see Clarifications in `specs/intent/shared-list-detail-ui-contract.md`).
+reimplementation — `GamePanel` currently has no sidebar and no title bar.
 `Main.buildGameCard`/`wirePopups` now do just enough plumbing to keep
 `InventoryPanel`/`CodexPanel` reachable via the I/X toggles: constructing
 them, loading mod content into them, and registering `ui/
@@ -55,8 +54,7 @@ with the `Camera` viewport tracking the live panel size so resizing reveals
 more or less map), Font (radio cycle: Monospaced/Serif/SansSerif), Theme (radio
 cycle: Default/Midnight/Sunrise — a fixed placeholder list built the same way
 as Font's, purely visual and not wired to the real mod-driven theme registry
-described in `docs/ui-widgets.md`'s "Widget theming"; see `specs/intent/widget-theming.md`'s
-Clarifications), Keybinds (opens
+described in `docs/ui-widgets.md`'s "Widget theming"), Keybinds (opens
 the dedicated keybinds page), placeholder action items (Open Game Folder,
 Open Mod Folder - both call `Desktop.open`, creating `mods/` next to the
 install if missing; About, Reset to Defaults), and an explicit Go Back item
@@ -119,8 +117,7 @@ dispatch — `Keybindings.java`'s `KeyStroke` constants are unrelated and
 untouched; this page's `Map<String,String>` is a persisted display-only
 label, not real key binding.
 
-**Settings persistence** (`com.swiftfaze.veil.config`; see
-`specs/intent/settings-persistence.md`): `SettingsConfig` is a plain,
+**Settings persistence** (`com.swiftfaze.veil.config`): `SettingsConfig` is a plain,
 Gson-serializable data holder (Brightness/Fullscreen/Font/Theme/Volume plus
 a Keybinds map, and a WindowWidth/WindowHeight pair — see below) whose
 no-arg constructor's field initializers are the single source of truth for
@@ -139,8 +136,7 @@ fields it owns, but since both hold a reference to the same instance,
 neither screen's `persist()` call can clobber a change the other screen
 already made in the same session.
 
-**Windowed size persistence** (see
-`specs/intent/persist-windowed-window-size.md`): `WindowWidth`/`WindowHeight`
+**Windowed size persistence**: `WindowWidth`/`WindowHeight`
 default to `0`, a sentinel meaning "nothing saved yet, let the window
 `pack()` to its natural size" — unlike the other fields above, they're not
 a main-screen settings row and are deliberately excluded from
@@ -222,8 +218,8 @@ open still closes Inventory first, and vice versa, so only one popup is
 ever visible at a time — that mutual exclusion moved from
 `EastPanel.toggleCodex()`/`toggleInventory()` into `Main`'s
 `PopupToggleListener` (see the UI shell note above) when `EastPanel` was
-removed, same behavior either way. Buildings and Quests tabs are deferred
-(see `specs/intent/codex-ui.md`). `InventoryPanel` and `CodexPanel`'s
+removed, same behavior either way. Buildings and Quests tabs are deferred.
+`InventoryPanel` and `CodexPanel`'s
 duplicated details-pane/focus-navigation code is being extracted per
 `docs/components.md`; see that doc's worked example.
 

@@ -71,8 +71,7 @@ Feature: Data-driven quests (JSON schema + minimal quest-state tracking)
       | complete |
 
   # Non-goals:
-  #   - Maps — separate follow-on issue, see specs/intent/data-driven-quest.md
-  #     (#26's phasing, phase 6).
+  #   - Maps — separate follow-on issue (#26's phasing, phase 6).
   #   - Quest-giving NPCs / dialogue UX — no NPC concept exists in the
   #     codebase yet; this feature covers the schema and state model only.
   #   - Any mechanism that actually transitions quest state in response to
@@ -114,8 +113,7 @@ Feature: Data-driven quests (JSON schema + minimal quest-state tracking)
   #     scenario.
   #
   # Open questions:
-  #   None outstanding — see specs/intent/data-driven-quest.md's
-  #   Clarifications section. All four open questions in this pass were
+  #   None outstanding. All four open questions in this pass were
   #   self-resolved per explicit instruction rather than reviewed by the
   #   human before spec approval; flagged here for visibility at PR
   #   review time.

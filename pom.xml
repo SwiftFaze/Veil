@@ -10,6 +10,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cucumber.version>7.34.6</cucumber.version>
         <main.class>com.swiftfaze.veil.Main</main.class>
+        <!-- Default for exec-maven-plugin's own `exec.mainClass` parameter (see the
+             plugin config below) - a plain `mvn compile exec:java` with no `-D` override
+             runs the game; `-Dexec.mainClass=...` on the command line overrides this
+             property, e.g. to launch the sandbox instead. -->
+        <exec.mainClass>${main.class}</exec.mainClass>
     </properties>
 
     <dependencyManagement>
@@ -156,7 +161,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.6.3</version>
                 <configuration>
-                    <mainClass>${main.class}</mainClass>
+                    <mainClass>${exec.mainClass}</mainClass>
                 </configuration>
             </plugin>
             <!-- Step 6 (mutation testing): `mvn org.pitest:pitest-maven:mutationCoverage`.
@@ -185,6 +190,10 @@
                         <param>com.swiftfaze.veil.input.Keybindings</param>
                         <param>com.swiftfaze.veil.sandbox.ClassSandboxModel</param>
                         <param>com.swiftfaze.veil.sandbox.ClassSandboxPanel</param>
+                        <param>com.swiftfaze.veil.sandbox.DevConsoleModel</param>
+                        <param>com.swiftfaze.veil.sandbox.DevConsolePanel</param>
+                        <param>com.swiftfaze.veil.sandbox.ClassSandboxProvider</param>
+                        <param>com.swiftfaze.veil.sandbox.ClassDetailPanel</param>
                     </targetClasses>
                     <targetTests>
                         <param>com.swiftfaze.veil.*</param>

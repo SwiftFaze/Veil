@@ -9,7 +9,7 @@ Feature: Settings persistence
   that writes, Cancel/Go back/Escape discard pending edits back to the
   last-applied state (confirming first if there's something to lose), and
   its own Reset to Defaults only stages the defaults as a pending edit,
-  still requiring Apply to persist. See specs/intent/settings-persistence.md.
+  still requiring Apply to persist.
 
   Scenario: A fresh install with no settings file uses today's hardcoded defaults
     Given no settings file exists next to the install
@@ -256,8 +256,7 @@ Feature: Settings persistence
   #
   # Risks:
   #   - Exact settings.json key/shape (e.g. whether Keybinds nest under a
-  #     "keybinds" object keyed by action name) is left for Step 4 — see
-  #     specs/intent/settings-persistence.md's Open questions.
+  #     "keybinds" object keyed by action name) is left for Step 4.
   #   - Whether "on change" for main-screen sliders/radios means "write on
   #     every Left/Right keypress" or "write once when focus leaves that
   #     row" is left for Step 4 to settle; the former (every keypress) is
@@ -294,5 +293,4 @@ Feature: Settings persistence
   #
   # Open questions:
   #   - None outstanding — all Step 2 clarification-round questions were
-  #     resolved (see specs/intent/settings-persistence.md's
-  #     Clarifications section).
+  #     resolved.

@@ -146,6 +146,14 @@ expensive.
       reviewed, by design" rule in the review table below. The
       orchestrator's handoff prompt should tell the agent to do this
       explicitly, the same as it states the complexity budget.
+    - **If the change adds or touches a Swing panel/widget, its padding,
+      font sizes, or colors must follow `docs/ui-styling.md`** (outer
+      padding, gap between components, h1/h2/p sizes, and the rule that a
+      color is a `WidgetTheme` key, never a hardcoded literal) — since Step
+      4 agents are told not to explore beyond the files they're handed, the
+      orchestrator's handoff prompt must include `docs/ui-styling.md`
+      itself whenever the ticket touches UI, not just describe the rules
+      secondhand.
     - **If the change touches Swing rendering, layout, sizing, or text
       content, visually verify it before considering the step done** —
       compiling and `mvn test` passing only proves the code runs, not that

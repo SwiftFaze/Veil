@@ -9,8 +9,7 @@ Feature: Smaller confirmation-style popup variant
   mechanism (Escape-to-dismiss, onUp/onDown/onLeft/onRight) and #35's radio
   group widget for the Yes/No choice — no new dialog control is built — but
   does not use PopupWidget's inherited Close-button footer: Yes/No is this
-  dialog's only confirm/cancel mechanism. See
-  specs/intent/confirmation-popup-variant.md, including its Clarifications.
+  dialog's only confirm/cancel mechanism.
 
   Scenario: Confirming Reset to Defaults opens the Yes/No confirmation popup
     Given the settings screen is shown
@@ -74,9 +73,8 @@ Feature: Smaller confirmation-style popup variant
   #     Same disambiguation DropConfirmationPopup's own steps already
   #     use. Wording-only, no behavior/scope change.
   #   - The choice of "Reset to Defaults" as the concrete trigger (over
-  #     a dev-only sandbox demo) was an autonomous decision — see
-  #     specs/intent/confirmation-popup-variant.md's Constraints —
-  #     flagged for confirmation at Step 3 approval.
+  #     a dev-only sandbox demo) was an autonomous decision — flagged for
+  #     confirmation at Step 3 approval.
   #   - The exact title/question wording ("Confirm Reset" / "Reset all
   #     settings to their defaults?") is a minor copy decision, not yet
   #     reviewed by the human — adjustable at Step 3 approval without
@@ -87,5 +85,4 @@ Feature: Smaller confirmation-style popup variant
   #
   # Open questions:
   #   - None outstanding — all Step 2 clarification-round questions were
-  #     resolved (see specs/intent/confirmation-popup-variant.md's
-  #     Clarifications section).
+  #     resolved.

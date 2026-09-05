@@ -49,18 +49,16 @@ Feature: Data-driven items (JSON schema + minimal InventoryPanel wiring)
     Then a ModLoadException is thrown wrapping the underlying cause
 
   # Non-goals:
-  #   - Quests, maps — separate follow-on issues, see
-  #     specs/intent/data-driven-item.md.
+  #   - Quests, maps — separate follow-on issues.
   #   - Inventory management (pickup, drop, equip, stack, use/consume) — no
-  #     Player inventory concept exists yet; out of scope per the intent
-  #     doc's Scope.
+  #     Player inventory concept exists yet; out of scope for this slice.
   #   - Validating "type"/"slot" values against a fixed vocabulary — the
   #     issue only calls for validating effects[].stat against the stat
   #     registry; type/slot are free-form strings for this slice.
   #   - Extending the stat registry (mods/core/stats.json) itself — items
   #     reference existing registry stats only.
-  #   - effects[].type values beyond "stat_bonus" — see Clarifications in
-  #     the intent doc; more types are additive, later work.
+  #   - effects[].type values beyond "stat_bonus" — more types are
+  #     additive, later work.
   #   - A callable API to evaluate an item's effects[].calc to a number
   #     (e.g. at a given player level) — this slice only validates
   #     effects[].stat against the registry and parses effects[].calc for
@@ -81,6 +79,5 @@ Feature: Data-driven items (JSON schema + minimal InventoryPanel wiring)
   #     PlayerInfoTest already accepts for PlayerInfo.
   #
   # Open questions:
-  #   None outstanding — see specs/intent/data-driven-item.md's
-  #   Clarifications section (effects[].type vocabulary, calc-evaluation
-  #   scope, and InventoryPanel's wiring mechanism all resolved there).
+  #   None outstanding (effects[].type vocabulary, calc-evaluation
+  #   scope, and InventoryPanel's wiring mechanism all resolved).

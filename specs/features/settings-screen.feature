@@ -8,8 +8,7 @@ Feature: Settings screen
   about/reset entry, and an explicit Go Back item (added after Step 4.5
   playtest found Escape-only back navigation wasn't discoverable). Visual/
   input shape only — no setting has a real backing system yet, including
-  Theme (see specs/intent/widget-theming.md). See
-  specs/intent/startup-and-settings-screens.md.
+  Theme.
 
   Background:
     Given the settings screen is shown
@@ -78,8 +77,7 @@ Feature: Settings screen
   #     volume, or keybind rebinding — no rendering/audio/config-
   #     persistence system exists yet; this screen is visual/input shape
   #     only. Cycling Theme does not change WidgetTheme's actual colors —
-  #     see specs/features/widget-theming.feature and
-  #     specs/intent/widget-theming.md.
+  #     see specs/features/widget-theming.feature.
   #   - Reset to Defaults actually resetting anything — no setting
   #     persists real state yet.
   #   - About/version info's actual content — a static placeholder
@@ -95,8 +93,7 @@ Feature: Settings screen
   #     (issue #35) needed for the Fullscreen/Windowed toggle and font
   #     cycle is already implemented on develop.
   #   - The font cycle's "Monospaced" -> "Serif" -> "SansSerif" list was
-  #     confirmed at Step 3 approval (2026-08-30) (see
-  #     specs/intent/startup-and-settings-screens.md's Clarifications).
+  #     confirmed at Step 3 approval (2026-08-30).
   #   - The Theme row is a fixed placeholder list ("Default", "Midnight",
   #     "Sunrise"), built the same way as the Font row — not sourced from
   #     the real mod-driven theme registry in
@@ -104,7 +101,7 @@ Feature: Settings screen
   #     entry ("core:default") until a second theme mod actually ships, so
   #     wiring the two together now would make this row's option list
   #     depend on which mods happen to be installed; deferred to the real
-  #     activation work (out of scope per specs/intent/widget-theming.md).
+  #     activation work (out of scope for now).
   #   - `Desktop.open` behavior (and mods-directory creation) is not
   #     simulated headlessly here — "the install directory was opened" /
   #     "a mods directory was created" model the action being invoked,
@@ -113,6 +110,5 @@ Feature: Settings screen
   #     Cucumber scenarios.
   #
   # Open questions:
-  #   - None outstanding for this screen specifically — see
-  #     specs/intent/startup-and-settings-screens.md's Open questions for
-  #     the font-asset question (doesn't block this file).
+  #   - None outstanding for this screen specifically — the font-asset
+  #     question (startup-welcome-screen.feature) doesn't block this file.

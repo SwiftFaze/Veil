@@ -27,7 +27,8 @@ public final class WidgetColorTheme {
             "TABLE_HEADER_BACKGROUND",
             "BORDER",
             "SCROLLBAR_THUMB",
-            "ACCENT"
+            "ACCENT",
+            "WINDOW_BORDER"
     );
 
     private final String id;

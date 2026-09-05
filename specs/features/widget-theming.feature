@@ -5,9 +5,8 @@ Feature: Mod-driven color theming for the UI widget library
   already use, so reskinning the widget library no longer requires
   editing Java. Every hardcoded UI color across ui/ and ui/widget/ (plus
   the dev ClassSandboxPanel) is migrated to reference WidgetTheme instead
-  of a literal — see specs/intent/widget-theming.md's Clarifications for
-  the 2026-08-31 scope expansion from "the widget library's original 10
-  colors" to "every hardcoded UI color".
+  of a literal — the 2026-08-31 scope expansion was from "the widget
+  library's original 10 colors" to "every hardcoded UI color".
 
   Scenario: Loading the core mod's default theme populates all eleven widget colors
     Given a mods directory containing the "core" mod with a theme declaring id "core:default" and all eleven widget colors
@@ -47,7 +46,7 @@ Feature: Mod-driven color theming for the UI widget library
     Then a ModLoadException is thrown wrapping the underlying cause
 
   # Non-goals:
-  #   - Fonts — colors only, see specs/intent/widget-theming.md.
+  #   - Fonts — colors only.
   #   - Gameplay/world rendering colors (Player's glyph color, WorldScene's
   #     fallback tile color, GamePanel's own viewport chrome) — not UI,
   #     per the user's 2026-08-31 clarification; these stay hardcoded.
@@ -81,13 +80,16 @@ Feature: Mod-driven color theming for the UI widget library
   #     theme file is mods/core/themes/default.json (id "core:default").
   #   - The 7-vs-10-color scope question (issue #106 named only 7;
   #     WidgetTheme had 10 at implementation time) was resolved via
-  #     grilling — see specs/intent/widget-theming.md's Clarifications.
+  #     grilling.
   #   - TABLE_BORDER renamed to BORDER, and a new ACCENT color added
-  #     (2026-08-31, see Clarifications) once the sweep reached panels
+  #     (2026-08-31) once the sweep reached panels
   #     using that border color outside any table, and a leftover
   #     hardcoded accent color (#eeb392) in NorthPanel/ClassSandboxPanel.
-  #     All 11 keys must be present in every theme file.
+  #     All 11 keys must be present in every theme file. A 12th key,
+  #     WINDOW_BORDER, was added later (2026-09-05 UI compliance audit)
+  #     once Main.java's frame border and DevConsolePanel's own border
+  #     were both found hardcoding Color.WHITE instead of resolving to a
+  #     theme key.
   #
   # Open questions:
-  #   None outstanding — see specs/intent/widget-theming.md's
-  #   Clarifications section.
+  #   None outstanding.

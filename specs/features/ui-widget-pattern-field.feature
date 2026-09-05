@@ -4,8 +4,8 @@ Feature: Pattern-validated text field widget
   validating its current input against a caller-supplied regex pattern
   and surfacing valid/invalid state via a new
   WidgetTheme.INVALID_HIGHLIGHT color. No real in-game screen consumes it
-  yet (see specs/intent/ui-widget-library.md) — the first real consumer
-  and its actual validation pattern are still unidentified.
+  yet — the first real consumer and its actual validation pattern are
+  still unidentified.
 
   Scenario: Typing input that matches the pattern shows valid state
     Given a pattern field with pattern "^[A-Za-z]+$" and empty input
@@ -36,8 +36,7 @@ Feature: Pattern-validated text field widget
   # Non-goals:
   #   - Wiring this widget into any real in-game screen, or deciding any
   #     real validation pattern (e.g. character name rules) — no
-  #     consumer exists yet; this is still an open question (see
-  #     specs/intent/ui-widget-library.md's Open questions).
+  #     consumer exists yet; this is still an open question.
   #   - Any mouse/pointer handling — this game is keyboard-only by
   #     design.
   #
@@ -48,12 +47,9 @@ Feature: Pattern-validated text field widget
   #     internal input/validation state directly.
   #   - This widget has no real consumer to validate its shape against;
   #     the WidgetTheme.INVALID_HIGHLIGHT styling decision was made
-  #     autonomously (see specs/intent/ui-widget-library.md's
-  #     Clarifications) and should be revisited once a real consumer
-  #     exists.
+  #     autonomously and should be revisited once a real consumer exists.
   #
   # Open questions:
   #   - What's the first real consumer of this widget, and what pattern
-  #     will it actually validate against? Still unresolved — see
-  #     specs/intent/ui-widget-library.md's Open questions. This is the
+  #     will it actually validate against? Still unresolved — this is the
   #     one open question this feature file cannot close on its own.

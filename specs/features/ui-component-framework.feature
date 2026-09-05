@@ -111,8 +111,7 @@ Feature: Terminal-style UI component framework
   #     composition scenario (menu-panel assertion dropped) and
   #     EastPanelTest (menu-cancel tests dropped). The inventory toggle
   #     (the "I" key, GamePanel -> EastPanel.toggleInventory) is untouched
-  #     and still the only way to open/close it; see
-  #     specs/intent/ui-component-framework.md's Clarifications for why.
+  #     and still the only way to open/close it.
   #   - Real Swing focus-transfer (does a widget actually become the AWT
   #     focus owner) is not simulated headlessly here, matching the
   #     existing precedent in keyboard-input-and-menu-navigation.feature —
@@ -121,8 +120,7 @@ Feature: Terminal-style UI component framework
   #     is exercised via the manual playtest (this repo's Step 4.5).
   #
   # Open questions:
-  #   - None outstanding — see
-  #     specs/intent/ui-component-framework.md's Clarifications section.
+  #   - None outstanding.
   #
   # Post-merge amendment (2026-09-01, during codex-ui's #113 build):
   #   - PopupWidget's Close button was removed (from PopupWidget itself, and
@@ -151,8 +149,7 @@ Feature: Terminal-style UI component framework
   #     item data...", the two Up/Down item-list scenarios, and "...is
   #     layered above the game view and sidebar...") were removed when
   #     EastPanel/NorthPanel/SouthPanel/PlayerInfoPanel/TerminalPanel were
-  #     deleted as unrelated early-scaffolding cleanup (see
-  #     specs/intent/shared-list-detail-ui-contract.md's Clarifications).
+  #     deleted as unrelated early-scaffolding cleanup.
   #     The list/button/popup framework itself is untouched and still
   #     proven by the scenarios above and by ClassSandboxPanel — only its
   #     inventory-popup proof case is gone, pending a reimplemented

@@ -88,5 +88,4 @@ Feature: Deterministic-gauntlet alignment of the agentic workflow
   # Open questions:
   #   - None outstanding — settled via a grilling round during spec
   #     drafting on 2026-09-01, cross-referenced against the primary-source
-  #     Robert C. Martin interview transcript (see Clarifications in
-  #     specs/intent/deterministic-gauntlet-workflow.md).
+  #     Robert C. Martin interview transcript.

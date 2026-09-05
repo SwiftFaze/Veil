@@ -24,13 +24,20 @@ public class ClassSandboxModel {
     }
 
     public Stats computedStats(String className) {
-        PlayerClass playerClass = classes.stream()
-                .filter(c -> c.getName().equals(className))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown class: " + className));
-
+        PlayerClass playerClass = findByName(className);
         Stats stats = new Stats();
         playerClass.applyStatsAtLevel(stats, 0);
         return stats;
+    }
+
+    public String idFor(String className) {
+        return findByName(className).getId();
+    }
+
+    private PlayerClass findByName(String className) {
+        return classes.stream()
+                .filter(c -> c.getName().equals(className))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown class: " + className));
     }
 }

@@ -282,7 +282,7 @@ public class SettingsKeybindsPanel extends JPanel implements HintAware {
         for (int i = 0; i < FOOTER_ACTIONS.size(); i++) {
             JLabel label = new JLabel(FOOTER_ACTIONS.get(i));
             label.setFont(ROW_FONT);
-            label.setBorder(BorderFactory.createEmptyBorder(2, 12, 2, 12));
+            label.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
             boolean highlighted = footerFocused && i == footerIndex;
             label.setForeground(highlighted ? WidgetTheme.SELECTED_TEXT : WidgetTheme.NORMAL_TEXT);
             label.setBackground(highlighted ? WidgetTheme.SELECTED_HIGHLIGHT : WidgetTheme.BACKGROUND);

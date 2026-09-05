@@ -13,9 +13,7 @@ Feature: Installer build bundles mods/core alongside the executable
   definitions and none are intended to gain any — this file is the
   human-reviewed spec of record only. Verification happens by actually
   building and running each installer, as an extension of the repo's
-  Step 4.5 manual-playtest gate, not via `mvn test`/`mvn verify`. See
-  specs/intent/installer-mods-bundling.md's Clarifications for the full
-  reasoning.
+  Step 4.5 manual-playtest gate, not via `mvn test`/`mvn verify`.
 
   Scenario: Release pipeline bundles core mod content alongside the packaged jar
     Given the "Build shaded jar" step has produced target/Veil-<version>-app.jar
@@ -49,8 +47,7 @@ Feature: Installer build bundles mods/core alongside the executable
   #     location instead of cwd). Stayed out of scope: a direct Windows
   #     .exe launch was verified (locally, via jpackage --type app-image)
   #     to have its working directory resolve to the top-level install
-  #     directory, matching ModLoader's existing cwd-relative resolution
-  #     — see specs/intent/installer-mods-bundling.md's Clarifications.
+  #     directory, matching ModLoader's existing cwd-relative resolution.
   #   - Bundling anything beyond mods/core — third-party mods are a
   #     player-installed concern, not something the installer ships.
   #   - In-game mod management UI — already out of scope per the original
@@ -60,8 +57,7 @@ Feature: Installer build bundles mods/core alongside the executable
   #   - None of these scenarios have a Java code path for Cucumber step
   #     definitions to exercise (no application code invokes jpackage or
   #     installs the app) — unlike every other .feature file in this repo.
-  #     Deliberate, per specs/intent/installer-mods-bundling.md's
-  #     Clarifications: this file is a manually-verified spec of record,
+  #     Deliberate: this file is a manually-verified spec of record,
   #     matching the precedent set by specs/features/mod-loader.feature
   #     for this exact concern. No step definitions should be added for
   #     any scenario here, including the staging scenario, even though it
@@ -69,13 +65,11 @@ Feature: Installer build bundles mods/core alongside the executable
   #
   # Open questions:
   #   - Resolved for the "Windows .exe / direct .exe launch" row of the
-  #     Examples table: verified locally (see
-  #     specs/intent/installer-mods-bundling.md's Clarifications). The
+  #     Examples table: verified locally. The
   #     remaining four rows (Start Menu shortcut, desktop shortcut, and
   #     both Debian/macOS launch paths) were not independently verified —
   #     doing so needs WiX (Windows installer) or a Linux/macOS
   #     environment, neither available where this was implemented. Nothing
   #     about the --app-content placement fix is shortcut- or
   #     installer-type-specific, so this is a low-risk gap, accepted by
-  #     the human rather than blocking on it — see Status in
-  #     specs/intent/installer-mods-bundling.md.
+  #     the human rather than blocking on it.

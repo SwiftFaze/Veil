@@ -7,7 +7,7 @@ Feature: Radio group widget
   keybindings with the table widget. Its former real consumer — the
   rebuilt inventory popup's "Drop item?" confirmation (a horizontal
   Yes/No instance) — was removed alongside EastPanel; see the trailing
-  Risks note. See specs/intent/ui-widget-library.md.
+  Risks note.
 
   Scenario: Navigating a vertical radio group down moves the highlighted option to the next one
     Given a radio group with options "Warrior", "Mage", "Rogue" and "Warrior" highlighted
@@ -50,9 +50,7 @@ Feature: Radio group widget
   #     matching the existing precedent in ui-component-framework.feature.
   #   - This orientation question was answered three times over the
   #     course of drafting (vertical-only, then horizontal-only after
-  #     #54, then vertical-by-default-with-a-horizontal-option here) —
-  #     see specs/intent/ui-widget-library.md's Clarifications for the
-  #     full history.
+  #     #54, then vertical-by-default-with-a-horizontal-option here).
   #
   # Removal note (later, unrelated cleanup):
   #   - This file used to also cover DropConfirmationPopup's "Drop item?"
@@ -60,8 +58,7 @@ Feature: Radio group widget
   #     rebuilt in-game inventory screen via EastPanel — six scenarios in
   #     total. That real consumer was removed when EastPanel/NorthPanel/
   #     SouthPanel/PlayerInfoPanel/TerminalPanel were deleted as unrelated
-  #     early-scaffolding cleanup (see
-  #     specs/intent/shared-list-detail-ui-contract.md's Clarifications).
+  #     early-scaffolding cleanup.
   #     DropConfirmationPopup itself still exists and is unaffected as a
   #     class, but has nothing wiring it into the live game right now, so
   #     there's nothing left to acceptance-test through it.

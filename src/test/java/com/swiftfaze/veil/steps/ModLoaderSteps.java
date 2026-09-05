@@ -370,6 +370,7 @@ public class ModLoaderSteps {
             case "BORDER" -> WidgetTheme.BORDER;
             case "SCROLLBAR_THUMB" -> WidgetTheme.SCROLLBAR_THUMB;
             case "ACCENT" -> WidgetTheme.ACCENT;
+            case "WINDOW_BORDER" -> WidgetTheme.WINDOW_BORDER;
             default -> throw new IllegalArgumentException("Unknown WidgetTheme color key: " + key);
         };
     }
@@ -771,6 +772,7 @@ public class ModLoaderSteps {
         colors.put("BORDER", new ThemeColorFixture(25, 26, 27));
         colors.put("SCROLLBAR_THUMB", new ThemeColorFixture(28, 29, 30));
         colors.put("ACCENT", new ThemeColorFixture(31, 32, 33));
+        colors.put("WINDOW_BORDER", new ThemeColorFixture(34, 35, 36));
         return colors;
     }
 

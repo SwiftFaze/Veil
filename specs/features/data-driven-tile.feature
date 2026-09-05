@@ -43,13 +43,12 @@ Feature: Data-driven Tile (JSON definitions + registry)
 
   # Non-goals:
   #   - PlayerClass, items, quests, maps — separate follow-on issues
-  #     (#50, #51, #52, #53), see specs/intent/data-driven-tile.md.
+  #     (#50, #51, #52, #53).
   #   - Embedded scripting — fixed JSON vocabulary only, per #26.
   #   - A general stat/vocabulary registry (core:stats.json) — tiles have
   #     no numeric "calc" fields, so it isn't needed here.
   #   - Non-boolean walkability (e.g. movement cost) — resolved as boolean
-  #     only for this phase; see specs/intent/data-driven-tile.md's
-  #     Clarifications.
+  #     only for this phase.
   #   - New scenarios in this file for WorldScene.fillAll/Player
   #     movement/GamePanel rendering — those call sites migrate to a
   #     CoreTiles String-ID constants class + registry lookups (see
@@ -58,15 +57,14 @@ Feature: Data-driven Tile (JSON definitions + registry)
   #     already exercise that behavior at the Gherkin level and need no
   #     text changes, only step-definition changes — no new scenarios
   #     belong in *this* file for it.
-  #   - Wiki documentation content itself — a Step 7 deliverable per
-  #     specs/intent/data-driven-tile.md, not a Gherkin-testable behavior.
+  #   - Wiki documentation content itself — a Step 7 deliverable, not a
+  #     Gherkin-testable behavior.
   #
   # Risks:
   #   - This phase is far more invasive than the ModLoader/buildings phase
   #     (#48): Tile is referenced by 12 files today as compile-time enum
-  #     constants, not just JSON — see specs/intent/data-driven-tile.md's
-  #     Actors section. All 12 need updating to the CoreTiles/registry
-  #     pattern in the same change.
+  #     constants, not just JSON. All 12 need updating to the
+  #     CoreTiles/registry pattern in the same change.
   #   - mods/core/buildings/small_house_01.json's "tiles" array currently
   #     holds raw enum names ("STONE", "WOOD", "DOOR"); it must be migrated
   #     to namespaced IDs ("core:stone", "core:wood", "core:door") in the
@@ -77,5 +75,4 @@ Feature: Data-driven Tile (JSON definitions + registry)
   #     step definitions move off direct Tile enum references.
   #
   # Open questions:
-  #   None outstanding — see specs/intent/data-driven-tile.md's
-  #   Clarifications section.
+  #   None outstanding.

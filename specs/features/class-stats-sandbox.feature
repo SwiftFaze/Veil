@@ -33,5 +33,4 @@ Feature: Class/stats sandbox
   # Open questions:
   #   - None outstanding — the shared TerminalPanel/SelectableMenu
   #     questions raised here were resolved in
-  #     keyboard-input-and-menu-navigation.feature (see
-  #     specs/intent/restructure-solid-base.md's Clarifications section).
+  #     keyboard-input-and-menu-navigation.feature.
