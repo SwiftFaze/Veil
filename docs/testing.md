@@ -40,6 +40,19 @@ conventions so Maven can tell them apart automatically:
   definitions, so the tag is never removed. Verification happens by
   actually exercising the described behavior manually (e.g. building and
   running an installer), not via `mvn test`/`mvn verify`.
+- A step definition that drives a Swing component's keyboard interaction
+  by calling `component.getActionMap().get(actionName).actionPerformed(...)`
+  directly is faster to write but bypasses Swing's real focus-routing
+  chain (`WHEN_FOCUSED` vs. `WHEN_ANCESTOR_OF_FOCUSED_COMPONENT`, and
+  which component the OS/window manager actually has focused) — a panel
+  can pass every such scenario while a real key press does nothing, or
+  gets swallowed by the wrong ancestor. For any feature where keyboard
+  focus crosses a window boundary or a component hierarchy the step
+  definitions don't already exercise via real input, add at least one
+  scenario driven through genuine key events (a `java.awt.Robot`-based
+  diagnostic, or `component.dispatchEvent(new KeyEvent(...))` against the
+  actual focus owner) rather than relying only on the `ActionMap`
+  shortcut for every scenario.
 
 ### Troubleshooting: cascading/flaky Cucumber failures
 
@@ -62,6 +75,14 @@ grep -ohE '@(Given|When|Then)\("[^"]*"\)' src/test/java/com/swiftfaze/veil/steps
 ```
 See `.claude/workflow.md`'s Step 5 guidance for the full rule (this check
 is mandatory before reporting Step 5 done, not just a debugging tip).
+If the same literal step text genuinely needs different behavior
+depending on whether it's a setup precondition or a later assertion,
+that's a sign the text needs rewording into two distinct steps, not that
+duplicate annotations on the same text are safe — see
+`UiComponentFrameworkSteps.theConfirmationPopupIsShown()` for the
+correct single-method pattern (guard with `if (x == null) { build it }
+else { just assert }`) when the same text is genuinely reused as both a
+fresh-build precondition and a later assertion.
 
 ## Integration tests
 
@@ -98,14 +119,16 @@ Surefire, then integration tests via Failsafe.
 ## Code quality gates (PMD and JaCoCo)
 
 - Both gates are bound to `mvn verify` and fail the build if violated.
-- **PMD (maven-pmd-plugin)** enforces design rules via the category/java/design ruleset:
-  - Cyclomatic complexity must not exceed 8 per method.
-  - Method length must not exceed 40 lines.
-  - Parameter count must not exceed 4 per method.
-  - CPD (Copy-Paste Detector) flags duplicate code blocks at 100+ tokens.
+- **PMD (maven-pmd-plugin)** enforces design rules via `.pmd-minimal.xml`
+  (complexity, method length, parameter count — see `.claude/workflow.md`'s
+  "Constraints" section for the exact current numbers, which is the single
+  source of truth for these; don't restate them here, they're a deliberate,
+  adjustable dial per that doc) plus CPD (Copy-Paste Detector) flagging
+  duplicate code blocks at 100+ tokens.
   Pure Swing layout/wiring classes with no branching logic are excluded from these checks (see `pom.xml`'s PMD excludes list).
 - **JaCoCo (jacoco-maven-plugin)** enforces a minimum of 85% line coverage across all non-excluded classes (repo-wide, not per-changed-file). The same exclusion list as PMD applies.
 - See `pom.xml`'s PMD plugin configuration for the full exclusion list and rationale (classes confirmed to be pure construction/layout/wiring with no real logic to unit-test).
+- The one narrow, already-practiced suppression exception (`.claude/workflow.md`'s Constraints section states the general rule): a method overriding a JDK/library interface whose signature mandates more than the enforced parameter ceiling — e.g. `Border.paintBorder(Component, Graphics, int, int, int, int)` (6 parameters), see `RadioGroupWidget.RadioOptionBorder` and `TableWidget.AccentableCellBorder` — may suppress PMD's `ExcessiveParameterList` rule with `@SuppressWarnings("PMD.ExcessiveParameterList")` plus a comment naming the interface. This is specific to parameter count on an unavoidable interface override; it does not extend to complexity, length, coverage, or the module dependency rule below, none of which have an equivalent "the interface forced it" excuse — a violation there must be fixed by decomposing the code, not suppressing the check.
 
 ## Module dependency gate (ArchUnit)
 

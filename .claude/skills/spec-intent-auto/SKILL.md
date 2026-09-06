@@ -87,10 +87,11 @@ high-risk-path only) — move straight to implementation.
 
 ## Step 4 — Implementation + acceptance tests + docs, in one Haiku handoff
 
-Follow `.claude/workflow.md`'s Step 4 model-selection and handoff rules
-exactly: dispatch a **fresh agent pinned to Haiku 4.5** (not `/fork`,
-unless the context genuinely can't be compressed — see that section's
-criteria) with a self-contained prompt built by you, the orchestrator —
+Follow `.claude/workflow.md`'s Step 4 model selection and
+`.claude/subagent-delegation.md`'s handoff rules exactly: dispatch a
+**fresh agent pinned to Haiku 4.5** (not `/fork`, unless the context
+genuinely can't be compressed — see that file's criteria) with a
+self-contained prompt built by you, the orchestrator —
 explicit file paths with line numbers, actual referenced code (not just
 names), and the reasoning already settled in `intent.md` and the
 `.feature` file. Tell it explicitly not to explore beyond what you hand
@@ -125,10 +126,10 @@ below), not here.
 
 ## Step 5 — Verify the handoff yourself, then run mutation testing
 
-Per "Verifying subagent completions" in `.claude/workflow.md`: do not
+Per "Verifying what comes back" in `.claude/subagent-delegation.md`: do not
 relay the Haiku agent's "done" report as fact. Independently open the
 files it claims to have changed, and re-run `mvn verify` yourself. If it's
-wrong, follow the escalation path in that section (corrective follow-up
+wrong, follow the escalation path in that file (corrective follow-up
 first, `/fork` only after a second same-class failure).
 
 Once `mvn verify` is genuinely clean, run mutation testing yourself

@@ -14,10 +14,14 @@
         </properties>
     </rule>
 
-    <!-- Excessive Parameter List: fail if > 4 parameters (minimum=5 means 5+ triggers violation) -->
+    <!-- Excessive Parameter List: fail if > 4 parameters. Confirmed empirically
+         2026-09-06 that this rule's `minimum` property is a strictly-greater-than
+         threshold, not a minimum-to-trigger — with minimum=5, a 5-parameter method
+         passed and only 6+ failed, which is why this was previously (wrongly) set
+         to 5. minimum=4 is what actually makes 5 the first value that fails. -->
     <rule ref="category/java/design.xml/ExcessiveParameterList">
         <properties>
-            <property name="minimum" value="5"/>
+            <property name="minimum" value="4"/>
         </properties>
     </rule>
 
