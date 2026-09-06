@@ -20,7 +20,6 @@ import com.swiftfaze.veil.ui.widget.PopupWidget;
 import com.swiftfaze.veil.ui.widget.RadioGroupWidget;
 import com.swiftfaze.veil.ui.widget.SliderWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
-import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -40,36 +39,17 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Cucumber's default object factory constructs one instance of this class per
+ * scenario, so every field below already starts at its declared value — no
+ * manual reset hook is needed, and none of this state can leak between
+ * scenarios. (A previous {@code @Before} here nulled each field by hand and
+ * documented a deliberate carve-out for the class-sandbox fields; both were
+ * inert, and the carve-out described a cross-scenario dependency that cannot
+ * occur.) If step-class state ever does need sharing, add cucumber-picocontainer
+ * deliberately rather than reintroducing a reset hook.
+ */
 public class UiComponentFrameworkSteps {
-
-    @Before
-    public void beforeScenario() {
-        // Clear widget fields at the start of each scenario to prevent cross-scenario pollution
-        // But leave classPanel, classModel, classNames alone since they're used by class sandbox tests
-        listWidget = null;
-        buttonWidget = null;
-        selectedItem = null;
-        tableWidget = null;
-        radioGroupWidget = null;
-        sliderWidget = null;
-        titleScreenPanel = null;
-        lastMenuSelection = null;
-        settingsScreenPanel = null;
-        keybindsPanel = null;
-        confirmedTableRows.clear();
-        confirmedItem = null;
-        actionInvoked = false;
-        listItems = null;
-        dataSourceItems = null;
-        lastKeyCode = 0;
-        hintBar = new ControlsHintBarWidget();
-        inventoryPanel = null;
-        codexPanel = null;
-        tempDir = null;
-        settingsStore = null;
-        lastWindowMode = null;
-    }
-
 
     private ListWidget<String> listWidget;
     private ButtonWidget buttonWidget;
@@ -87,7 +67,7 @@ public class UiComponentFrameworkSteps {
     private String lastMenuSelection;
     private SettingsScreenPanel settingsScreenPanel;
     private SettingsKeybindsPanel keybindsPanel;
-    private ControlsHintBarWidget hintBar;
+    private ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
     private InventoryPanel inventoryPanel;
     private CodexPanel codexPanel;
 

@@ -8,6 +8,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SettingsRepositoryTest {
 
@@ -148,9 +149,8 @@ class SettingsRepositoryTest {
 
         Path settingsFile = tempDir.resolve("settings.json");
         String saved = Files.readString(settingsFile);
-        assertNotNull(saved);
-        assert saved.contains("\"brightness\": 8");
-        assert saved.contains("\"volume\": 2");
+        assertTrue(saved.contains("\"brightness\": 8"), saved);
+        assertTrue(saved.contains("\"volume\": 2"), saved);
     }
 
     @Test

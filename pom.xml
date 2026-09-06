@@ -181,12 +181,21 @@
                     </dependency>
                 </dependencies>
                 <configuration>
+                    <!-- Mutation testing is the check on the unit tests, which are not
+                         human-reviewed (.claude/workflow.md Step 6). Anything with unit
+                         tests but no PIT target is therefore unchecked: line coverage
+                         alone is satisfiable with assertion-free tests, which is exactly
+                         what happened to ui/game/config under the 85% JaCoCo gate. Keep
+                         this list in step with the classes that have real logic; the
+                         pure layout/wiring classes are excluded below instead. -->
                     <targetClasses>
                         <param>com.swiftfaze.veil.Camera</param>
                         <param>com.swiftfaze.veil.world.*</param>
                         <param>com.swiftfaze.veil.entities.*</param>
                         <param>com.swiftfaze.veil.mods.*</param>
-                        <param>com.swiftfaze.veil.ui.InventoryPanel</param>
+                        <param>com.swiftfaze.veil.ui.*</param>
+                        <param>com.swiftfaze.veil.game.*</param>
+                        <param>com.swiftfaze.veil.config.*</param>
                         <param>com.swiftfaze.veil.input.Keybindings</param>
                         <param>com.swiftfaze.veil.sandbox.ClassSandboxModel</param>
                         <param>com.swiftfaze.veil.sandbox.ClassSandboxPanel</param>
@@ -197,6 +206,21 @@
                         <param>com.swiftfaze.veil.sandbox.PlayerSandboxProvider</param>
                         <param>com.swiftfaze.veil.sandbox.PlayerDetailPanel</param>
                     </targetClasses>
+                    <!-- Same pure layout/wiring classes the PMD and JaCoCo exclusion
+                         lists below carry, for the same reason: no branching logic to
+                         mutate, so they would only report a wall of untested mutants.
+                         InventoryPanel is deliberately NOT here — JaCoCo excludes it but
+                         it has real logic and a PIT target predating this list. -->
+                    <excludedClasses>
+                        <param>com.swiftfaze.veil.ui.widget.ButtonWidget</param>
+                        <param>com.swiftfaze.veil.ui.widget.FocusManager</param>
+                        <param>com.swiftfaze.veil.ui.widget.TerminalScrollBarUI</param>
+                        <param>com.swiftfaze.veil.ui.widget.Widget</param>
+                        <param>com.swiftfaze.veil.ui.GameWindow</param>
+                        <param>com.swiftfaze.veil.ui.ResetConfirmationPopup</param>
+                        <param>com.swiftfaze.veil.ui.SettingsWindow</param>
+                        <param>com.swiftfaze.veil.game.GameListener</param>
+                    </excludedClasses>
                     <targetTests>
                         <param>com.swiftfaze.veil.*</param>
                     </targetTests>

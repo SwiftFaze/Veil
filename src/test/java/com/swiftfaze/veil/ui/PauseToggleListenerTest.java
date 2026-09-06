@@ -3,7 +3,9 @@ package com.swiftfaze.veil.ui;
 import com.swiftfaze.veil.game.GamePanel;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PauseToggleListenerTest {
 
@@ -47,6 +49,6 @@ class PauseToggleListenerTest {
         PauseMenuPopup pauseMenuPopup = new PauseMenuPopup();
         PauseToggleListener listener = new PauseToggleListener(gamePanel, pauseMenuPopup);
 
-        listener.updatePlayer(null);
+        assertDoesNotThrow(() -> listener.updatePlayer(null));
     }
 }
