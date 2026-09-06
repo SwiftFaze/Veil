@@ -3,7 +3,8 @@ package com.swiftfaze.veil.ui;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class TitleScreenPanelTest {
 
@@ -14,11 +15,24 @@ class TitleScreenPanelTest {
     }
 
     @Test
-    void menuCallbackExecutes() {
+    void confirmingNotifiesTheCallbackWithTheHighlightedItem() {
         String[] selectedItem = {null};
         TitleScreenPanel panel = new TitleScreenPanel(item -> selectedItem[0] = item, new ControlsHintBarWidget());
-        // The callback should be executable
-        assertNull(selectedItem[0]);
+
+        panel.confirm();
+
+        assertEquals("Continue", selectedItem[0]);
+    }
+
+    @Test
+    void confirmingAfterMovingDownNotifiesTheCallbackWithTheNextItem() {
+        String[] selectedItem = {null};
+        TitleScreenPanel panel = new TitleScreenPanel(item -> selectedItem[0] = item, new ControlsHintBarWidget());
+
+        panel.moveDown();
+        panel.confirm();
+
+        assertEquals("New", selectedItem[0]);
     }
 
     @Test
