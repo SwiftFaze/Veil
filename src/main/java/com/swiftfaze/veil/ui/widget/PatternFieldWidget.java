@@ -322,6 +322,7 @@ public class PatternFieldWidget extends Widget {
         }
 
         @Override
+        @SuppressWarnings("PMD.ExcessiveParameterList") // Required by javax.swing.text.DocumentFilter's replace() signature
         public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
                 throws BadLocationException {
             super.replace(fb, offset, length, filtered(text), attrs);

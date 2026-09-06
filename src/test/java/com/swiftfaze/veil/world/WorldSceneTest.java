@@ -1,10 +1,12 @@
 package com.swiftfaze.veil.world;
 
+import com.swiftfaze.veil.Camera;
 import com.swiftfaze.veil.entities.buildings.Building;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -62,7 +64,7 @@ class WorldSceneTest {
     @Test
     void getTileReturnsActualTileInBounds() {
         WorldScene scene = sceneOf(5, 5);
-        scene.fillRegion(2, 2, 1, 1, STONE);
+        scene.fillRegion(new Rectangle(2, 2, 1, 1), STONE);
 
         assertEquals(STONE, scene.getTile(2, 2));
     }
@@ -88,10 +90,10 @@ class WorldSceneTest {
     @Test
     void renderDrawsNonEmptyTilesWithoutThrowing() {
         WorldScene scene = sceneOf(5, 5);
-        scene.fillRegion(1, 1, 1, 1, GRASS);
+        scene.fillRegion(new Rectangle(1, 1, 1, 1), GRASS);
         Graphics2D g2d = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB).createGraphics();
 
-        assertDoesNotThrow(() -> scene.render(g2d, 15, 15, 0, 0));
+        assertDoesNotThrow(() -> scene.render(g2d, 15, 15, new Camera(0, 0)));
     }
 
     @Test
@@ -99,7 +101,7 @@ class WorldSceneTest {
         WorldScene scene = sceneOf(5, 5);
         Graphics2D g2d = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB).createGraphics();
 
-        assertDoesNotThrow(() -> scene.renderWorld(g2d, 15, 15, 0, 0));
+        assertDoesNotThrow(() -> scene.renderWorld(g2d, 15, 15, new Camera(0, 0)));
     }
 
     @Test
@@ -137,7 +139,7 @@ class WorldSceneTest {
     @Test
     void placeBuildingOverwritesTilesAlreadyInTheScene() {
         WorldScene scene = sceneOf(10, 10);
-        scene.fillRegion(6, 6, 1, 1, WATER);
+        scene.fillRegion(new Rectangle(6, 6, 1, 1), WATER);
         Building building = new Building(new Tile[][]{{WALL}});
         building.setWorldX(6);
         building.setWorldY(6);

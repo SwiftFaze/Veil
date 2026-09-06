@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.entities.player;
 
+import com.swiftfaze.veil.Camera;
 import com.swiftfaze.veil.DrawableAsciiEntity;
 import com.swiftfaze.veil.world.WorldScene;
 
@@ -79,11 +80,11 @@ public class Player implements DrawableAsciiEntity {
     }
 
     @Override
-    public void render(Graphics2D g2d, int tileWidth, int tileHeight, int cameraX, int cameraY) {
+    public void render(Graphics2D g2d, int tileWidth, int tileHeight, Camera camera) {
         g2d.setFont(font);
         g2d.setColor(color);
-        int screenX = (x - cameraX) * tileWidth;
-        int screenY = (y - cameraY) * tileHeight + tileHeight;
+        int screenX = (x - camera.getX()) * tileWidth;
+        int screenY = (y - camera.getY()) * tileHeight + tileHeight;
         g2d.drawString(String.valueOf(symbol), screenX, screenY);
     }
 }

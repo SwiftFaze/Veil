@@ -13,6 +13,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -49,12 +50,12 @@ public class WorldSingleFloorRenderingSteps {
 
     @Given("tile \\({int}, {int}) is walkable")
     public void tileIsWalkable(int x, int y) {
-        scene.fillRegion(x, y, 1, 1, GRASS);
+        scene.fillRegion(new Rectangle(x, y, 1, 1), GRASS);
     }
 
     @Given("tile \\({int}, {int}) is not walkable")
     public void tileIsNotWalkable(int x, int y) {
-        scene.fillRegion(x, y, 1, 1, WATER);
+        scene.fillRegion(new Rectangle(x, y, 1, 1), WATER);
     }
 
     @When("the player moves up")

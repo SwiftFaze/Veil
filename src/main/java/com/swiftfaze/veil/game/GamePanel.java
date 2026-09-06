@@ -120,25 +120,13 @@ public class GamePanel extends JPanel {
         camera.resizeViewport(getWidth() / TILE_WIDTH, getHeight() / TILE_HEIGHT);
         camera.centerOn(player.getX(), player.getY());
 
-        scene.renderWorld(
-                g2d,
-                TILE_WIDTH,
-                TILE_HEIGHT,
-                camera.getX(),
-                camera.getY()
-        );
+        scene.renderWorld(g2d, TILE_WIDTH, TILE_HEIGHT, camera);
 
         for (Positionable entity : entitiesToDraw) {
             if (entity == scene) continue;
 
             if (entity instanceof DrawableAsciiEntity ascii) {
-                ascii.render(
-                        g2d,
-                        TILE_WIDTH,
-                        TILE_HEIGHT,
-                        camera.getX(),
-                        camera.getY()
-                );
+                ascii.render(g2d, TILE_WIDTH, TILE_HEIGHT, camera);
             }
         }
     }
