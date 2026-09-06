@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.17](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.16...v0.5.0-beta.17) (2026-09-06)
+
+
+### Features
+
+* live in-game dev console for editing the running player's stats ([#168](https://github.com/SwiftFaze/Veil/issues/168)) ([149f688](https://github.com/SwiftFaze/Veil/commit/149f6889df8cb672d4bf51b81309ec8171177d45))
+
 ## [0.5.0-beta.16](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.15...v0.5.0-beta.16) (2026-09-05)
 
 
