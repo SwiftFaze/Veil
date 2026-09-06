@@ -98,6 +98,27 @@ class GamePanelTest {
         assertEquals(startY - 1, panel.getPlayer().getY());
     }
 
+    @Test
+    void toggleDevConsoleActionInvokesListener() {
+        GamePanel panel = new GamePanel();
+        boolean[] listenerCalled = {false};
+        GameListener listener = new GameListener() {
+            @Override
+            public void updatePlayer(Player player) {
+            }
+
+            @Override
+            public void toggleDevConsole() {
+                listenerCalled[0] = true;
+            }
+        };
+        panel.addGameListener(listener);
+
+        fireAction(panel, Keybindings.ACTION_TOGGLE_DEV_CONSOLE);
+
+        assertTrue(listenerCalled[0]);
+    }
+
     private void fireAction(GamePanel panel, String actionName) {
         Action action = panel.getActionMap().get(actionName);
         action.actionPerformed(new ActionEvent(panel, ActionEvent.ACTION_PERFORMED, actionName));

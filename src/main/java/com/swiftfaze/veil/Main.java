@@ -3,6 +3,7 @@ package com.swiftfaze.veil;
 import com.swiftfaze.veil.config.SettingsConfig;
 import com.swiftfaze.veil.config.SettingsStore;
 import com.swiftfaze.veil.game.GamePanel;
+import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.mods.WidgetColorTheme;
@@ -21,6 +22,11 @@ import com.swiftfaze.veil.ui.TitleScreenPanel;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
 import com.swiftfaze.veil.ui.widget.FocusManager;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
+import com.swiftfaze.veil.sandbox.DevConsolePanel;
+import com.swiftfaze.veil.sandbox.DevConsoleModel;
+import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
+import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
+import com.swiftfaze.veil.game.GameListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +46,7 @@ public class Main {
     private static final List<ControlsHintBarWidget.Hint> GAME_HINTS = List.of(
             new ControlsHintBarWidget.Hint("i", "Inventory"),
             new ControlsHintBarWidget.Hint("x", "Codex"));
+    private static final boolean DEV_CONSOLE_ENABLED = Boolean.getBoolean("veil.devConsole");
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Main::loadGame);
@@ -56,6 +63,7 @@ public class Main {
         GamePanel gamePanel = buildGameCard(cardPanel, cards, hintBar);
         buildUIScreens(cardLayout, cardPanel, cards, gamePanel, hintBar);
         wirePauseMenuNavigation(cards, cardLayout, cardPanel, gamePanel);
+        wireDevConsole(gamePanel);
         configureAndShowFrame(frame, cardPanel, cardLayout, hintBar, cards);
     }
 
@@ -168,6 +176,43 @@ public class Main {
             } else if (PauseMenuPopup.EXIT_TO_MAIN_MENU.equals(item)) {
                 gamePanel.resetState();
                 navigateTo(cardLayout, cardPanel, cards, "title");
+            }
+        });
+    }
+
+    private static void wireDevConsole(GamePanel gamePanel) {
+        if (!DEV_CONSOLE_ENABLED) {
+            return;
+        }
+
+        DevConsoleModel model = new DevConsoleModel(
+            List.of(new ClassSandboxProvider(), new PlayerSandboxProvider(gamePanel::getPlayer))
+        );
+        DevConsolePanel console = new DevConsolePanel(model);
+
+        JFrame consoleFrame = new JFrame("Veil - Dev Console");
+        consoleFrame.add(console);
+        consoleFrame.pack();
+        consoleFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        consoleFrame.setLocationRelativeTo(null);
+
+        gamePanel.addGameListener(new GameListener() {
+            @Override
+            public void toggleDevConsole() {
+                consoleFrame.setVisible(!consoleFrame.isVisible());
+                if (consoleFrame.isVisible()) {
+                    // toFront() first: requestFocus() alone can be silently denied by the OS's
+                    // focus-stealing prevention, leaving the game window (which still has real
+                    // input focus from the keypress that opened this) swallowing every
+                    // subsequent key press instead of the console.
+                    consoleFrame.toFront();
+                    consoleFrame.requestFocus();
+                    console.requestFocusInWindow();
+                }
+            }
+
+            @Override
+            public void updatePlayer(Player player) {
             }
         });
     }
