@@ -224,6 +224,13 @@
                     <targetTests>
                         <param>com.swiftfaze.veil.*</param>
                     </targetTests>
+                    <!-- Widening targetClasses above multiplied the mutant count, and
+                         every mutant re-runs the matching tests - which for this repo
+                         includes Cucumber scenarios, the slowest tests here. Single-
+                         threaded (PIT's default) that ran to hours; this keeps a full
+                         run practical. Step 6 is a manual command, not a CI gate, so
+                         this trades local CPU for wall-clock and nothing else. -->
+                    <threads>4</threads>
                     <outputFormats>
                         <param>HTML</param>
                     </outputFormats>
