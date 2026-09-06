@@ -9,6 +9,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +59,7 @@ public class WorldScenePopulationAndBuildingPlacementSteps {
 
     @Given("tile \\({int}, {int}) is water")
     public void tileIsWater(int x, int y) {
-        scene.fillRegion(x, y, 1, 1, WATER);
+        scene.fillRegion(new Rectangle(x, y, 1, 1), WATER);
     }
 
     @Given("a building with the following blueprint:")

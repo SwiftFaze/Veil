@@ -136,10 +136,15 @@ per-installation config, not per-playthrough save data, different lifecycle).
 This is phase 5 of the data-driven-mod-content initiative.
 
 **Rendering contracts**: `Positionable` (x/y) → `DrawableAsciiEntity` (adds
-glyph/color/`render`) is what `GamePanel` iterates over in `entitiesToDraw`
-to draw non-scene entities (currently just `Player`); `WorldScene` itself
-also implements `DrawableAsciiEntity` but is rendered specially (via
-`renderWorld`), not through the generic entity loop. The same
+glyph/color/`render(Graphics2D, int tileWidth, int tileHeight, Camera)`) is
+what `GamePanel` iterates over in `entitiesToDraw` to draw non-scene entities
+(currently just `Player`); `WorldScene` itself also implements
+`DrawableAsciiEntity` but is rendered specially (via `renderWorld`), not
+through the generic entity loop. `render` takes the existing `Camera` object
+rather than separate camera-X/Y ints — issue #173 changed this signature (the
+only case so far of a parameter-count fix reshaping a project-owned public
+interface instead of decomposing a free-standing method or suppressing a
+JDK-interface override, see `docs/testing.md`'s "Code quality gates"). The same
 self-describing principle applies to list/table/detail Swing UI (Codex,
 Inventory, and future panels like a player stats screen) — see
 `docs/components.md` for that contract.

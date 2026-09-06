@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.world;
 
+import com.swiftfaze.veil.Camera;
 import com.swiftfaze.veil.DrawableAsciiEntity;
 import com.swiftfaze.veil.entities.buildings.Building;
 
@@ -25,9 +26,9 @@ public abstract class WorldScene implements DrawableAsciiEntity {
         }
     }
 
-    public void fillRegion(int startX, int startY, int width, int height, Tile type) {
-        for (int x = startX; x < startX + width; x++) {
-            for (int y = startY; y < startY + height; y++) {
+    public void fillRegion(Rectangle region, Tile type) {
+        for (int x = region.x; x < region.x + region.width; x++) {
+            for (int y = region.y; y < region.y + region.height; y++) {
                 if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
                     tiles[x][y] = type;
                 }
@@ -46,10 +47,10 @@ public abstract class WorldScene implements DrawableAsciiEntity {
     }
 
     public void createBorder(int width, int height, Tile type) {
-        fillRegion(0, 0, width, 1, type);
-        fillRegion(0, 0, 1, height, type);
-        fillRegion(0, height - 1, width, 1, type);
-        fillRegion(width - 1, 0, 1, height, type);
+        fillRegion(new Rectangle(0, 0, width, 1), type);
+        fillRegion(new Rectangle(0, 0, 1, height), type);
+        fillRegion(new Rectangle(0, height - 1, width, 1), type);
+        fillRegion(new Rectangle(width - 1, 0, 1, height), type);
     }
 
     public boolean isWalkable(int x, int y) {
@@ -96,15 +97,11 @@ public abstract class WorldScene implements DrawableAsciiEntity {
     }
 
     @Override
-    public void render(Graphics2D g2d, int tileWidth, int tileHeight, int cameraX, int cameraY) {
-        renderWorld(g2d, tileWidth, tileHeight, cameraX, cameraY);
+    public void render(Graphics2D g2d, int tileWidth, int tileHeight, Camera camera) {
+        renderWorld(g2d, tileWidth, tileHeight, camera);
     }
 
-    public void renderWorld(Graphics2D g2d,
-                             int tileWidth,
-                             int tileHeight,
-                             int cameraX,
-                             int cameraY) {
+    public void renderWorld(Graphics2D g2d, int tileWidth, int tileHeight, Camera camera) {
         g2d.setFont(font);
 
         for (int x = 0; x < width; x++) {
@@ -114,8 +111,8 @@ public abstract class WorldScene implements DrawableAsciiEntity {
                 if (type == null)
                     continue;
 
-                int screenX = (x - cameraX) * tileWidth;
-                int screenY = (y - cameraY) * tileHeight + tileHeight;
+                int screenX = (x - camera.getX()) * tileWidth;
+                int screenY = (y - camera.getY()) * tileHeight + tileHeight;
 
                 g2d.setColor(type.getColor());
                 g2d.drawString(

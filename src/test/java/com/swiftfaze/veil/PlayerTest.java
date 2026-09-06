@@ -1,5 +1,6 @@
 package com.swiftfaze.veil;
 
+import com.swiftfaze.veil.Camera;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.world.Tile;
 import com.swiftfaze.veil.world.WorldScene;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -51,7 +53,7 @@ class PlayerTest {
     void movingIntoANonWalkableTileDoesNotMovePlayer() {
         WorldScene scene = sceneOf(10, 10);
         scene.fillAll(GRASS);
-        scene.fillRegion(6, 5, 1, 1, WATER);
+        scene.fillRegion(new Rectangle(6, 5, 1, 1), WATER);
         Player player = new Player(5, 5);
 
         player.moveRight(scene);
@@ -104,6 +106,6 @@ class PlayerTest {
         Player player = new Player(3, 3);
         Graphics2D g2d = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB).createGraphics();
 
-        assertDoesNotThrow(() -> player.render(g2d, 15, 15, 0, 0));
+        assertDoesNotThrow(() -> player.render(g2d, 15, 15, new Camera(0, 0)));
     }
 }
