@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.18](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.17...v0.5.0-beta.18) (2026-09-06)
+
+
+### Bug Fixes
+
+* tighten PMD parameter-count gate to 4 and refactor violating methods ([#181](https://github.com/SwiftFaze/Veil/issues/181)) ([17d7b84](https://github.com/SwiftFaze/Veil/commit/17d7b842e84fdb9df7b76a4b69b4bb165f434e84)), closes [#173](https://github.com/SwiftFaze/Veil/issues/173)
+
 ## [0.5.0-beta.17](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.16...v0.5.0-beta.17) (2026-09-06)
 
 

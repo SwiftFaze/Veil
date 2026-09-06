@@ -34,6 +34,9 @@ public final class ModLoader {
     ) {
     }
 
+    private record RegistryTarget<T>(Map<String, T> registry, Map<String, String> owningModById) {
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(ModLoader.class);
 
     private ModLoader() {
@@ -60,13 +63,17 @@ public final class ModLoader {
         Map<String, String> owningQuestModById = new LinkedHashMap<>();
         Map<String, WidgetColorTheme> themesById = new LinkedHashMap<>();
         Map<String, String> owningThemeModById = new LinkedHashMap<>();
+        RegistryTarget<Building> buildings = new RegistryTarget<>(buildingsById, owningBuildingModById);
+        RegistryTarget<PlayerClass> classes = new RegistryTarget<>(classesById, owningClassModById);
+        RegistryTarget<Item> items = new RegistryTarget<>(itemsById, owningItemModById);
+        RegistryTarget<Quest> quests = new RegistryTarget<>(questsById, owningQuestModById);
         List<String> modLoadOrder = new ArrayList<>();
         for (ModManifest manifest : loadOrder) {
             modLoadOrder.add(manifest.id());
-            loadBuildings(modsRoot, manifest, tilesById, buildingsById, owningBuildingModById);
-            loadClasses(modsRoot, manifest, validStatNames, classesById, owningClassModById);
-            loadItems(modsRoot, manifest, validStatNames, itemsById, owningItemModById);
-            loadQuests(modsRoot, manifest, itemsById, questsById, owningQuestModById);
+            loadBuildings(modsRoot, manifest, tilesById, buildings);
+            loadClasses(modsRoot, manifest, validStatNames, classes);
+            loadItems(modsRoot, manifest, validStatNames, items);
+            loadQuests(modsRoot, manifest, itemsById, quests);
             loadThemes(modsRoot, manifest, themesById, owningThemeModById);
         }
 
@@ -188,8 +195,7 @@ public final class ModLoader {
 
     private static void loadBuildings(Path modsRoot, ModManifest manifest,
                                        Map<String, Tile> tilesById,
-                                       Map<String, Building> buildingsById,
-                                       Map<String, String> owningModById) {
+                                       RegistryTarget<Building> buildings) {
         Path buildingsDir = modsRoot.resolve(manifest.id()).resolve("buildings");
         if (!Files.isDirectory(buildingsDir)) {
             return;
@@ -197,7 +203,7 @@ public final class ModLoader {
 
         try (DirectoryStream<Path> files = Files.newDirectoryStream(buildingsDir, "*.json")) {
             for (Path file : files) {
-                loadBuilding(file, manifest.id(), tilesById, buildingsById, owningModById);
+                loadBuilding(file, manifest.id(), tilesById, buildings);
             }
         } catch (IOException e) {
             throw new ModLoadException("Failed to scan buildings for mod: " + manifest.id(), e);
@@ -206,14 +212,13 @@ public final class ModLoader {
 
     private static void loadBuilding(Path file, String modId,
                                       Map<String, Tile> tilesById,
-                                      Map<String, Building> buildingsById,
-                                      Map<String, String> owningModById) {
+                                      RegistryTarget<Building> buildings) {
         try (Reader reader = Files.newBufferedReader(file)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             String id = json.get("id").getAsString();
             Tile[][] blueprint = readBlueprint(json.getAsJsonArray("tiles"), tilesById, id);
 
-            RegistrationContext<Building> buildingContext = new RegistrationContext<>(buildingsById, owningModById, json.has("overrides"), "Building");
+            RegistrationContext<Building> buildingContext = new RegistrationContext<>(buildings.registry(), buildings.owningModById(), json.has("overrides"), "Building");
             registerWithCollisionCheck(id, new Building(blueprint), modId, buildingContext);
         } catch (ModLoadException e) {
             throw e;
@@ -284,8 +289,7 @@ public final class ModLoader {
 
     private static void loadClasses(Path modsRoot, ModManifest manifest,
                                      Set<String> validStatNames,
-                                     Map<String, PlayerClass> classesById,
-                                     Map<String, String> owningModById) {
+                                     RegistryTarget<PlayerClass> classes) {
         Path classesDir = modsRoot.resolve(manifest.id()).resolve("classes");
         if (!Files.isDirectory(classesDir)) {
             return;
@@ -293,7 +297,7 @@ public final class ModLoader {
 
         try (DirectoryStream<Path> files = Files.newDirectoryStream(classesDir, "*.json")) {
             for (Path file : files) {
-                loadClass(file, manifest.id(), validStatNames, classesById, owningModById);
+                loadClass(file, manifest.id(), validStatNames, classes);
             }
         } catch (IOException e) {
             throw new ModLoadException("Failed to scan classes for mod: " + manifest.id(), e);
@@ -302,14 +306,13 @@ public final class ModLoader {
 
     private static void loadClass(Path file, String modId,
                                    Set<String> validStatNames,
-                                   Map<String, PlayerClass> classesById,
-                                   Map<String, String> owningModById) {
+                                   RegistryTarget<PlayerClass> classes) {
         try (Reader reader = Files.newBufferedReader(file)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             String id = json.get("id").getAsString();
             String name = json.get("name").getAsString();
             Map<String, PlayerClass.StatCurve> statsByName = parseClassStats(json, id, validStatNames, file);
-            RegistrationContext<PlayerClass> classContext = new RegistrationContext<>(classesById, owningModById, json.has("overrides"), "PlayerClass");
+            RegistrationContext<PlayerClass> classContext = new RegistrationContext<>(classes.registry(), classes.owningModById(), json.has("overrides"), "PlayerClass");
             registerWithCollisionCheck(id, new PlayerClass(id, name, statsByName), modId, classContext);
         } catch (ModLoadException e) {
             throw e;
@@ -337,8 +340,7 @@ public final class ModLoader {
 
     private static void loadItems(Path modsRoot, ModManifest manifest,
                                    Set<String> validStatNames,
-                                   Map<String, Item> itemsById,
-                                   Map<String, String> owningModById) {
+                                   RegistryTarget<Item> items) {
         Path itemsDir = modsRoot.resolve(manifest.id()).resolve("items");
         if (!Files.isDirectory(itemsDir)) {
             return;
@@ -346,7 +348,7 @@ public final class ModLoader {
 
         try (DirectoryStream<Path> files = Files.newDirectoryStream(itemsDir, "*.json")) {
             for (Path file : files) {
-                loadItem(file, manifest.id(), validStatNames, itemsById, owningModById);
+                loadItem(file, manifest.id(), validStatNames, items);
             }
         } catch (IOException e) {
             throw new ModLoadException("Failed to scan items for mod: " + manifest.id(), e);
@@ -355,8 +357,7 @@ public final class ModLoader {
 
     private static void loadItem(Path file, String modId,
                                   Set<String> validStatNames,
-                                  Map<String, Item> itemsById,
-                                  Map<String, String> owningModById) {
+                                  RegistryTarget<Item> items) {
         try (Reader reader = Files.newBufferedReader(file)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             String id = json.get("id").getAsString();
@@ -367,7 +368,7 @@ public final class ModLoader {
             Item.BaseDamage baseDamage = parseItemBaseDamage(json);
             List<Item.Effect> effects = parseItemEffects(json, id, validStatNames, file);
             Item.ItemAttributes attributes = new Item.ItemAttributes(glyph, type, slot, baseDamage, effects);
-            RegistrationContext<Item> itemContext = new RegistrationContext<>(itemsById, owningModById, json.has("overrides"), "Item");
+            RegistrationContext<Item> itemContext = new RegistrationContext<>(items.registry(), items.owningModById(), json.has("overrides"), "Item");
             registerWithCollisionCheck(id, new Item(id, name, attributes), modId, itemContext);
         } catch (ModLoadException e) {
             throw e;
@@ -411,8 +412,7 @@ public final class ModLoader {
 
     private static void loadQuests(Path modsRoot, ModManifest manifest,
                                     Map<String, Item> itemsById,
-                                    Map<String, Quest> questsById,
-                                    Map<String, String> owningModById) {
+                                    RegistryTarget<Quest> quests) {
         Path questsDir = modsRoot.resolve(manifest.id()).resolve("quests");
         if (!Files.isDirectory(questsDir)) {
             return;
@@ -420,7 +420,7 @@ public final class ModLoader {
 
         try (DirectoryStream<Path> files = Files.newDirectoryStream(questsDir, "*.json")) {
             for (Path file : files) {
-                loadQuest(file, manifest.id(), itemsById, questsById, owningModById);
+                loadQuest(file, manifest.id(), itemsById, quests);
             }
         } catch (IOException e) {
             throw new ModLoadException("Failed to scan quests for mod: " + manifest.id(), e);
@@ -429,8 +429,7 @@ public final class ModLoader {
 
     private static void loadQuest(Path file, String modId,
                                    Map<String, Item> itemsById,
-                                   Map<String, Quest> questsById,
-                                   Map<String, String> owningModById) {
+                                   RegistryTarget<Quest> quests) {
         try (Reader reader = Files.newBufferedReader(file)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             String id = json.get("id").getAsString();
@@ -438,7 +437,7 @@ public final class ModLoader {
             Quest.Objective objective = readQuestObjective(json.getAsJsonObject("objective"), id, file);
             List<Quest.Reward> rewards = readQuestRewards(json, id, file, itemsById);
 
-            RegistrationContext<Quest> questContext = new RegistrationContext<>(questsById, owningModById, json.has("overrides"), "Quest");
+            RegistrationContext<Quest> questContext = new RegistrationContext<>(quests.registry(), quests.owningModById(), json.has("overrides"), "Quest");
             registerWithCollisionCheck(id, new Quest(id, name, objective, rewards), modId, questContext);
         } catch (ModLoadException e) {
             throw e;
