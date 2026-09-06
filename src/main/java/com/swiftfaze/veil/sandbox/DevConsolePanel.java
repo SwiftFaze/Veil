@@ -111,6 +111,16 @@ public class DevConsolePanel extends JPanel {
         return providerContainer.isVisible();
     }
 
+    /**
+     * The currently-opened provider's own panel (e.g. a {@code ClassDetailPanel} or
+     * {@code PlayerDetailPanel}), or {@code null} if no result is open. Public so tests can
+     * reach the concrete panel directly instead of walking this class's internal component
+     * tree (which is private layout detail, not a stable path to depend on).
+     */
+    public java.awt.Component getOpenedProviderPanel() {
+        return providerContainer.getComponentCount() > 0 ? providerContainer.getComponent(0) : null;
+    }
+
     private JPanel buildSearchView() {
         JPanel searchView = new JPanel();
         searchView.setBackground(WidgetTheme.BACKGROUND);

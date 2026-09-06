@@ -49,6 +49,14 @@ Feature: Sandbox dev-console framework
   #     simulation, or quest triggering - tracked in issue #27.
   #   - Any in-game hotkey/overlay access - stays a separate dev-only entry
   #     point, never reachable from a running game session.
+  #     SUPERSEDED 2026-09-06 by sandbox-spawn-edit.feature: issue #27's
+  #     "Player" provider needs a live reference to the actual running
+  #     Player, so a dev-only F1 keybind now opens this same dev-console
+  #     framework from inside Main.java, alongside the running game. This
+  #     provider framework itself is unchanged; only its reachability from
+  #     a running game session changed. It still never reaches the
+  #     packaged/jpackage build - see class-stats-sandbox.feature's
+  #     Non-goals for that half.
   #   - Persisting sandbox state or interacting with save files.
   #
   # Related:

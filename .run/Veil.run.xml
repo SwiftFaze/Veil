@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Veil" type="MavenRunConfiguration" factoryName="Maven" nameIsGenerated="true">
+  <configuration default="false" name="Veil" type="MavenRunConfiguration" factoryName="Maven">
     <MavenSettings>
       <option name="myGeneralSettings" />
       <option name="myRunnerSettings" />
@@ -11,7 +11,9 @@
           </option>
           <option name="goals">
             <list>
+              <option value="compile" />
               <option value="exec:java" />
+              <option value="-Dveil.devConsole=true" />
             </list>
           </option>
           <option name="multimoduleDir" />

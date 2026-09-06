@@ -11,6 +11,9 @@ public interface GameListener {
     default void toggleCodex() {
     }
 
+    default void toggleDevConsole() {
+    }
+
     default void togglePause() {
     }
 }

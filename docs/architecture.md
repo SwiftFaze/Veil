@@ -153,23 +153,45 @@ action-name constants; `GamePanel` registers one `Action` per named binding
 catch-all "notify after every keypress" path — an unbound key simply never
 invokes an `Action`.
 
-**Class/stats sandbox** (`sandbox/`): a dev-only stat inspector, not
-referenced from `Main.java` and not the packaged/jpackage build's entry
-point (`pom.xml`'s `main.class` stays `com.swiftfaze.veil.Main`). Run it
-explicitly: `mvn compile exec:java -Dexec.mainClass=com.swiftfaze.veil.sandbox.ClassSandbox`.
-`ClassSandboxModel` wraps `PlayerClassLoader.loadAll()` and exposes class
-names plus computed `Stats` per class (via `PlayerClass.applyBaseStats`, no
-duplicated formulas); `ClassSandboxPanel` (a plain `JPanel`, inlining the
-black-background/monospaced-label styling `TerminalPanel` used to provide
-before that shared base was removed — see `docs/screens.md`'s "UI shell"
-note) reuses
-`ui/widget/ListWidget` (wrap-around left on, the framework default) via
-its own Key Bindings wiring — Up/Down moves the selection and immediately
-refreshes the displayed attack power/defense/HP/mana, no separate confirm
-step. Editing a class's JSON and re-launching the
-sandbox picks up the change with no recompile, since `PlayerClassLoader`
-reads the resource fresh on every `ClassSandboxModel` construction — there
-is no static caching of loaded classes anywhere in this path.
+**Dev console framework** (`sandbox/DevConsole*.java`): a pluggable
+framework for dev-only inspectors. `DevConsolePanel` is a search-driven
+interface that filters a list of registered provider entries (each a
+namespaced name/category pair from `DevConsoleProvider.entries()`) and opens
+a detail panel when an entry is selected (via `DevConsoleProvider
+.createPanel(entryName)`). Multiple providers can register entries together
+— `ClassSandboxProvider` exposes every player class as a searchable entry
+opening `ClassDetailPanel`, and `PlayerSandboxProvider` (see below) exposes
+the running player as a single entry. The framework is wired into `Main.java`
+behind a dev-only system property gate: `mvn compile exec:java
+-Dveil.devConsole=true` enables the F1 keybind to toggle a floating dev
+console frame alongside the running game. The packaged/installer build does
+not include the property, so players never see it.
+
+**Class sandbox** (now part of the dev console): `ClassSandboxModel` wraps
+`PlayerClassLoader.loadAll()` and exposes class names plus computed `Stats`
+per class (via `PlayerClass.applyBaseStats`, no duplicated formulas);
+`ClassDetailPanel` (a `JPanel` using `HeaderWidget` + `TableWidget`) shows
+the selected class's stats via Up/Down navigation. Editing a class's JSON
+and re-launching the sandbox picks up the change with no recompile, since
+`PlayerClassLoader` reads the resource fresh on every `ClassSandboxModel`
+construction — there is no static caching of loaded classes anywhere in
+this path.
+
+**Player sandbox** (live in-game editor): `PlayerSandboxProvider` holds a
+`Supplier<Player>` (not a direct reference) to always read whichever player
+is currently running in the game. `PlayerDetailPanel` shows that player's
+editable stats (all ten base attributes, max/current HP/mana, and class) plus
+read-only derived stats (attack power, defense), using the same `TableWidget`
+row-navigation and Left/Right-to-adjust interaction pattern as
+`SettingsKeybindsPanel`. Editing a stat changes it on the live object
+immediately; the game's next frame sees the change. Cycling the Class field
+reapplies that class's level-0 base stats to the same player object
+(via `PlayerInfo.setPlayerClass`). Since `PlayerSandboxProvider` uses a
+supplier rather than holding a direct reference, it survives `GamePanel
+.resetState()` — when that method replaces the player object with a fresh
+one, the supplier returns the new object immediately, so edits stay attached
+to the live game player even across a "New Game" restart without restarting
+the dev console.
 
 **`GameConst`** centralizes tunable gameplay constants (window/tile
 dimensions, map size, player start position) — check here first before

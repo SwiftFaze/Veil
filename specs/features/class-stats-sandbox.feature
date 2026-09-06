@@ -25,6 +25,15 @@ Feature: Class/stats sandbox
   #     combat stats in gameplay yet, so there'd be nothing real to
   #     exercise.
   #   - Wiring the sandbox into Main.java or the packaged build.
+  #     PARTIALLY SUPERSEDED 2026-09-06 by sandbox-spawn-edit.feature: a
+  #     dev-only F1 keybind now opens the dev-console framework from
+  #     inside Main.java (issue #27's live "Player" provider needs a
+  #     reference to the actual running Player). This class-stats-sandbox
+  #     feature (ClassSandbox, the standalone entry point) is itself
+  #     unchanged and still not wired into Main.java. The "packaged build"
+  #     half of this Non-goal still holds in full: the dev-only keybind is
+  #     excluded from the jpackage/installer build, same as ClassSandbox
+  #     always was.
   #
   # Risks:
   #   - Accidentally including ClassSandbox as a launchable entry point in
