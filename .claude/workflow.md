@@ -40,11 +40,11 @@ gets built. Pay the approval latency only where being wrong is expensive.
       `mvn org.apache.maven.plugins:maven-pmd-plugin:check` and `:cpd-check`,
       fix every violation *in the code you touched*, rerun until those are
       clean. "Fix" means decompose, not `@SuppressWarnings`.
-      ⚠️ **PMD is currently red project-wide** — 17 pre-existing 5-parameter
-      methods (`Main`, `Player`, `ModLoader`, `PatternFieldWidget`,
-      `WorldScene`) fail the tightened gate, tracked in issue #173. Until that
-      lands, a full green run is not achievable: verify your own diff adds no
-      new violation and the count stays at 17. Do not add an 18th.
+      <!-- added 2026-09-06: develop can be red from pre-existing violations, so
+           "zero" is the wrong target; the durable rule is "no new ones". -->
+      `develop` may already be red from pre-existing violations, so a fully
+      green run is not always achievable: the bar is that **your diff adds
+      none** — compare the count in the failure message against `develop`'s.
     - **Respect the module dependency direction** — `ModuleDependencyTest`
       (ArchUnit) fails the build if engine code depends on
       `com.swiftfaze.veil.ui`, or a `ui.widget` class depends on a screen in
@@ -62,11 +62,9 @@ gets built. Pay the approval latency only where being wrong is expensive.
       itself; it does not replace the human playtest (`CLAUDE.md` Step 4.5).
 5. **Acceptance tests** (Haiku 4.5, same agent as Step 4) — wire the `.feature`
    file to the runner so it's executable, not documentation.
-    - **Check for duplicate step definitions before reporting done** — a
-      duplicate poisons Cucumber's whole glue registry and cascades into
-      unrelated feature files. Command and the safe-reuse pattern:
-      `docs/testing.md` § "Troubleshooting: cascading/flaky Cucumber failures".
-      Mandatory, not a debugging tip.
+      <!-- added 2026-09-06: the duplicate-step check that used to be a manual
+           grep here is now NoDuplicateStepDefinitionsTest, so the prose is gone.
+           Background on why duplicates cascade: docs/testing.md. -->
     - **If you touched a shared step-definitions file** (e.g.
       `UiComponentFrameworkSteps.java`, which backs several features), run
       `mvn clean verify` **twice** and require identical results. One green run
