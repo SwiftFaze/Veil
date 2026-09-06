@@ -7,7 +7,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SettingsKeybindsPanelTest {
 
@@ -15,30 +17,40 @@ class SettingsKeybindsPanelTest {
     void constructorInitializes(@TempDir Path tempDir) {
         SettingsStore store = new SettingsStore(tempDir);
         SettingsKeybindsPanel panel = new SettingsKeybindsPanel(screen -> {}, new ControlsHintBarWidget(), store);
-        assertNotNull(panel);
+
+        assertEquals("Move up", panel.getHighlightedActionName());
     }
 
     @Test
     void moveUpWorks(@TempDir Path tempDir) {
         SettingsStore store = new SettingsStore(tempDir);
         SettingsKeybindsPanel panel = new SettingsKeybindsPanel(screen -> {}, new ControlsHintBarWidget(), store);
+        panel.moveDown();
+        assertEquals("Move down", panel.getHighlightedActionName());
+
         panel.moveUp();
-        assertNotNull(panel);
+
+        assertEquals("Move up", panel.getHighlightedActionName());
     }
 
     @Test
     void moveDownWorks(@TempDir Path tempDir) {
         SettingsStore store = new SettingsStore(tempDir);
         SettingsKeybindsPanel panel = new SettingsKeybindsPanel(screen -> {}, new ControlsHintBarWidget(), store);
+
         panel.moveDown();
-        assertNotNull(panel);
+
+        assertEquals("Move down", panel.getHighlightedActionName());
     }
 
     @Test
     void confirmWorks(@TempDir Path tempDir) {
         SettingsStore store = new SettingsStore(tempDir);
         SettingsKeybindsPanel panel = new SettingsKeybindsPanel(screen -> {}, new ControlsHintBarWidget(), store);
+        assertFalse(panel.isPopupOpen());
+
         panel.confirm();
-        assertNotNull(panel);
+
+        assertTrue(panel.isPopupOpen());
     }
 }

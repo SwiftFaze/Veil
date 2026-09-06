@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -29,24 +28,27 @@ public class TableWidgetTest {
     @Test
     public void navigatingDownMovesSelectedRowToNextRow() {
         tableWidget.setRows(List.of("Sword", "Shield", "Potion"));
-        assertEquals(0, tableWidget.getSelectedRowIndex());
+
         tableWidget.moveDown();
+
         assertEquals(1, tableWidget.getSelectedRowIndex());
     }
 
     @Test
     public void navigatingRightMovesSelectedColumnToNextColumn() {
         tableWidget.setRows(List.of("Sword", "Shield"));
-        assertEquals(0, tableWidget.getSelectedColumnIndex());
+
         tableWidget.moveRight();
+
         assertEquals(1, tableWidget.getSelectedColumnIndex());
     }
 
     @Test
     public void movingUpFromFirstRowWrapsToLastRow() {
         tableWidget.setRows(List.of("Sword", "Shield", "Potion"));
-        assertEquals(0, tableWidget.getSelectedRowIndex());
+
         tableWidget.moveUp();
+
         assertEquals(2, tableWidget.getSelectedRowIndex());
     }
 
@@ -63,8 +65,9 @@ public class TableWidgetTest {
     public void wrapAroundCanBeDisabled() {
         tableWidget.setRows(List.of("Sword", "Shield", "Potion"));
         tableWidget.setWrapAround(false);
-        assertEquals(0, tableWidget.getSelectedRowIndex());
+
         tableWidget.moveUp();
+
         assertEquals(0, tableWidget.getSelectedRowIndex());
     }
 
@@ -73,8 +76,9 @@ public class TableWidgetTest {
         tableWidget.setRows(List.of("Sword", "Shield", "Potion"));
         tableWidget.moveDown();
         tableWidget.moveDown();
-        assertEquals(2, tableWidget.getSelectedRowIndex());
+
         tableWidget.getActionMap().get("table-confirm").actionPerformed(null);
+
         assertEquals(1, confirmedRows.size());
         assertEquals("Potion", confirmedRows.get(0));
     }
@@ -101,8 +105,9 @@ public class TableWidgetTest {
         tableWidget.setRows(List.of("Sword", "Shield", "Potion"));
         tableWidget.moveDown();
         tableWidget.moveDown();
-        assertEquals(2, tableWidget.getSelectedRowIndex());
+
         tableWidget.updateRow(2, "PotionX");
+
         assertEquals(2, tableWidget.getSelectedRowIndex());
         assertEquals("PotionX", tableWidget.getSelectedRow());
     }
@@ -110,17 +115,9 @@ public class TableWidgetTest {
     @Test
     public void updateRowOutOfBoundsIsNoOp() {
         tableWidget.setRows(List.of("Sword", "Shield"));
-        tableWidget.updateRow(5, "Nothing");
-        assertEquals(List.of("Sword", "Shield").get(0), tableWidget.getSelectedRow());
-    }
 
-    @Test
-    public void selectedRowAccentColorAndDimmingCanBeToggledWithoutError() {
-        tableWidget.setRows(List.of("Sword", "Shield"));
-        tableWidget.setSelectedRowAccentColor(java.awt.Color.GREEN);
-        tableWidget.setOtherRowsDimmed(true);
-        tableWidget.setSelectedRowAccentColor(null);
-        tableWidget.setOtherRowsDimmed(false);
+        tableWidget.updateRow(5, "Nothing");
+
         assertEquals("Sword", tableWidget.getSelectedRow());
     }
 

@@ -53,6 +53,21 @@ conventions so Maven can tell them apart automatically:
   diagnostic, or `component.dispatchEvent(new KeyEvent(...))` against the
   actual focus owner) rather than relying only on the `ActionMap`
   shortcut for every scenario.
+  - **This only works with a real, OS-focused window.** Confirmed
+    empirically (issue #175): a bare `dispatchEvent` against a component
+    with no real, visible, focused window does nothing —
+    `WHEN_IN_FOCUSED_WINDOW`/`WHEN_FOCUSED` bindings never fire. Getting
+    real focus requires `new JFrame()` + `setVisible(true)` on an actual
+    display, and `new JFrame()` itself throws `HeadlessException` when
+    `GraphicsEnvironment.isHeadless()` — which is unconditionally true on
+    this repo's actual CI (`ci.yml` runs `ubuntu-latest` with no `DISPLAY`
+    and no Xvfb step). So a scenario built this way must guard itself with
+    `Assumptions.assumeFalse(GraphicsEnvironment.isHeadless())` — skipped
+    (not failed) in CI, but real coverage on any machine with a display
+    (local dev, a future CI with Xvfb added). Worked example:
+    `GamePanelRealKeyEventTest`. Adding Xvfb to CI so this runs
+    unconditionally is a deliberately separate decision (cost/flakiness
+    tradeoffs), not bundled into whatever change adds the guarded test.
 
 ### Troubleshooting: cascading/flaky Cucumber failures
 

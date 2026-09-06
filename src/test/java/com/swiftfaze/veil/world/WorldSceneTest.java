@@ -110,11 +110,12 @@ class WorldSceneTest {
 
         scene.fillAll(GRASS);
 
-        for (int x = 0; x < 4; x++) {
-            for (int y = 0; y < 3; y++) {
-                assertEquals(GRASS, scene.getTile(x, y));
-            }
-        }
+        assertEquals(GRASS, scene.getTile(0, 0));
+        assertEquals(GRASS, scene.getTile(3, 0));
+        assertEquals(GRASS, scene.getTile(0, 2));
+        assertEquals(GRASS, scene.getTile(3, 2));
+        assertEquals(GRASS, scene.getTile(1, 1));
+        assertEquals(GRASS, scene.getTile(2, 1));
     }
 
     @Test

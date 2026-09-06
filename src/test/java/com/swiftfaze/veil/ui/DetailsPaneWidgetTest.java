@@ -9,6 +9,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -82,7 +83,6 @@ class DetailsPaneWidgetTest {
     void clearFocusAfterFocus() {
         detailsPane.showEntry(createTwoTableEntry());
         detailsPane.focusFirstTable();
-        assertTrue(detailsPane.hasFocus());
 
         detailsPane.clearFocus();
 
@@ -96,6 +96,7 @@ class DetailsPaneWidgetTest {
 
         detailsPane.moveDown();
 
+        assertFalse(detailsPane.isTableFocused(0));
         assertTrue(detailsPane.isTableFocused(1));
     }
 
@@ -104,7 +105,6 @@ class DetailsPaneWidgetTest {
         detailsPane.showEntry(createTwoTableEntry());
         detailsPane.focusFirstTable();
         detailsPane.moveDown();
-        assertTrue(detailsPane.isTableFocused(1));
 
         detailsPane.moveUp();
 
@@ -168,23 +168,8 @@ class DetailsPaneWidgetTest {
     }
 
     @Test
-    void isTableFocusedReturnsTrueOnlyForFocusedTable() {
-        detailsPane.showEntry(createTwoTableEntry());
-        detailsPane.focusFirstTable();
-
-        assertTrue(detailsPane.isTableFocused(0));
-        assertFalse(detailsPane.isTableFocused(1));
-
-        detailsPane.moveDown();
-
-        assertFalse(detailsPane.isTableFocused(0));
-        assertTrue(detailsPane.isTableFocused(1));
-    }
-
-    @Test
     void showEntryNullAfterDataClearsPlaceholder() {
         detailsPane.showEntry(createSingleTableEntry());
-        assertFalse(detailsPane.isShowingPlaceholder());
 
         detailsPane.showEntry(null);
 
@@ -239,9 +224,5 @@ class DetailsPaneWidgetTest {
                 );
             }
         };
-    }
-
-    private void assertNotNull(Object value) {
-        assertTrue(value != null, "Expected non-null value");
     }
 }
