@@ -79,43 +79,11 @@ expensive.
       model involved.
 4. **Implementation** — once the spec is approved, hand off to Claude
    Haiku 4.5 to implement the feature and write unit tests.
-    - **Default to a fresh agent pinned to Haiku 4.5, not `/fork`, for
-      this handoff — the goal is minimum token spend, and Haiku's
-      per-token cost plus a tight, self-contained prompt beats a fork's
-      "free" inherited context running on the pricier parent model.**
-      The orchestrator (the Sonnet 5 session running Steps 1-3) must do
-      the exploration once and compress it directly into the handoff
-      prompt: an explicit list of every file path it needs (with line
-      numbers), the actual code being referenced (not just its name), and
-      the exact reasoning/decisions already made (e.g. "don't redefine
-      step X, it already exists at Y and collides") — everything the
-      agent would otherwise have to rediscover by reading files.
-    - **Tell the agent explicitly not to scan or explore the codebase
-      beyond the files listed.** If something it needs turns out to be
-      missing, wrong, or insufficient, it should stop and report exactly
-      what's missing rather than grepping/globbing around for it — the
-      orchestrator can then supply the missing piece and resume it. A
-      prompt with a complete file list plus this instruction is what
-      makes the cheaper model actually cheaper; without it, the agent
-      falls back to exploring the codebase itself.
-    - **Fall back to `/fork` (accepting it runs on the parent's model,
-      not Haiku) only when the context genuinely can't be compressed into
-      a prompt economically** — e.g. the relevant material is too
-      sprawling, exploratory, or spread across too many files/decisions
-      to excerpt without the prompt-writing itself costing nearly as much
-      as just forking. This should be the exception, not the default.
-    - **A fresh Haiku agent is also the right choice, not just the cheap
-      one, whenever true isolation is needed** — e.g. multiple tickets
-      being implemented in parallel across separate worktrees, where a
-      fork's shared-context model isn't appropriate anyway. Same
-      excerpt-pasting rule applies.
-    - **Run independent Step 4 implementations in parallel as a normal
-      option, not only as an edge-case exception.** When more than one
-      ticket is ready at once, launch a separate fresh Haiku agent per
-      ticket, each in its own git worktree — this is the default way to
-      work through multiple ready tickets, not a fallback reserved for
-      unusual circumstances, since each ticket's Step 4 agent is already
-      isolated and disposable by design.
+    - **Read `.claude/subagent-delegation.md` before dispatching this
+      step.** It covers choosing agent type/model (fresh Haiku vs.
+      `/fork` vs. parallel worktrees), what to put in the handoff prompt,
+      staying in one agent across Steps 4→5→7, and how to verify what
+      comes back — none of that is repeated here.
     - Keep every function within the complexity budget below. These are
       enforced by CI, not by your judgment alone.
     - **Close the PMD loop before moving to Step 5.** After implementing,
@@ -126,7 +94,11 @@ expensive.
       self-check against the `uncle-bob-craft` checklist below — because
       PMD is a CI-enforced gate (see `pom.xml`): an implementation that
       hasn't closed this loop isn't done, no matter how clean the code
-      looks by eye.
+      looks by eye. **"Fix" means decompose the code, not suppress the
+      rule** — see `.claude/subagent-delegation.md`'s "Verifying what
+      comes back" for the orchestrator-side check (grep the diff for
+      `@SuppressWarnings("PMD...")` outside the one documented exception
+      below).
     - **Respect the module dependency direction.** `ModuleDependencyTest`
       (a plain JUnit test using ArchUnit — see Constraints below) fails
       `mvn verify`/`mvn test` if "engine" code (everything outside
@@ -171,11 +143,12 @@ expensive.
 5. **Acceptance tests** — wire the approved `.feature` file to the project's
    test runner so it's executable, not just documentation.
     - Continue in the same fresh Haiku agent from Step 4 rather than
-      starting over — see "Context handoff rule" below for when isolation
-      (a new agent, or the `/fork` fallback) is actually warranted instead.
-      Either way, this step needs to know exactly what was implemented —
-      don't hand it off as a bare ticket reference to a blank-context
-      subagent, or it will re-explore the diff to figure out what changed.
+      starting over — see `.claude/subagent-delegation.md` for when
+      isolation (a new agent, or the `/fork` fallback) is actually
+      warranted instead. Either way, this step needs to know exactly what
+      was implemented — don't hand it off as a bare ticket reference to a
+      blank-context subagent, or it will re-explore the diff to figure out
+      what changed.
     - **Before reporting this step done, check for duplicate step
       definitions.** Cucumber matches step text regardless of the
       Given/When/Then keyword, so two methods annotated with the same
@@ -214,10 +187,10 @@ expensive.
    before marking the feature done. This is not optional cleanup, it's part
    of the definition of done:
     - Continue in the same fresh Haiku agent from Steps 4-5 rather than a
-      blank-context subagent (see "Context handoff rule" below). This step
-      needs to know precisely what changed to write an accurate doc update
-      — handing it a ticket reference alone forces it to re-derive that
-      from the diff, the same cost problem Step 4 had.
+      blank-context subagent (see `.claude/subagent-delegation.md`). This
+      step needs to know precisely what changed to write an accurate doc
+      update — handing it a ticket reference alone forces it to re-derive
+      that from the diff, the same cost problem Step 4 had.
     - If the change adds/changes a public API endpoint, method, or
       configuration property, update the relevant reference doc (OpenAPI
       description, `docs/architecture.md`, public API doc, or Javadoc for a
@@ -315,50 +288,14 @@ whole codebase.
 - Losing track of which files in a multi-file change have been touched
 - Responses feeling more generic or hedged than earlier in the session
 
-## Context handoff rule
+## Subagent delegation
 
-Steps 4, 5, and 7 are a single continuous handoff, not three separate
-delegations: stay in the same fresh Haiku agent across 4→5→7 for one
-ticket rather than re-briefing a new one at each step (see Step 4 above
-for the full default-vs-`/fork` reasoning). The one question worth asking
-before any of the three is whether this specific piece of work needs true
-isolation — parallel work in a separate worktree — since that's the one
-case where a fresh, separately-briefed agent (or `/fork`) is actually the
-right call instead of continuing the existing one.
-
-## Verifying subagent completions
-
-Never relay a subagent's "done" report as fact without checking it
-yourself first — this applies to every subagent completion, not only
-visual-verification claims (`docs/ui-verification.md` already states this
-for that one case; it generalizes). A subagent's summary describes what
-it intended to do, not necessarily what it did, no matter how confident
-or detailed the report reads. Before treating any step as finished, the
-orchestrator re-runs the actual check itself: open the file the subagent
-claims to have produced, run the command it claims passed (`mvn verify`,
-the specific test, the specific grep), read the diff of what it actually
-changed. Confidence and detail in a report are not evidence.
-
-**If your independent check finds the subagent's work is wrong, follow
-this escalation path** rather than either blindly re-dispatching the same
-prompt again or jumping straight to a fork:
-
-1. **First failure** — send the same agent a corrective follow-up (via
-   `SendMessage`, resuming it) that names the specific problem you found
-   and how to fix it, including the evidence (the actual error, the
-   actual diff, the actual file content) — not just "this didn't work,
-   try again." Most corrections land here.
-2. **Second failure of the *same class* of mistake** — this means the
-   correction from step 1 didn't land, or the agent repeated a mistake it
-   was already told about. Switch to `/fork` for the next attempt instead
-   of dispatching a third fresh/resumed round on the original agent — a
-   fork inherits your full context, including the diagnosis from steps
-   1-2, so it starts already knowing what went wrong instead of
-   rediscovering it. Only escalate to fork after this second same-class
-   failure, not on the first one.
-3. If the fork also fails the same check, that's a signal the problem is
-   in the diagnosis or the approach itself, not the executing agent —
-   stop and reconsider rather than escalating further.
+Everything about handing Steps 4/5/7 to a subagent — choosing agent
+type/model, staying in one agent across 4→5→7, verifying what comes back
+(including the metric-scope and mandatory-step rules), and the escalation
+path when verification finds a real problem — lives in
+`.claude/subagent-delegation.md`, not here. Read it before dispatching or
+resuming a Step 4/5/7 agent or a fork.
 
 ## Model selection
 
@@ -388,12 +325,12 @@ cost predictable and avoids under-provisioning judgment-heavy steps.
   equivalent blocking gate.
 - **Steps 4-5 (Implementation, Acceptance tests)** — Claude Haiku 4.5, via
   a fresh, non-fork agent with a self-contained, excerpt-rich prompt — see
-  Step 4 above and "Context handoff rule" above for the full default vs.
-  `/fork` reasoning.
+  `.claude/subagent-delegation.md` for the full default vs. `/fork`
+  reasoning.
 - **Step 6 (Mutation testing)** — no model. This step is tooling
   (running the mutation test suite), not agent judgment.
 - **Step 7 (Documentation)** — Claude Haiku 4.5, continuing in the same
-  fresh Haiku agent as Steps 4-5 (see "Context handoff rule" above),
+  fresh Haiku agent as Steps 4-5 (see `.claude/subagent-delegation.md`),
   since it only needs to describe what already changed rather than make
   new judgment calls.
 

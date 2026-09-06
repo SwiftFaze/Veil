@@ -40,6 +40,19 @@ conventions so Maven can tell them apart automatically:
   definitions, so the tag is never removed. Verification happens by
   actually exercising the described behavior manually (e.g. building and
   running an installer), not via `mvn test`/`mvn verify`.
+- A step definition that drives a Swing component's keyboard interaction
+  by calling `component.getActionMap().get(actionName).actionPerformed(...)`
+  directly is faster to write but bypasses Swing's real focus-routing
+  chain (`WHEN_FOCUSED` vs. `WHEN_ANCESTOR_OF_FOCUSED_COMPONENT`, and
+  which component the OS/window manager actually has focused) — a panel
+  can pass every such scenario while a real key press does nothing, or
+  gets swallowed by the wrong ancestor. For any feature where keyboard
+  focus crosses a window boundary or a component hierarchy the step
+  definitions don't already exercise via real input, add at least one
+  scenario driven through genuine key events (a `java.awt.Robot`-based
+  diagnostic, or `component.dispatchEvent(new KeyEvent(...))` against the
+  actual focus owner) rather than relying only on the `ActionMap`
+  shortcut for every scenario.
 
 ### Troubleshooting: cascading/flaky Cucumber failures
 
