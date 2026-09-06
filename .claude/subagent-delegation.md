@@ -41,6 +41,19 @@ full file contents, exact line numbers, literal code to paste, an explicit
 an agent that explored anyway, burned the budget, and self-reported done when it
 wasn't. A detailed handoff reduces the frequency; it doesn't replace checking.
 
+**Run the gate yourself first — it is one command.**
+
+```
+bash .claude/tools/check-clean.sh
+```
+
+This is the identical command the agent was required to pass, so there is no
+gap between what it checked and what you verify. Then read its report for:
+exit 0; a disposition for every **advisory** finding; and a PASS/FAIL *with
+evidence naming a file, function or test* on every judgment-checklist line. A
+checklist returned without evidence is the same signal as a skipped step. If
+the agent worked in a worktree, run it there. Details: `docs/clean-code-gate.md`.
+
 Specific checks:
 
 - **A passing metric isn't evidence unless its scope is confirmed.** A mutation
@@ -51,9 +64,6 @@ Specific checks:
   away.** An agent that can't complete one should stop and report the blocker,
   not proceed with a caveat or substitute a weaker check. A report mentioning a
   skipped mandatory step is a first-class finding, not a footnote.
-- **PMD "fixed" means decomposed.** Grep the diff for `@SuppressWarnings("PMD`
-  outside the documented interface-override exception; if found, remove it,
-  rerun PMD, and require real decomposition.
 - **A green acceptance suite doesn't prove keyboard/focus behavior.** If the
   feature involves focus crossing a window or component boundary, confirm at
   least one scenario exercises real input, not just the `ActionMap` shortcut —
