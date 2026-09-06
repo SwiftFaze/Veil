@@ -24,10 +24,10 @@ This skill aggregates principles from Uncle Bob's body of work for **reviewing**
 
 | Source | Focus | Where to go |
 |--------|--------|-------------|
-| **Clean Architecture** | Dependency Rule, layers, boundaries, SOLID in architecture | See [reference.md](./reference.md) and [references/clean-architecture.md](./references/clean-architecture.md). |
-| **The Clean Coder** | Professionalism, estimation, saying no, sustainable pace | See [reference.md](./reference.md) and [references/clean-coder.md](./references/clean-coder.md). |
-| **Clean Agile** | Values, Iron Cross, TDD, refactoring, pair programming | See [reference.md](./reference.md) and [references/clean-agile.md](./references/clean-agile.md). |
-| **Design patterns** | When to use, misuse, cargo cult | See [reference.md](./reference.md) and [references/design-patterns.md](./references/design-patterns.md). |
+| **Clean Architecture** | Dependency Rule, layers, boundaries, SOLID in architecture, component cohesion/coupling | See [reference.md](./reference.md)'s "Clean Architecture" section. |
+| **The Clean Coder** | Professionalism, estimation, saying no, sustainable pace | See [reference.md](./reference.md)'s "The Clean Coder" section. |
+| **Clean Agile** | Values, Iron Cross, TDD, refactoring, pair programming | See [reference.md](./reference.md)'s "Clean Agile" section. |
+| **Design patterns** | When to use, misuse, cargo cult | See [reference.md](./reference.md)'s "Design patterns" section. |
 
 ## Design Patterns: Use vs Misuse
 
@@ -62,11 +62,13 @@ Full lists (including heuristics C1–T9-style) are in [reference.md](./referenc
 
 ### When reviewing code
 
-1. **Boundaries and Dependency Rule**: Check that dependencies point inward (e.g., use cases do not depend on UI or DB details). See [references/clean-architecture.md](./references/clean-architecture.md).
+1. **Boundaries and Dependency Rule**: Check that dependencies point inward (e.g., use cases do not depend on UI or DB details). See [reference.md](./reference.md)'s "Clean Architecture" section.
 2. **SOLID in context**: Check Single Responsibility, Open/Closed, Liskov, Interface Segregation, Dependency Inversion where they apply to the changed code.
 3. **Smells**: Scan for rigidity, fragility, immobility, viscosity, needless complexity/repetition, opacity; list them with file/area.
 4. **Concrete suggestions**: Propose one or two refactors (e.g., "Extract this into a function named X," "Introduce an interface so this layer does not depend on the concrete DB client").
 5. **Tests and craft**: Note if tests exist and if the change respects sustainable pace (no obvious "we'll fix it later" comments that violate professionalism).
+
+Suggested output shape for a review: one or two sentences on boundaries/dependency direction; any SOLID violations named with file/function and principle; smells found with location; one or two concrete refactors; a brief note on test coverage. Keep it tight — this isn't a separate report format, just how to organize the five points above when writing them up.
 
 ### When writing or refactoring code
 

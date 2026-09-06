@@ -1,111 +1,74 @@
 # Subagent delegation rules
 
-Rules for handing implementation work (Steps 4/5/7 of `.claude/workflow.md`)
-off to a subagent, and for verifying what comes back. Read this before
-dispatching or resuming a Step 4/5/7 agent, or a fork. `workflow.md` covers
-the pipeline shape (what step does what); this file covers the mechanics
-and failure modes of the handoff itself.
+Mechanics and failure modes of handing Steps 4/5/7 of `.claude/workflow.md` to a
+subagent. Read before dispatching or resuming a Step 4/5/7 agent or a fork.
 
 ## Choosing agent type and model
 
-- **Default to a fresh agent pinned to Haiku 4.5, not `/fork`.** Haiku's
-  per-token cost plus a tight, self-contained prompt beats a fork's "free"
-  inherited context running on the pricier parent model. The orchestrator
-  must do the exploration once and compress it directly into the handoff
-  prompt: every file path needed (with line numbers), the actual code
-  being referenced (not just its name), and the reasoning/decisions
-  already made — everything the agent would otherwise rediscover by
-  reading files.
-- **Tell the agent explicitly not to scan or explore the codebase beyond
-  the files listed.** If something it needs is missing, wrong, or
-  insufficient, it should stop and report exactly what's missing rather
-  than grepping/globbing around for it — the orchestrator supplies the
-  missing piece and resumes it. This constraint is what makes the cheaper
-  model actually cheaper; without it, the agent falls back to exploring
-  the codebase itself.
-- **Fall back to `/fork` only when the context genuinely can't be
-  compressed into a prompt economically** — the relevant material is too
-  sprawling, exploratory, or spread across too many files/decisions to
-  excerpt without the prompt-writing itself costing nearly as much as
-  just forking. Exception, not default.
-- **A fresh Haiku agent is also right whenever true isolation is
-  needed** — e.g. multiple tickets in parallel across separate
-  worktrees, where a fork's shared-context model isn't appropriate
-  anyway. Same excerpt-pasting rule applies.
-- **Run independent Step 4 implementations in parallel as a normal
-  option.** When more than one ticket is ready, launch a separate fresh
-  Haiku agent per ticket, each in its own git worktree — the default way
-  through multiple ready tickets, not an edge-case fallback.
-
-## Staying in one agent across Steps 4→5→7
-
-Steps 4, 5, and 7 are a single continuous handoff, not three separate
-delegations: stay in the same fresh Haiku agent across 4→5→7 for one
-ticket rather than re-briefing a new one at each step. The one question
-worth asking before any of the three is whether this specific piece of
-work needs true isolation (parallel work in a separate worktree) — that's
-the one case where a fresh, separately-briefed agent (or `/fork`) is
-actually the right call instead of continuing the existing one.
+- **Default to a fresh agent pinned to Haiku 4.5, not `/fork`.** Haiku's cost
+  plus a tight, self-contained prompt beats a fork's "free" inherited context
+  running on the pricier parent model. The orchestrator explores once and
+  compresses the result into the prompt: every file path with line numbers, the
+  actual code being referenced (not just its name), and the decisions already
+  made.
+- **Tell the agent explicitly not to explore beyond the files listed.** If
+  something it needs is missing or wrong, it stops and reports what's missing;
+  the orchestrator supplies it and resumes. This constraint is what makes the
+  cheaper model actually cheaper.
+- **Fall back to `/fork` only when the context genuinely can't be compressed
+  economically** — material too sprawling to excerpt without the prompt-writing
+  costing as much as forking. Exception, not default.
+- **Parallel Step 4 work:** when several tickets are ready, one fresh Haiku
+  agent per ticket, each in its own git worktree.
+- **Stay in the same agent across Steps 4→5→7** for one ticket — they're a
+  single continuous handoff, and Steps 5 and 7 both need to know exactly what
+  was implemented. Re-briefing a blank-context agent forces it to re-derive the
+  change from the diff. The only reason to start fresh is genuine isolation
+  (parallel worktrees).
 
 ## Verifying what comes back
 
-Never relay a subagent's "done" report as fact without checking it
-yourself first — applies to every completion, not only visual-verification
-claims (`docs/ui-verification.md` states this for that one case; it
-generalizes). A subagent's summary describes what it intended to do, not
-necessarily what it did, no matter how confident the report reads. Before
-treating any step as finished: open the file it claims to have produced,
-run the command it claims passed (`mvn verify`, the specific test, the
-specific grep), read the diff of what actually changed. Confidence and
-detail in a report are not evidence.
+**Never relay a subagent's "done" report as fact without checking it yourself.**
+A summary describes what the agent intended to do, not what it did. Before
+treating any step as finished: open the file it claims to have produced, run the
+command it claims passed, read the actual diff. Confidence and detail in a
+report are not evidence.
 
-- **A passing metric is not evidence unless its scope is also confirmed.**
-  A metric can be genuinely passing while measuring the wrong code — e.g.
-  a mutation-testing score computed against `pom.xml`'s `targetClasses`
-  list before that list was updated to include the feature's new classes.
-  Before relaying any subagent-reported metric (coverage, mutation score,
-  test count, lint result), confirm what it actually covers, not just that
-  the tool ran and returned a number.
-- **A mandatory step cannot be silently skipped, downgraded, or
-  rationalized away.** If an agent cannot complete a step the prompt
-  marked mandatory, the correct move is to stop and report the specific
-  blocker back to the orchestrator — not to proceed anyway with a caveat,
-  and not to substitute a weaker check for the one actually required. A
-  report that mentions skipping a mandatory step is a first-class finding,
-  not a footnote.
-- **PMD "fixed" means decomposed, not suppressed.** Grep the diff for any
-  `@SuppressWarnings("PMD...")` outside the one narrow parameter-count/
-  interface-override exception documented in `workflow.md`'s Constraints
-  section. If found, remove it and rerun PMD to confirm the violation is
-  real, then require decomposition instead — a green PMD run achieved by
-  suppression is not a closed PMD loop.
-- **A green acceptance-test suite doesn't prove real keyboard/focus
-  behavior.** See `docs/testing.md`'s note on `ActionMap`-driven step
-  definitions vs. genuine key events — if the feature involves keyboard
-  focus crossing a window or component boundary, confirm at least one
-  scenario exercises that through real input, not just the direct
-  `ActionMap` shortcut, before trusting a full pass as proof it works.
+This rule is unconditional because a near-maximal defensive prompt didn't
+prevent it: on issue #136 (fullscreen/windowed toggle), a Step 4 handoff with
+full file contents, exact line numbers, literal code to paste, an explicit
+"don't explore" instruction and a required verification checklist still produced
+an agent that explored anyway, burned the budget, and self-reported done when it
+wasn't. A detailed handoff reduces the frequency; it doesn't replace checking.
 
-## Escalation path when verification finds a real problem
+Specific checks:
 
-1. **First failure** — send the same agent a corrective follow-up (via
-   `SendMessage`, resuming it) naming the specific problem and how to fix
-   it, including evidence (the actual error, diff, file content) — not
-   just "this didn't work, try again." Most corrections land here.
-2. **Second failure of the *same class*** — the correction from step 1
-   didn't land, or the agent repeated a mistake it was already told
-   about. Switch to `/fork` for the next attempt instead of a third
-   fresh/resumed round — a fork inherits full context including the
-   diagnosis from steps 1-2, so it starts already knowing what went
-   wrong. Only escalate after a second same-class failure, not the first.
-3. **If the fork also fails the same check**, that's a signal the problem
-   is in the diagnosis or approach itself, not the executing agent — stop
-   and reconsider rather than escalating further.
+- **A passing metric isn't evidence unless its scope is confirmed.** A mutation
+  score can be genuinely green while measuring the wrong code — e.g. computed
+  before `pom.xml`'s `targetClasses` was updated to include the new classes.
+  Confirm what a reported number actually covers.
+- **A mandatory step can't be silently skipped, downgraded, or rationalized
+  away.** An agent that can't complete one should stop and report the blocker,
+  not proceed with a caveat or substitute a weaker check. A report mentioning a
+  skipped mandatory step is a first-class finding, not a footnote.
+- **PMD "fixed" means decomposed.** Grep the diff for `@SuppressWarnings("PMD`
+  outside the documented interface-override exception; if found, remove it,
+  rerun PMD, and require real decomposition.
+- **A green acceptance suite doesn't prove keyboard/focus behavior.** If the
+  feature involves focus crossing a window or component boundary, confirm at
+  least one scenario exercises real input, not just the `ActionMap` shortcut —
+  see `docs/testing.md`.
 
-A fork is expensive per token (runs on the parent's own model, not Haiku)
-and inherits an already-large conversation, so give it a tight, closeable
-checklist rather than an open-ended "finish the rest." Put the cheapest,
-most failure-prone self-checks first (e.g. "confirm the config change
-actually landed before reporting the metric it enables") — a fork can run
-out of its own session budget mid-checklist, and if it does, a checklist
-ordered this way still leaves the highest-value confirmations done.
+## Escalation when verification finds a real problem
+
+1. **First failure** — resume the same agent via `SendMessage` with the specific
+   problem, the fix, and evidence (actual error, diff, file content) — not "this
+   didn't work, try again." Most corrections land here.
+2. **Second failure of the same class** — switch to `/fork`, which inherits the
+   diagnosis. Only after a second same-class failure, not the first.
+3. **If the fork fails the same check** — the problem is in the diagnosis, not
+   the executing agent. Stop and reconsider.
+
+A fork is expensive and inherits a large conversation, so give it a tight,
+closeable checklist with the cheapest, most failure-prone confirmations first —
+if it runs out of budget mid-checklist, the highest-value checks are still done.
