@@ -7,36 +7,48 @@ import org.junit.jupiter.api.Test;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GamePanelTest {
 
     @Test
     void constructorInitializes() {
         GamePanel panel = new GamePanel();
-        assertNotNull(panel);
+
+        assertEquals(com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_X, panel.getPlayer().getX());
+        assertEquals(com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_Y, panel.getPlayer().getY());
     }
 
     @Test
-    void gameListenerCanBeAdded() {
+    void toggleInventoryActionInvokesListener() {
         GamePanel panel = new GamePanel();
+        boolean[] listenerCalled = {false};
         GameListener listener = new GameListener() {
             @Override
-            public void toggleInventory() {}
+            public void updatePlayer(Player player) {
+                // Not needed for this test
+            }
+
             @Override
-            public void toggleCodex() {}
-            @Override
-            public void updatePlayer(Player player) {}
+            public void toggleInventory() {
+                listenerCalled[0] = true;
+            }
         };
         panel.addGameListener(listener);
-        assertNotNull(panel);
+
+        fireAction(panel, Keybindings.ACTION_TOGGLE_INVENTORY);
+
+        assertTrue(listenerCalled[0]);
     }
 
     @Test
     void startGameLoopWorks() {
         GamePanel panel = new GamePanel();
-        // Just verify we can call these methods
-        assertNotNull(panel);
+
+        assertDoesNotThrow(panel::startGameLoop);
     }
 
     @Test
@@ -60,6 +72,7 @@ class GamePanelTest {
         GameListener listener = new GameListener() {
             @Override
             public void updatePlayer(Player player) {
+                // Not needed for this test
             }
 
             @Override
@@ -105,6 +118,7 @@ class GamePanelTest {
         GameListener listener = new GameListener() {
             @Override
             public void updatePlayer(Player player) {
+                // Not needed for this test
             }
 
             @Override

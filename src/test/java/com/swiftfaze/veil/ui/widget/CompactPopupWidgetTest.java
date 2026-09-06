@@ -2,7 +2,8 @@ package com.swiftfaze.veil.ui.widget;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CompactPopupWidgetTest {
 
@@ -15,7 +16,7 @@ class CompactPopupWidgetTest {
     @Test
     void constructorInitializes() {
         CompactPopupWidget popup = new CompactPopupWidget("Title");
-        assertNotNull(popup);
+        assertFalse(popup.isVisible());
     }
 
     @Test

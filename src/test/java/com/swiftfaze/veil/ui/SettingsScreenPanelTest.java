@@ -9,7 +9,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SettingsScreenPanelTest {
 
@@ -22,31 +23,50 @@ class SettingsScreenPanelTest {
             new ControlsHintBarWidget(),
             store
         );
-        assertNotNull(panel);
+
+        assertEquals("Brightness", panel.getHighlightedItemName());
     }
 
     @Test
     void moveLeftWorks(@TempDir Path tempDir) {
         SettingsStore store = new SettingsStore(tempDir);
         SettingsScreenPanel panel = new SettingsScreenPanel(screen -> {}, path -> {}, new ControlsHintBarWidget(), store);
+        int before = panel.getSliderValue("Brightness");
+
         panel.moveLeft();
-        assertNotNull(panel);
+
+        assertEquals(Math.max(0, before - 1), panel.getSliderValue("Brightness"));
     }
 
     @Test
     void moveRightWorks(@TempDir Path tempDir) {
         SettingsStore store = new SettingsStore(tempDir);
         SettingsScreenPanel panel = new SettingsScreenPanel(screen -> {}, path -> {}, new ControlsHintBarWidget(), store);
+        int before = panel.getSliderValue("Brightness");
+
         panel.moveRight();
-        assertNotNull(panel);
+
+        assertEquals(Math.min(10, before + 1), panel.getSliderValue("Brightness"));
     }
 
     @Test
     void confirmWorks(@TempDir Path tempDir) {
         SettingsStore store = new SettingsStore(tempDir);
-        SettingsScreenPanel panel = new SettingsScreenPanel(screen -> {}, path -> {}, new ControlsHintBarWidget(), store);
+        List<String> openedFolders = new ArrayList<>();
+        SettingsScreenPanel panel = new SettingsScreenPanel(
+            screen -> {},
+            openedFolders::add,
+            new ControlsHintBarWidget(),
+            store
+        );
+        for (int i = 0; i < 6; i++) {
+            panel.moveDown();
+        }
+        assertEquals("Open Game Folder", panel.getHighlightedItemName());
+
         panel.confirm();
-        assertNotNull(panel);
+
+        assertTrue(openedFolders.contains("game"));
     }
 
     @Test

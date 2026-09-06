@@ -1,6 +1,5 @@
 package com.swiftfaze.veil;
 
-import com.swiftfaze.veil.Camera;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.world.Tile;
 import com.swiftfaze.veil.world.WorldScene;

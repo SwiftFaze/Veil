@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ItemTest {
 
@@ -29,14 +28,15 @@ class ItemTest {
         assertEquals(1, tables.size());
         assertEquals("", tables.get(0).label());
         assertEquals(List.of("Field", "Value"), tables.get(0).columnHeaders());
-        assertEquals(7, tables.get(0).rows().size());
-        assertRowContains(tables.get(0).rows(), "ID", "test:sword");
-        assertRowContains(tables.get(0).rows(), "Name", "Iron Sword");
-        assertRowContains(tables.get(0).rows(), "Glyph", "/");
-        assertRowContains(tables.get(0).rows(), "Type", "weapon");
-        assertRowContains(tables.get(0).rows(), "Slot", "hand");
-        assertRowContains(tables.get(0).rows(), "Base Damage (Min)", "5");
-        assertRowContains(tables.get(0).rows(), "Base Damage (Max)", "10");
+        assertEquals(List.of(
+                List.of("ID", "test:sword"),
+                List.of("Name", "Iron Sword"),
+                List.of("Glyph", "/"),
+                List.of("Type", "weapon"),
+                List.of("Slot", "hand"),
+                List.of("Base Damage (Min)", "5"),
+                List.of("Base Damage (Max)", "10")
+        ), tables.get(0).rows());
     }
 
     @Test
@@ -86,20 +86,12 @@ class ItemTest {
         List<DetailTable> tables = item.getDetailTables();
 
         assertEquals(1, tables.size());
-        assertEquals(5, tables.get(0).rows().size());
-        assertRowNotPresent(tables.get(0).rows(), "Base Damage (Min)");
-        assertRowNotPresent(tables.get(0).rows(), "Base Damage (Max)");
-    }
-
-    private void assertRowContains(List<List<String>> rows, String field, String value) {
-        boolean found = rows.stream()
-                .anyMatch(row -> row.size() >= 2 && row.get(0).equals(field) && row.get(1).equals(value));
-        assertEquals(true, found, "Row with field '" + field + "' and value '" + value + "' not found");
-    }
-
-    private void assertRowNotPresent(List<List<String>> rows, String field) {
-        boolean found = rows.stream()
-                .anyMatch(row -> row.size() >= 1 && row.get(0).equals(field));
-        assertFalse(found, "Row with field '" + field + "' should not be present");
+        assertEquals(List.of(
+                List.of("ID", "test:armour"),
+                List.of("Name", "Chain Mail"),
+                List.of("Glyph", "["),
+                List.of("Type", "armour"),
+                List.of("Slot", "body")
+        ), tables.get(0).rows());
     }
 }
