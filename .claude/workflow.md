@@ -150,24 +150,13 @@ expensive.
       blank-context subagent, or it will re-explore the diff to figure out
       what changed.
     - **Before reporting this step done, check for duplicate step
-      definitions.** Cucumber matches step text regardless of the
-      Given/When/Then keyword, so two methods annotated with the same
-      literal step text — even under different keywords — is always a
-      duplicate. A duplicate step definition poisons Cucumber's whole
-      glue registry, not just the two colliding methods: every scenario
-      in the suite can fail, cascading into completely unrelated feature
-      files in a way that makes the real cause hard to spot (see
-      `docs/testing.md`'s troubleshooting note). Run:
-      `grep -ohE '@(Given|When|Then)\("[^"]*"\)' src/test/java/com/swiftfaze/veil/steps/*.java | sed -E 's/@(Given|When|Then)\("(.*)"\)/\2/' | sort | uniq -d`
-      and confirm it prints nothing. If the same literal step text
-      genuinely needs different behavior depending on whether it's a
-      setup precondition or a later assertion, that's a sign the text
-      needs to be reworded into two distinct steps, not that two
-      annotations on the same text are safe — see
-      `UiComponentFrameworkSteps.theConfirmationPopupIsShown()` for the
-      correct single-method pattern (guard with `if (x == null) { build
-      it } else { just assert }`) when the same text is reused as both a
-      fresh-build precondition and a later assertion.
+      definitions** — a duplicate poisons Cucumber's whole glue registry,
+      cascading into failures in unrelated feature files. See
+      `docs/testing.md`'s "Troubleshooting: cascading/flaky Cucumber
+      failures" for the check command and the single-method precondition/
+      assertion pattern for when reuse is actually safe. This check is
+      mandatory before reporting done, not just a debugging tip for when
+      something looks wrong.
     - **If this step touches a step-definitions file other `.feature`
       files also depend on** (this repo's `UiComponentFrameworkSteps.java`
       backs several features at once), run `mvn clean test` (or
@@ -356,18 +345,15 @@ permanently vague policy.
 
 These are enforced by the linter/CI config in this repo, not by asking the
 agent to "try to keep things clean." If a change can't meet these limits,
-stop and flag it rather than disabling the check — with one narrow,
-already-practiced exception: a method overriding a JDK/library interface
-whose signature mandates more than 4 parameters (e.g.
-`Border.paintBorder(Component, Graphics, int, int, int, int)`, see
-`RadioGroupWidget.RadioOptionBorder` and `TableWidget.AccentableCellBorder`)
-may suppress PMD's `ExcessiveParameterList` rule with
-`@SuppressWarnings("PMD.ExcessiveParameterList")` plus a comment naming
-the interface — the parameter count isn't a choice the code made, it's
-the contract being implemented. This exception is specific to parameter
-count on an unavoidable interface override; it does not extend to
-complexity, length, coverage, or the module dependency rule, none of
-which have an equivalent "the interface forced it" excuse.
+stop and flag it rather than disabling the check — with one narrow
+exception (a method overriding a JDK/library interface whose signature
+mandates more than 4 parameters) documented with its concrete precedent
+in `docs/testing.md`'s "Code quality gates" section. That exception is
+specific to parameter count on an unavoidable interface override; it does
+not extend to complexity, length, coverage, or the module dependency
+rule, none of which have an equivalent "the interface forced it" excuse —
+see `.claude/subagent-delegation.md` for the orchestrator-side check that
+catches a suppression used outside this one exception.
 
 **Not mechanically enforced — self-applied only:** the Single Level of
 Abstraction Principle (SLAP — no function may call more than one level

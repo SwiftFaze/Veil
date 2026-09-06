@@ -75,6 +75,14 @@ grep -ohE '@(Given|When|Then)\("[^"]*"\)' src/test/java/com/swiftfaze/veil/steps
 ```
 See `.claude/workflow.md`'s Step 5 guidance for the full rule (this check
 is mandatory before reporting Step 5 done, not just a debugging tip).
+If the same literal step text genuinely needs different behavior
+depending on whether it's a setup precondition or a later assertion,
+that's a sign the text needs rewording into two distinct steps, not that
+duplicate annotations on the same text are safe — see
+`UiComponentFrameworkSteps.theConfirmationPopupIsShown()` for the
+correct single-method pattern (guard with `if (x == null) { build it }
+else { just assert }`) when the same text is genuinely reused as both a
+fresh-build precondition and a later assertion.
 
 ## Integration tests
 
@@ -119,6 +127,7 @@ Surefire, then integration tests via Failsafe.
   Pure Swing layout/wiring classes with no branching logic are excluded from these checks (see `pom.xml`'s PMD excludes list).
 - **JaCoCo (jacoco-maven-plugin)** enforces a minimum of 85% line coverage across all non-excluded classes (repo-wide, not per-changed-file). The same exclusion list as PMD applies.
 - See `pom.xml`'s PMD plugin configuration for the full exclusion list and rationale (classes confirmed to be pure construction/layout/wiring with no real logic to unit-test).
+- The one narrow, already-practiced suppression exception (`.claude/workflow.md`'s Constraints section states the general rule): a method overriding a JDK/library interface whose signature mandates more than 4 parameters — e.g. `Border.paintBorder(Component, Graphics, int, int, int, int)`, see `RadioGroupWidget.RadioOptionBorder` and `TableWidget.AccentableCellBorder` — may suppress PMD's `ExcessiveParameterList` rule with `@SuppressWarnings("PMD.ExcessiveParameterList")` plus a comment naming the interface. This is specific to parameter count on an unavoidable interface override; it does not extend to complexity, length, coverage, or the module dependency rule below, none of which have an equivalent "the interface forced it" excuse — a violation there must be fixed by decomposing the code, not suppressing the check.
 
 ## Module dependency gate (ArchUnit)
 
