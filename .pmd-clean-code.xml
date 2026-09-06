@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="Veil Clean Code Gate"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+
+    <description>
+        Clean Code (Uncle Bob) rules, applied to CHANGED FILES ONLY by
+        .claude/tools/check-clean.sh. Deliberately NOT bound to `mvn verify`.
+
+        Why separate from .pmd-minimal.xml: that ruleset is a repo-wide build
+        gate, so every rule in it must be green across all 77 main classes.
+        These rules are not — the codebase predates them. Scoping them to the
+        diff is what lets them land without a red build on day one, which is
+        the same reasoning behind the instruction-budget baselines in
+        docs/instruction-files.md.
+
+        Sections map 1:1 onto the rule table in docs/clean-code-gate.md. Keep
+        them in step: that doc is what an agent reads to fix a violation.
+
+        Thresholds are dials, not laws. If you change one, change it there too
+        and say why in the commit message.
+    </description>
+
+    <!-- ============================================================
+         1. Function size, complexity, nesting depth
+         Length (>40), cyclomatic complexity (>8) and parameter count (>4)
+         are NOT here — they are repo-wide build gates in .pmd-minimal.xml
+         and would double-report. These are the diff-scoped additions.
+         ============================================================ -->
+
+    <!-- More than 3 levels of nested ifs: the classic "extract a method"
+         signal. Uncle Bob's indent-level heuristic (Clean Code, G34). -->
+    <rule ref="category/java/design.xml/AvoidDeeplyNestedIfStmts">
+        <properties>
+            <property name="problemDepth" value="3"/>
+        </properties>
+    </rule>
+
+    <!-- Cognitive complexity weights NESTING, unlike cyclomatic complexity,
+         so it catches the deeply-indented method that CC 8 lets through. -->
+    <rule ref="category/java/design.xml/CognitiveComplexity">
+        <properties>
+            <property name="reportLevel" value="15"/>
+        </properties>
+    </rule>
+
+    <!-- Acyclic execution paths. Catches the combinatorial explosion that a
+         sequence of flat ifs produces while keeping CC just under 8. -->
+    <rule ref="category/java/design.xml/NPathComplexity">
+        <properties>
+            <property name="reportLevel" value="200"/>
+        </properties>
+    </rule>
+
+    <!-- ============================================================
+         2. Single Responsibility (heuristics)
+         These are PROXIES for SRP, not proofs of it. A class can pass all
+         of them and still do two things; see the judgment checklist in
+         docs/clean-code-gate.md.
+         ============================================================ -->
+
+    <!-- Weighted method count + access to foreign data + low cohesion.
+         The closest mechanical stand-in for "this class does unrelated
+         things" that PMD offers. -->
+    <rule ref="category/java/design.xml/GodClass"/>
+
+    <rule ref="category/java/design.xml/TooManyMethods">
+        <properties>
+            <property name="maxmethods" value="15"/>
+        </properties>
+    </rule>
+
+    <!-- Unrelated instance variables are the other half of low cohesion. -->
+    <rule ref="category/java/design.xml/TooManyFields">
+        <properties>
+            <property name="maxfields" value="10"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/design.xml/ExcessivePublicCount">
+        <properties>
+            <property name="minimum" value="20"/>
+        </properties>
+    </rule>
+
+    <!-- Fan-out. A class that names 15+ other types has more than one
+         reason to change almost by definition. -->
+    <rule ref="category/java/design.xml/CouplingBetweenObjects">
+        <properties>
+            <property name="threshold" value="15"/>
+        </properties>
+    </rule>
+
+    <!-- ============================================================
+         3. Naming
+         ShortVariable already exempts for-loop counters, foreach vars,
+         catch parameters and lambda parameters in its own XPath (verified
+         against pmd-java 7.17.0), which is exactly the "trivial loop
+         counter" carve-out we want. Do not re-add it here.
+         ============================================================ -->
+
+    <!-- CUSTOM: ShortVariable with a domain allow-list. The built-in rule's
+         own XPath (copied below from pmd-java 7.17.0) already exempts for-loop
+         counters, foreach variables, catch parameters and lambda parameters.
+         What it does NOT exempt is method parameters, and in a Swing/2D
+         codebase that made it unusable: measured against this repo it produced
+         224 hits, of which `e` (ActionEvent/KeyEvent, 60), `x`/`y` (tile
+         coordinates, 48), `g` (Graphics2D, 16) and `id` (43) are all more
+         intention-revealing in context than any longer name would be.
+
+         The allow-list is that measured set and nothing more. Names like `r`
+         and `c` are deliberately still flagged - checking the sites they came
+         from showed genuine "what is this?" locals, not domain shorthand. -->
+    <rule name="VeilShortVariable"
+          language="java"
+          message="Variable name ''{0}'' is too short to reveal intent"
+          class="net.sourceforge.pmd.lang.rule.xpath.XPathRule">
+        <description>
+Clean Code, N1. Short names are fine where the scope is a couple of lines or
+the name is domain-standard (a Graphics2D is always `g`); everywhere else they
+force the reader to reconstruct meaning from use.
+        </description>
+        <priority>3</priority>
+        <properties>
+            <property name="xpath">
+                <value><![CDATA[
+//VariableId[string-length(@Name) < 3]
+ (: Swing and 2D-geometry idiom - see the comment above this rule :)
+ [not(@Name = ('x','y','z','w','h','dx','dy','dw','dh','cx','cy','g','g2','e','id'))]
+ (: ForStatement :)
+ [not(../../parent::ForInit)]
+ (: Foreach statement :)
+ [not(../../parent::ForeachStatement)]
+ (: Catch statement parameter :)
+ [not(parent::CatchParameter)]
+ (: Lambda expression parameter :)
+ [not(parent::LambdaParameter)]
+ [@Unnamed = false()]
+]]></value>
+            </property>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/codestyle.xml/ShortMethodName">
+        <properties>
+            <property name="minimum" value="3"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/codestyle.xml/ShortClassName">
+        <properties>
+            <property name="minimum" value="4"/>
+        </properties>
+    </rule>
+
+    <!-- The opposite failure: a name so long it is encoding the logic. -->
+    <rule ref="category/java/codestyle.xml/LongVariable">
+        <properties>
+            <property name="minimum" value="32"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/codestyle.xml/ClassNamingConventions"/>
+    <rule ref="category/java/codestyle.xml/MethodNamingConventions"/>
+    <rule ref="category/java/codestyle.xml/FormalParameterNamingConventions"/>
+    <rule ref="category/java/codestyle.xml/LocalVariableNamingConventions"/>
+    <!-- `private static final Logger logger` is the slf4j convention the whole
+         repo already follows; PMD's constant pattern would rename it to LOGGER
+         in every new file. Excluded by name rather than by loosening the
+         constant pattern, so `Player.symbol` and friends are still flagged. -->
+    <rule ref="category/java/codestyle.xml/FieldNamingConventions">
+        <properties>
+            <property name="constantPattern" value="[A-Z][A-Z_0-9]*|logger|log"/>
+        </properties>
+    </rule>
+    <!-- GenericsNaming is deliberately absent: PMD 7.17 reports it as
+         scheduled for removal in PMD 8. -->
+
+    <!-- Names that lie: isX() not returning boolean, getX() returning void,
+         setX() returning a value. The mechanical half of "intent-revealing". -->
+    <rule ref="category/java/codestyle.xml/LinguisticNaming"/>
+
+    <!-- CUSTOM: disemvowelled and truncated names. PMD has no built-in rule
+         for this. The list is deliberately a closed deny-list of forms seen
+         in real Java rather than a heuristic, because a heuristic here
+         (e.g. "no vowels") flags legitimate domain terms like `npc` or `hp`.
+         Matched case-sensitively as a whole name or as a camelCase segment. -->
+    <rule name="VeilAbbreviatedName"
+          language="java"
+          message="Abbreviated name ''{0}'' does not reveal intent - spell the word out"
+          class="net.sourceforge.pmd.lang.rule.xpath.XPathRule">
+        <description>
+Clean Code, N1 (use intention-revealing names) and N4 (avoid encodings).
+A reader should not have to expand an abbreviation to know what a name holds.
+Domain shorthand the game itself uses (hp, npc, xp, ui) is deliberately absent
+from the deny-list; add to it rather than widening it into a heuristic.
+        </description>
+        <priority>3</priority>
+        <properties>
+            <property name="xpath">
+                <value><![CDATA[
+//VariableId[
+  matches(@Name, '^(tmp|temp|val|vals|num|nums|str|obj|objs|mgr|ctx|cfg|attr|attrs|arr|lst|cnt|idx|elem|elems|res|ret|rslt|calc|conv|proc|init|curr|prev|nxt|len|msg|src|dst|dest|pos|coord|coords|param|params|arg|args|info|data|util|utils|impl|fn|func|cb|evt|err|ex2|flag|flags|opt|opts|prop|props|req|resp|svc|repo|ptr|buf|acc|agg)$')
+  or matches(@Name, '^(tmp|temp|val|num|str|obj|mgr|ctx|cfg|attr|arr|lst|cnt|idx|elem|res|ret|calc|conv|proc|curr|prev|len|msg|src|dst|dest|pos|param|arg|info|util|impl|evt|err|opt|prop|req|resp|svc|repo|ptr|buf)[A-Z]')
+]
+]]></value>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- ============================================================
+         4. Duplication
+         Block-level duplication is CPD's job, run separately by
+         check-clean.sh at a tighter token threshold than the repo-wide
+         gate. Literal duplication is caught here.
+         ============================================================ -->
+
+    <!-- The same string literal 4+ times is a named constant waiting to
+         happen. Also covers "magic strings" from section 8. -->
+    <rule ref="category/java/errorprone.xml/AvoidDuplicateLiterals">
+        <properties>
+            <property name="maxDuplicateLiterals" value="4"/>
+            <property name="minimumLength" value="3"/>
+        </properties>
+    </rule>
+
+    <!-- ============================================================
+         5. Comments as a smell
+         "What" vs "why" is judgment and lives in the checklist. These are
+         the mechanically detectable comment smells.
+         ============================================================ -->
+
+    <rule ref="category/java/documentation.xml/UncommentedEmptyMethodBody"/>
+    <rule ref="category/java/documentation.xml/UncommentedEmptyConstructor"/>
+
+    <!-- A comment this long is usually explaining code that should have
+         been decomposed instead. Clean Code C1-C3. -->
+    <rule ref="category/java/documentation.xml/CommentSize">
+        <properties>
+            <property name="maxLines" value="12"/>
+            <property name="maxLineLength" value="100"/>
+        </properties>
+    </rule>
+
+    <!-- ============================================================
+         6. Test quality
+         Routed to src/test only by check-clean.sh (see TEST_ONLY_RULES
+         there). Running these against main code produces nonsense.
+         ============================================================ -->
+
+    <rule ref="category/java/bestpractices.xml/UnitTestShouldIncludeAssert"/>
+    <rule ref="category/java/bestpractices.xml/UnitTestShouldUseTestAnnotation"/>
+    <rule ref="category/java/bestpractices.xml/SimplifiableTestAssertion"/>
+    <rule ref="category/java/errorprone.xml/DetachedTestCase"/>
+    <rule ref="category/java/errorprone.xml/UnnecessaryBooleanAssertion"/>
+
+    <!-- One assert per test is the ideal; 3 is the enforced ceiling. The gap
+         is deliberate - a strict 1 flags every legitimate "assert the object
+         AND that it was persisted" pair and trains people to suppress the
+         rule. The checklist asks for one CONCEPT per test, which is the
+         actual Clean Code rule (F.I.R.S.T. / one reason to fail). -->
+    <rule ref="category/java/bestpractices.xml/UnitTestContainsTooManyAsserts">
+        <properties>
+            <property name="maximumAsserts" value="3"/>
+        </properties>
+    </rule>
+
+    <!-- CUSTOM: no control flow in a test method. A test containing an if or
+         a loop has more than one path, so a green run no longer tells you
+         which path ran. PMD has no built-in rule for this. -->
+    <rule name="VeilNoLogicInTests"
+          language="java"
+          message="Test method contains control flow - a test must have exactly one path"
+          class="net.sourceforge.pmd.lang.rule.xpath.XPathRule">
+        <description>
+Clean Code (Clean Tests) and F.I.R.S.T. A conditional or loop inside a test
+means the assertions that run depend on the data, so a pass does not identify
+which behaviour was verified. Use a parameterised test, or split the test.
+        </description>
+        <priority>3</priority>
+        <properties>
+            <property name="xpath">
+                <value><![CDATA[
+//MethodDeclaration[
+  pmd-java:hasAnnotation('org.junit.jupiter.api.Test')
+][
+  .//IfStatement or .//ForStatement or .//ForeachStatement
+  or .//WhileStatement or .//DoStatement or .//SwitchStatement
+  or .//SwitchExpression or .//ConditionalExpression
+]
+]]></value>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- ============================================================
+         7. Dead code and unused paths
+         ============================================================ -->
+
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateField"/>
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod"/>
+    <rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>
+    <rule ref="category/java/bestpractices.xml/UnusedFormalParameter"/>
+    <rule ref="category/java/bestpractices.xml/UnusedAssignment"/>
+    <rule ref="category/java/codestyle.xml/UnnecessaryImport"/>
+    <rule ref="category/java/errorprone.xml/UnconditionalIfStatement"/>
+
+    <!-- A field only ever used inside one method is a local variable that
+         escaped - dead state at class level. -->
+    <rule ref="category/java/design.xml/SingularField"/>
+
+    <!-- ============================================================
+         8. Error handling and magic values
+         ============================================================ -->
+
+    <!-- allowCommentedBlocks=false: "// nothing to do here" is exactly the
+         swallowed exception this is meant to catch. -->
+    <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
+        <properties>
+            <property name="allowCommentedBlocks" value="false"/>
+            <property name="allowExceptionNameRegex" value="^$"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/errorprone.xml/AvoidCatchingThrowable"/>
+    <rule ref="category/java/errorprone.xml/AvoidCatchingNPE"/>
+    <rule ref="category/java/design.xml/AvoidCatchingGenericException"/>
+    <rule ref="category/java/design.xml/AvoidThrowingRawExceptionTypes"/>
+    <rule ref="category/java/design.xml/AvoidThrowingNullPointerException"/>
+    <!-- AvoidLosingExceptionInformation is deliberately absent: scheduled for
+         removal in PMD 8, and PreserveStackTrace above covers the same smell. -->
+    <rule ref="category/java/errorprone.xml/ReturnFromFinallyBlock"/>
+    <rule ref="category/java/errorprone.xml/DoNotThrowExceptionInFinally"/>
+    <rule ref="category/java/bestpractices.xml/PreserveStackTrace"/>
+    <rule ref="category/java/bestpractices.xml/AvoidPrintStackTrace"/>
+
+    <!-- The repo logs through slf4j; a stray println is an unloggable,
+         untestable side channel. -->
+    <rule ref="category/java/bestpractices.xml/SystemPrintln"/>
+
+    <!-- Magic numbers in a branch condition specifically. -->
+    <rule ref="category/java/errorprone.xml/AvoidLiteralsInIfCondition">
+        <properties>
+            <property name="ignoreMagicNumbers" value="-1,0,1"/>
+        </properties>
+    </rule>
+
+    <!-- CUSTOM: general magic numbers. PMD has no equivalent of Checkstyle's
+         MagicNumber rule, and adding Checkstyle for one rule is not worth a
+         second static-analysis toolchain in the build.
+
+         Exempt: 0/1/2 and their long/float forms (loop and arithmetic
+         identities), anything initialising a `static final` field (that IS
+         the named constant), annotation values, and switch labels. -->
+    <rule name="VeilMagicNumber"
+          language="java"
+          message="Magic number {0} - extract it to a named `static final` constant"
+          class="net.sourceforge.pmd.lang.rule.xpath.XPathRule">
+        <description>
+Clean Code, G25 (replace magic numbers with named constants). A bare numeric
+literal in an expression forces the reader to infer its meaning from context.
+        </description>
+        <priority>3</priority>
+        <properties>
+            <property name="xpath">
+                <value><![CDATA[
+//NumericLiteral
+ [@Base = 10]
+ [not(@Image = ('0','1','2','0L','1L','2L','0l','1l','2l',
+                '0.0','1.0','2.0','0f','1f','2f','0F','1F','2F',
+                '0.0f','1.0f','0.0d','1.0d','0d','1d'))]
+ [not(ancestor::FieldDeclaration[1][pmd-java:modifiers() = 'final'])]
+ [not(ancestor::EnumConstant)]
+ [not(ancestor::Annotation)]
+ [not(ancestor::SwitchLabel)]
+ [not(ancestor::VariableDeclarator[1][@Name = 'serialVersionUID'])]
+]]></value>
+            </property>
+        </properties>
+    </rule>
+
+</ruleset>

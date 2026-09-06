@@ -4,7 +4,7 @@ description: Use when performing code review, writing or refactoring code, or di
 ---
 # Uncle Bob Craft
 
-Apply Robert C. Martin (Uncle Bob) criteria for **code review and production**: Clean Code, Clean Architecture, The Clean Coder, Clean Agile, and design-pattern discipline. This skill is complementary to this repo's own linter and to the mechanical constraints already enforced in `.claude/workflow.md` (max function length, cyclomatic complexity, parameter count, coverage, module dependency direction) — it does not replace them. The Single Level of Abstraction Principle (SLAP) is the one exception: `.claude/workflow.md` documents it as a constraint but no tool checks it, so the "When writing or refactoring code" checklist below is the only place it's actually applied, via self-review rather than a build gate.
+Apply Robert C. Martin (Uncle Bob) criteria for **code review and production**: Clean Code, Clean Architecture, The Clean Coder, Clean Agile, and design-pattern discipline. This skill is complementary to this repo's own linter and to the mechanical constraints already enforced in `.claude/workflow.md` (max function length, cyclomatic complexity, parameter count, coverage, module dependency direction) — it does not replace them. Most of what used to live here as prose is now mechanized in the Clean Code gate — `bash .claude/tools/check-clean.sh`, documented in `docs/clean-code-gate.md` — which every Step 4 agent must pass before reporting a task finished. Use this skill for the design lens behind those rules and for the judgment the gate cannot make. SLAP is the clearest case: still no tool checks it, so it appears as a judgment-checklist line the gate prints and you answer, not as a build gate.
 
 ## Overview
 

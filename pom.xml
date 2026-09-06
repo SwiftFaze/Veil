@@ -15,6 +15,14 @@
              runs the game; `-Dexec.mainClass=...` on the command line overrides this
              property, e.g. to launch the sandbox instead. -->
         <exec.mainClass>${main.class}</exec.mainClass>
+        <!-- Whether a PMD violation fails the build. True everywhere by default,
+             including CI. `.claude/tools/check-clean.sh` overrides it to false so
+             the build runs to completion and it can diff-scope target/pmd.xml
+             itself, reporting the violations YOUR change added with file:line
+             instead of inheriting a repo-wide count. This has to be a property:
+             a plain `-Dpmd.failOnViolation=false` is ignored when the value is
+             set literally in the plugin's <configuration>. -->
+        <pmd.failOnViolation>true</pmd.failOnViolation>
     </properties>
 
     <dependencyManagement>
@@ -260,7 +268,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <failOnViolation>true</failOnViolation>
+                    <failOnViolation>${pmd.failOnViolation}</failOnViolation>
                     <linkXRef>false</linkXRef>
                     <includeTests>false</includeTests>
                     <minimumTokens>100</minimumTokens>
@@ -353,5 +361,51 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Clean Code gate (Uncle Bob rules), driven by
+             `.claude/tools/check-clean.sh`. Deliberately a profile and NOT an
+             execution bound to a lifecycle phase: these rules are not green
+             across the existing codebase, so binding them to `verify` would
+             turn `develop` red on the day they landed. The script scopes them
+             to the files a change actually touched instead.
+
+             Invoked as: mvn -P clean-code pmd:pmd pmd:cpd
+             Reports land in target/clean-code/ so they never clobber the
+             repo-wide reports written by the `verify`-bound executions above. -->
+        <profile>
+            <id>clean-code</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-pmd-plugin</artifactId>
+                        <configuration>
+                            <rulesets combine.self="override">
+                                <ruleset>${project.basedir}/.pmd-clean-code.xml</ruleset>
+                            </rulesets>
+                            <!-- Test-quality rules need the test sources. The
+                                 script routes rules to main/test by path. -->
+                            <includeTests>true</includeTests>
+                            <!-- The layout-class exclusions on the repo-wide
+                                 gate exist because those files have long
+                                 methods. They are not exempt from naming, dead
+                                 code or error-handling rules, and a diff-scoped
+                                 run only looks at them if you edited them. -->
+                            <excludes combine.self="override"/>
+                            <format>xml</format>
+                            <targetDirectory>${project.build.directory}/clean-code</targetDirectory>
+                            <!-- Tighter than the repo-wide 100: a fresh block
+                                 of 50 duplicated tokens is a copy-paste, not
+                                 incidental similarity. -->
+                            <minimumTokens>50</minimumTokens>
+                            <skipEmptyReport>false</skipEmptyReport>
+                            <failOnViolation>false</failOnViolation>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

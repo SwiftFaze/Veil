@@ -36,23 +36,20 @@ gets built. Pay the approval latency only where being wrong is expensive.
 4. **Implementation** (Haiku 4.5) — **read `.claude/subagent-delegation.md`
    before dispatching.** It covers agent type/model, handoff prompt contents,
    staying in one agent across 4→5→7, and verifying what comes back.
-    - **Close the PMD loop before Step 5.** Run
-      `mvn org.apache.maven.plugins:maven-pmd-plugin:check` and `:cpd-check`,
-      fix every violation *in the code you touched*, rerun until those are
-      clean. "Fix" means decompose, not `@SuppressWarnings`.
-      <!-- added 2026-09-06: develop can be red from pre-existing violations, so
-           "zero" is the wrong target; the durable rule is "no new ones". -->
-      `develop` may already be red from pre-existing violations, so a fully
-      green run is not always achievable: the bar is that **your diff adds
-      none** — compare the count in the failure message against `develop`'s.
+    - **The Clean Code gate is mandatory and blocking.** You may not report
+      this step finished until `bash .claude/tools/check-clean.sh` exits 0 and
+      you have answered every line of the judgment checklist it prints, with
+      evidence. It is the same command the orchestrator runs to verify you.
+      <!-- added 2026-09-06: replaces the hand-run PMD loop. develop is red
+           from pre-existing violations, so the gate scopes to added lines. -->
+      Rules, thresholds and carve-outs: `docs/clean-code-gate.md`.
     - **Respect the module dependency direction** — `ModuleDependencyTest`
       (ArchUnit) fails the build if engine code depends on
       `com.swiftfaze.veil.ui`, or a `ui.widget` class depends on a screen in
       `com.swiftfaze.veil.ui`. Fix by inverting the dependency or extracting an
       interface, never by weakening the rule.
-    - Self-apply the `uncle-bob-craft` "writing or refactoring code" checklist
-      per file. This is the same agent's own check while writing, not a review
-      pass — it does not change "implementation code is not reviewed, by design."
+    - The gate's checklist mechanizes `uncle-bob-craft`; read that skill for the
+      design lens. Neither makes implementation code human-reviewed.
     - **UI work:** the handoff prompt must include `docs/ui-styling.md` itself,
       not a secondhand summary — Step 4 agents are told not to explore.
     - **Swing rendering/layout/sizing/text changes must be visually verified**
@@ -143,6 +140,8 @@ else.
   than inventing scope — it batches open questions into dependency-ordered
   rounds, which fits the intent/spec loop better than a flat prompt. Reserve
   `AskUserQuestion` for a genuinely standalone multiple-choice pick.
-- Never mark a feature done without: acceptance tests passing, the Step 7
+- Never mark a feature done without: `check-clean.sh` at exit 0 with the
+  judgment checklist answered, acceptance tests passing, the Step 7
   documentation decision stated explicitly, the human playtest (`CLAUDE.md`
-  Step 4.5), and the linked issue closed (`CLAUDE.md` Step 7.5).
+  Step 4.5), and the linked issue closed (`CLAUDE.md` Step 7.5). A gate you
+  cannot pass is a blocker to report, never a rule to suppress.
