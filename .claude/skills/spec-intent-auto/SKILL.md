@@ -37,12 +37,11 @@ If `state` is `CLOSED`, tell the user and confirm before continuing.
 
 ## Step 1 — Intent, branch, and board (same as spec-intent)
 
-Follow `spec-intent`'s Steps 2-5.5 exactly: derive the slug, pick the
+Follow `spec-intent`'s Steps 2-5 exactly: derive the slug, pick the
 branch prefix from labels, check for a branch-name collision, create and
 link the branch off `develop`, add the issue to the VEIL project board
-(project 2, owner `SwiftFaze`) and move it to `In progress`, derive
-`specs/intent/<slug>.md` from the issue body, and add its row to
-`specs/intent/README.md`'s Index table.
+(project 2, owner `SwiftFaze`) and move it to `In progress`, and derive
+`specs/intent/<slug>.md` from the issue body.
 
 ## Step 2 — Resolve open questions: answer trivial ones, front-load real ones
 
@@ -78,8 +77,7 @@ unresolved either way.
 ## Step 3 — Feature spec (same as spec-feature, no approval gate)
 
 Follow `spec-feature`'s Step 2 to generate `specs/features/<slug>.feature`
-from the now-settled `intent.md`, and add its row to
-`specs/features/README.md`'s Index table if newly created.
+from the now-settled `intent.md`.
 
 Since Step 0 already confirmed this is standard-path work, there is no
 Step 3 approval gate to wait for (`.claude/workflow.md`'s Step 3 is

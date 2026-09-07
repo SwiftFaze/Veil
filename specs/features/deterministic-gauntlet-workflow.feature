@@ -53,10 +53,10 @@ Feature: Deterministic-gauntlet alignment of the agentic workflow
       | standard (not auth/payments/data-integrity/public API) | a short intent doc, then an agile slice-by-slice implementation loop (implement a slice, look at the result, reconcile the intent doc, continue) — no human-approved `.feature` file required before code exists |
       | high-risk (auth/payments/data-integrity/public API)    | the full intent -> Gherkin spec -> human approval gate, unchanged from today |
 
-  Scenario: specs/intent/README.md no longer requires lockstep Index updates
+  Scenario: specs/intent/ is not an indexed artifact
     Given `specs/intent/README.md`
-    Then it no longer requires every intent doc add, remove, or rename to update the Index table in the same change
-    And existing Index table entries remain as historical record
+    Then it does not require an intent doc add, remove, or rename to update any index in the same change
+    And it explains that intent docs are local scratch which nothing needs to persist past the feature they fed
 
   # Non-goals:
   #   - Any actual game feature or player-visible behavior change.
