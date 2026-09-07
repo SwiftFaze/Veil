@@ -205,13 +205,13 @@ public class ModLoaderSteps {
         Files.writeString(modDir.resolve("tiles").resolve("broken.json"), "{ not valid json");
     }
 
-    @Given("a mods directory containing the {string} mod with a theme declaring id {string} and all eleven widget colors")
-    public void aModsDirectoryContainingTheModWithAThemeDeclaringIdAndAllElevenWidgetColors(String modId, String themeId) {
+    @Given("a mods directory containing the {string} mod with a theme declaring id {string} and all twelve widget colors")
+    public void aModsDirectoryContainingTheModWithAThemeDeclaringIdAndAllTwelveWidgetColors(String modId, String themeId) {
         addTheme(modId, themeId, defaultThemeColors(), null);
     }
 
-    @Given("the mods directory also contains mod {string} with a theme declaring id {string} and all eleven widget colors")
-    public void theModsDirectoryAlsoContainsModWithAThemeDeclaringIdAndAllElevenWidgetColors(String modId, String themeId) {
+    @Given("the mods directory also contains mod {string} with a theme declaring id {string} and all twelve widget colors")
+    public void theModsDirectoryAlsoContainsModWithAThemeDeclaringIdAndAllTwelveWidgetColors(String modId, String themeId) {
         addTheme(modId, themeId, defaultThemeColors(), null);
     }
 
@@ -220,7 +220,7 @@ public class ModLoaderSteps {
         addTheme(modId, themeId, defaultThemeColors(), null);
     }
 
-    @Given("the mods directory also contains mod {string} with a theme declaring id {string}, a {string} color of \\({int}, {int}, {int}), and the rest of the eleven widget colors, whose {string} field names {string}")
+    @Given("the mods directory also contains mod {string} with a theme declaring id {string}, a {string} color of \\({int}, {int}, {int}), and the rest of the twelve widget colors, whose {string} field names {string}")
     public void theModsDirectoryAlsoContainsModWithAThemeOverridingOneColor(String modId, String themeId, String colorKey,
                                                                              int r, int g, int b,
                                                                              String fieldName, String overriddenId) {
@@ -371,6 +371,7 @@ public class ModLoaderSteps {
             case "SCROLLBAR_THUMB" -> WidgetTheme.SCROLLBAR_THUMB;
             case "ACCENT" -> WidgetTheme.ACCENT;
             case "WINDOW_BORDER" -> WidgetTheme.WINDOW_BORDER;
+            case "TABLE_HEADER_TEXT" -> WidgetTheme.TABLE_HEADER_TEXT;
             default -> throw new IllegalArgumentException("Unknown WidgetTheme color key: " + key);
         };
     }
@@ -773,6 +774,7 @@ public class ModLoaderSteps {
         colors.put("SCROLLBAR_THUMB", new ThemeColorFixture(28, 29, 30));
         colors.put("ACCENT", new ThemeColorFixture(31, 32, 33));
         colors.put("WINDOW_BORDER", new ThemeColorFixture(34, 35, 36));
+        colors.put("TABLE_HEADER_TEXT", new ThemeColorFixture(37, 38, 39));
         return colors;
     }
 

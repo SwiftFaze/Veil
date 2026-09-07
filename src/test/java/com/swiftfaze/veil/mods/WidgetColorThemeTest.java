@@ -1,6 +1,8 @@
 package com.swiftfaze.veil.mods;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.awt.Color;
 import java.util.LinkedHashMap;
@@ -13,20 +15,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class WidgetColorThemeTest {
 
     @Test
-    void requiredKeysHasExactlyTheTwelveWidgetThemeColorNames() {
-        assertEquals(12, WidgetColorTheme.REQUIRED_KEYS.size());
-        assertTrue(WidgetColorTheme.REQUIRED_KEYS.contains("SELECTED_HIGHLIGHT"));
-        assertTrue(WidgetColorTheme.REQUIRED_KEYS.contains("SELECTED_TEXT"));
-        assertTrue(WidgetColorTheme.REQUIRED_KEYS.contains("NORMAL_TEXT"));
-        assertTrue(WidgetColorTheme.REQUIRED_KEYS.contains("DIMMED_TEXT"));
-        assertTrue(WidgetColorTheme.REQUIRED_KEYS.contains("BACKGROUND"));
-        assertTrue(WidgetColorTheme.REQUIRED_KEYS.contains("INVALID_HIGHLIGHT"));
-        assertTrue(WidgetColorTheme.REQUIRED_KEYS.contains("VALID_HIGHLIGHT"));
-        assertTrue(WidgetColorTheme.REQUIRED_KEYS.contains("TABLE_HEADER_BACKGROUND"));
-        assertTrue(WidgetColorTheme.REQUIRED_KEYS.contains("BORDER"));
-        assertTrue(WidgetColorTheme.REQUIRED_KEYS.contains("SCROLLBAR_THUMB"));
-        assertTrue(WidgetColorTheme.REQUIRED_KEYS.contains("ACCENT"));
-        assertTrue(WidgetColorTheme.REQUIRED_KEYS.contains("WINDOW_BORDER"));
+    void requiredKeysHasExactlyThirteenEntries() {
+        assertEquals(13, WidgetColorTheme.REQUIRED_KEYS.size());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "SELECTED_HIGHLIGHT", "SELECTED_TEXT", "NORMAL_TEXT", "DIMMED_TEXT", "BACKGROUND",
+            "INVALID_HIGHLIGHT", "VALID_HIGHLIGHT", "TABLE_HEADER_BACKGROUND", "BORDER",
+            "SCROLLBAR_THUMB", "ACCENT", "WINDOW_BORDER", "TABLE_HEADER_TEXT"
+    })
+    void requiredKeysContains(String key) {
+        assertTrue(WidgetColorTheme.REQUIRED_KEYS.contains(key), "Missing required key: " + key);
     }
 
     @Test

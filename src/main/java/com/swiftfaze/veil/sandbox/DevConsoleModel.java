@@ -2,6 +2,7 @@ package com.swiftfaze.veil.sandbox;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 public class DevConsoleModel {
 
@@ -27,6 +28,12 @@ public class DevConsoleModel {
         return allResults.stream()
                 .filter(result -> matches(result.entry(), needle))
                 .toList();
+    }
+
+    public Optional<SearchResult> findById(String id) {
+        return allResults.stream()
+                .filter(result -> result.entry().id().equals(id))
+                .findFirst();
     }
 
     private boolean matches(DevConsoleEntry entry, String needle) {

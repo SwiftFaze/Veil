@@ -211,6 +211,7 @@
                         <param>com.swiftfaze.veil.sandbox.DevConsolePanel</param>
                         <param>com.swiftfaze.veil.sandbox.ClassSandboxProvider</param>
                         <param>com.swiftfaze.veil.sandbox.ClassDetailPanel</param>
+                        <param>com.swiftfaze.veil.sandbox.DevConsoleCommandRunner</param>
                         <param>com.swiftfaze.veil.sandbox.PlayerSandboxProvider</param>
                         <param>com.swiftfaze.veil.sandbox.PlayerDetailPanel</param>
                     </targetClasses>

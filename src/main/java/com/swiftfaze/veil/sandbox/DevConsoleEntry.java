@@ -1,13 +1,13 @@
 package com.swiftfaze.veil.sandbox;
 
 /**
- * One individually-searchable item a {@link DevConsoleProvider} contributes -
- * e.g. a single player class, not the "Classes" provider itself.
+ * One individually-searchable item a {@link DevConsoleProvider} contributes.
  *
  * @param namespace the owning mod's id (e.g. "core")
+ * @param id        the stable, fully-qualified id used to address this entry (e.g. "core:mage"),
+ *                  looked up via {@link DevConsoleProvider#createPanel(String)}
  * @param category  the provider's category label (e.g. "Classes")
- * @param name      the display name used both for the results table and to
- *                  look the entry back up via {@link DevConsoleProvider#createPanel(String)}
+ * @param name      the display name shown in the results table
  */
-public record DevConsoleEntry(String namespace, String category, String name) {
+public record DevConsoleEntry(String namespace, String id, String category, String name) {
 }

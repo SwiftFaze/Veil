@@ -19,7 +19,7 @@ public interface DevConsoleProvider {
      * straight to a specific class's stats, not a generic "browse everything"
      * view).
      *
-     * @param entryName the {@link DevConsoleEntry#name()} to open
+     * @param id the {@link DevConsoleEntry#id()} - fully-qualified id (e.g. "core:mage")
      */
-    JComponent createPanel(String entryName);
+    JComponent createPanel(String id);
 }

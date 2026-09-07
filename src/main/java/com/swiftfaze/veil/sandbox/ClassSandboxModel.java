@@ -34,10 +34,21 @@ public class ClassSandboxModel {
         return findByName(className).getId();
     }
 
+    public String classNameForId(String id) {
+        return findById(id).getName();
+    }
+
     private PlayerClass findByName(String className) {
         return classes.stream()
                 .filter(c -> c.getName().equals(className))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unknown class: " + className));
+    }
+
+    private PlayerClass findById(String id) {
+        return classes.stream()
+                .filter(c -> c.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown class id: " + id));
     }
 }

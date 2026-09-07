@@ -22,9 +22,10 @@ public final class WidgetTheme {
     public static Color SCROLLBAR_THUMB = Color.GRAY;
     public static Color ACCENT = Color.decode("#eeb392");
     public static Color WINDOW_BORDER = Color.WHITE;
+    public static Color TABLE_HEADER_TEXT = Color.decode("#00c2c2");
 
     /**
-     * Overwrites all 12 widget colors from a mod-loaded theme. Called once at startup
+     * Overwrites all 13 widget colors from a mod-loaded theme. Called once at startup
      * (see {@code Main.loadGame}) with whichever theme owns ID "core:default" — see
      * {@code WidgetColorTheme.REQUIRED_KEYS} for the key set this reads.
      */
@@ -41,6 +42,7 @@ public final class WidgetTheme {
         SCROLLBAR_THUMB = theme.color("SCROLLBAR_THUMB");
         ACCENT = theme.color("ACCENT");
         WINDOW_BORDER = theme.color("WINDOW_BORDER");
+        TABLE_HEADER_TEXT = theme.color("TABLE_HEADER_TEXT");
     }
 
     /**

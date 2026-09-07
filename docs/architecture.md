@@ -159,18 +159,25 @@ catch-all "notify after every keypress" path — an unbound key simply never
 invokes an `Action`.
 
 **Dev console framework** (`sandbox/DevConsole*.java`): a pluggable
-framework for dev-only inspectors. `DevConsolePanel` is a search-driven
-interface that filters a list of registered provider entries (each a
-namespaced name/category pair from `DevConsoleProvider.entries()`) and opens
-a detail panel when an entry is selected (via `DevConsoleProvider
-.createPanel(entryName)`). Multiple providers can register entries together
-— `ClassSandboxProvider` exposes every player class as a searchable entry
-opening `ClassDetailPanel`, and `PlayerSandboxProvider` (see below) exposes
-the running player as a single entry. The framework is wired into `Main.java`
-behind a dev-only system property gate: `mvn compile exec:java
--Dveil.devConsole=true` enables the F1 keybind to toggle a floating dev
-console frame alongside the running game. The packaged/installer build does
-not include the property, so players never see it.
+framework for dev-only inspectors. `DevConsolePanel` is a command-driven
+interface — an append-only `TranscriptWidget` log (see `docs/ui-widgets.md`)
+plus a single command field, not a live-filtered table. `DevConsoleCommandRunner`
+parses one typed line into a verb + argument and dispatches it: `search <term>`
+filters registered provider entries (each a namespaced id/category/name from
+`DevConsoleProvider.entries()`) and writes a summary line plus a result table
+into the transcript; `edit <namespace:id>` resolves an entry by its stable id
+and opens its detail panel (via `DevConsoleProvider.createPanel(id)` — entries
+are addressed by id, not display name, so two providers can't collide on a
+shared name). Anything else writes a specific error line (unknown command,
+missing argument, or an id that resolves to nothing) instead of running
+anything; a bare word alone is not a search. Multiple providers can register
+entries together — `ClassSandboxProvider` exposes every player class as a
+searchable entry opening `ClassDetailPanel`, and `PlayerSandboxProvider` (see
+below) exposes the running player as a single entry. The framework is wired
+into `Main.java` behind a dev-only system property gate: `mvn compile
+exec:java -Dveil.devConsole=true` enables the F1 keybind to toggle a floating
+dev console frame alongside the running game. The packaged/installer build
+does not include the property, so players never see it.
 
 **Class sandbox** (now part of the dev console): `ClassSandboxModel` wraps
 `PlayerClassLoader.loadAll()` and exposes class names plus computed `Stats`

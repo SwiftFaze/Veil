@@ -42,7 +42,6 @@ Feature: Sandbox dev-console framework
   Scenario: No results for the current search text
     When the search text is set to "zzz"
     Then the results are empty
-    And opening the selection does nothing
 
   # Non-goals:
   #   - Spawning/editing anything (players, items, stats, monsters), combat
