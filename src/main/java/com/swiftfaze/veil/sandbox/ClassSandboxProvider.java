@@ -17,13 +17,17 @@ public class ClassSandboxProvider implements DevConsoleProvider {
     public List<DevConsoleEntry> entries() {
         ClassSandboxModel model = new ClassSandboxModel();
         return model.classNames().stream()
-                .map(name -> new DevConsoleEntry(namespaceOf(model.idFor(name)), CATEGORY, name))
+                .map(name -> {
+                    String id = model.idFor(name);
+                    return new DevConsoleEntry(namespaceOf(id), id, CATEGORY, name);
+                })
                 .toList();
     }
 
     @Override
-    public JComponent createPanel(String entryName) {
-        return new ClassDetailPanel(new ClassSandboxModel(), entryName);
+    public JComponent createPanel(String id) {
+        ClassSandboxModel model = new ClassSandboxModel();
+        return new ClassDetailPanel(model, model.classNameForId(id));
     }
 
     private static String namespaceOf(String id) {

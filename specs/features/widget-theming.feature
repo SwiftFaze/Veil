@@ -8,29 +8,29 @@ Feature: Mod-driven color theming for the UI widget library
   of a literal — the 2026-08-31 scope expansion was from "the widget
   library's original 10 colors" to "every hardcoded UI color".
 
-  Scenario: Loading the core mod's default theme populates all eleven widget colors
-    Given a mods directory containing the "core" mod with a theme declaring id "core:default" and all eleven widget colors
+  Scenario: Loading the core mod's default theme populates all twelve widget colors
+    Given a mods directory containing the "core" mod with a theme declaring id "core:default" and all twelve widget colors
     When the mods directory is loaded
     Then a theme with ID "core:default" is available
     And WidgetTheme's colors match the "core:default" theme's colors exactly
 
   Scenario: A second mod can ship its own theme without activating it
-    Given a mods directory containing the "core" mod with a theme declaring id "core:default" and all eleven widget colors
-    And the mods directory also contains mod "midnight-pack" with a theme declaring id "midnight-pack:midnight" and all eleven widget colors
+    Given a mods directory containing the "core" mod with a theme declaring id "core:default" and all twelve widget colors
+    And the mods directory also contains mod "midnight-pack" with a theme declaring id "midnight-pack:midnight" and all twelve widget colors
     When the mods directory is loaded
     Then a theme with ID "core:default" is available
     And a theme with ID "midnight-pack:midnight" is available
     And WidgetTheme's colors still match the "core:default" theme's colors
 
   Scenario: A mod declaring a colliding theme ID without an override field fails to load
-    Given a mods directory containing the "core" mod with a theme declaring id "core:default" and all eleven widget colors
+    Given a mods directory containing the "core" mod with a theme declaring id "core:default" and all twelve widget colors
     And the mods directory also contains mod "retexture-pack" with a theme declaring id "core:default" and no "overrides" field
     When the mods directory is loaded
     Then loading fails with a ModLoadException naming the colliding ID "core:default" and both mods "core" and "retexture-pack"
 
   Scenario: A mod declaring a colliding theme ID with an explicit override replaces the earlier definition
-    Given a mods directory containing the "core" mod with a theme declaring id "core:default" and all eleven widget colors
-    And the mods directory also contains mod "retexture-pack" with a theme declaring id "core:default", a "SELECTED_HIGHLIGHT" color of (10, 20, 30), and the rest of the eleven widget colors, whose "overrides" field names "core:default"
+    Given a mods directory containing the "core" mod with a theme declaring id "core:default" and all twelve widget colors
+    And the mods directory also contains mod "retexture-pack" with a theme declaring id "core:default", a "SELECTED_HIGHLIGHT" color of (10, 20, 30), and the rest of the twelve widget colors, whose "overrides" field names "core:default"
     When the mods directory is loaded
     Then a theme with ID "core:default" is available
     And its "SELECTED_HIGHLIGHT" color is (10, 20, 30)
@@ -89,7 +89,12 @@ Feature: Mod-driven color theming for the UI widget library
   #     WINDOW_BORDER, was added later (2026-09-05 UI compliance audit)
   #     once Main.java's frame border and DevConsolePanel's own border
   #     were both found hardcoding Color.WHITE instead of resolving to a
-  #     theme key.
+  #     theme key. A 13th key, TABLE_HEADER_TEXT, was added
+  #     (dev-console-log-transcript.feature, 2026-09-07) for the dev
+  #     console's new result-table header color - the closest existing key
+  #     (ACCENT) already has an unrelated caller (ClassSandboxPanel's
+  #     selected-row highlight) that a shared color would have dragged
+  #     along unintentionally.
   #
   # Open questions:
   #   None outstanding.

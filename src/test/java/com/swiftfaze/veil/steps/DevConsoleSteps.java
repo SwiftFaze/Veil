@@ -12,6 +12,7 @@ import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.PlayerDetailPanel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.ui.widget.TableWidget;
+import com.swiftfaze.veil.ui.widget.TranscriptWidget;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -27,6 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DevConsoleSteps {
+
+    // Column order matches DevConsoleCommandRunner.RESULT_HEADERS: "#", "ID", "Name", "Category", "Mod".
+    private static final int ID_COLUMN = 1;
+    private static final int NAME_COLUMN = 2;
+    private static final int CATEGORY_COLUMN = 3;
+    private static final int MOD_COLUMN = 4;
 
     private DevConsoleModel model;
     private DevConsolePanel panel;
@@ -54,7 +61,81 @@ public class DevConsoleSteps {
 
     @When("the search text is set to {string}")
     public void theSearchTextIsSetTo(String text) {
-        panel.getSearchField().setText(text);
+        model.setSearchText(text);
+    }
+
+    @When("the command {string} is entered")
+    public void theCommandIsEntered(String command) {
+        panel.getSearchField().setText(command);
+        panel.runCommand();
+    }
+
+    @When("the command {string} has been entered")
+    public void theCommandHasBeenEntered(String command) {
+        theCommandIsEntered(command);
+    }
+
+    @Then("the transcript's last entry is an info line reporting {int} results for {string}")
+    public void theTranscriptsLastEntryIsAnInfoLineReporting(int count, String term) {
+        assertFalse(panel.getTranscript().entries().isEmpty(), "Transcript should have entries");
+        var lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
+        assertEquals(TranscriptWidget.Level.INFO, lastEntry.level());
+        assertTrue(lastEntry.text().contains(String.valueOf(count)));
+        assertTrue(lastEntry.text().contains(term));
+    }
+
+    @Then("the transcript's last entry is an error line for {string}")
+    public void theTranscriptsLastEntryIsAnErrorLineFor(String input) {
+        assertFalse(panel.getTranscript().entries().isEmpty(), "Transcript should have entries after: " + input);
+        var lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
+        assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level(), "Expected an error line after: " + input);
+    }
+
+    @Then("the transcript's most recent result table includes a row with id {string}, name {string}, category {string}, and mod {string}")
+    public void theTranscriptsMostRecentResultTableIncludesARow(String id, String name, String category, String mod) {
+        assertTrue(panel.getTranscript().lastResultTable().isPresent());
+        var rows = panel.getTranscript().lastResultTable().get();
+        boolean found = rows.stream().anyMatch(row ->
+            row.size() > MOD_COLUMN &&
+            id.equals(row.get(ID_COLUMN)) &&
+            name.equals(row.get(NAME_COLUMN)) &&
+            category.equals(row.get(CATEGORY_COLUMN)) &&
+            mod.equals(row.get(MOD_COLUMN))
+        );
+        assertTrue(found, "No result table row found matching: " + id + ", " + name + ", " + category + ", " + mod);
+    }
+
+    @Then("the transcript has no result table")
+    public void theTranscriptHasNoResultTable() {
+        assertTrue(panel.getTranscript().lastResultTable().isEmpty());
+    }
+
+    @Then("the console view is shown")
+    public void theConsoleViewIsShown() {
+        // The console view (transcript) is shown when the provider panel is not visible
+        assertFalse(panel.isProviderPanelShowing(), "Provider panel should not be showing");
+    }
+
+    @Then("the transcript still contains an info line reporting {int} results for {string}")
+    public void theTranscriptStillContainsAnInfoLineReporting(int count, String term) {
+        boolean found = panel.getTranscript().entries().stream().anyMatch(entry ->
+            entry.level() == TranscriptWidget.Level.INFO &&
+            entry.text().contains(String.valueOf(count)) &&
+            entry.text().contains(term)
+        );
+        assertTrue(found);
+    }
+
+    @Then("the transcript contains an info line reporting {int} results for {string}")
+    public void theTranscriptContainsAnInfoLineReporting(int count, String term) {
+        theTranscriptStillContainsAnInfoLineReporting(count, term);
+    }
+
+    @Then("the transcript contains an error line for {string}")
+    public void theTranscriptContainsAnErrorLineFor(String input) {
+        boolean found = panel.getTranscript().entries().stream()
+                .anyMatch(entry -> entry.level() == TranscriptWidget.Level.ERROR);
+        assertTrue(found, "Expected an error line in the transcript after: " + input);
     }
 
     @Then("the results include an entry named {string}")
@@ -81,8 +162,9 @@ public class DevConsoleSteps {
 
     @When("{string} is opened")
     public void isOpened(String entryName) {
-        panel.getSearchField().setText(entryName);
-        panel.confirmSelection();
+        DevConsoleModel.SearchResult result = findResult(entryName);
+        panel.getSearchField().setText("edit " + result.entry().id());
+        panel.runCommand();
     }
 
     @Then("the opened detail panel is shown")
@@ -94,12 +176,6 @@ public class DevConsoleSteps {
     public void theBackActionIsTriggered() {
         panel.showSearchView();
         playerDetailPanel = null;
-    }
-
-    @When("opening the selection does nothing")
-    public void openingTheSelectionDoesNothing() {
-        panel.confirmSelection();
-        assertFalse(panel.isProviderPanelShowing());
     }
 
     @Then("the table includes editable rows {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}")

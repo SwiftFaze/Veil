@@ -65,17 +65,30 @@ class DevConsoleModelTest {
         assertEquals(2, model.filteredResults().size());
     }
 
+    @Test
+    void findsEntryByFullyQualifiedId() {
+        DevConsoleModel model = new DevConsoleModel(List.of(stubProvider("Classes", "Mage", "Warrior")));
+        assertTrue(model.findById("core:mage").isPresent());
+        assertEquals("Mage", model.findById("core:mage").get().entry().name());
+    }
+
+    @Test
+    void findByIdReturnsEmptyForUnknownId() {
+        DevConsoleModel model = new DevConsoleModel(List.of(stubProvider("Classes", "Mage")));
+        assertTrue(model.findById("core:ghost").isEmpty());
+    }
+
     private DevConsoleProvider stubProvider(String category, String... names) {
         return new DevConsoleProvider() {
             @Override
             public List<DevConsoleEntry> entries() {
                 return List.of(names).stream()
-                        .map(name -> new DevConsoleEntry("core", category, name))
+                        .map(name -> new DevConsoleEntry("core", "core:" + name.toLowerCase(java.util.Locale.ROOT), category, name))
                         .toList();
             }
 
             @Override
-            public JComponent createPanel(String entryName) {
+            public JComponent createPanel(String id) {
                 return new JPanel();
             }
         };

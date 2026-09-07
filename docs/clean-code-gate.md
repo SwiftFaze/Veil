@@ -134,6 +134,15 @@ Each of these was measured against this repo, not assumed:
   *concept* per test.
 - **`GenericsNaming` and `AvoidLosingExceptionInformation` are absent.** PMD
   7.17 reports both as scheduled for removal in PMD 8.
+- **`FieldNamingConventions`'s `staticFieldPattern` matches `constantPattern`
+  (UPPER_SNAKE).** `WidgetTheme`'s color fields are `public static` (not
+  `final`, so `applyTheme()` can repopulate them from a mod-loaded theme) but
+  are conceptually fixed named color slots, each name mirroring a theme JSON
+  key 1:1 — the default camelCase `staticFieldPattern` would rename
+  `NORMAL_TEXT` to `normalText`, breaking that mapping for every one of its
+  12 pre-existing fields for no benefit. Surfaced 2026-09-07 when adding a
+  13th field (`TABLE_HEADER_TEXT`) put a line in this file into a diff for
+  the first time since the gate shipped.
 
 ## Suppressions
 

@@ -15,6 +15,7 @@ import java.util.function.Supplier;
  */
 public class PlayerSandboxProvider implements DevConsoleProvider {
 
+    private static final String PLAYER_ID = "core:player";
     private final Supplier<Player> playerSupplier;
 
     public PlayerSandboxProvider(Supplier<Player> playerSupplier) {
@@ -23,11 +24,11 @@ public class PlayerSandboxProvider implements DevConsoleProvider {
 
     @Override
     public List<DevConsoleEntry> entries() {
-        return List.of(new DevConsoleEntry("core", "Player", "Player"));
+        return List.of(new DevConsoleEntry("core", PLAYER_ID, "Player", "Player"));
     }
 
     @Override
-    public JComponent createPanel(String entryName) {
+    public JComponent createPanel(String id) {
         return new PlayerDetailPanel(playerSupplier.get());
     }
 }

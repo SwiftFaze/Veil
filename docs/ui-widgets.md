@@ -9,11 +9,11 @@ spacing/typography/color rules a panel or widget should follow, see
 
 **Widget theming** (`mods/<modid>/themes/*.json`): a directory of files, one
 theme per file, matching the `tiles/`/`items/`/`quests/` directory-of-many-files
-convention (not the `stats.json` singleton) — each file defining all 12 colors
+convention (not the `stats.json` singleton) — each file defining all 13 colors
 `WidgetTheme` (see below) exposes as static fields: `SELECTED_HIGHLIGHT`,
 `SELECTED_TEXT`, `NORMAL_TEXT`, `DIMMED_TEXT`, `BACKGROUND`, `INVALID_HIGHLIGHT`,
 `VALID_HIGHLIGHT`, `TABLE_HEADER_BACKGROUND`, `BORDER`, `SCROLLBAR_THUMB`,
-`ACCENT`, `WINDOW_BORDER` (`WidgetColorTheme.REQUIRED_KEYS`), each an `{r, g, b}` object using
+`ACCENT`, `WINDOW_BORDER`, `TABLE_HEADER_TEXT` (`WidgetColorTheme.REQUIRED_KEYS`), each an `{r, g, b}` object using
 the same color shape tiles already use (`ModLoader.readColor`). `BORDER` was
 named `TABLE_BORDER` until the UI color-cleanup sweep below broadened its use
 well beyond tables (every panel border in `ui/`) — the old name was misleading
@@ -29,7 +29,12 @@ audit caught `Main.java`'s frame content-pane border and
 of resolving to a theme key — a distinct semantic role from `BORDER` (used
 for internal panel/widget chrome, gray by default) since the two need to
 diverge visually: the outermost window edge stays bright regardless of what
-internal borders are themed to, so it can't just reuse `BORDER`. Loaded by `ModLoader.loadThemes`/`loadTheme` — shaped like
+internal borders are themed to, so it can't just reuse `BORDER`. `TABLE_HEADER_TEXT`
+(cyan, `#00c2c2`) was added for `TranscriptWidget`'s result-table header row (see
+below): the closest existing candidate, `ACCENT`, already has an unrelated
+caller (`ClassSandboxPanel`'s selected-row highlight) that recoloring it to
+cyan would have dragged along unintentionally, so this got its own key instead
+of overloading `ACCENT`'s meaning. Loaded by `ModLoader.loadThemes`/`loadTheme` — shaped like
 `loadTiles`/`loadTile`'s directory scan, still routed through
 `registerWithCollisionCheck` for id/`overrides` parity with every other content
 type — into a `WidgetColorTheme` (id + `Map<String, Color>`,
@@ -54,9 +59,10 @@ widget-theming initiative.
 A small reusable widget framework lives in `ui/widget/`: `Widget` (base
 `JPanel` — themed background via `WidgetTheme.BACKGROUND`, focusable),
 `FocusManager` (a modal-open flag a popup's content can consult), `WidgetTheme`
-(12 mutable `static Color` fields — `SELECTED_HIGHLIGHT`/`SELECTED_TEXT`/
+(13 mutable `static Color` fields — `SELECTED_HIGHLIGHT`/`SELECTED_TEXT`/
 `NORMAL_TEXT`/`DIMMED_TEXT`/`BACKGROUND`/`INVALID_HIGHLIGHT`/`VALID_HIGHLIGHT`/
-`TABLE_HEADER_BACKGROUND`/`BORDER`/`SCROLLBAR_THUMB`/`ACCENT`/`WINDOW_BORDER` — hardcoded as
+`TABLE_HEADER_BACKGROUND`/`BORDER`/`SCROLLBAR_THUMB`/`ACCENT`/`WINDOW_BORDER`/
+`TABLE_HEADER_TEXT` — hardcoded as
 field initializers so any widget built without `ModLoader` ever running still
 gets sane defaults, but overwritten from a loaded `WidgetColorTheme` via
 `applyTheme` at startup; see "Widget theming" above), `ListWidget<T>` (a
@@ -136,3 +142,23 @@ so `Main.navigateTo()` can re-push the newly-focused screen's current hints
 on every screen switch — a screen's own key-bound methods already push hints
 for in-screen focus changes, but only `Main` knows when a screen switch just
 happened.
+
+`TranscriptWidget` (an append-only, auto-scrolling log view — added for
+`sandbox/DevConsolePanel`'s replacement of its old live-filtered results
+table, see `dev-console-log-transcript.feature`): `appendInfo`/`appendError`
+add one timestamped line each, `appendResultTable` adds a plain,
+column-aligned text listing (padded to each column's widest value, no grid
+borders — a "console.table" look, not a second `TableWidget` instance) with
+a `TABLE_HEADER_TEXT`-colored header row. A log line's timestamp and message
+always render in `NORMAL_TEXT`; only the level word itself is colored
+(`INVALID_HIGHLIGHT` for an error) and right-aligned to a fixed column,
+matching a conventional logback console layout rather than coloring the
+whole line. `entries()` and `lastResultTable()` expose what's been appended
+so far for callers (tests) to assert against, without re-parsing rendered
+Swing components. Deliberately does not import
+`ui/ListDetailLayoutUtility.buildScrollPane`/`configureDetailsTable` despite
+wanting the same behavior — `ModuleDependencyTest.widgetsMustNotDependOnScreens`
+forbids a `ui/widget/` class from depending on that utility, which sits
+directly in `ui/` — so `DevConsolePanel` (in `sandbox/`, exempt from that
+rule) builds the scroll pane itself, and the table's non-selectable/no-wrap
+configuration is inlined rather than shared.
