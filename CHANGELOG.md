@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.19](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.18...v0.5.0-beta.19) (2026-09-07)
+
+
+### Features
+
+* replace dev console results table with a log transcript, address entries by id ([#188](https://github.com/SwiftFaze/Veil/issues/188)) ([7c10ed3](https://github.com/SwiftFaze/Veil/commit/7c10ed39eee287b35b977155823f164521ae3883)), closes [#186](https://github.com/SwiftFaze/Veil/issues/186)
+
 ## [0.5.0-beta.18](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.17...v0.5.0-beta.18) (2026-09-06)
 
 
