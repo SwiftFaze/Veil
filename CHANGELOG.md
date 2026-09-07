@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.20](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.19...v0.5.0-beta.20) (2026-09-07)
+
+
+### Features
+
+* dev console set/add/subtract commands for live stat mutation ([#190](https://github.com/SwiftFaze/Veil/issues/190)) ([d8004ef](https://github.com/SwiftFaze/Veil/commit/d8004efaaf7500def56e19db9cc885e41f5ae7cc))
+
 ## [0.5.0-beta.19](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.18...v0.5.0-beta.19) (2026-09-07)
 
 
