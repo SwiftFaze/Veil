@@ -28,10 +28,10 @@ public class TranscriptWidget extends Widget {
 
     private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final Font LINE_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 16);
-    private static final int LEVEL_COLUMN_WIDTH = 5;
+    private static final int LEVEL_COLUMN_WIDTH = 7;
     private static final String COLUMN_GAP = "   ";
 
-    public enum Level { INFO, ERROR }
+    public enum Level { INFO, SUCCESS, ERROR }
 
     public record TranscriptEntry(Level level, String text) {
     }
@@ -50,6 +50,10 @@ public class TranscriptWidget extends Widget {
 
     public void appendError(String text) {
         append(Level.ERROR, text, WidgetTheme.INVALID_HIGHLIGHT);
+    }
+
+    public void appendSuccess(String text) {
+        append(Level.SUCCESS, text, WidgetTheme.VALID_HIGHLIGHT);
     }
 
     public void appendResultTable(List<String> headers, List<List<String>> rows) {

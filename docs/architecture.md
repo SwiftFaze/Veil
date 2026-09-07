@@ -168,7 +168,7 @@ filters registered provider entries (each a namespaced id/category/name from
 into the transcript; `edit <namespace:id>` resolves an entry by its stable id
 and opens its detail panel (via `DevConsoleProvider.createPanel(id)` — entries
 are addressed by id, not display name, so two providers can't collide on a
-shared name). Anything else writes a specific error line (unknown command,
+shared name). `set <entry> <field> <value>`, `add <entry> <field> <value>`, and `subtract <entry> <field> <value>` mutate a live entity's field directly from the command bar — entries are addressed by either their full id or just the part after the namespace (`player`, not `core:player`, via `DevConsoleModel.findByEntryToken`). A provider opts in by returning a `DevConsoleFieldMutator` from `DevConsoleProvider.fieldMutator(id)`; `PlayerSandboxProvider` is the only one that does for v1, via `PlayerFieldMutator`/`PlayerField`, reusing the same field floors/clamping rules as `PlayerDetailPanel`'s arm+Left/Right editing. Every mutation writes a SUCCESS or ERROR line to the transcript. Anything else writes a specific error line (unknown command,
 missing argument, or an id that resolves to nothing) instead of running
 anything; a bare word alone is not a search. Multiple providers can register
 entries together — `ClassSandboxProvider` exposes every player class as a

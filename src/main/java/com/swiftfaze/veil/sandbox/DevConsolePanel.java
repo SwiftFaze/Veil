@@ -24,15 +24,16 @@ import java.awt.event.ActionEvent;
  * Top-level dev-console shell: an append-only log transcript of every typed command's output,
  * always shown on launch. Typing `search <term>` and pressing Enter filters entries and
  * prints a numbered result table into the transcript; typing `edit <namespace:id>` and
- * pressing Enter opens that entry's detail panel in place of the transcript. Escape returns from
- * a detail panel to the transcript.
+ * pressing Enter opens that entry's detail panel in place of the transcript. `set`/`add`/
+ * `subtract` mutate a field and write a transcript line. Escape returns from a detail panel to
+ * the transcript.
  */
 public class DevConsolePanel extends JPanel {
 
     private static final String SEARCH_CARD = "search";
     private static final String PROVIDER_CARD = "provider";
     private static final Dimension DEFAULT_SIZE = new Dimension(820, 600);
-    private static final String COMMAND_PLACEHOLDER = "search <term> | edit <namespace:id>";
+    private static final String COMMAND_PLACEHOLDER = "search <term> | edit <namespace:id> | set/add/subtract <entry> <field> <value>";
     private static final String TITLE = "Dev Console";
     // ui-styling.md's "component gap" - the fixed spacing between two sibling components.
     private static final int COMPONENT_GAP_PX = 8;

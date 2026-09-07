@@ -2,6 +2,7 @@ package com.swiftfaze.veil.sandbox;
 
 import javax.swing.JComponent;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A source of individually-searchable {@link DevConsoleEntry} items the dev
@@ -22,4 +23,15 @@ public interface DevConsoleProvider {
      * @param id the {@link DevConsoleEntry#id()} - fully-qualified id (e.g. "core:mage")
      */
     JComponent createPanel(String id);
+
+    /**
+     * Opt-in hook for a provider whose entries support live field mutation via the command bar's
+     * set/add/subtract verbs. Empty by default - only {@link PlayerSandboxProvider} overrides it
+     * for v1.
+     *
+     * @param id the {@link DevConsoleEntry#id()} the mutation targets
+     */
+    default Optional<DevConsoleFieldMutator> fieldMutator(String id) {
+        return Optional.empty();
+    }
 }
