@@ -31,19 +31,16 @@ not yet recorded in intent.md, stop and do Step 3/4 first.
 
 Include:
 
-- **Feature**: name + one-line description
+- **Feature**: name, plus the description block that says what this file
+  covers, what it supersedes, and what's explicitly out of scope — per
+  root `CLAUDE.md`, that block is the single source of truth for the
+  file's coverage, so keep it current on every regeneration
 - **Background** (if multiple scenarios share setup)
 - **Scenarios** in Given/When/Then form — happy path, at least one edge
   case, at least one failure/error case
 - **Scenario Outline + Examples table** where behavior varies by input
 - A trailing comment block listing **Non-goals**, **Risks**, and **Open
   questions** — anything still ambiguous, for the human reviewer
-
-If this is a newly created `<slug>.feature` (not a regeneration of an
-existing one), add a row for it to the `## Index` table in
-`specs/features/README.md`, with a one-line description of what it
-covers. Do this once, when the file is first created — not on every
-regeneration during the Steps 3-4 clarification loop.
 
 ## Step 3 — Ask remaining questions, doubts, or problems
 

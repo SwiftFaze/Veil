@@ -111,15 +111,6 @@ structure:
 Do not commit this file — leave it for the user to review/commit, same as
 any other intent doc.
 
-## Step 5.5 — Update specs/intent/README.md's Index table
-
-Add a row for `<slug>.md` to the `## Index` table in
-`specs/intent/README.md`, linking to issue `#<n>` (and any other related
-issues named in the intent doc's own text, e.g. a design doc it's a phase
-of, or an issue it follows up on) — same convention as
-`specs/features/README.md`'s own Index table. Do this in the same change
-as writing the intent doc, not left for the user to add later.
-
 ## Step 6 — Report back
 
 One short summary: branch name (created + checked out), issue linked and
