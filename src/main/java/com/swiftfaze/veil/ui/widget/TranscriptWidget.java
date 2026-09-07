@@ -1,37 +1,32 @@
 package com.swiftfaze.veil.ui.widget;
 
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.BoxLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * An append-only, scrolling log view for the dev console: each command's output becomes new
- * lines added to the bottom, never replacing what's already there. A log line's timestamp and
- * message render in the same neutral color throughout - only the level word itself is colored
- * and right-aligned to a fixed width, matching a conventional logback console layout. A result
- * set renders as plain, column-aligned text inline in the flow (a "console.table"-style listing,
- * not a bordered/selectable grid widget) - columns padded to their widest value and separated by
- * whitespace, with a colored header row.
+ * An append-only, scrolling log view for the dev console: each typed command and its output
+ * become new lines added to the bottom, never replacing what's already there - the command
+ * itself is echoed as a dimmed line before its result. No timestamp or level word is shown;
+ * a line's color is the only status signal (dimmed for an echoed command, normal for info,
+ * green for success, red for error). A result set renders as plain, column-aligned text inline
+ * in the flow (a "console.table"-style listing, not a bordered/selectable grid widget) -
+ * columns padded to their widest value and separated by whitespace, with a colored header row.
  */
 public class TranscriptWidget extends Widget {
 
-    private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final Font LINE_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 16);
-    private static final int LEVEL_COLUMN_WIDTH = 7;
     private static final String COLUMN_GAP = "   ";
 
-    public enum Level { INFO, SUCCESS, ERROR }
+    public enum Level { COMMAND, INFO, SUCCESS, ERROR }
 
     public record TranscriptEntry(Level level, String text) {
     }
@@ -42,6 +37,10 @@ public class TranscriptWidget extends Widget {
     public TranscriptWidget() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setAlignmentX(LEFT_ALIGNMENT);
+    }
+
+    public void appendCommand(String text) {
+        append(Level.COMMAND, text, WidgetTheme.DIMMED_TEXT);
     }
 
     public void appendInfo(String text) {
@@ -74,23 +73,10 @@ public class TranscriptWidget extends Widget {
         return Optional.ofNullable(lastResultTable);
     }
 
-    private void append(Level level, String text, Color levelColor) {
+    private void append(Level level, String text, Color color) {
         entries.add(new TranscriptEntry(level, text));
-        add(fullWidth(buildLineRow(level, text, levelColor)));
+        add(fullWidth(plainLabel(text, color)));
         scrollToBottom();
-    }
-
-    private JPanel buildLineRow(Level level, String text, Color levelColor) {
-        JPanel row = new JPanel();
-        row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
-        row.setBackground(WidgetTheme.BACKGROUND);
-        row.setAlignmentX(LEFT_ALIGNMENT);
-        String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMAT);
-        String rightAlignedLevel = String.format("%" + LEVEL_COLUMN_WIDTH + "s", level.name());
-        row.add(plainLabel(timestamp + "  "));
-        row.add(plainLabel(rightAlignedLevel, levelColor));
-        row.add(plainLabel("  " + text));
-        return row;
     }
 
     private int[] columnWidths(List<String> headers, List<List<String>> rows) {
@@ -119,10 +105,6 @@ public class TranscriptWidget extends Widget {
 
     private String padded(String text, int width) {
         return String.format("%-" + width + "s", text);
-    }
-
-    private JLabel plainLabel(String text) {
-        return plainLabel(text, WidgetTheme.NORMAL_TEXT);
     }
 
     private JLabel plainLabel(String text, Color color) {

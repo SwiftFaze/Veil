@@ -21,8 +21,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 
 /**
- * Top-level dev-console shell: an append-only log transcript of every typed command's output,
- * always shown on launch. Typing `search <term>` and pressing Enter filters entries and
+ * Top-level dev-console shell: an append-only log transcript of every typed command and its
+ * output, always shown on launch. Typing `search <term>` and pressing Enter filters entries and
  * prints a numbered result table into the transcript; typing `edit <namespace:id>` and
  * pressing Enter opens that entry's detail panel in place of the transcript. `set`/`add`/
  * `subtract` mutate a field and write a transcript line. Escape returns from a detail panel to
@@ -90,6 +90,7 @@ public class DevConsolePanel extends JPanel {
     public void runCommand() {
         String line = commandField.getInput();
         if (!line.isBlank()) {
+            transcript.appendCommand(line);
             commandRunner.run(line);
         }
         commandField.getTextField().setText("");

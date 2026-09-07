@@ -86,6 +86,14 @@ public class DevConsoleSteps {
         assertTrue(lastEntry.text().contains(term));
     }
 
+    @Then("the transcript's first entry is a command line for {string}")
+    public void theTranscriptsFirstEntryIsACommandLineFor(String command) {
+        assertFalse(panel.getTranscript().entries().isEmpty(), "Transcript should have entries");
+        var firstEntry = panel.getTranscript().entries().get(0);
+        assertEquals(TranscriptWidget.Level.COMMAND, firstEntry.level());
+        assertEquals(command, firstEntry.text());
+    }
+
     @Then("the transcript's last entry is an error line for {string}")
     public void theTranscriptsLastEntryIsAnErrorLineFor(String input) {
         assertFalse(panel.getTranscript().entries().isEmpty(), "Transcript should have entries after: " + input);

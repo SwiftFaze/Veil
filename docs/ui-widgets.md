@@ -145,17 +145,18 @@ happened.
 
 `TranscriptWidget` (an append-only, auto-scrolling log view — added for
 `sandbox/DevConsolePanel`'s replacement of its old live-filtered results
-table, see `dev-console-log-transcript.feature`): `appendInfo`/`appendError`
-add one timestamped line each, `appendResultTable` adds a plain,
+table, see `dev-console-log-transcript.feature`): `appendCommand`/`appendInfo`/
+`appendSuccess`/`appendError` each add one plain-text line, with no timestamp
+or level word - the line's color alone is the status signal (`DIMMED_TEXT` for
+an echoed command, `NORMAL_TEXT` for info, `VALID_HIGHLIGHT` for success,
+`INVALID_HIGHLIGHT` for error). `appendResultTable` adds a plain,
 column-aligned text listing (padded to each column's widest value, no grid
 borders — a "console.table" look, not a second `TableWidget` instance) with
-a `TABLE_HEADER_TEXT`-colored header row. A log line's timestamp and message
-always render in `NORMAL_TEXT`; only the level word itself is colored
-(`INVALID_HIGHLIGHT` for an error) and right-aligned to a fixed column,
-matching a conventional logback console layout rather than coloring the
-whole line. `entries()` and `lastResultTable()` expose what's been appended
-so far for callers (tests) to assert against, without re-parsing rendered
-Swing components. Deliberately does not import
+a `TABLE_HEADER_TEXT`-colored header row, unaffected by the above. `entries()`
+and `lastResultTable()` expose what's been appended so far (each entry keeps
+its `Level` even though the level word itself isn't drawn) for callers (tests)
+to assert against, without re-parsing rendered Swing components. Deliberately
+does not import
 `ui/ListDetailLayoutUtility.buildScrollPane`/`configureDetailsTable` despite
 wanting the same behavior — `ModuleDependencyTest.widgetsMustNotDependOnScreens`
 forbids a `ui/widget/` class from depending on that utility, which sits

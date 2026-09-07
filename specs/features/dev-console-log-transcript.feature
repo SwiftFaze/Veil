@@ -8,6 +8,9 @@ Feature: Dev console log transcript
   other unrecognized/malformed input, appends an error line instead of running
   anything. Previous output is never replaced; it accumulates for the life of the
   console panel (built once at startup - a close/reopen via F1 does not clear it).
+  Every typed command is itself echoed as a dimmed COMMAND-level line immediately
+  before whatever it produces, so the transcript reads as a full record of what was
+  typed and what happened, not just the results.
 
   This file supersedes sandbox-dev-console.feature's live-as-you-type scenarios
   ("Typing filters results by substring, case-insensitively", "Opening a search
@@ -40,6 +43,11 @@ Feature: Dev console log transcript
   Scenario: Addressing an entry by namespace:id opens its detail screen
     When the command "edit core:mage" is entered
     Then the opened detail panel is shown
+
+  Scenario: The typed command itself is echoed as a transcript line before its result
+    When the command "search classes" is entered
+    Then the transcript's first entry is a command line for "search classes"
+    And the transcript's last entry is an info line reporting 2 results for "classes"
 
   Scenario: Escape returns to the console view without clearing the transcript
     Given the command "search classes" has been entered
