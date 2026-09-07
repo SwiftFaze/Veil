@@ -43,6 +43,8 @@ public class DevConsoleSteps {
     private int maxHpBeforeEdit;
     private String lastEditedFieldName;
     private int lastEditedFieldValue;
+    private Stats statsSnapshot;
+    private String classSnapshot;
 
     @Given("the dev console is running with the {string} provider registered")
     public void theDevConsoleIsRunningWithTheProviderRegistered(String providerName) {
@@ -82,6 +84,14 @@ public class DevConsoleSteps {
         assertEquals(TranscriptWidget.Level.INFO, lastEntry.level());
         assertTrue(lastEntry.text().contains(String.valueOf(count)));
         assertTrue(lastEntry.text().contains(term));
+    }
+
+    @Then("the transcript's first entry is a command line for {string}")
+    public void theTranscriptsFirstEntryIsACommandLineFor(String command) {
+        assertFalse(panel.getTranscript().entries().isEmpty(), "Transcript should have entries");
+        var firstEntry = panel.getTranscript().entries().get(0);
+        assertEquals(TranscriptWidget.Level.COMMAND, firstEntry.level());
+        assertEquals(command, firstEntry.text());
     }
 
     @Then("the transcript's last entry is an error line for {string}")
@@ -271,6 +281,7 @@ public class DevConsoleSteps {
         Stats stats = livePlayer.getPlayerInfo().getStats();
         switch (fieldName) {
             case "Strength" -> stats.setStrength(stats.getStrength() + 1);
+            case "Max HP" -> stats.setMaxHp(stats.getMaxHp() + 1);
         }
         refreshDisplayedRows();
     }
@@ -291,6 +302,61 @@ public class DevConsoleSteps {
         assertEquals(fieldName, lastEditedFieldName);
         Stats stats = livePlayer.getPlayerInfo().getStats();
         assertEquals(lastEditedFieldValue, getStatValue(stats, fieldName));
+    }
+
+    @When("the command bar is set to {string}")
+    public void theCommandBarIsSetTo(String command) {
+        statsSnapshot = snapshot(livePlayer.getPlayerInfo().getStats());
+        classSnapshot = livePlayer.getPlayerInfo().getPlayerClass().getName();
+        panel.getSearchField().setText(command);
+        panel.runCommand();
+    }
+
+    @Then("the transcript's last line is a SUCCESS line for {string} set to {int}")
+    public void transcriptsLastLineIsSuccessForFieldSetTo(String fieldName, int value) {
+        var lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level());
+        assertTrue(lastEntry.text().contains(fieldName));
+        assertTrue(lastEntry.text().contains(String.valueOf(value)));
+    }
+
+    @Then("the transcript's last line is an ERROR line for {word} {string}")
+    public void transcriptsLastLineIsErrorFor(String category, String token) {
+        var lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level());
+        assertTrue(lastEntry.text().contains(token), "Expected error text to mention: " + token);
+    }
+
+    @Then("the running player's {string} value is unchanged")
+    public void theRunningPlayerSFieldValueIsUnchanged(String fieldName) {
+        int before = getStatValue(statsSnapshot, fieldName);
+        int after = getStatValue(livePlayer.getPlayerInfo().getStats(), fieldName);
+        assertEquals(before, after, fieldName + " should be unchanged");
+    }
+
+    @Then("the running player's class value is unchanged")
+    public void theRunningPlayerSClassValueIsUnchanged() {
+        assertEquals(classSnapshot, livePlayer.getPlayerInfo().getPlayerClass().getName());
+    }
+
+    @Then("the running player's {string} is Warrior's level-0 base Strength")
+    public void fieldIsWarriorLevelZeroBaseStrength(String fieldName) {
+        assertFieldIsWarriorBase(fieldName);
+    }
+
+    @Then("the running player's {string} is Warrior's level-0 base Max HP")
+    public void fieldIsWarriorLevelZeroBaseMaxHp(String fieldName) {
+        assertFieldIsWarriorBase(fieldName);
+    }
+
+    private void assertFieldIsWarriorBase(String fieldName) {
+        com.swiftfaze.veil.entities.player.classes.PlayerClass warrior = findPlayerClass("Warrior");
+        assertNotNull(warrior, "Class not found: Warrior");
+        Stats baseStats = new Stats();
+        warrior.applyStatsAtLevel(baseStats, 0);
+        int expectedValue = getStatValue(baseStats, fieldName);
+        int actualValue = getStatValue(livePlayer.getPlayerInfo().getStats(), fieldName);
+        assertEquals(expectedValue, actualValue, fieldName + " should match Warrior's level-0 base value");
     }
 
     @Given("the game's live player is the same object identity before and after opening the provider")
@@ -440,6 +506,27 @@ public class DevConsoleSteps {
             case "Defense" -> stats.getDefense();
             default -> 0;
         };
+    }
+
+    private TranscriptWidget.TranscriptEntry lastTranscriptEntry() {
+        var entries = panel.getTranscript().entries();
+        assertFalse(entries.isEmpty(), "Transcript should have entries");
+        return entries.get(entries.size() - 1);
+    }
+
+    private Stats snapshot(Stats stats) {
+        Stats copy = new Stats();
+        copy.setStrength(stats.getStrength());
+        copy.setDexterity(stats.getDexterity());
+        copy.setConstitution(stats.getConstitution());
+        copy.setIntelligence(stats.getIntelligence());
+        copy.setWisdom(stats.getWisdom());
+        copy.setLuck(stats.getLuck());
+        copy.setMaxHp(stats.getMaxHp());
+        copy.setMaxMana(stats.getMaxMana());
+        copy.setCurrentHp(stats.getCurrentHp());
+        copy.setCurrentMana(stats.getCurrentMana());
+        return copy;
     }
 
     private com.swiftfaze.veil.entities.player.classes.PlayerClass findPlayerClass(String name) {

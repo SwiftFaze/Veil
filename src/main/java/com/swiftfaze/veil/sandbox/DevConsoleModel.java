@@ -36,6 +36,26 @@ public class DevConsoleModel {
                 .findFirst();
     }
 
+    /**
+     * Resolves an entry by either its full id ("core:player") or just the part after the last
+     * ":" ("player") - the dev console's set/add/subtract verbs address entries by the shorter
+     * form since #170's examples never use the namespace prefix, unlike `edit`.
+     */
+    public Optional<SearchResult> findByEntryToken(String token) {
+        return allResults.stream()
+                .filter(result -> matchesToken(result.entry(), token))
+                .findFirst();
+    }
+
+    private boolean matchesToken(DevConsoleEntry entry, String token) {
+        return entry.id().equals(token) || localId(entry.id()).equals(token);
+    }
+
+    private String localId(String id) {
+        int colonIndex = id.indexOf(':');
+        return colonIndex < 0 ? id : id.substring(colonIndex + 1);
+    }
+
     private boolean matches(DevConsoleEntry entry, String needle) {
         return contains(entry.namespace(), needle)
                 || contains(entry.category(), needle)

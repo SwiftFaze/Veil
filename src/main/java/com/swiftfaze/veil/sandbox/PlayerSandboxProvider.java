@@ -3,6 +3,7 @@ package com.swiftfaze.veil.sandbox;
 import com.swiftfaze.veil.entities.player.Player;
 import javax.swing.JComponent;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -30,5 +31,10 @@ public class PlayerSandboxProvider implements DevConsoleProvider {
     @Override
     public JComponent createPanel(String id) {
         return new PlayerDetailPanel(playerSupplier.get());
+    }
+
+    @Override
+    public Optional<DevConsoleFieldMutator> fieldMutator(String id) {
+        return Optional.of(new PlayerFieldMutator(playerSupplier));
     }
 }

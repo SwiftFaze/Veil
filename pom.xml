@@ -214,6 +214,8 @@
                         <param>com.swiftfaze.veil.sandbox.DevConsoleCommandRunner</param>
                         <param>com.swiftfaze.veil.sandbox.PlayerSandboxProvider</param>
                         <param>com.swiftfaze.veil.sandbox.PlayerDetailPanel</param>
+                        <param>com.swiftfaze.veil.sandbox.PlayerField</param>
+                        <param>com.swiftfaze.veil.sandbox.PlayerFieldMutator</param>
                     </targetClasses>
                     <!-- Same pure layout/wiring classes the PMD and JaCoCo exclusion
                          lists below carry, for the same reason: no branching logic to
