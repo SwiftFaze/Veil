@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.21](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.20...v0.5.0-beta.21) (2026-09-08)
+
+
+### Features
+
+* dev console positional Tab completion and command history ([#193](https://github.com/SwiftFaze/Veil/issues/193)) ([f724758](https://github.com/SwiftFaze/Veil/commit/f724758a59602a4ed3ed5df1ead69b7e19c601b3))
+
 ## [0.5.0-beta.20](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.19...v0.5.0-beta.20) (2026-09-07)
 
 

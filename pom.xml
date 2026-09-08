@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.swiftfaze</groupId>
     <artifactId>Veil</artifactId>
-    <version>0.5.0-beta.20</version>
+    <version>0.5.0-beta.21</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
