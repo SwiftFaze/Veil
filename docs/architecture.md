@@ -190,6 +190,38 @@ exec:java -Dveil.devConsole=true` enables the F1 keybind to toggle a floating
 dev console frame alongside the running game. The packaged/installer build
 does not include the property, so players never see it.
 
+**Completion and history**: the command field supports live-filtering Tab
+completion at each argument position, context-sensitive to the verb and prior
+arguments — Position 0 completes verb names, Position 1 completes entry
+identifiers or search terms depending on the verb, Positions 2-3 complete
+field names and values respectively for mutations. `DevConsoleCompletion`
+matches typed prefixes case-insensitively via two methods: `candidates(commandLine)`
+returns all matching candidates for the trailing token on every keystroke, and
+`apply(commandLine, candidate)` fills the chosen candidate into the line in
+place. Candidates render in a floating suggestion overlay above the command
+field (`SuggestionOverlayWidget`) styled like Claude Code's own `/`-command
+menu — one row per candidate, one highlighted (defaults to first), navigable
+with Up/Down (wrapping at both ends), and accepted with Tab or Enter to fill
+the field without executing the command. The overlay is a persistent child of
+the owning window's `JLayeredPane` (popup layer), repositioned/resized in
+place on every keystroke rather than torn down and recreated via
+`javax.swing.Popup` — an earlier version did exactly that and visibly flashed
+blank on every update under rapid typing, since a fresh `Popup` always starts
+from its default clear color and offers no way to resize/reuse an
+already-shown one. While the overlay is open, Up/Down navigate the highlight;
+while no overlay is open (no candidates for the current trailing token),
+Up/Down navigate command history instead. A provider's `DevConsoleFieldMutator`
+exposes its completable field tokens via `fieldTokens()`, allowing mutation
+verbs to discover which fields are mutable without hard-coding. Command
+history records on Enter for non-empty, non-duplicate-adjacent commands
+(shell-style), including zero-result commands so failed searches can be
+corrected and re-run; Down past the newest entry restores whatever draft was
+being typed before history navigation started. Programmatic field updates
+(history recall, accept-fill) temporarily detach the live-filter
+`DocumentListener` around the `setText` call to prevent re-filtering on
+changes made by the panel's own code, so only genuine user keystrokes trigger
+live filtering.
+
 **Class sandbox** (now part of the dev console): `ClassSandboxModel` wraps
 `PlayerClassLoader.loadAll()` and exposes class names plus computed `Stats`
 per class (via `PlayerClass.applyBaseStats`, no duplicated formulas);

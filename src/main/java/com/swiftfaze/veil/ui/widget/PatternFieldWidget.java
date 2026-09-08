@@ -47,6 +47,15 @@ public class PatternFieldWidget extends Widget {
     // height left no slack for that, squeezing the content label's area toward zero.
     private static final int FIELD_HEIGHT = 40;
     private static final int LABELED_FIELD_HEIGHT = 56;
+    // How far a Swing TitledBorder insets its wrapped outline from the component's own left/right
+    // bounds to make room for the floating title - independent of, and smaller than, the extra
+    // top-only space the title's own height needs (see getBorder() insets math in buildBorder()'s
+    // caller). Not derivable from TitledBorder's own getBorderInsets(): that reports a larger
+    // number on every edge (its own built-in safety margin for the title, not the outline's real
+    // paint position), confirmed by comparing it against the actual rendered pixel column of the
+    // outline. TitledBorder has no public API for this, so it's pinned here as a measured
+    // constant of the JDK's own implementation rather than guessed from insets arithmetic.
+    private static final int TITLED_BORDER_HORIZONTAL_EDGE_SPACING = 2;
 
     private final Pattern pattern;
     private final JTextField textField;
@@ -94,6 +103,15 @@ public class PatternFieldWidget extends Widget {
     @Override
     public boolean requestFocusInWindow() {
         return textField.requestFocusInWindow();
+    }
+
+    /**
+     * How far in from this field's own left and right edges its actual visible outlined box
+     * sits, on each side - zero when there's no label (an untitled border paints flush with the
+     * component's own bounds). See {@link #TITLED_BORDER_HORIZONTAL_EDGE_SPACING}.
+     */
+    public int getVisibleBoxHorizontalInset() {
+        return fieldLabel != null ? TITLED_BORDER_HORIZONTAL_EDGE_SPACING : 0;
     }
 
     public String getInput() {

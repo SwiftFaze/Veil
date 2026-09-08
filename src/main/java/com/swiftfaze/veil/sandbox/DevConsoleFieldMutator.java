@@ -1,5 +1,7 @@
 package com.swiftfaze.veil.sandbox;
 
+import java.util.List;
+
 /**
  * Lets a {@link DevConsoleProvider} wire live field mutation into the command bar's set/add/
  * subtract verbs. Only {@link PlayerSandboxProvider} implements one for v1 - a provider with no
@@ -14,4 +16,10 @@ public interface DevConsoleFieldMutator {
      *                   only for fields with a class-default to reset to)
      */
     DevConsoleMutationResult apply(DevConsoleMutationVerb verb, String fieldToken, String rawValue);
+
+    /** Tab-completion candidates for the field-name argument position. */
+    List<String> fieldTokens();
+
+    /** Whether {@code fieldToken} has a class-default the SET verb's "default" keyword can restore. */
+    boolean hasClassDefault(String fieldToken);
 }

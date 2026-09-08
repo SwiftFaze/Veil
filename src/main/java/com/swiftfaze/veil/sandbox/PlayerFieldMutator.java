@@ -4,6 +4,8 @@ import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.entities.player.Stats;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Supplier;
@@ -94,5 +96,15 @@ public class PlayerFieldMutator implements DevConsoleFieldMutator {
         } catch (NumberFormatException e) {
             return OptionalInt.empty();
         }
+    }
+
+    @Override
+    public List<String> fieldTokens() {
+        return Arrays.stream(PlayerField.values()).map(PlayerField::token).toList();
+    }
+
+    @Override
+    public boolean hasClassDefault(String fieldToken) {
+        return PlayerField.fromToken(fieldToken).map(PlayerField::hasClassDefault).orElse(false);
     }
 }

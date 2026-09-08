@@ -20,6 +20,7 @@ import io.cucumber.java.en.When;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -34,6 +35,9 @@ public class DevConsoleSteps {
     private static final int NAME_COLUMN = 2;
     private static final int CATEGORY_COLUMN = 3;
     private static final int MOD_COLUMN = 4;
+    private static final String TRANSCRIPT_SHOULD_HAVE_ENTRIES = "Transcript should have entries";
+    private static final String CLASSES_PROVIDER_NAME = "Classes";
+    private static final String PLAYER_PROVIDER_NAME = "Player";
 
     private DevConsoleModel model;
     private DevConsolePanel panel;
@@ -49,6 +53,14 @@ public class DevConsoleSteps {
     @Given("the dev console is running with the {string} provider registered")
     public void theDevConsoleIsRunningWithTheProviderRegistered(String providerName) {
         List<DevConsoleProvider> providers = List.of(providerFor(providerName));
+        model = new DevConsoleModel(providers);
+        panel = new DevConsolePanel(model);
+    }
+
+    @Given("the dev console is running with the {string} and {string} providers registered")
+    public void theDevConsoleIsRunningWithTheProvidersRegistered(String provider1, String provider2) {
+        livePlayer = new Player(0, 0);
+        List<DevConsoleProvider> providers = List.of(providerFor(provider1), providerFor(provider2));
         model = new DevConsoleModel(providers);
         panel = new DevConsolePanel(model);
     }
@@ -77,9 +89,70 @@ public class DevConsoleSteps {
         theCommandIsEntered(command);
     }
 
+    @Given("the command field contains {string}")
+    public void theCommandFieldContains(String text) {
+        panel.getSearchField().setText(text);
+    }
+
+    @Then("the command field text is {string}")
+    public void theCommandFieldTextIs(String text) {
+        assertEquals(text, panel.getSearchField().getText(),
+                "Expected command field to contain: " + text);
+    }
+
+    @When("Tab is pressed")
+    public void tabIsPressed() {
+        fireCommandAction(Keybindings.ACTION_DEV_CONSOLE_COMPLETE);
+    }
+
+    @When("Up is pressed")
+    public void upIsPressed() {
+        fireCommandAction(Keybindings.ACTION_DEV_CONSOLE_HISTORY_UP);
+    }
+
+    @When("Down is pressed")
+    public void downIsPressed() {
+        fireCommandAction(Keybindings.ACTION_DEV_CONSOLE_HISTORY_DOWN);
+    }
+
+    @When("Enter is pressed")
+    public void enterIsPressed() {
+        fireCommandAction(Keybindings.ACTION_MENU_CONFIRM);
+    }
+
+    @When("Escape is pressed")
+    public void escapeIsPressed() {
+        fireCommandAction(Keybindings.ACTION_DEV_CONSOLE_DISMISS_OVERLAY);
+    }
+
+    @Then("the suggestion overlay is showing with candidates {string}")
+    public void theSuggestionOverlayIsShowingWithCandidates(String candidatesStr) {
+        assertTrue(panel.getSuggestionOverlay().isShowing(), "Expected the suggestion overlay to be showing");
+        Set<String> expected = Set.of(candidatesStr.split(", "));
+        Set<String> actual = Set.copyOf(panel.getSuggestionOverlay().candidates());
+        assertEquals(expected, actual, "Expected candidates " + expected + " but got " + actual);
+    }
+
+    @Then("the suggestion overlay is not showing")
+    public void theSuggestionOverlayIsNotShowing() {
+        assertFalse(panel.getSuggestionOverlay().isShowing(), "Expected the suggestion overlay to not be showing");
+    }
+
+    @Then("the transcript has no entries")
+    public void assertTranscriptHasNoEntries() {
+        assertTrue(panel.getTranscript().entries().isEmpty(),
+                "Expected transcript to have no entries");
+    }
+
+    @Then("the command history size is {int}")
+    public void assertCommandHistorySize(int expectedSize) {
+        assertEquals(expectedSize, panel.getHistory().size(),
+                "Expected command history size to be " + expectedSize);
+    }
+
     @Then("the transcript's last entry is an info line reporting {int} results for {string}")
     public void theTranscriptsLastEntryIsAnInfoLineReporting(int count, String term) {
-        assertFalse(panel.getTranscript().entries().isEmpty(), "Transcript should have entries");
+        assertFalse(panel.getTranscript().entries().isEmpty(), TRANSCRIPT_SHOULD_HAVE_ENTRIES);
         var lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
         assertEquals(TranscriptWidget.Level.INFO, lastEntry.level());
         assertTrue(lastEntry.text().contains(String.valueOf(count)));
@@ -88,7 +161,7 @@ public class DevConsoleSteps {
 
     @Then("the transcript's first entry is a command line for {string}")
     public void theTranscriptsFirstEntryIsACommandLineFor(String command) {
-        assertFalse(panel.getTranscript().entries().isEmpty(), "Transcript should have entries");
+        assertFalse(panel.getTranscript().entries().isEmpty(), TRANSCRIPT_SHOULD_HAVE_ENTRIES);
         var firstEntry = panel.getTranscript().entries().get(0);
         assertEquals(TranscriptWidget.Level.COMMAND, firstEntry.level());
         assertEquals(command, firstEntry.text());
@@ -447,6 +520,13 @@ public class DevConsoleSteps {
         }
     }
 
+    private void fireCommandAction(String actionName) {
+        Action action = panel.getSearchField().getActionMap().get(actionName);
+        if (action != null) {
+            action.actionPerformed(new ActionEvent(panel.getSearchField(), ActionEvent.ACTION_PERFORMED, ""));
+        }
+    }
+
     private int rowIndexOf(String fieldName) {
         return switch (fieldName) {
             case "Class" -> 0;
@@ -510,7 +590,7 @@ public class DevConsoleSteps {
 
     private TranscriptWidget.TranscriptEntry lastTranscriptEntry() {
         var entries = panel.getTranscript().entries();
-        assertFalse(entries.isEmpty(), "Transcript should have entries");
+        assertFalse(entries.isEmpty(), TRANSCRIPT_SHOULD_HAVE_ENTRIES);
         return entries.get(entries.size() - 1);
     }
 
@@ -553,8 +633,11 @@ public class DevConsoleSteps {
     }
 
     private DevConsoleProvider providerFor(String name) {
-        if ("Classes".equals(name)) {
+        if (CLASSES_PROVIDER_NAME.equals(name)) {
             return new ClassSandboxProvider();
+        }
+        if (PLAYER_PROVIDER_NAME.equals(name)) {
+            return new PlayerSandboxProvider(() -> livePlayer);
         }
         throw new IllegalArgumentException("Unknown provider: " + name);
     }

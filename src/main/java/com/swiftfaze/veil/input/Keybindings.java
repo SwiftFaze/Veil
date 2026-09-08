@@ -46,6 +46,11 @@ public final class Keybindings {
     public static final String ACTION_MENU_CANCEL = "menu-cancel";
     public static final String ACTION_DROP_ITEM = "drop-item";
 
+    public static final String ACTION_DEV_CONSOLE_COMPLETE = "dev-console-complete";
+    public static final String ACTION_DEV_CONSOLE_HISTORY_UP = "dev-console-history-up";
+    public static final String ACTION_DEV_CONSOLE_HISTORY_DOWN = "dev-console-history-down";
+    public static final String ACTION_DEV_CONSOLE_DISMISS_OVERLAY = "dev-console-dismiss-overlay";
+
     private Keybindings() {
     }
 }

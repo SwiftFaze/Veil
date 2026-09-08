@@ -43,6 +43,10 @@ enum PlayerField {
         return displayName;
     }
 
+    String token() {
+        return token;
+    }
+
     int floor() {
         return spec.floor();
     }
