@@ -47,6 +47,10 @@ public class DevConsoleModel {
                 .findFirst();
     }
 
+    public List<SearchResult> allResults() {
+        return allResults;
+    }
+
     private boolean matchesToken(DevConsoleEntry entry, String token) {
         return entry.id().equals(token) || localId(entry.id()).equals(token);
     }

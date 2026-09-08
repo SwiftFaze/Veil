@@ -4,6 +4,7 @@ import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.ListDetailLayoutUtility;
 import com.swiftfaze.veil.ui.widget.HeaderWidget;
 import com.swiftfaze.veil.ui.widget.PatternFieldWidget;
+import com.swiftfaze.veil.ui.widget.SuggestionOverlayWidget;
 import com.swiftfaze.veil.ui.widget.TranscriptWidget;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 
@@ -14,11 +15,14 @@ import javax.swing.InputMap;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 /**
  * Top-level dev-console shell: an append-only log transcript of every typed command and its
@@ -33,7 +37,6 @@ public class DevConsolePanel extends JPanel {
     private static final String SEARCH_CARD = "search";
     private static final String PROVIDER_CARD = "provider";
     private static final Dimension DEFAULT_SIZE = new Dimension(820, 600);
-    private static final String COMMAND_PLACEHOLDER = "search <term> | edit <namespace:id> | set/add/subtract <entry> <field> <value>";
     private static final String TITLE = "Dev Console";
     // ui-styling.md's "component gap" - the fixed spacing between two sibling components.
     private static final int COMPONENT_GAP_PX = 8;
@@ -44,6 +47,10 @@ public class DevConsolePanel extends JPanel {
     private final TranscriptWidget transcript;
     private final DevConsoleCommandRunner commandRunner;
     private final JPanel providerContainer;
+    private final DevConsoleCompletion completion;
+    private final DevConsoleCommandHistory history;
+    private final SuggestionOverlayWidget suggestionOverlay = new SuggestionOverlayWidget();
+    private final DocumentListener liveFilterListener = new LiveFilterListener();
 
     public DevConsolePanel(DevConsoleModel model) {
         this.cardLayout = new CardLayout();
@@ -53,6 +60,8 @@ public class DevConsolePanel extends JPanel {
         this.commandRunner = new DevConsoleCommandRunner(model, transcript, this::showProvider);
         this.providerContainer = new JPanel(new BorderLayout());
         providerContainer.setBackground(WidgetTheme.BACKGROUND);
+        this.completion = new DevConsoleCompletion(model);
+        this.history = new DevConsoleCommandHistory();
 
         setBackground(WidgetTheme.BACKGROUND);
         setLayout(new BorderLayout());
@@ -65,6 +74,8 @@ public class DevConsolePanel extends JPanel {
         cards.add(buildSearchView(), SEARCH_CARD);
         cards.add(providerContainer, PROVIDER_CARD);
         add(cards, BorderLayout.CENTER);
+
+        commandField.getTextField().getDocument().addDocumentListener(liveFilterListener);
 
         bindProviderBackKey();
         showSearchView();
@@ -83,6 +94,14 @@ public class DevConsolePanel extends JPanel {
         return transcript;
     }
 
+    public DevConsoleCommandHistory getHistory() {
+        return history;
+    }
+
+    public SuggestionOverlayWidget getSuggestionOverlay() {
+        return suggestionOverlay;
+    }
+
     /**
      * Parses and executes whatever is currently typed in the command field, then clears it -
      * public so it can be driven directly both by the Enter keybinding and by tests.
@@ -92,6 +111,7 @@ public class DevConsolePanel extends JPanel {
         if (!line.isBlank()) {
             transcript.appendCommand(line);
             commandRunner.run(line);
+            history.record(line);
         }
         commandField.getTextField().setText("");
     }
@@ -133,7 +153,6 @@ public class DevConsolePanel extends JPanel {
 
     private PatternFieldWidget buildCommandField() {
         commandField.setAlignmentX(LEFT_ALIGNMENT);
-        commandField.setPlaceholder(COMMAND_PLACEHOLDER);
         commandField.setValidityColoringEnabled(false);
         bindSearchFieldKeys();
         return commandField;
@@ -150,9 +169,87 @@ public class DevConsolePanel extends JPanel {
         actionMap.put(Keybindings.ACTION_MENU_CONFIRM, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                runCommand();
+                if (suggestionOverlay.isShowing()) {
+                    acceptHighlightedSuggestion();
+                } else {
+                    runCommand();
+                }
             }
         });
+
+        inputMap.put(Keybindings.NEXT_TAB, Keybindings.ACTION_DEV_CONSOLE_COMPLETE);
+        actionMap.put(Keybindings.ACTION_DEV_CONSOLE_COMPLETE, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (suggestionOverlay.isShowing()) {
+                    acceptHighlightedSuggestion();
+                }
+            }
+        });
+
+        inputMap.put(Keybindings.MENU_UP, Keybindings.ACTION_DEV_CONSOLE_HISTORY_UP);
+        actionMap.put(Keybindings.ACTION_DEV_CONSOLE_HISTORY_UP, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (suggestionOverlay.isShowing()) {
+                    suggestionOverlay.moveHighlightUp();
+                } else {
+                    recallPreviousCommand();
+                }
+            }
+        });
+
+        inputMap.put(Keybindings.MENU_DOWN, Keybindings.ACTION_DEV_CONSOLE_HISTORY_DOWN);
+        actionMap.put(Keybindings.ACTION_DEV_CONSOLE_HISTORY_DOWN, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (suggestionOverlay.isShowing()) {
+                    suggestionOverlay.moveHighlightDown();
+                } else {
+                    recallNextCommand();
+                }
+            }
+        });
+
+        inputMap.put(Keybindings.MENU_CANCEL, Keybindings.ACTION_DEV_CONSOLE_DISMISS_OVERLAY);
+        actionMap.put(Keybindings.ACTION_DEV_CONSOLE_DISMISS_OVERLAY, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                suggestionOverlay.hide();
+            }
+        });
+    }
+
+    private class LiveFilterListener implements DocumentListener {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            refreshSuggestions();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            refreshSuggestions();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            refreshSuggestions();
+        }
+    }
+
+    private void refreshSuggestions() {
+        List<String> cands = completion.candidates(commandField.getInput());
+        if (cands.isEmpty()) {
+            suggestionOverlay.hide();
+        } else {
+            // Anchored to commandField itself (not its inner JTextField, which sits inset within
+            // PatternFieldWidget's own outline border/padding) and with no top offset, so the
+            // overlay sits flush above the field's full bounds - including its floating "Command"
+            // label - rather than eating into that reserved space and painting over the label.
+            // The horizontal inset keeps the overlay's own left/right edges aligned with the
+            // field's actual visible outline rather than its raw (very slightly wider) bounds.
+            suggestionOverlay.show(cands, commandField, 0, commandField.getVisibleBoxHorizontalInset());
+        }
     }
 
     private void bindProviderBackKey() {
@@ -175,5 +272,31 @@ public class DevConsolePanel extends JPanel {
         providerContainer.revalidate();
         providerContainer.repaint();
         providerContainer.getComponent(0).requestFocusInWindow();
+    }
+
+    private void acceptHighlightedSuggestion() {
+        String candidate = suggestionOverlay.highlighted();
+        String filled = completion.apply(commandField.getInput(), candidate);
+        suggestionOverlay.hide();
+        setFieldText(filled);
+    }
+
+    private void recallPreviousCommand() {
+        setFieldText(history.navigateUp(commandField.getInput()));
+    }
+
+    private void recallNextCommand() {
+        String restored = history.navigateDown();
+        if (restored != null) {
+            setFieldText(restored);
+        }
+    }
+
+    private void setFieldText(String text) {
+        JTextField textField = commandField.getTextField();
+        textField.getDocument().removeDocumentListener(liveFilterListener);
+        textField.setText(text);
+        textField.setCaretPosition(text.length());
+        textField.getDocument().addDocumentListener(liveFilterListener);
     }
 }

@@ -190,6 +190,22 @@ exec:java -Dveil.devConsole=true` enables the F1 keybind to toggle a floating
 dev console frame alongside the running game. The packaged/installer build
 does not include the property, so players never see it.
 
+**Completion and history**: the command field supports live-filtering Tab
+completion, context-sensitive by argument position — position 0 completes
+verb names, position 1 entry identifiers/search terms, positions 2-3 field
+names and values for mutations. `DevConsoleCompletion.candidates(commandLine)`
+returns matches for the trailing token on every keystroke;
+`apply(commandLine, candidate)` fills the chosen one in. Candidates render in
+`SuggestionOverlayWidget`, a floating popup above the command field (styled
+like Claude Code's own `/`-command menu; see its own javadoc for why it's a
+persistent `JLayeredPane` child rather than a `javax.swing.Popup`) — Up/Down
+move its highlight, Tab/Enter accepts, Escape dismisses. With no overlay
+open, Up/Down instead navigate `DevConsoleCommandHistory`: shell-style
+adjacent dedup, draft restored past the newest entry. A provider's
+`DevConsoleFieldMutator` exposes completable field tokens via `fieldTokens()`.
+Programmatic field updates (history recall, accept-fill) detach/reattach the
+live-filter `DocumentListener` around `setText` so only real typing filters.
+
 **Class sandbox** (now part of the dev console): `ClassSandboxModel` wraps
 `PlayerClassLoader.loadAll()` and exposes class names plus computed `Stats`
 per class (via `PlayerClass.applyBaseStats`, no duplicated formulas);
