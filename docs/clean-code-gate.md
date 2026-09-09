@@ -96,6 +96,7 @@ Other flags: `--all` (whole repo, for baselining — not the gate), `--files`
 | 7 | Unused fields, methods, locals, parameters, assignments, imports | Full | `.pmd-clean-code.xml` |
 | 8 | Swallowed/broad catches, lost stack traces, `printStackTrace`, `println` | Full | `.pmd-clean-code.xml` |
 | 8 | Magic numbers and strings | **Partial** — literals are legitimate in a renderer | `VeilMagicNumber` (advisory) |
+| 9 | Between-package structure — cycle freedom, public mutable static state, instantiation confined to composition roots | Full (frozen baseline) | `ModuleDependencyTest` (ArchUnit, `FreezingArchRule`) |
 
 Test-quality rules run only against `src/test`; SRP rules only against
 `src/main`. The script routes them.

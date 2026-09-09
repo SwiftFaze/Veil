@@ -161,7 +161,7 @@ else
   # is ignored when the value is set literally in the plugin configuration.
   if mvn -B verify -Dpmd.failOnViolation=false > "$MVN_LOG" 2>&1; then
     echo "  PASS  compile, unit + acceptance + integration tests, 85% line"
-    echo "        coverage, ArchUnit module dependency direction"
+    echo "        coverage, ArchUnit module dependency direction + structure"
   else
     echo "  FAIL  mvn verify failed:"
     echo

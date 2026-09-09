@@ -100,6 +100,10 @@
                 <directory>${project.basedir}/specs/features</directory>
                 <targetPath>features</targetPath>
             </testResource>
+            <!-- ArchUnit configuration and freeze store for the module dependency gate -->
+            <testResource>
+                <directory>${project.basedir}/src/test/resources</directory>
+            </testResource>
         </testResources>
         <plugins>
             <!-- Unit + acceptance tests (*Test.java, including the Cucumber suite runner) -->
