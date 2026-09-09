@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.22](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.21...v0.5.0-beta.22) (2026-09-09)
+
+
+### Features
+
+* guard the module dependency graph with ArchUnit rules ([#205](https://github.com/SwiftFaze/Veil/issues/205)) ([baf3094](https://github.com/SwiftFaze/Veil/commit/baf3094e2e0da358c2631d92713b9ced53419518)), closes [#192](https://github.com/SwiftFaze/Veil/issues/192)
+
 ## [0.5.0-beta.21](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.20...v0.5.0-beta.21) (2026-09-08)
 
 
