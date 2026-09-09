@@ -99,6 +99,53 @@ correct single-method pattern (guard with `if (x == null) { build it }
 else { just assert }`) when the same text is genuinely reused as both a
 fresh-build precondition and a later assertion.
 
+## Approval tests
+
+Approval tests compare rendered output (the ASCII glyph grid) against committed
+baseline fixtures. They catch rendering regressions — camera viewport edges,
+building footprints, entity layering, glyph grid content — that humans tend to
+miss during playtesting but that can be checked automatically.
+
+### How approval tests work
+
+- **Fixture location:** `src/test/resources/approved/<scenario-name>.approved.txt`
+- **Mismatch file:** `src/test/resources/approved/<scenario-name>.received.txt`
+  (created only if the actual output differs from the approved fixture)
+- **Behavior:** `ApprovalCheck.verify()` renders a scene to a `char[][]` grid,
+  converts it to text (rows joined by `\n`), and compares against the committed
+  fixture. On match, any stale `.received.txt` is cleaned up and the test passes.
+  On mismatch, `.received.txt` is written, an assertion failure shows both grids
+  for side-by-side inspection, and the test fails.
+- **Re-approval:** After validating that a `.received.txt` is correct (e.g.
+  because a fixture was deliberately updated), promote it to `.approved.txt`:
+  ```
+  mvn compile exec:java -Dexec.mainClass=com.swiftfaze.veil.testing.approval.ApprovalReapprove
+  ```
+  This command scans for all `.received.txt` files in the approved fixtures
+  directory, replaces their `.approved.txt` siblings with the received content,
+  and deletes the `.received.txt` files. It is never run automatically — re-approval
+  is always explicit. After running it, `mvn test` will pass if the new fixtures
+  are correct.
+- **Line endings:** Approved fixtures must use LF (not CRLF) for byte-exact
+  comparison across platforms. This is enforced in `.gitattributes`:
+  ```
+  src/test/resources/approved/*.txt text eol=lf
+  ```
+  When you commit an approved fixture, Git normalizes its line endings to LF
+  regardless of the OS's default.
+
+### Writing approval test scenarios
+
+Use the patterns from `specs/features/approval-tests-glyph-grid.feature`:
+- Build a small `WorldScene` with hand-built test-double tiles (not real mod
+  content — see `WorldSceneTest` for the pattern).
+- Create a `Camera` with the viewport size you want to test.
+- Call `scene.renderToGrid(camera, entities)` to produce the glyph grid.
+- Convert the `char[][]` to a text fixture: join each row into a line, rows
+  into a single string with `\n` between them.
+- Call `ApprovalCheck.verify(scenarioName, gridAsText)` to compare and
+  record the result.
+
 ## Integration tests
 
 - Location: `src/test/java/**/*IT.java`

@@ -123,4 +123,27 @@ public abstract class WorldScene implements DrawableAsciiEntity {
             }
         }
     }
+
+    public char[][] renderToGrid(Camera camera, java.util.List<? extends DrawableAsciiEntity> entities) {
+        int viewportWidth = camera.getViewportWidth();
+        int viewportHeight = camera.getViewportHeight();
+        char[][] grid = new char[viewportHeight][viewportWidth];
+
+        for (int row = 0; row < viewportHeight; row++) {
+            for (int col = 0; col < viewportWidth; col++) {
+                Tile tile = getTile(camera.getX() + col, camera.getY() + row);
+                grid[row][col] = tile != null ? tile.getSymbol() : ' ';
+            }
+        }
+
+        for (DrawableAsciiEntity entity : entities) {
+            int col = entity.getX() - camera.getX();
+            int row = entity.getY() - camera.getY();
+            if (row >= 0 && row < viewportHeight && col >= 0 && col < viewportWidth) {
+                grid[row][col] = entity.getSymbol();
+            }
+        }
+
+        return grid;
+    }
 }

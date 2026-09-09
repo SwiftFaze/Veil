@@ -53,6 +53,7 @@ Re-audit monthly — checklist in `docs/instruction-files.md`.
 - Run the game: `mvn compile exec:java`. Add `-Dveil.devConsole=true` for the
   F1 dev console (live player-stat editing).
 - Run the class/stats sandbox: `mvn compile exec:java -Dexec.mainClass=com.swiftfaze.veil.sandbox.ClassSandbox`.
+- Re-approve changed approval-test fixtures: `mvn compile exec:java -Dexec.mainClass=com.swiftfaze.veil.testing.approval.ApprovalReapprove`.
 - Mutation testing: `mvn org.pitest:pitest-maven:mutationCoverage` → `target/pit-reports/`.
 - `mvn package` → `target/Veil-<version>-app.jar` (runnable fat jar).
 - Test-layer rationale and troubleshooting: `docs/testing.md`.
