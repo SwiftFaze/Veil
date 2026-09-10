@@ -183,20 +183,53 @@ Surefire, then integration tests via Failsafe.
   coverage constraint is easy to satisfy with weak assertions; mutation
   score catches that) — not a substitute for acceptance tests or the
   Step 4.5 manual playtest.
+- `<mutationThreshold>` in `pom.xml`: 51% (measured baseline 1088/2115
+  mutations killed). Ratcheted by the same `check-quality-gates.sh` as the
+  JaCoCo floors below. Stays a manual command, not bound to `mvn verify`.
 
 ## Code quality gates (PMD and JaCoCo)
 
 - Both gates are bound to `mvn verify` and fail the build if violated.
 - **PMD (maven-pmd-plugin)** enforces design rules via `.pmd-minimal.xml`
   (complexity, method length, parameter count — see `.claude/workflow.md`'s
-  "Constraints" section for the exact current numbers, which is the single
-  source of truth for these; don't restate them here, they're a deliberate,
-  adjustable dial per that doc) plus CPD (Copy-Paste Detector) flagging
-  duplicate code blocks at 100+ tokens.
-  Pure Swing layout/wiring classes with no branching logic are excluded from these checks (see `pom.xml`'s PMD excludes list).
-- **JaCoCo (jacoco-maven-plugin)** enforces a minimum of 85% line coverage across all non-excluded classes (repo-wide, not per-changed-file). The same exclusion list as PMD applies.
-- See `pom.xml`'s PMD plugin configuration for the full exclusion list and rationale (classes confirmed to be pure construction/layout/wiring with no real logic to unit-test).
-- The one narrow, already-practiced suppression exception (`.claude/workflow.md`'s Constraints section states the general rule): a method overriding a JDK/library interface whose signature mandates more than the enforced parameter ceiling — e.g. `Border.paintBorder(Component, Graphics, int, int, int, int)` (6 parameters), see `RadioGroupWidget.RadioOptionBorder` and `TableWidget.AccentableCellBorder`, or `javax.swing.text.DocumentFilter.replace(FilterBypass, int, int, String, AttributeSet)` (5 parameters), see `PatternFieldWidget.AllowedCharacterFilter` — may suppress PMD's `ExcessiveParameterList` rule with `@SuppressWarnings("PMD.ExcessiveParameterList")` plus a comment naming the interface. This is specific to parameter count on an unavoidable interface override; it does not extend to complexity, length, coverage, or the module dependency rule below, none of which have an equivalent "the interface forced it" excuse — a violation there must be fixed by decomposing the code, not suppressing the check.
+  "Constraints" section for the exact current numbers, the single source of
+  truth for these) plus CPD flagging duplicate code at 100+ tokens. Pure
+  Swing layout/wiring classes with no branching logic are excluded (`pom.xml`'s
+  PMD excludes list has the full list and rationale).
+- The one narrow, already-practiced suppression exception (general rule in
+  `.claude/workflow.md`'s Constraints section): a method overriding a JDK/
+  library interface whose signature mandates more parameters than the
+  enforced ceiling — e.g. `Border.paintBorder(...)` (6 params, see
+  `RadioGroupWidget.RadioOptionBorder`/`TableWidget.AccentableCellBorder`) or
+  `DocumentFilter.replace(...)` (5 params, see
+  `PatternFieldWidget.AllowedCharacterFilter`) — may carry
+  `@SuppressWarnings("PMD.ExcessiveParameterList")` plus a comment naming the
+  interface. Parameter count only; never complexity, length, or coverage.
+- **JaCoCo (jacoco-maven-plugin)** enforces coverage floors at two scopes, both
+  measured from a real baseline and ratcheting up only — enforcement is
+  `.claude/tools/check-quality-gates.sh`, run as `repo-hygiene.yml`'s
+  `quality-gate-ratchet` job on every PR; this list is not the source of
+  truth, that check is:
+
+  | Scope | Counter | Floor | Measured baseline |
+  |---|---|---|---|
+  | `BUNDLE` (repo-wide) | `LINE` | 85% | 90.34% |
+  | `BUNDLE` (repo-wide) | `BRANCH` | 78% | 78.98% |
+  | `SOURCEFILE` (per file) | `LINE` | 35% | 35.7% (`FillLayout.java`) |
+  | `SOURCEFILE` (per file) | `BRANCH` | 50% | 50.0% (`FillLayout.java`) |
+
+  The per-file scope is `SOURCEFILE`, not `CLASS`: JaCoCo's `CLASS` element
+  counts every compiled `.class` file, so a nested/anonymous inner class is
+  judged as its own unit — measured on `develop`, the worst such rows are
+  incidental helpers of already-tested widgets, which forces any green
+  `CLASS` floor to ~0% (see `specs/intent/coverage-gate-floors-class-scope.md`
+  for the full derivation). `SOURCEFILE` judges the `.java` file someone
+  actually adds, needing no per-inner-class exclusion list.
+  Excludes are shared with PMD's list above, plus a `$*` sibling glob per
+  entry (a bare glob only matches the outer class, not its nested/anonymous
+  ones) — see `pom.xml`'s `jacoco-check` execution for the full list.
+- **Mutation testing** (below) also carries a ratcheted `mutationThreshold`,
+  enforced by the same `check-quality-gates.sh`.
 
 ## Module dependency gate (ArchUnit)
 
