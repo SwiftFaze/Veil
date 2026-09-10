@@ -1,8 +1,8 @@
 package com.swiftfaze.veil.steps;
 
 import com.swiftfaze.veil.Camera;
-import com.swiftfaze.veil.DrawableAsciiEntity;
 import com.swiftfaze.veil.testing.approval.ApprovalCheck;
+import com.swiftfaze.veil.world.PositionedGlyph;
 import com.swiftfaze.veil.world.Tile;
 import com.swiftfaze.veil.world.WorldScene;
 import com.swiftfaze.veil.entities.buildings.Building;
@@ -26,9 +26,15 @@ public class ApprovalTestsGlyphGridSteps {
 
     private WorldScene scene;
     private char[][] renderedGrid;
-    private List<DrawableAsciiEntity> entities;
+    private List<PositionedGlyph> entities;
     private String scenarioName;
     private boolean shouldFail;
+
+    private char[][] renderScene() {
+        Camera camera = SharedScenarioContext.getCamera();
+        return scene.renderToGrid(camera.getX(), camera.getY(),
+                camera.getViewportWidth(), camera.getViewportHeight(), entities);
+    }
 
     // Background steps (narrative only)
     @Given("a WorldScene rendering seam that produces the visible tile grid as text, clipped to the camera's viewport, with no Graphics2D involved")
@@ -63,12 +69,12 @@ public class ApprovalTestsGlyphGridSteps {
 
     @When("the scene is rendered through the text seam")
     public void theSceneIsRenderedThroughTheTextSeam() {
-        renderedGrid = scene.renderToGrid(SharedScenarioContext.getCamera(), entities);
+        renderedGrid = renderScene();
     }
 
     @When("the scene and its entities are rendered through the text seam")
     public void theSceneAndItsEntitiesAreRenderedThroughTheTextSeam() {
-        renderedGrid = scene.renderToGrid(SharedScenarioContext.getCamera(), entities);
+        renderedGrid = renderScene();
     }
 
     @And("the result is compared against the approved fixture")
@@ -99,7 +105,7 @@ public class ApprovalTestsGlyphGridSteps {
     @When("one glyph in the renderer is deliberately changed")
     public void oneGlyphInTheRendererIsDeliberatelyChanged() {
         // Render baseline grid
-        String baselineGrid = gridToString(scene.renderToGrid(SharedScenarioContext.getCamera(), entities));
+        String baselineGrid = gridToString(renderScene());
         ApprovalCheck.verify(scenarioName, baselineGrid);
 
         // Now deliberately change a glyph by creating an altered version
@@ -270,7 +276,7 @@ public class ApprovalTestsGlyphGridSteps {
 
     @And("a minimal hand-built DrawableAsciiEntity positioned on that same tile")
     public void aDrawableAsciiEntityOnTile() {
-        entities.add(new TestEntity(5, 5, '@', Color.RED));
+        entities.add(new TestEntity(5, 5, '@'));
     }
 
     @Then("the rendered grid shows the entity's glyph at that position, not the tile's")
@@ -296,7 +302,7 @@ public class ApprovalTestsGlyphGridSteps {
             entities = new ArrayList<>();
             scenarioName = "viewport-" + viewportWidth + "x" + viewportHeight;
         }
-        renderedGrid = scene.renderToGrid(SharedScenarioContext.getCamera(), entities);
+        renderedGrid = renderScene();
     }
 
     @Then("the rendered grid is exactly {int} columns by {int} rows, matching an approved fixture")
@@ -317,18 +323,17 @@ public class ApprovalTestsGlyphGridSteps {
         return sb.toString();
     }
 
-    // Test double for DrawableAsciiEntity
-    private static class TestEntity implements DrawableAsciiEntity {
+    // Test double for a hand-built entity, matching DrawableAsciiEntity's shape
+    // for position/symbol without depending on the com.swiftfaze.veil package.
+    private static class TestEntity implements PositionedGlyph {
         private final int x;
         private final int y;
         private final char symbol;
-        private final Color color;
 
-        TestEntity(int x, int y, char symbol, Color color) {
+        TestEntity(int x, int y, char symbol) {
             this.x = x;
             this.y = y;
             this.symbol = symbol;
-            this.color = color;
         }
 
         @Override
@@ -339,13 +344,5 @@ public class ApprovalTestsGlyphGridSteps {
 
         @Override
         public char getSymbol() { return symbol; }
-
-        @Override
-        public Color getColor() { return color; }
-
-        @Override
-        public void render(java.awt.Graphics2D g2d, int tileWidth, int tileHeight, Camera camera) {
-            // No-op for test
-        }
     }
 }

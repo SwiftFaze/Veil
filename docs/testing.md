@@ -140,7 +140,11 @@ Use the patterns from `specs/features/approval-tests-glyph-grid.feature`:
 - Build a small `WorldScene` with hand-built test-double tiles (not real mod
   content — see `WorldSceneTest` for the pattern).
 - Create a `Camera` with the viewport size you want to test.
-- Call `scene.renderToGrid(camera, entities)` to produce the glyph grid.
+- Call `scene.renderToGrid(camera.getX(), camera.getY(), camera.getViewportWidth(),
+  camera.getViewportHeight(), entities)` to produce the glyph grid. `renderToGrid`
+  takes primitives and a `List<? extends PositionedGlyph>` rather than `Camera`/
+  `DrawableAsciiEntity` directly, so the seam has no dependency back on the root
+  `com.swiftfaze.veil` package — see the Module dependency gate section below.
 - Convert the `char[][]` to a text fixture: join each row into a line, rows
   into a single string with `\n` between them.
 - Call `ApprovalCheck.verify(scenarioName, gridAsText)` to compare and
