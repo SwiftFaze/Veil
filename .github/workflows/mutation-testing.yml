@@ -10,11 +10,12 @@ name: Mutation testing
 # Cucumber suite. Weekly still surfaces a weak test within days of it landing,
 # while the author's context is fresh, and taxes no PR.
 #
-# Deliberately does NOT fail the build. No <mutationThreshold> is set yet:
-# picking a number before we have a baseline invites a permanently-red gate
-# that everyone learns to ignore, which is the exact failure this job exists to
-# catch. Once a few runs establish the real score, set the threshold just under
-# it in pom.xml and ratchet upward.
+# Deliberately does NOT fail the build even though pom.xml now carries a
+# <mutationThreshold> (issue #196): that threshold gates the manual
+# `mvn org.pitest:pitest-maven:mutationCoverage` command
+# (pit-mutation-threshold.feature), not this scheduled job. Whether this job
+# should also enforce it is an explicit follow-up, not decided here - see
+# that feature file's Non-goals.
 
 on:
   schedule:

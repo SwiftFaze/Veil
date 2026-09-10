@@ -253,6 +253,13 @@
                     <outputFormats>
                         <param>HTML</param>
                     </outputFormats>
+                    <!-- Added for #196: measured baseline on develop, fresh run against the
+                         full targetClasses/excludedClasses lists above -
+                         1088/2115 mutations killed (51%), 17m9s, 259 tests. Was purely
+                         advisory before this; now `mvn org.pitest:pitest-maven:mutationCoverage`
+                         fails below this. Ratcheted by .claude/tools/check-quality-gates.sh -
+                         see specs/features/pit-mutation-threshold.feature. -->
+                    <mutationThreshold>51</mutationThreshold>
                 </configuration>
             </plugin>
             <!-- Step 4 code-quality gates: PMD enforces cyclomatic complexity, function
@@ -336,23 +343,55 @@
                                  for an element=BUNDLE rule (verified: with only the FQN list, the
                                  check still failed at raw ~81% instead of the ~86% the exclusions
                                  should have produced). -->
+                            <!-- Every entry below also carries a `$*` sibling glob (added for
+                                 #196): the bare glob only matches the outer class's own compiled
+                                 file, not its nested/anonymous inner classes, which JaCoCo still
+                                 reports as separate SOURCEFILE-relevant rows otherwise - verified
+                                 by ButtonWidget and InventoryPanel, both of which carry anonymous
+                                 AbstractAction inner classes the bare glob missed. -->
                             <excludes>
                                 <exclude>**/ui/widget/ButtonWidget.class</exclude>
+                                <exclude>**/ui/widget/ButtonWidget$*.class</exclude>
                                 <exclude>**/ui/widget/FocusManager.class</exclude>
+                                <exclude>**/ui/widget/FocusManager$*.class</exclude>
                                 <exclude>**/ui/widget/TerminalScrollBarUI.class</exclude>
+                                <exclude>**/ui/widget/TerminalScrollBarUI$*.class</exclude>
                                 <exclude>**/ui/widget/Widget.class</exclude>
+                                <exclude>**/ui/widget/Widget$*.class</exclude>
                                 <exclude>**/ui/GameWindow.class</exclude>
+                                <exclude>**/ui/GameWindow$*.class</exclude>
                                 <exclude>**/ui/InventoryPanel.class</exclude>
+                                <exclude>**/ui/InventoryPanel$*.class</exclude>
                                 <exclude>**/ui/ResetConfirmationPopup.class</exclude>
+                                <exclude>**/ui/ResetConfirmationPopup$*.class</exclude>
                                 <exclude>**/ui/SettingsWindow.class</exclude>
+                                <exclude>**/ui/SettingsWindow$*.class</exclude>
                                 <exclude>**/Main.class</exclude>
                                 <exclude>**/Main$*.class</exclude>
                                 <exclude>**/GameConst.class</exclude>
+                                <exclude>**/GameConst$*.class</exclude>
                                 <exclude>**/Positionable.class</exclude>
+                                <exclude>**/Positionable$*.class</exclude>
                                 <exclude>**/DrawableAsciiEntity.class</exclude>
+                                <exclude>**/DrawableAsciiEntity$*.class</exclude>
                                 <exclude>**/exceptions/ModLoadException.class</exclude>
+                                <exclude>**/exceptions/ModLoadException$*.class</exclude>
                                 <exclude>**/game/GameListener.class</exclude>
+                                <exclude>**/game/GameListener$*.class</exclude>
                                 <exclude>**/sandbox/ClassSandbox.class</exclude>
+                                <exclude>**/sandbox/ClassSandbox$*.class</exclude>
+                                <!-- Added for #196: pure data record (label/value pair), no
+                                     branching logic to cover. -->
+                                <exclude>**/component/DetailField.class</exclude>
+                                <exclude>**/component/DetailField$*.class</exclude>
+                                <!-- Added for #196: pure data record grouping three panels, no
+                                     branching logic to cover. -->
+                                <exclude>**/ui/PopupPanels.class</exclude>
+                                <exclude>**/ui/PopupPanels$*.class</exclude>
+                                <!-- Added for #196: pure JLayeredPane assembly, same category as
+                                     GameWindow/SettingsWindow above - no branching logic. -->
+                                <exclude>**/ui/SettingsKeybindsWindow.class</exclude>
+                                <exclude>**/ui/SettingsKeybindsWindow$*.class</exclude>
                             </excludes>
                             <rules>
                                 <rule>
@@ -362,6 +401,46 @@
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.85</minimum>
+                                        </limit>
+                                        <!-- Added for #196: measured baseline 78.98% (819/1037) on
+                                             develop. Closes the hole where line coverage alone
+                                             can't tell a fully-branched `if` from one that only
+                                             ever took its true path. -->
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.78</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                                <!-- Added for #196: catches a brand-new file shipping at 0%
+                                     coverage, which the BUNDLE ratio above can hide behind the
+                                     existing corpus. element=SOURCEFILE, not CLASS: CLASS counts
+                                     every compiled .class file, including anonymous/nested inner
+                                     classes - measured on develop, the worst such rows are
+                                     incidental helpers of already-tested widgets, forcing any
+                                     green CLASS floor down to ~0% (a gate that catches nothing).
+                                     SOURCEFILE judges the .java file someone actually adds, with
+                                     no per-inner-class exclusion list to maintain. Full derivation:
+                                     specs/intent/coverage-gate-floors-class-scope.md. -->
+                                <rule>
+                                    <element>SOURCEFILE</element>
+                                    <limits>
+                                        <!-- Measured baseline: FillLayout.java, 35.7% (5/14). -->
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.35</minimum>
+                                        </limit>
+                                        <!-- Measured baseline: FillLayout.java, 50.0% (3/6) - also
+                                             the exact score of TitleScreenPanel.java and
+                                             ClassSandboxProvider.java. The floor sits AT the
+                                             measured worst, deliberately (JaCoCo's check is >=),
+                                             not below it - do not add headroom. -->
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

@@ -86,3 +86,19 @@ jobs:
 
           [ "$status" -eq 0 ] && echo "No manual release edits found."
           exit $status
+
+  # Was: docs/testing.md documenting the coverage/mutation-testing ratchet in
+  # prose only (issue #196). Prose is not enforcement against the actor these
+  # gates exist to constrain - see .claude/tools/check-quality-gates.sh.
+  quality-gate-ratchet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for weakened coverage/mutation gates
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+        run: bash .claude/tools/check-quality-gates.sh

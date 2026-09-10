@@ -30,8 +30,8 @@ VERBOSE=0
 # These are BASELINES, set at each file's size when this check was introduced
 # (2026-09-06), not targets anyone reasoned up to from first principles. A gate
 # that is red the day it lands teaches people to ignore it, so the job here is
-# to stop growth first and ratchet down after - the same reason pom.xml carries
-# no <mutationThreshold> yet.
+# to stop growth first and ratchet down after - the same "measure a baseline,
+# then hold it" reasoning behind pom.xml's JaCoCo/PIT floors (issue #196).
 #
 # Ratchet: whenever a file is trimmed, lower its number here in the same commit.
 # Never raise one without saying in the commit message why the file genuinely
