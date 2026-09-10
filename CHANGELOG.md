@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.23](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.22...v0.5.0-beta.23) (2026-09-10)
+
+
+### Features
+
+* close coverage-gate holes with per-file/branch floors, PIT threshold, and a ratchet check ([#208](https://github.com/SwiftFaze/Veil/issues/208)) ([41870b5](https://github.com/SwiftFaze/Veil/commit/41870b56b36315b163d8f109049faaadcb45dee3))
+
 ## [0.5.0-beta.22](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.21...v0.5.0-beta.22) (2026-09-09)
 
 
