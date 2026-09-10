@@ -4,6 +4,7 @@ import com.swiftfaze.veil.Camera;
 import com.swiftfaze.veil.testing.approval.ApprovalCheck;
 import com.swiftfaze.veil.world.PositionedGlyph;
 import com.swiftfaze.veil.world.Tile;
+import com.swiftfaze.veil.world.Viewport;
 import com.swiftfaze.veil.world.WorldScene;
 import com.swiftfaze.veil.entities.buildings.Building;
 import io.cucumber.java.en.Given;
@@ -32,8 +33,9 @@ public class ApprovalTestsGlyphGridSteps {
 
     private char[][] renderScene() {
         Camera camera = SharedScenarioContext.getCamera();
-        return scene.renderToGrid(camera.getX(), camera.getY(),
-                camera.getViewportWidth(), camera.getViewportHeight(), entities);
+        Viewport viewport = new Viewport(camera.getX(), camera.getY(),
+                camera.getViewportWidth(), camera.getViewportHeight());
+        return scene.renderToGrid(viewport, entities);
     }
 
     // Background steps (narrative only)

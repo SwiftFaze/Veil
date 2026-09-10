@@ -19,26 +19,35 @@ public class ApprovalCheck {
             String normalized = normalizeLineEndings(actualGridAsText);
 
             if (approved == null || !approved.equals(normalized)) {
-                Files.createDirectories(APPROVED_DIR);
-                Files.writeString(receivedPath, normalized, StandardCharsets.UTF_8);
-
-                String approvedDisplay = approved != null ? approved : "(no approved fixture exists yet)";
-                throw new AssertionError(
-                    String.format(
-                        "Approval test failed for '%s'.%n" +
-                        "Approved:%n%s%n%n" +
-                        "Received:%n%s",
-                        scenarioName, approvedDisplay, normalized
-                    )
-                );
+                failWithReceived(scenarioName, receivedPath, approved, normalized);
             }
 
             // On match, clean up any stale .received.txt
-            if (Files.exists(receivedPath)) {
-                Files.delete(receivedPath);
-            }
+            deleteIfExists(receivedPath);
         } catch (IOException e) {
             throw new RuntimeException("Failed to verify approval: " + e.getMessage(), e);
+        }
+    }
+
+    private static void failWithReceived(String scenarioName, Path receivedPath, String approved, String normalized)
+            throws IOException {
+        Files.createDirectories(APPROVED_DIR);
+        Files.writeString(receivedPath, normalized, StandardCharsets.UTF_8);
+
+        String approvedDisplay = approved != null ? approved : "(no approved fixture exists yet)";
+        throw new AssertionError(
+            String.format(
+                "Approval test failed for '%s'.%n" +
+                "Approved:%n%s%n%n" +
+                "Received:%n%s",
+                scenarioName, approvedDisplay, normalized
+            )
+        );
+    }
+
+    private static void deleteIfExists(Path path) throws IOException {
+        if (Files.exists(path)) {
+            Files.delete(path);
         }
     }
 
