@@ -62,9 +62,14 @@ public class ApprovalTestsGlyphGridSteps {
     }
 
     @Given("an approved fixture already committed at src\\/test\\/resources\\/approved\\/ for that scene")
-    public void anApprovedFixture() {
-        // This is a precondition; the fixture must exist for the test to pass.
-        // It will be created during the first run and verified manually.
+    public void anApprovedFixture() throws IOException {
+        // Also leave a stale .received.txt behind, as a previous failing run would,
+        // so the "no .received.txt file is written" scenario actually exercises
+        // ApprovalCheck's cleanup-on-match path rather than trivially passing.
+        java.nio.file.Files.writeString(
+            java.nio.file.Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt"),
+            "stale\n", java.nio.charset.StandardCharsets.UTF_8
+        );
     }
 
     @When("the scene is rendered through the text seam")
@@ -97,8 +102,11 @@ public class ApprovalTestsGlyphGridSteps {
 
     @And("no .received.txt file is written")
     public void noReceivedFileIsWritten() {
-        // This is verified by the ApprovalCheck implementation,
-        // which deletes stale .received.txt files on success.
+        java.nio.file.Path receivedPath =
+            java.nio.file.Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt");
+        if (java.nio.file.Files.exists(receivedPath)) {
+            throw new AssertionError("Expected no .received.txt file, but found: " + receivedPath);
+        }
     }
 
     // Scenario 2: A rendering change that alters the glyph grid fails the suite and shows the diff
