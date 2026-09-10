@@ -123,4 +123,34 @@ public abstract class WorldScene implements DrawableAsciiEntity {
             }
         }
     }
+
+    public char[][] renderToGrid(Viewport viewport, java.util.List<? extends PositionedGlyph> entities) {
+        char[][] grid = new char[viewport.height()][viewport.width()];
+        fillTileLayer(grid, viewport);
+        overlayEntities(grid, viewport, entities);
+        return grid;
+    }
+
+    private void fillTileLayer(char[][] grid, Viewport viewport) {
+        for (int row = 0; row < viewport.height(); row++) {
+            for (int col = 0; col < viewport.width(); col++) {
+                Tile tile = getTile(viewport.cameraX() + col, viewport.cameraY() + row);
+                grid[row][col] = tile != null ? tile.getSymbol() : ' ';
+            }
+        }
+    }
+
+    private void overlayEntities(char[][] grid, Viewport viewport, java.util.List<? extends PositionedGlyph> entities) {
+        for (PositionedGlyph entity : entities) {
+            int col = entity.getX() - viewport.cameraX();
+            int row = entity.getY() - viewport.cameraY();
+            if (isWithinViewport(row, col, viewport)) {
+                grid[row][col] = entity.getSymbol();
+            }
+        }
+    }
+
+    private boolean isWithinViewport(int row, int col, Viewport viewport) {
+        return row >= 0 && row < viewport.height() && col >= 0 && col < viewport.width();
+    }
 }

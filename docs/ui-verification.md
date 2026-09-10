@@ -24,13 +24,20 @@ the actual component and looking at it.
 
 Any time an implementation or fix step (Step 4 in `.claude/workflow.md`, or
 a UI-focused change outside that pipeline) touches Swing rendering, layout,
-sizing, or text content — not just when a human explicitly asks for a
-screenshot. Do it before reporting the change as done, the same way you'd
-run the test suite before reporting a logic change as done. This is agent
-work, done during/after implementation — it does not replace or overlap
-with `CLAUDE.md`'s Step 4.5 manual playtest, which is a human verifying real
-interactive *feel* (movement, menu navigation, timing) that no static
-render can capture.
+sizing, or text content — **except** glyph-grid content, which approval tests
+now cover — not just when a human explicitly asks for a screenshot. Do it
+before reporting the change as done, the same way you'd run the test suite
+before reporting a logic change as done. This is agent work, done during/after
+implementation — it does not replace or overlap with `CLAUDE.md`'s Step 4.5
+manual playtest, which is a human verifying real interactive *feel* (movement,
+menu navigation, timing) that no static render can capture.
+
+**Approval tests** (see `docs/testing.md`) now automatically verify glyph-grid
+regressions: camera viewport edges, building footprints, entity-over-tile
+layering, and viewport dimensions. That frees this manual process to focus on
+genuine Swing concerns — baseline positioning, HTML wrapping, `getPreferredSize()`
+staleness — where automated pixel-perfect checking is impractical and human
+inspection is the only reliable test.
 
 ## How to do it
 

@@ -25,4 +25,6 @@ public class Camera {
 
     public int getX() { return x; }
     public int getY() { return y; }
+    public int getViewportWidth() { return viewportWidth; }
+    public int getViewportHeight() { return viewportHeight; }
 }
