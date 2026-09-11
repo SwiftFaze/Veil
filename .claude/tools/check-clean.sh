@@ -320,11 +320,147 @@ if [ "$pmd_advise" -gt 0 ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 3. Copy-paste duplication (CPD at 50 tokens, tighter than the repo gate)
+# 3. SpotBugs + fb-contrib bytecode-dataflow analysis
 # ---------------------------------------------------------------------------
 
 hr
-echo "3. Duplication (CPD, 50-token blocks)"
+echo "3. SpotBugs + fb-contrib bytecode dataflow (diff-scoped)"
+hr
+
+# Rules that are high-precision (blocking) and low-precision heuristics (advisory).
+# Blocking: core defects that require dataflow analysis - exposed mutable references,
+# equals/hashCode contract violations, null-deref paths, non-transient Serializable
+# fields, ignored return values, self-assignment, unrelated-type comparisons.
+# Advisory: fb-contrib heuristics that are lower-precision and must be dispositioned.
+SPOTBUGS_BLOCKING="EI_EXPOSE_REP EI_EXPOSE_REP2 HE_EQUALS_USE_HASHCODE \
+NP_DEREF_OF_READLINE_VALUE NP_GUARANTEED_DEREF NP_METHOD_PARAMETER_TAINT_PROPAGATION \
+NP_NONNULL_PARAM_VIOLATION NP_NULL_ON_SOME_PATH NP_NULL_ON_SOME_PATH_EXCEPTION \
+NP_NULL_PARAM_DEREF NP_POTENTIAL_NULL_POINTER_DEREFERENCE \
+SE_BAD_FIELD RV_RETURN_VALUE_IGNORED RV_RETURN_VALUE_IGNORED_INFERRED SA_SELF_ASSIGNMENT \
+EC_UNRELATED_TYPES"
+
+# Everything not in SPOTBUGS_BLOCKING is advisory by default (below), not an
+# explicit allowlist - fb-contrib alone has several hundred detector codes,
+# so enumerating them is impractical and would just drift out of sync.
+
+if ! command -v mvn >/dev/null 2>&1; then
+  echo "  ERROR: maven not on PATH" >&2
+  exit 2
+fi
+
+if ! mvn -B -q -o -P clean-code spotbugs:spotbugs > "$WORK/spotbugs.log" 2>&1; then
+  # Retry online once: -o fails on a cold cache, which is not the user's fault.
+  if ! mvn -B -q -P clean-code spotbugs:spotbugs > "$WORK/spotbugs.log" 2>&1; then
+    echo "  ERROR: SpotBugs run failed:" >&2
+    tail -25 "$WORK/spotbugs.log" | sed 's/^/    /' >&2
+    exit 2
+  fi
+fi
+
+SPOTBUGS_REPORT="target/clean-code/spotbugs.xml"
+[ -f "$SPOTBUGS_REPORT" ] || { echo "  ERROR: no SpotBugs report at $SPOTBUGS_REPORT" >&2; exit 2; }
+
+# SpotBugs' own XML report packs many tags onto very few physical lines (unlike
+# PMD's one-tag-per-line output), which breaks a line-oriented awk state
+# machine outright - and it uses single-quoted attributes, not PMD's double
+# quotes. Force one tag per line first so the parser below can work the same
+# way the PMD one does.
+sed "s/</\\n</g" "$SPOTBUGS_REPORT" > "$WORK/spotbugs_lines.xml"
+
+# Parse into: relpath|line|rule|message
+#
+# A <BugInstance> carries the bug's `type` as an attribute on its own opening
+# tag, then nests a <SourceLine> inside each of <Class>/<Method>/<Field> (the
+# bug's cross-referenced declaration sites - NOT where to report it), and
+# finally, as a DIRECT child of <BugInstance> itself, one or more <SourceLine>
+# elements marked `primary='true'` - that is the actual bug location. Nested
+# Class/Method/Field SourceLines never carry `primary='true'` in SpotBugs'
+# own output, so filtering on that attribute (plus requiring a `start=`,
+# since the Field one omits it) reliably skips the decoys without needing to
+# track XML nesting depth by hand.
+# shellcheck disable=SC2086
+cat > "$WORK/spotbugs_parse.awk" <<'AWKEOF'
+/<BugInstance / && /type='/ {
+  type = $0; sub(/.*type='/, "", type); sub(/'.*/, "", type)
+  file = ""; line = ""; msg = ""
+  inbug = 1
+  next
+}
+inbug && /<\/BugInstance>/ {
+  if (file != "" && line != "") {
+    gsub(/\|/, "/", msg)
+    print file "|" line "|" type "|" msg
+  }
+  inbug = 0; next
+}
+inbug && /<ShortMessage>/ {
+  msg = $0; sub(/.*<ShortMessage>/, "", msg); sub(/<\/ShortMessage>.*/, "", msg)
+  gsub(/^[ \t]+|[ \t]+$/, "", msg)
+  next
+}
+inbug && /<SourceLine / && /primary='true'/ && /start='/ {
+  # sourcepath is package-relative (e.g. com/swiftfaze/veil/Foo.java), not
+  # repo-relative - unlike PMD's <file name=...> this never includes a "src/"
+  # segment to key off of. The spotbugs goal analyzes only
+  # ${project.build.outputDirectory} (src/main/java) unless includeTests is
+  # set, which this plugin config does not do - verified empirically against
+  # this repo's own findings (every file is under src/main/java), so the
+  # prefix is safe to hardcode rather than inferred per-finding.
+  sourcepath = $0; sub(/.*sourcepath='/, "", sourcepath); sub(/'.*/, "", sourcepath)
+  gsub(/\\/, "/", sourcepath)
+  file = "src/main/java/" sourcepath
+  line = $0; sub(/.*start='/, "", line); sub(/'.*/, "", line)
+  next
+}
+AWKEOF
+awk -f "$WORK/spotbugs_parse.awk" "$WORK/spotbugs_lines.xml" > "$WORK/spotbugs.raw"
+
+# Apply scope + blocking/advisory classification.
+awk -v scope="$SCOPE" -v addedfile="$WORK/addedlines" \
+    -v blocking="$SPOTBUGS_BLOCKING" '
+  BEGIN {
+    n = split(blocking, b, /[ \t\n]+/); for (i=1;i<=n;i++) if(b[i]!="") BLOCKING[b[i]]=1
+  }
+  FILENAME == addedfile { KEEPLINE[$0]=1; split($0,p,":"); KEEPFILE[p[1]]=1; next }
+  {
+    split($0, v, "|"); file=v[1]; line=v[2]; rule=v[3]
+    if (scope != "all" && !(file in KEEPFILE)) next
+    if (scope == "lines" && !((file ":" line) in KEEPLINE)) next
+    print ((rule in BLOCKING) ? "BLOCKING|" : "ADVISORY|") $0
+  }
+' "$WORK/addedlines" "$WORK/spotbugs.raw" > "$WORK/spotbugs"
+
+sb_block=$(grep -c '^BLOCKING|' "$WORK/spotbugs" || true)
+sb_advise=$(grep -c '^ADVISORY|' "$WORK/spotbugs" || true)
+
+if [ "$sb_block" -gt 0 ]; then
+  echo "  FAIL  $sb_block blocking finding(s):"
+  echo
+  grep '^BLOCKING|' "$WORK/spotbugs" | sort -t'|' -k2,2 -k3,3n \
+    | awk -F'|' '{ printf "    %s:%s\n      [%s] %s\n", $2, $3, $4, $5 }'
+  blocking=$((blocking + sb_block))
+  sections_failed="$sections_failed spotbugs"
+else
+  echo "  PASS  no blocking SpotBugs findings in changed lines"
+fi
+
+if [ "$sb_advise" -gt 0 ]; then
+  echo
+  echo "  ADVISORY  $sb_advise heuristic finding(s) - do not block, but each"
+  echo "            must be dispositioned in your completion report (fix, or"
+  echo "            one line saying why it is correct as written):"
+  echo
+  grep '^ADVISORY|' "$WORK/spotbugs" | sort -t'|' -k2,2 -k3,3n \
+    | awk -F'|' '{ printf "    %s:%s\n      [%s] %s\n", $2, $3, $4, $5 }'
+  advisory=$((advisory + sb_advise))
+fi
+
+# ---------------------------------------------------------------------------
+# 4. Copy-paste duplication (CPD at 50 tokens, tighter than the repo gate)
+# ---------------------------------------------------------------------------
+
+hr
+echo "4. Duplication (CPD, 50-token blocks)"
 hr
 
 CPD="target/clean-code/cpd.xml"
@@ -355,11 +491,11 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 4. Textual smells PMD has no rule for
+# 5. Textual smells PMD has no rule for
 # ---------------------------------------------------------------------------
 
 hr
-echo "4. Commented-out code, deferred work, suppressions"
+echo "5. Commented-out code, deferred work, suppressions"
 hr
 
 text_fail=0
