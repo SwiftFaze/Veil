@@ -97,6 +97,9 @@ Other flags: `--all` (whole repo, for baselining — not the gate), `--files`
 | 8 | Swallowed/broad catches, lost stack traces, `printStackTrace`, `println` | Full | `.pmd-clean-code.xml` |
 | 8 | Magic numbers and strings | **Partial** — literals are legitimate in a renderer | `VeilMagicNumber` (advisory) |
 | 9 | Between-package structure — cycle freedom, public mutable static state, instantiation confined to composition roots | Full (frozen baseline) | `ModuleDependencyTest` (ArchUnit, `FreezingArchRule`) |
+| 10 | Exposed mutable references, equals/hashCode contract, null-deref paths | **Full** (high-precision, blocking) | SpotBugs: `EI_EXPOSE_REP`, `EI_EXPOSE_REP2`, `HE_EQUALS_USE_HASHCODE`, `NP_*` family, `EC_UNRELATED_TYPES` |
+| 10 | Non-transient non-serializable fields on Serializable, ignored return values, self-assignment | **Full** (high-precision, blocking) | SpotBugs: `SE_BAD_FIELD`, `RV_RETURN_VALUE_IGNORED*`, `SA_SELF_ASSIGNMENT` |
+| 10 | Collection/loop/inheritance misuse (exception softening, literal string comparison, overridable calls in constructors, etc.) | **Partial** — heuristic proxies, not proofs | fb-contrib detectors (advisory) |
 
 Test-quality rules run only against `src/test`; SRP rules only against
 `src/main`. The script routes them.
@@ -117,6 +120,18 @@ incomplete report.
 ## Known carve-outs, and why
 
 Each of these was measured against this repo, not assumed:
+
+- **Find Security Bugs is excluded from SpotBugs.** Veil is an offline single-player desktop game with no network surface and no untrusted input beyond local mod JSON. That detector set (SQL injection, XSS, command injection, insecure cryptography, etc.) is built for web applications and would report almost entirely inapplicable noise. Only the core SpotBugs + fb-contrib detectors are loaded.
+- **SpotBugs `threshold` is `Medium`, not `High`.** Measured at `effort=Max`
+  against the full codebase: `High` reports 32 findings but misses
+  `EI_EXPOSE_REP`/`EI_EXPOSE_REP2` entirely — 0 of the 75 pre-existing
+  instances surface, which is the exact defect class row 10 exists to catch.
+  `Medium` reports 269 (236 unique) and includes all 75. `Low` reports 368
+  (335 unique) but adds no more `EI_EXPOSE_REP`/`REP2` instances than
+  `Medium` (39/36 either way) — only lower-precision noise (`S508C_*`
+  Swing-accessibility detectors, `FII_USE_FUNCTION_IDENTITY`, etc.). `Medium`
+  is the smallest threshold that still reports every rule `check-clean.sh`
+  classifies as blocking.
 
 - **`x y z w h dx dy dw dh cx cy g g2 e id`** are exempt from the short-name
   rule. The unmodified rule produced 224 hits, of which `e` (ActionEvent, 60),
