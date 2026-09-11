@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.25](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.24...v0.5.0-beta.25) (2026-09-11)
+
+
+### Features
+
+* make the mod JSON format an explicit, schema-backed contract ([#210](https://github.com/SwiftFaze/Veil/issues/210)) ([0fcd08f](https://github.com/SwiftFaze/Veil/commit/0fcd08fd39750dc9f5a24959e81ebac1c53957f5))
+
 ## [0.5.0-beta.24](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.23...v0.5.0-beta.24) (2026-09-11)
 
 
