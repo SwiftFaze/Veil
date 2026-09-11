@@ -161,7 +161,17 @@ force the reader to reconstruct meaning from use.
         </properties>
     </rule>
 
-    <rule ref="category/java/codestyle.xml/ClassNamingConventions"/>
+    <!-- PMD's default testClassPattern doesn't recognize the `*IT` suffix, but
+         docs/testing.md requires exactly that suffix for Failsafe to discover
+         integration tests at all (see ModLoaderIT, ModSchemaValidationIT) -
+         renaming away from it would silently stop those tests running under
+         `mvn verify`. Extends, rather than replaces, PMD's default regex. -->
+    <rule ref="category/java/codestyle.xml/ClassNamingConventions">
+        <properties>
+            <property name="testClassPattern"
+                      value="^Test.*$|^[A-Z][a-zA-Z0-9]*Test(s|Case)?$|^[A-Z][a-zA-Z0-9]*IT$"/>
+        </properties>
+    </rule>
     <rule ref="category/java/codestyle.xml/MethodNamingConventions"/>
     <rule ref="category/java/codestyle.xml/FormalParameterNamingConventions"/>
     <rule ref="category/java/codestyle.xml/LocalVariableNamingConventions"/>

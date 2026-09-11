@@ -13,7 +13,11 @@ Two paths, chosen by risk:
   break existing mods), or the **`DrawableAsciiEntity`/`Inspectable` public
   contracts** third-party content depends on. One trigger is enough. If
   genuinely unsure, take the high-risk path — an unnecessary approval gate is
-  cheaper than a skipped one.
+  cheaper than a skipped one. The mod-loading JSON contract's *shape* is
+  schema-validated (`docs/schemas/`, checked against `mods/core/**` in CI) —
+  that catches accidental drift, but an intentional change to the contract
+  itself is still a high-risk-path change; the gate doesn't move just because
+  CI now also checks it.
 
 The split exists because a fully pre-approved spec doesn't survive contact with
 implementation; plans made before an agent starts reliably diverge from what
