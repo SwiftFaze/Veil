@@ -231,6 +231,74 @@ Surefire, then integration tests via Failsafe.
 - **Mutation testing** (below) also carries a ratcheted `mutationThreshold`,
   enforced by the same `check-quality-gates.sh`.
 
+## Compile-time gates (Error Prone + NullAway)
+
+- Both are wired into `maven-compiler-plugin` (`pom.xml`) and bound directly
+  to `mvn compile` - not `verify`, and not a profile like `clean-code`. This
+  is deliberate: Error Prone is a `javac` compiler plugin, so the entire
+  point is that a violation fails the compile an agent already has to run,
+  the same feedback loop as a syntax error. Diff-scoping it through
+  `check-clean.sh` (the PMD/SpotBugs pattern) would let it be skipped;
+  binding it to `compile` means it can't be.
+- **JDK 17 compiler-plugin flags**: `-XDcompilePolicy=simple`,
+  `--should-stop=ifError=FLOW`, plus a set of `-J--add-exports`/
+  `-J--add-opens` flags reaching into `jdk.compiler`'s internal packages
+  (stable since JDK 9, so unaffected by this machine running Maven on a
+  newer JDK than the project's 17 compile target - see `pom.xml`'s plugin
+  comment). These require `<fork>true</fork>`, and on Windows, forking
+  generates a batch file that silently rewrites backslash line-continuations
+  inside a multi-line `<arg>` into forward slashes, corrupting the flag list
+  (confirmed upstream bug: `google/error-prone#4256`). The fix is structural,
+  not optional: every Error Prone/NullAway flag lives in **one single-line**
+  `<arg>`, never split across XML lines with backslash continuations.
+- **Error Prone runs repo-wide** at the default check set (it is not
+  package-scoped) - only NullAway is limited to specific packages. Four
+  checks are demoted from the default set, each with a one-line reason next
+  to the `<arg>` in `pom.xml`:
+
+  | Check | Demoted to | Why |
+  |---|---|---|
+  | `EnumOrdinal` | WARN | fixed tab indices in this codebase intentionally rely on ordinal position |
+  | `StringCaseLocaleUsage` | WARN | the flagged strings are ASCII-invariant identifiers (content types), not locale-sensitive text |
+  | `MissingSummary` | WARN | Javadoc-summary style, already covered by IDE formatting conventions |
+  | `ImmutableEnumChecker` | WARN | flags record fields that hold function references, which this check can't distinguish from genuine mutable state |
+
+  Any further check that proves noisy gets the same treatment: demote it in
+  the same `<arg>`, with its own one-line reason next to it. Never demote
+  silently.
+- **NullAway's annotated-packages list** starts at `com.swiftfaze.veil.world`
+  and `com.swiftfaze.veil.entities` (which covers `entities.player`,
+  `entities.items`, `entities.buildings`, and `entities.quests` too, since
+  NullAway matches by package prefix) - chosen for value, not ease: a null
+  tile or a null player/entity field is where a null reference actually
+  crashes the game. **This list only grows, never shrinks** - the same
+  ratchet posture the ArchUnit frozen violation store below already uses.
+  To add the next package:
+  1. Add it to the comma-separated `AnnotatedPackages` value inside the
+     single-line `-Xplugin:ErrorProne ...` `<arg>` in `pom.xml`.
+  2. Run `mvn compile` and fix every finding it reports in that package -
+     annotate a genuinely-optional reference `@Nullable`
+     (`com.swiftfaze.veil.annotations.Nullable`, see below), or fix the real
+     gap NullAway found (an uninitialized field, a missing null-check).
+     Don't paper over a finding with a blanket
+     `@SuppressWarnings("NullAway")` - that turns the checker off for the
+     whole method instead of making the one nullable reference explicit,
+     which defeats the point of adding the package at all.
+- **`@Nullable` annotation**: `com.swiftfaze.veil.annotations.Nullable`, a
+  hand-rolled marker (`@Target` on method/field/parameter/local variable,
+  `CLASS` retention) rather than a dependency on JSR-305/checker-framework -
+  NullAway matches `@Nullable` by simple class name regardless of package, so
+  no dependency is needed for this half of the feature. Use this one
+  annotation consistently for every `@Nullable` in `world`/`entities` and
+  any future annotated package, rather than each file picking its own.
+- **Measured cost**: a clean `mvn compile` (`mvn clean compile`, cache warm)
+  took ~11.7s before this change and ~24.2s after, on the machine this was
+  measured on - roughly +12.5s. This is the agent's inner-loop cost on every
+  `mvn compile`/`mvn verify`/`mvn test` run, not just CI; if it grows
+  further as more packages join the NullAway list, re-measure and reconsider
+  whether Error Prone's default-check pass in particular needs to move
+  behind a profile the way `clean-code`'s SpotBugs pass already does.
+
 ## Module dependency gate (ArchUnit)
 
 - `ModuleDependencyTest` (`src/test/java/com/swiftfaze/veil/ModuleDependencyTest.java`) is a plain JUnit 5 test using ArchUnit (`archunit-junit5`), run by Surefire via `mvn test`/`mvn verify` like any other unit test — no separate command needed.

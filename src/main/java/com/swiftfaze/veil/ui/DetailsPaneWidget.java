@@ -49,6 +49,7 @@ public class DetailsPaneWidget extends JPanel {
         detailsScrollPane.getViewport().setViewPosition(new Point(0, 0));
     }
 
+    @Override
     public boolean hasFocus() {
         return focusedIndex >= 0;
     }

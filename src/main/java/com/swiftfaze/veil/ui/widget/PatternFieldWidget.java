@@ -211,6 +211,7 @@ public class PatternFieldWidget extends Widget {
         // ActionEvent, no focus change) - standard single-line-field behavior.
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "next-field");
         actionMap.put("next-field", new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) { textField.transferFocus(); }
         });
     }
@@ -351,7 +352,8 @@ public class PatternFieldWidget extends Widget {
                 return "";
             }
             StringBuilder allowed = new StringBuilder();
-            for (char c : text.toCharArray()) {
+            for (int i = 0; i < text.length(); i++) {
+                char c = text.charAt(i);
                 if (isAppendable(c)) {
                     allowed.append(c);
                 }

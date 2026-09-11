@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static com.swiftfaze.veil.GameConst.*;
@@ -123,7 +124,7 @@ public class GamePanel extends JPanel {
         scene.renderWorld(g2d, TILE_WIDTH, TILE_HEIGHT, camera);
 
         for (Positionable entity : entitiesToDraw) {
-            if (entity == scene) continue;
+            if (Objects.equals(entity, scene)) continue;
 
             if (entity instanceof DrawableAsciiEntity ascii) {
                 ascii.render(g2d, TILE_WIDTH, TILE_HEIGHT, camera);

@@ -14,6 +14,7 @@ import java.awt.Font;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A suggestion list anchored directly above an owner component (the dev console's command
@@ -138,7 +139,7 @@ public class SuggestionOverlayWidget {
     }
 
     private void attachTo(JLayeredPane pane) {
-        if (content != null && pane == layeredPane) {
+        if (content != null && Objects.equals(pane, layeredPane)) {
             return;
         }
         content = new JPanel();

@@ -234,11 +234,13 @@ public class CodexPanel extends PopupWidget {
         inputMap.put(Keybindings.NEXT_TAB, Keybindings.ACTION_NEXT_TAB);
         inputMap.put(Keybindings.PREV_TAB, Keybindings.ACTION_PREV_TAB);
         actionMap.put(Keybindings.ACTION_NEXT_TAB, new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 nextTab();
             }
         });
         actionMap.put(Keybindings.ACTION_PREV_TAB, new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 prevTab();
             }
