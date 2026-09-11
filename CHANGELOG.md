@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.24](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.23...v0.5.0-beta.24) (2026-09-11)
+
+
+### Features
+
+* add SpotBugs + fb-contrib bytecode dataflow gate ([#211](https://github.com/SwiftFaze/Veil/issues/211)) ([7474700](https://github.com/SwiftFaze/Veil/commit/7474700eec68c99421446e3a221b196bb8220541)), closes [#197](https://github.com/SwiftFaze/Veil/issues/197)
+
 ## [0.5.0-beta.23](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.22...v0.5.0-beta.23) (2026-09-10)
 
 
