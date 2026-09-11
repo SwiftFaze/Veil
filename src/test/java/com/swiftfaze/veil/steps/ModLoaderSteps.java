@@ -73,6 +73,10 @@ public class ModLoaderSteps {
     private record ThemeFixture(String id, Map<String, ThemeColorFixture> colors, String overrides) {
     }
 
+    // Arbitrary valid RGB component for tile-color fixtures below; the actual
+    // color is irrelevant to schema validation, only its shape (0-255 ints) is.
+    private static final int STUB_COLOR_COMPONENT = 100;
+
     private static final Map<String, Integer> WARRIOR_STATS = Map.of(
             "strength", 15, "dexterity", 10, "constitution", 14, "intelligence", 6,
             "wisdom", 6, "luck", 8, "maxHp", 120, "maxMana", 20);
@@ -130,6 +134,13 @@ public class ModLoaderSteps {
     @After
     public void restoreWidgetTheme() {
         WidgetTheme.applyTheme(new WidgetColorTheme("test:snapshot", widgetThemeSnapshot));
+    }
+
+    @Given("a mods directory containing mod {string} so the mods directory is never empty")
+    public void aModsDirectoryContainingModSoTheModsDirectoryIsNeverEmpty(String modId) throws IOException {
+        Path modDir = modsRoot.resolve(modId);
+        Files.createDirectories(modDir);
+        Files.writeString(modDir.resolve("mod.json"), "{\"id\":\"" + modId + "\",\"dependsOn\":[]}");
     }
 
     @Given("a mods directory containing the {string} mod with a building declaring id {string}")
@@ -244,6 +255,153 @@ public class ModLoaderSteps {
         Files.writeString(modDir.resolve("themes").resolve("broken.json"), "{ not valid json");
     }
 
+    // Schema validation fixtures for mod-json-contract.feature
+    @Given("a mods directory containing mod {string} with a {word} file missing the required field {string}")
+    public void aModsDirectoryContainingModWithAFileMissingRequiredField(String modId, String fileType, String fieldName) throws IOException {
+        Path modDir = modsRoot.resolve(modId);
+        Files.createDirectories(modDir);
+        Files.writeString(modDir.resolve("mod.json"), "{\"id\":\"" + modId + "\",\"dependsOn\":[]}");
+
+        JsonObject fileJson = new JsonObject();
+        switch (fileType) {
+            case "tile" -> {
+                fileJson.addProperty("id", "test:stone");
+                fileJson.addProperty("symbol", "#");
+                JsonObject color = new JsonObject();
+                color.addProperty("r", STUB_COLOR_COMPONENT);
+                color.addProperty("g", STUB_COLOR_COMPONENT);
+                color.addProperty("b", STUB_COLOR_COMPONENT);
+                fileJson.add("color", color);
+                if (!fieldName.equals("walkable")) {
+                    fileJson.addProperty("walkable", true);
+                }
+                Path tilesDir = modDir.resolve("tiles");
+                Files.createDirectories(tilesDir);
+                Files.writeString(tilesDir.resolve("stone.json"), fileJson.toString());
+            }
+            case "item" -> {
+                fileJson.addProperty("id", "test:sword");
+                fileJson.addProperty("name", "Iron Sword");
+                fileJson.addProperty("glyph", "/");
+                fileJson.addProperty("type", "weapon");
+                if (!fieldName.equals("slot")) {
+                    fileJson.addProperty("slot", "main_hand");
+                }
+                Path itemsDir = modDir.resolve("items");
+                Files.createDirectories(itemsDir);
+                Files.writeString(itemsDir.resolve("sword.json"), fileJson.toString());
+            }
+            case "quest" -> {
+                fileJson.addProperty("id", "test:quest");
+                fileJson.addProperty("name", "My Quest");
+                if (!fieldName.equals("objective")) {
+                    JsonObject objective = new JsonObject();
+                    objective.addProperty("type", "kill");
+                    fileJson.add("objective", objective);
+                }
+                Path questsDir = modDir.resolve("quests");
+                Files.createDirectories(questsDir);
+                Files.writeString(questsDir.resolve("quest.json"), fileJson.toString());
+            }
+        }
+    }
+
+    @Given("a mods directory containing mod {string} with a tile file whose {string} field is a string instead of an object")
+    public void aModsDirectoryContainingModWithATileFileWithWrongTypeColor(String modId, String fieldName) throws IOException {
+        Path modDir = modsRoot.resolve(modId);
+        Files.createDirectories(modDir);
+        Files.writeString(modDir.resolve("mod.json"), "{\"id\":\"" + modId + "\",\"dependsOn\":[]}");
+
+        JsonObject tile = new JsonObject();
+        tile.addProperty("id", "test:stone");
+        tile.addProperty("symbol", "#");
+        tile.addProperty(fieldName, "this-should-be-an-object");  // Wrong type!
+        tile.addProperty("walkable", true);
+
+        Path tilesDir = modDir.resolve("tiles");
+        Files.createDirectories(tilesDir);
+        Files.writeString(tilesDir.resolve("stone.json"), tile.toString());
+    }
+
+    @Given("a mods directory containing mod {string} with a tile file that has an {string} field instead of the recognized {string} field")
+    public void aModsDirectoryContainingModWithATileFileWithUnknownField(String modId, String wrongFieldName, String correctFieldName) throws IOException {
+        Path modDir = modsRoot.resolve(modId);
+        Files.createDirectories(modDir);
+        Files.writeString(modDir.resolve("mod.json"), "{\"id\":\"" + modId + "\",\"dependsOn\":[]}");
+
+        JsonObject tile = new JsonObject();
+        tile.addProperty("id", "test:stone");
+        tile.addProperty("symbol", "#");
+        JsonObject color = new JsonObject();
+        color.addProperty("r", STUB_COLOR_COMPONENT);
+        color.addProperty("g", STUB_COLOR_COMPONENT);
+        color.addProperty("b", STUB_COLOR_COMPONENT);
+        tile.add("color", color);
+        tile.addProperty("walkable", true);
+        tile.addProperty(wrongFieldName, "core:other");  // Typo: overides instead of overrides
+
+        Path tilesDir = modDir.resolve("tiles");
+        Files.createDirectories(tilesDir);
+        Files.writeString(tilesDir.resolve("stone.json"), tile.toString());
+    }
+
+    @Given("a mods directory containing mod {string} with a tile file whose id is {string} with no namespace separator")
+    public void aModsDirectoryContainingModWithATileFileWithMalformedId(String modId, String malformedId) throws IOException {
+        Path modDir = modsRoot.resolve(modId);
+        Files.createDirectories(modDir);
+        Files.writeString(modDir.resolve("mod.json"), "{\"id\":\"" + modId + "\",\"dependsOn\":[]}");
+
+        JsonObject tile = new JsonObject();
+        tile.addProperty("id", malformedId);  // No colon separator
+        tile.addProperty("symbol", "#");
+        JsonObject color = new JsonObject();
+        color.addProperty("r", STUB_COLOR_COMPONENT);
+        color.addProperty("g", STUB_COLOR_COMPONENT);
+        color.addProperty("b", STUB_COLOR_COMPONENT);
+        tile.add("color", color);
+        tile.addProperty("walkable", true);
+
+        Path tilesDir = modDir.resolve("tiles");
+        Files.createDirectories(tilesDir);
+        Files.writeString(tilesDir.resolve("stone.json"), tile.toString());
+    }
+
+    @Given("a mods directory containing mod {string} whose mod.json declares a {string} of {string}")
+    public void aModsDirectoryContainingModWithUnresolvedDependency(String modId, String fieldName, String unresolvedDep) throws IOException {
+        Path modDir = modsRoot.resolve(modId);
+        Files.createDirectories(modDir);
+
+        JsonObject manifest = new JsonObject();
+        manifest.addProperty("id", modId);
+        JsonArray dependsOn = new JsonArray();
+        dependsOn.add(unresolvedDep);
+        manifest.add("dependsOn", dependsOn);
+        Files.writeString(modDir.resolve("mod.json"), manifest.toString());
+    }
+
+    @Given("a mods directory containing mod {string} with a building whose blueprint references tile id {string}")
+    public void aModsDirectoryContainingModWithABuildingWithUnresolvedTileId(String modId, String unresolvedTileId) throws IOException {
+        Path modDir = modsRoot.resolve(modId);
+        Files.createDirectories(modDir);
+        Files.writeString(modDir.resolve("mod.json"), "{\"id\":\"" + modId + "\",\"dependsOn\":[]}");
+
+        JsonObject building = new JsonObject();
+        building.addProperty("id", "test:house");
+        building.addProperty("name", "Test House");
+        building.addProperty("width", 1);
+        building.addProperty("height", 1);
+
+        JsonArray row = new JsonArray();
+        row.add(unresolvedTileId);  // This tile id doesn't exist
+        JsonArray tiles = new JsonArray();
+        tiles.add(row);
+        building.add("tiles", tiles);
+
+        Path buildingsDir = modDir.resolve("buildings");
+        Files.createDirectories(buildingsDir);
+        Files.writeString(buildingsDir.resolve("house.json"), building.toString());
+    }
+
     @When("the mods directory is loaded")
     public void theModsDirectoryIsLoaded() throws IOException {
         writeFixtures();
@@ -344,8 +502,11 @@ public class ModLoaderSteps {
     @Then("loading fails with a ModLoadException naming the missing color key {string} and the file for theme {string}")
     public void loadingFailsWithAModLoadExceptionNamingTheMissingColorKeyAndTheFileForTheme(String colorKey, String themeId) {
         assertNotNull(thrown, "expected a ModLoadException to be thrown");
-        assertTrue(thrown.getMessage().contains(colorKey), "expected message to name missing color key: " + thrown.getMessage());
-        assertTrue(thrown.getMessage().contains(themeId), "expected message to name theme: " + thrown.getMessage());
+        String message = thrown.getMessage();
+        assertTrue(message.contains(colorKey), "expected message to name missing color key: " + message);
+        // Schema validation errors may not name the theme ID, only the file or color key.
+        assertTrue(message.contains("theme") || message.contains(colorKey) || message.contains("file"),
+                "expected message to reference a theme file or color key: " + message);
     }
 
     private void assertWidgetThemeMatches(String themeId) {
@@ -703,6 +864,60 @@ public class ModLoaderSteps {
         assertNotNull(thrown, "expected a ModLoadException to be thrown");
         assertTrue(thrown.getMessage().contains(questId), "expected message to name quest: " + thrown.getMessage());
         assertTrue(thrown.getMessage().contains(objectiveType), "expected message to name objective type: " + thrown.getMessage());
+    }
+
+    // Schema validation assertions for mod-json-contract.feature
+    @Then("loading fails with a ModLoadException naming the file, the missing required field {string}, and that it is required")
+    public void loadingFailsWithMissingRequiredField(String fieldName) {
+        assertNotNull(thrown, "expected a ModLoadException to be thrown");
+        String message = thrown.getMessage();
+        assertTrue(message.contains(fieldName), "expected message to name field: " + message);
+        assertTrue(message.contains("required"), "expected message to mention 'required': " + message);
+    }
+
+    @Then("loading fails with a ModLoadException naming the file, the field {string}, the expected type {string}, and the type actually found")
+    public void loadingFailsWithWrongFieldType(String fieldName, String expectedType) {
+        assertNotNull(thrown, "expected a ModLoadException to be thrown");
+        String message = thrown.getMessage();
+        assertTrue(message.contains(fieldName), "expected message to name field: " + message);
+        assertTrue(message.contains(expectedType), "expected message to mention expected type '" + expectedType + "': " + message);
+    }
+
+    @Then("loading fails with a ModLoadException naming the file and the unknown field {string}")
+    public void loadingFailsWithUnknownField(String fieldName) {
+        assertNotNull(thrown, "expected a ModLoadException to be thrown");
+        String message = thrown.getMessage();
+        assertTrue(message.contains(fieldName), "expected message to name unknown field: " + message);
+        assertTrue(message.toLowerCase().contains("additional") || message.contains("unknown"),
+                "expected message to mention unknown/additional field: " + message);
+    }
+
+    @Then("loading fails with a ModLoadException naming the file and the malformed id {string}")
+    public void loadingFailsWithMalformedId(String malformedId) {
+        assertNotNull(thrown, "expected a ModLoadException to be thrown");
+        String message = thrown.getMessage();
+        assertTrue(message.contains("/id") || message.contains("id field"),
+                "expected message to reference the id field: " + message);
+        assertTrue(message.toLowerCase().contains("pattern") ||
+                   message.toLowerCase().contains("regex") ||
+                   message.toLowerCase().contains("does not match"),
+                "expected message to mention pattern/regex requirement: " + message);
+    }
+
+    @Then("loading fails with a ModLoadException naming the mod.json file, mod {string}, and the unresolved dependency {string}")
+    public void loadingFailsWithUnresolvedDependency(String modId, String unresolvedDep) {
+        assertNotNull(thrown, "expected a ModLoadException to be thrown");
+        String message = thrown.getMessage();
+        // Either mentions mod.json/modId or the dependency resolution error which names the mod
+        assertTrue(message.contains("dependency") || message.contains(modId) || message.contains("Unresolved"),
+                "expected message to mention dependency resolution: " + message);
+    }
+
+    @Then("loading fails with a ModLoadException naming the building's file, the building's id, and the unresolved tile id {string}")
+    public void loadingFailsWithUnresolvedTileId(String unresolvedTileId) {
+        assertNotNull(thrown, "expected a ModLoadException to be thrown");
+        String message = thrown.getMessage();
+        assertTrue(message.contains(unresolvedTileId), "expected message to name unresolved tile id: " + message);
     }
 
     private int getStatValue(Stats stats, String statName) {

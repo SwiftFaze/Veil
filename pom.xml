@@ -78,6 +78,13 @@
             <version>2.11.0</version>
         </dependency>
 
+        <!-- JSON Schema validation for the mod-loading contract (issue #201) -->
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>3.0.7</version>
+        </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -92,6 +99,21 @@
     </dependencies>
 
     <build>
+        <resources>
+            <!-- Declaring <resources> at all overrides Maven's implicit default
+                 (src/main/resources) rather than adding to it, so that default
+                 must be listed explicitly or logback.xml and everything else in
+                 it silently stop being copied to target/classes. -->
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+            </resource>
+            <!-- JSON schemas for mod content types, committed under docs/schemas/ and loaded
+                 at runtime by ModSchemaValidator for field-level validation and diagnostics -->
+            <resource>
+                <directory>${project.basedir}/docs/schemas</directory>
+                <targetPath>schemas</targetPath>
+            </resource>
+        </resources>
         <testResources>
             <!-- .feature files live in /specs/features (single source of truth per the
                  intent -> spec pipeline), copied onto the test classpath so Cucumber's
@@ -99,6 +121,11 @@
             <testResource>
                 <directory>${project.basedir}/specs/features</directory>
                 <targetPath>features</targetPath>
+            </testResource>
+            <!-- JSON schemas for testing ModSchemaValidator and validating mod files -->
+            <testResource>
+                <directory>${project.basedir}/docs/schemas</directory>
+                <targetPath>schemas</targetPath>
             </testResource>
             <!-- ArchUnit configuration and freeze store for the module dependency gate -->
             <testResource>

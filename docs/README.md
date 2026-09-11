@@ -1,6 +1,7 @@
 # Docs index
 
 - [`architecture.md`](architecture.md) — the game engine and data model: entry point/window assembly, the `GamePanel` render loop, the world/tile model, mod-loaded content (buildings, classes, items, quests), rendering contracts, keyboard input, and the class/stats sandbox.
+- [`mod-format.md`](mod-format.md) — the mod JSON contract: schemas under `docs/schemas/`, namespaced ids, `overrides`, and how field-level validation errors are reported.
 - [`components.md`](components.md) — general rules for how a UI component receives its data and reports player actions (self-describing types, data-only contracts, opt-in adoption, internal-vs-cross-component state), with the Codex/Inventory details pane as a worked example.
 - [`ui-widgets.md`](ui-widgets.md) — the reusable Swing widget framework in `ui/widget/` (`ListWidget`, `TableWidget`, `PopupWidget`, etc.) and the mod-driven theming system that colors it.
 - [`ui-styling.md`](ui-styling.md) — concrete layout/spacing, typography, and color rules any panel or widget should follow (outer padding, component gap, h1/h2/p sizes, when a new theme color is actually justified).

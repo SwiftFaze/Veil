@@ -3,6 +3,7 @@ package com.swiftfaze.veil.mods;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.swiftfaze.veil.entities.buildings.Building;
 import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
@@ -109,6 +110,7 @@ public final class ModLoader {
     private static ModManifest readManifest(Path manifestFile) {
         try (Reader reader = Files.newBufferedReader(manifestFile)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            ModSchemaValidator.validate("mod", json, manifestFile);
             String id = json.get("id").getAsString();
 
             List<String> dependsOn = new ArrayList<>();
@@ -119,7 +121,9 @@ public final class ModLoader {
             }
 
             return new ModManifest(id, dependsOn);
-        } catch (Exception e) {
+        } catch (ModLoadException e) {
+            throw e;
+        } catch (JsonSyntaxException | IOException e) {
             throw new ModLoadException("Failed to load mod manifest: " + manifestFile, e);
         }
     }
@@ -175,6 +179,7 @@ public final class ModLoader {
                                   Map<String, String> owningModById) {
         try (Reader reader = Files.newBufferedReader(file)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            ModSchemaValidator.validate("tile", json, file);
             String id = json.get("id").getAsString();
             char symbol = json.get("symbol").getAsString().charAt(0);
             Color color = readColor(json.getAsJsonObject("color"));
@@ -184,7 +189,7 @@ public final class ModLoader {
             registerWithCollisionCheck(id, new Tile(id, symbol, color, walkable), modId, tileContext);
         } catch (ModLoadException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (JsonSyntaxException | IOException e) {
             throw new ModLoadException("Failed to load tile from file: " + file, e);
         }
     }
@@ -215,19 +220,20 @@ public final class ModLoader {
                                       RegistryTarget<Building> buildings) {
         try (Reader reader = Files.newBufferedReader(file)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            ModSchemaValidator.validate("building", json, file);
             String id = json.get("id").getAsString();
-            Tile[][] blueprint = readBlueprint(json.getAsJsonArray("tiles"), tilesById, id);
+            Tile[][] blueprint = readBlueprint(json.getAsJsonArray("tiles"), tilesById, id, file);
 
             RegistrationContext<Building> buildingContext = new RegistrationContext<>(buildings.registry(), buildings.owningModById(), json.has("overrides"), "Building");
             registerWithCollisionCheck(id, new Building(blueprint), modId, buildingContext);
         } catch (ModLoadException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (JsonSyntaxException | IOException e) {
             throw new ModLoadException("Failed to load building from file: " + file, e);
         }
     }
 
-    private static Tile[][] readBlueprint(JsonArray rows, Map<String, Tile> tilesById, String buildingId) {
+    private static Tile[][] readBlueprint(JsonArray rows, Map<String, Tile> tilesById, String buildingId, Path file) {
         int height = rows.size();
         int width = rows.get(0).getAsJsonArray().size();
         Tile[][] blueprint = new Tile[height][width];
@@ -239,7 +245,7 @@ public final class ModLoader {
                 Tile tile = tilesById.get(tileId);
                 if (tile == null) {
                     throw new ModLoadException("Building '" + buildingId
-                            + "' references unknown tile ID: " + tileId);
+                            + "' references unknown tile ID: " + tileId + " in file: " + file);
                 }
                 blueprint[y][x] = tile;
             }
@@ -274,17 +280,24 @@ public final class ModLoader {
 
         try (Reader reader = Files.newBufferedReader(statsFile)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
-            if (json.has("stats")) {
-                Set<String> result = new HashSet<>();
-                for (var element : json.getAsJsonArray("stats")) {
-                    result.add(element.getAsString());
-                }
-                return Set.copyOf(result);
-            }
-            return Set.of();
-        } catch (IOException e) {
+            ModSchemaValidator.validate("stats", json, statsFile);
+            return parseStatNames(json);
+        } catch (ModLoadException e) {
+            throw e;
+        } catch (JsonSyntaxException | IOException e) {
             throw new ModLoadException("Failed to load stat registry: " + statsFile, e);
         }
+    }
+
+    private static Set<String> parseStatNames(JsonObject json) {
+        if (!json.has("stats")) {
+            return Set.of();
+        }
+        Set<String> result = new HashSet<>();
+        for (var element : json.getAsJsonArray("stats")) {
+            result.add(element.getAsString());
+        }
+        return Set.copyOf(result);
     }
 
     private static void loadClasses(Path modsRoot, ModManifest manifest,
@@ -309,6 +322,7 @@ public final class ModLoader {
                                    RegistryTarget<PlayerClass> classes) {
         try (Reader reader = Files.newBufferedReader(file)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            ModSchemaValidator.validate("class", json, file);
             String id = json.get("id").getAsString();
             String name = json.get("name").getAsString();
             Map<String, PlayerClass.StatCurve> statsByName = parseClassStats(json, id, validStatNames, file);
@@ -316,7 +330,7 @@ public final class ModLoader {
             registerWithCollisionCheck(id, new PlayerClass(id, name, statsByName), modId, classContext);
         } catch (ModLoadException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (JsonSyntaxException | IOException e) {
             throw new ModLoadException("Failed to load class from file: " + file, e);
         }
     }
@@ -360,6 +374,7 @@ public final class ModLoader {
                                   RegistryTarget<Item> items) {
         try (Reader reader = Files.newBufferedReader(file)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            ModSchemaValidator.validate("item", json, file);
             String id = json.get("id").getAsString();
             String name = json.get("name").getAsString();
             char glyph = json.get("glyph").getAsString().charAt(0);
@@ -372,7 +387,7 @@ public final class ModLoader {
             registerWithCollisionCheck(id, new Item(id, name, attributes), modId, itemContext);
         } catch (ModLoadException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (JsonSyntaxException | IOException e) {
             throw new ModLoadException("Failed to load item from file: " + file, e);
         }
     }
@@ -432,6 +447,7 @@ public final class ModLoader {
                                    RegistryTarget<Quest> quests) {
         try (Reader reader = Files.newBufferedReader(file)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            ModSchemaValidator.validate("quest", json, file);
             String id = json.get("id").getAsString();
             String name = json.get("name").getAsString();
             Quest.Objective objective = readQuestObjective(json.getAsJsonObject("objective"), id, file);
@@ -441,7 +457,7 @@ public final class ModLoader {
             registerWithCollisionCheck(id, new Quest(id, name, objective, rewards), modId, questContext);
         } catch (ModLoadException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (JsonSyntaxException | IOException e) {
             throw new ModLoadException("Failed to load quest from file: " + file, e);
         }
     }
@@ -516,6 +532,7 @@ public final class ModLoader {
                                    Map<String, String> owningModById) {
         try (Reader reader = Files.newBufferedReader(file)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            ModSchemaValidator.validate("theme", json, file);
             String id = json.get("id").getAsString();
             Map<String, Color> colorsByKey = readThemeColors(json.getAsJsonObject("colors"), id, file);
 
@@ -523,7 +540,7 @@ public final class ModLoader {
             registerWithCollisionCheck(id, new WidgetColorTheme(id, colorsByKey), modId, themeContext);
         } catch (ModLoadException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (JsonSyntaxException | IOException e) {
             throw new ModLoadException("Failed to load theme from file: " + file, e);
         }
     }
