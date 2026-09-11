@@ -312,6 +312,17 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <!-- Step 4 bytecode-dataflow gate: SpotBugs + fb-contrib for defects that
+                 require dataflow analysis (EI_EXPOSE_REP, equals/hashCode contract,
+                 null-deref paths, non-transient Serializable fields, ignored returns,
+                 self-assignment, unrelated-type comparison, plus 100s of fb-contrib
+                 heuristics). Bound to clean-code profile only (not verify): measured
+                 at ~33s for `spotbugs:spotbugs` alone at Max effort against this
+                 codebase, against a ~38s baseline `mvn verify` - binding it to verify
+                 would very nearly double inner-loop time, so it is diff-scoped through
+                 check-clean.sh instead, the same reasoning as .pmd-clean-code.xml's
+                 profile placement above. Find Security Bugs is NOT loaded - Veil is
+                 offline single-player with no network surface. -->
             <!-- Step 4 coverage gate: JaCoCo enforces 85% line coverage repo-wide.
                  Bound to verify. -->
             <plugin>
@@ -491,6 +502,54 @@
                             <minimumTokens>50</minimumTokens>
                             <skipEmptyReport>false</skipEmptyReport>
                             <failOnViolation>false</failOnViolation>
+                        </configuration>
+                    </plugin>
+                    <!-- SpotBugs in the clean-code profile: generates XML report for
+                         diff-scoped analysis by check-clean.sh. Uses Max effort for
+                         maximum precision, writes to target/clean-code/spotbugs.xml,
+                         and does not fail the build (check-clean.sh does the diff-
+                         scoping and decides pass/fail).
+                         Version 4.10.4.1 bundles ASM recent enough to parse runtime
+                         bytecode from JDK 24 (major version 68), needed because Maven
+                         runs on the machine's JDK (which may be newer than the
+                         project's Java 17 compile target) - earlier SpotBugs versions
+                         bundled older ASM that rejected modern JDK bytecode.
+                         Threshold=Medium, not High: measured against this codebase,
+                         High reports 32 findings and misses EI_EXPOSE_REP/EI_EXPOSE_REP2
+                         entirely (0 of the 75 existing instances surface) - the exact
+                         defect class this gate exists to catch. Medium reports 269
+                         (236 unique) and includes all 75. Low adds only lower-precision
+                         noise (S508C_*, FII_USE_FUNCTION_IDENTITY, etc.) on top of
+                         Medium - EI_EXPOSE_REP/REP2 counts are identical between Medium
+                         and Low (39/36 either way), so Low buys nothing. Medium is the
+                         smallest threshold that still reports every blocking rule
+                         check-clean.sh relies on. -->
+                    <plugin>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
+                        <version>4.10.4.1</version>
+                        <executions>
+                            <execution>
+                                <id>spotbugs-report</id>
+                                <goals>
+                                    <goal>spotbugs</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <effort>Max</effort>
+                            <threshold>Medium</threshold>
+                            <excludeFilterFile>${project.basedir}/.spotbugs-exclude.xml</excludeFilterFile>
+                            <spotbugsXmlOutputDirectory>${project.build.directory}/clean-code</spotbugsXmlOutputDirectory>
+                            <spotbugsXmlOutputFilename>spotbugs.xml</spotbugsXmlOutputFilename>
+                            <failOnError>false</failOnError>
+                            <plugins>
+                                <plugin>
+                                    <groupId>com.mebigfatguy.fb-contrib</groupId>
+                                    <artifactId>fb-contrib</artifactId>
+                                    <version>7.7.4</version>
+                                </plugin>
+                            </plugins>
                         </configuration>
                     </plugin>
                 </plugins>
