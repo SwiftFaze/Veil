@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.30](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.29...v0.5.0-beta.30) (2026-09-12)
+
+
+### Features
+
+* replace hand-rolled @Nullable with JSpecify and adopt @NullMarked ([#228](https://github.com/SwiftFaze/Veil/issues/228)) ([41f3a1a](https://github.com/SwiftFaze/Veil/commit/41f3a1acc5307ef52678face6add586aece276e9)), closes [#216](https://github.com/SwiftFaze/Veil/issues/216)
+
 ## [0.5.0-beta.29](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.28...v0.5.0-beta.29) (2026-09-12)
 
 
