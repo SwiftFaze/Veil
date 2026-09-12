@@ -558,7 +558,7 @@ if [ -n "$sup" ]; then
   printf '%s\n' "$sup" | awk -F'|' '{ printf "    %s:%s\n      %s\n", $1, $2, substr($3,1,100) }'
   echo "      -> \"Fixed\" means decomposed, not suppressed. The only allowed"
   echo "         suppression is ExcessiveParameterList on a JDK/library override"
-  echo "         (docs/testing.md, 'Code quality gates')."
+  echo "         (docs/testing-quality-gates.md, 'Code quality gates')."
   text_fail=1
 fi
 

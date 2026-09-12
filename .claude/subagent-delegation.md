@@ -67,7 +67,7 @@ Specific checks:
 - **A green acceptance suite doesn't prove keyboard/focus behavior.** If the
   feature involves focus crossing a window or component boundary, confirm at
   least one scenario exercises real input, not just the `ActionMap` shortcut —
-  see `docs/testing.md`.
+  see `docs/testing-acceptance.md`.
 
 ## Escalation when verification finds a real problem
 

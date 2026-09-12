@@ -14,8 +14,8 @@ widgets. See `docs/README.md` for the full doc index.
 This engine/widgets/screens layering is mechanically enforced, not just
 documented: `ModuleDependencyTest` (ArchUnit) fails the build if engine
 code depends on the UI layer, or if a widget depends on a screen. See
-`docs/testing.md`'s "Module dependency gate" section for the exact rule
-and why `Main` and `sandbox` are excluded.
+`docs/testing-module-dependency.md` for the exact rule and why `Main` and
+`sandbox` are excluded.
 
 **Entry point / window assembly** (`Main.java`): builds a `JFrame` wrapping
 `GamePanel` (via `ui/GameWindow.buildContentArea`) plus `InventoryPanel`/
@@ -144,7 +144,8 @@ through the generic entity loop. `render` takes the existing `Camera` object
 rather than separate camera-X/Y ints — issue #173 changed this signature (the
 only case so far of a parameter-count fix reshaping a project-owned public
 interface instead of decomposing a free-standing method or suppressing a
-JDK-interface override, see `docs/testing.md`'s "Code quality gates"). The same
+JDK-interface override, see `docs/testing-quality-gates.md`'s "Code quality
+gates"). The same
 self-describing principle applies to list/table/detail Swing UI (Codex,
 Inventory, and future panels like a player stats screen) — see
 `docs/components.md` for that contract.

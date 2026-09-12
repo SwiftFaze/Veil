@@ -165,7 +165,7 @@ Each of these was measured against this repo, not assumed:
 `@SuppressWarnings("PMD...")` on an added line fails the gate. "Fixed" means
 decomposed. The single documented exception is `ExcessiveParameterList` on a
 method overriding a JDK/library interface whose signature mandates 5+
-parameters — see `docs/testing.md` § "Code quality gates".
+parameters — see `docs/testing-quality-gates.md` § "Code quality gates".
 
 If a rule is genuinely wrong for your case, **stop and report the blocker**.
 Do not suppress it, and do not report the task done with a caveat.

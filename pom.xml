@@ -138,7 +138,7 @@
                  Both run at javac compile time (not a verify-bound analysis phase), failing the build
                  on violations. Error Prone catches: @Override on non-overrides, enum switch exhaustiveness,
                  format mismatches, mutable statics, reference-equality on boxed types. NullAway enforces
-                 non-null-by-default (see docs/testing.md for full rationale and how to expand the
+                 non-null-by-default (see docs/testing-quality-gates.md for full rationale and how to expand the
                  annotated packages list). This machine runs Maven on JDK 24, newer than the project's
                  JDK 17 compile target, which is OK — the jdk.compiler internal packages these flags
                  reach into have been stable since JDK 9. -->

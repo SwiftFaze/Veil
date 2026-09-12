@@ -16,7 +16,7 @@ import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
  *
  * <p>Feature files with no Java code path to exercise at all (a build-
  * pipeline/OS-installer concern, not application behavior — see
- * docs/testing.md) are tagged {@code @manual-verification} instead: unlike
+ * docs/testing-acceptance.md) are tagged {@code @manual-verification} instead: unlike
  * {@code @pending}, this exclusion is permanent, not "not implemented yet."
  */
 @Suite
