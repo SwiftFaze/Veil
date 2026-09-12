@@ -102,3 +102,15 @@ jobs:
           HEAD_REF: ${{ github.head_ref }}
           BASE_REF: ${{ github.base_ref }}
         run: bash .claude/tools/check-quality-gates.sh
+
+  # Not a rule that was ever prose: jqwik 1.10.0+ prints a fixed message aimed at
+  # coding agents on every engine run (docs/testing-property-based.md). The text
+  # is inert and the dependency is test-scope, so we keep the library - but a
+  # release artifact that carries a payload aimed at automated consumers is worth
+  # watching, and this fails the moment that payload is not what was audited.
+  jqwik-canary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check jqwik's agent-directed output is unchanged
+        run: bash .claude/tools/check-jqwik-canary.sh
