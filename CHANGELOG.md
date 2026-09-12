@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.27](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.26...v0.5.0-beta.27) (2026-09-12)
+
+
+### Features
+
+* add jqwik property-based tests for bounds, determinism, and formula invariants ([#221](https://github.com/SwiftFaze/Veil/issues/221)) ([426efe2](https://github.com/SwiftFaze/Veil/commit/426efe2ad0b2c4fe8b3db576a68bce2dcd1275d5)), closes [#200](https://github.com/SwiftFaze/Veil/issues/200)
+
 ## [0.5.0-beta.26](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.25...v0.5.0-beta.26) (2026-09-12)
 
 
