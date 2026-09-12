@@ -2,6 +2,11 @@ package com.swiftfaze.veil.entities.player.classes;
 
 import com.swiftfaze.veil.component.DetailTable;
 import com.swiftfaze.veil.entities.player.Stats;
+import com.swiftfaze.veil.testing.property.VeilArbitraries;
+import net.jqwik.api.Arbitrary;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
+import net.jqwik.api.Provide;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -95,5 +100,37 @@ class PlayerClassTest {
         assertEquals(2, tables.get(0).rows().size());
         assertEquals(List.of("ID", "test:warrior"), tables.get(0).rows().get(0));
         assertEquals(List.of("Name", "Warrior"), tables.get(0).rows().get(1));
+    }
+
+    // ========== Property-based tests ==========
+
+    @Provide
+    Arbitrary<String> growthCalcs() {
+        // Generate well-formed growth calculation expressions (or null for no growth curve).
+        return VeilArbitraries.calcExpression().injectNull(0.2);
+    }
+
+    @Provide
+    Arbitrary<Integer> levels() {
+        return VeilArbitraries.level();
+    }
+
+    @Property
+    void applyStatsAtLevelIsDeterministic(
+            @ForAll("growthCalcs") String growthCalc,
+            @ForAll("levels") int level) {
+        // Create a PlayerClass with a single stat curve to test.
+        PlayerClass testClass = new PlayerClass("test:det", "Determinism",
+                Map.of("strength", new PlayerClass.StatCurve(10, growthCalc)));
+
+        // Apply the same curve/level to two fresh Stats instances.
+        Stats stats1 = new Stats();
+        Stats stats2 = new Stats();
+
+        testClass.applyStatsAtLevel(stats1, level);
+        testClass.applyStatsAtLevel(stats2, level);
+
+        // Both must have identical strength values.
+        assertEquals(stats1.getStrength(), stats2.getStrength());
     }
 }

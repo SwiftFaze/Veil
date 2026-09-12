@@ -12,6 +12,7 @@ stays the short index once those grew past a single-file instruction budget.
 - Runner: Surefire, bound to `mvn test`
 - Fast, no real I/O — the norm for new production code.
 - Run a single test: `mvn test -Dtest=PlayerTest#movingRightIncreasesX`
+- Property-based testing with jqwik — see [`testing-property-based.md`](testing-property-based.md).
 
 ## Acceptance and approval tests
 
