@@ -5,6 +5,7 @@ import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -67,7 +68,7 @@ class CodexPanelTest {
 
     private Item itemNamed(String name) {
         return new Item(
-                name.toLowerCase(),
+                name.toLowerCase(Locale.ROOT),
                 name,
                 new Item.ItemAttributes('!', "misc", "none", new Item.BaseDamage(0, 0), List.of())
         );

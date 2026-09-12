@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -264,12 +265,12 @@ public final class ModLoader {
 
         if (context.registry().containsKey(id)) {
             logger.info("Mod '{}' overrides {} '{}' previously provided by mod '{}'",
-                    modId, context.contentType().toLowerCase(), id, context.owningModById().get(id));
+                    modId, context.contentType().toLowerCase(Locale.ROOT), id, context.owningModById().get(id));
         }
 
         context.registry().put(id, value);
         context.owningModById().put(id, modId);
-        logger.debug("Loaded {} '{}' from mod '{}'", context.contentType().toLowerCase(), id, modId);
+        logger.debug("Loaded {} '{}' from mod '{}'", context.contentType().toLowerCase(Locale.ROOT), id, modId);
     }
 
     private static Set<String> loadStatRegistry(Path modsRoot) {

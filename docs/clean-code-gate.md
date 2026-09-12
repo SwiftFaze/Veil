@@ -100,9 +100,13 @@ Other flags: `--all` (whole repo, for baselining — not the gate), `--files`
 | 10 | Exposed mutable references, equals/hashCode contract, null-deref paths | **Full** (high-precision, blocking) | SpotBugs: `EI_EXPOSE_REP`, `EI_EXPOSE_REP2`, `HE_EQUALS_USE_HASHCODE`, `NP_*` family, `EC_UNRELATED_TYPES` |
 | 10 | Non-transient non-serializable fields on Serializable, ignored return values, self-assignment | **Full** (high-precision, blocking) | SpotBugs: `SE_BAD_FIELD`, `RV_RETURN_VALUE_IGNORED*`, `SA_SELF_ASSIGNMENT` |
 | 10 | Collection/loop/inheritance misuse (exception softening, literal string comparison, overridable calls in constructors, etc.) | **Partial** — heuristic proxies, not proofs | fb-contrib detectors (advisory) |
+| 11 | Full PMD 7 catalogue (#215) — 196 native rules the ad hoc set above never covered: reassignment, redundant constructs, exception/clone/finalize misuse, thread-safety, string/collection performance, `MutableStaticState`, `DataClass`, `LawOfDemeter` | Full | `.pmd-clean-code.xml` §9 |
+| 12 | Vendored jPinpoint rules (#215) — equals/hashCode consistency, regex recompilation, per-call allocation, suppression hygiene | Full | `.pmd-clean-code.xml` §10 (Apache 2.0, `PMD-jPinpoint-rules`) |
 
 Test-quality rules run only against `src/test`; SRP rules only against
-`src/main`. The script routes them.
+`src/main`. `AvoidInstantiatingObjectsInLoops` (row 10, performance) is scoped
+to the render path (`GamePanel`, `PatternFieldWidget`) rather than repo-wide —
+see "Known carve-outs" below. The script routes all of these by file path.
 
 ### Blocking vs advisory
 
@@ -159,6 +163,29 @@ Each of these was measured against this repo, not assumed:
   12 pre-existing fields for no benefit. Surfaced 2026-09-07 when adding a
   13th field (`TABLE_HEADER_TEXT`) put a line in this file into a diff for
   the first time since the gate shipped.
+- **PMD bumped from 7.17.0 to 7.27.0 (#215).** 18 of the 196 native rules
+  the full-catalogue audit found only exist from PMD 7.2x onward — the
+  audit was done against PMD's current documentation, which is already
+  several releases ahead of what `maven-pmd-plugin` 3.28.0 manages by
+  default. Overridden via `pmd.version` in `pom.xml`. The bump also
+  shifted `ExcessiveParameterList`'s `minimum` semantics back to
+  minimum-to-trigger (`>=`); `.pmd-minimal.xml`'s `minimum` moved from 4
+  to 5 to keep the same effective threshold (5+ parameters fails) — see
+  that file's own comment.
+- **4 rules from the audit are not in any released PMD version**
+  (`OnDemandImport`, `TypeNameMismatch`, `CStyleArrayDeclaration`,
+  `LongLiteralEndingWithLowercaseL`) — they exist only on PMD's unreleased
+  `main` branch as of this change. Add them once PMD ships a stable
+  release containing them; tracked in `impacts.md`.
+- **`AvoidInstantiatingObjectsInLoops` is scoped to the render path**
+  (`GamePanel`, `PatternFieldWidget` — the only two classes in the repo
+  that override `paintComponent`/`paint`), not repo-wide. Allocation in a
+  ~60fps paint loop is a real defect; allocation in a cold loop (JSON
+  building, mod loading, test step definitions) is not, so applying it
+  repo-wide would flag correct code. `check-clean.sh`'s `RENDER_SCOPED_RULES`
+  routes this the same way `TEST_ONLY`/`MAIN_ONLY` route test-quality and
+  SRP rules. Repo-wide count measured before narrowing: 27 violations
+  across 9 files, none in either scoped file — see `impacts.md`.
 
 ## Suppressions
 

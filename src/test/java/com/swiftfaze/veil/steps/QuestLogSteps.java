@@ -6,6 +6,8 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
+import java.util.Locale;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class QuestLogSteps {
@@ -28,6 +30,6 @@ public class QuestLogSteps {
     }
 
     private QuestLog.State parseState(String stateName) {
-        return QuestLog.State.valueOf(stateName.toUpperCase().replace(' ', '_'));
+        return QuestLog.State.valueOf(stateName.toUpperCase(Locale.ROOT).replace(' ', '_'));
     }
 }

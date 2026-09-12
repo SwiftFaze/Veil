@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -888,7 +889,7 @@ public class ModLoaderSteps {
         assertNotNull(thrown, "expected a ModLoadException to be thrown");
         String message = thrown.getMessage();
         assertTrue(message.contains(fieldName), "expected message to name unknown field: " + message);
-        assertTrue(message.toLowerCase().contains("additional") || message.contains("unknown"),
+        assertTrue(message.toLowerCase(Locale.ROOT).contains("additional") || message.contains("unknown"),
                 "expected message to mention unknown/additional field: " + message);
     }
 
@@ -898,9 +899,9 @@ public class ModLoaderSteps {
         String message = thrown.getMessage();
         assertTrue(message.contains("/id") || message.contains("id field"),
                 "expected message to reference the id field: " + message);
-        assertTrue(message.toLowerCase().contains("pattern") ||
-                   message.toLowerCase().contains("regex") ||
-                   message.toLowerCase().contains("does not match"),
+        assertTrue(message.toLowerCase(Locale.ROOT).contains("pattern") ||
+                   message.toLowerCase(Locale.ROOT).contains("regex") ||
+                   message.toLowerCase(Locale.ROOT).contains("does not match"),
                 "expected message to mention pattern/regex requirement: " + message);
     }
 

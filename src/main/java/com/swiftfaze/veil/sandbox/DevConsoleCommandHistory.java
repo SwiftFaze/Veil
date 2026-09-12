@@ -65,6 +65,8 @@ public class DevConsoleCommandHistory {
     }
 
     /**
+     * Returns the total number of entries in history.
+     *
      * @return the total number of entries in history
      */
     public int size() {
