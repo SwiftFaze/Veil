@@ -2,6 +2,11 @@ package com.swiftfaze.veil.world;
 
 import com.swiftfaze.veil.Camera;
 import com.swiftfaze.veil.entities.buildings.Building;
+import com.swiftfaze.veil.testing.property.VeilArbitraries;
+import net.jqwik.api.Arbitrary;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
+import net.jqwik.api.Provide;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
@@ -161,5 +166,38 @@ class WorldSceneTest {
         assertDoesNotThrow(() -> scene.placeBuilding(building));
 
         assertEquals(GRASS, scene.getTile(2, 2));
+    }
+
+    // ========== Property-based tests ==========
+
+    @Provide
+    Arbitrary<Integer> worldDimensions() {
+        return VeilArbitraries.worldDimension();
+    }
+
+    @Provide
+    Arbitrary<Integer> coordinates() {
+        return VeilArbitraries.coordinate();
+    }
+
+    @Property
+    void tileReturnsNullAndIsWalkableReturnsFalseOutOfBounds(
+            @ForAll("worldDimensions") int width,
+            @ForAll("worldDimensions") int height,
+            @ForAll("coordinates") int x,
+            @ForAll("coordinates") int y) {
+        WorldScene scene = sceneOf(width, height);
+
+        // Call both methods for every generated coordinate to verify:
+        // 1. Neither throws an exception for any coordinate (in- or out-of-bounds)
+        // 2. Out-of-bounds coordinates return null and false respectively
+        Tile tile = scene.getTile(x, y);
+        boolean walkable = scene.isWalkable(x, y);
+
+        boolean isInBounds = x >= 0 && x < width && y >= 0 && y < height;
+        if (!isInBounds) {
+            assertNull(tile);
+            assertFalse(walkable);
+        }
     }
 }
