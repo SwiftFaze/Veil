@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.28](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.27...v0.5.0-beta.28) (2026-09-12)
+
+
+### Features
+
+* add canary for jqwik's anti-AI-agent prompt injection ([#224](https://github.com/SwiftFaze/Veil/issues/224)) ([54c50e9](https://github.com/SwiftFaze/Veil/commit/54c50e9dcf6c788172018ca37e60d036409e1810)), closes [#223](https://github.com/SwiftFaze/Veil/issues/223)
+
 ## [0.5.0-beta.27](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.26...v0.5.0-beta.27) (2026-09-12)
 
 
