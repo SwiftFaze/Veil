@@ -11,6 +11,8 @@ import java.util.List;
 public interface DevConsoleFieldMutator {
 
     /**
+     * Applies a SET/ADD/SUBTRACT mutation to one field.
+     *
      * @param fieldToken the field's abbreviation token (e.g. "str", "maxhp")
      * @param rawValue   the typed value token - a base-10 integer, or "default" (SET only, and
      *                   only for fields with a class-default to reset to)

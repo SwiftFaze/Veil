@@ -17,7 +17,9 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * In-game reference overlay (X key): a tab switcher across Items/Tiles/Classes,
@@ -40,6 +42,7 @@ public class CodexPanel extends PopupWidget {
     }
 
     private static final String NO_ENTRY_TEXT = "(no item selected)";
+    private static final List<Category> CATEGORY_ORDER = List.of(Category.values());
     private static final List<ControlsHintBarWidget.Hint> TAB_HINTS_TAIL = List.of(
             new ControlsHintBarWidget.Hint("tab", "Next category"),
             new ControlsHintBarWidget.Hint("shift+tab", "Prev category"),
@@ -47,7 +50,7 @@ public class CodexPanel extends PopupWidget {
 
     private final ListWidget<Inspectable> entryList;
     private final DetailsPaneWidget detailsPane;
-    private final List<JLabel> tabLabels = new ArrayList<>();
+    private final Map<Category, JLabel> tabLabels = new EnumMap<>(Category.class);
     private final ControlsHintBarWidget hintBar;
 
     private List<Inspectable> items = List.of();
@@ -168,13 +171,13 @@ public class CodexPanel extends PopupWidget {
     }
 
     public void nextTab() {
-        Category[] all = Category.values();
-        selectCategory(all[(selectedCategory.ordinal() + 1) % all.length]);
+        int index = CATEGORY_ORDER.indexOf(selectedCategory);
+        selectCategory(CATEGORY_ORDER.get((index + 1) % CATEGORY_ORDER.size()));
     }
 
     public void prevTab() {
-        Category[] all = Category.values();
-        selectCategory(all[(selectedCategory.ordinal() - 1 + all.length) % all.length]);
+        int index = CATEGORY_ORDER.indexOf(selectedCategory);
+        selectCategory(CATEGORY_ORDER.get((index - 1 + CATEGORY_ORDER.size()) % CATEGORY_ORDER.size()));
     }
 
     @Override
@@ -270,7 +273,7 @@ public class CodexPanel extends PopupWidget {
             Border padding = BorderFactory.createEmptyBorder(6, 8, 6, 8);
             label.setBorder(isLast ? padding : BorderFactory.createCompoundBorder(
                     BorderFactory.createMatteBorder(0, 0, 0, 1, WidgetTheme.BORDER), padding));
-            tabLabels.add(label);
+            tabLabels.put(categories[i], label);
             row.add(label);
         }
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
@@ -279,7 +282,7 @@ public class CodexPanel extends PopupWidget {
 
     private void refreshTabHighlight() {
         for (Category category : Category.values()) {
-            WidgetTheme.applySelection(tabLabels.get(category.ordinal()), category == selectedCategory);
+            WidgetTheme.applySelection(tabLabels.get(category), category == selectedCategory);
         }
     }
 

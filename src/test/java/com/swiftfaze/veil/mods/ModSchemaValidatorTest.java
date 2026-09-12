@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -42,7 +43,7 @@ class ModSchemaValidatorTest {
         );
         String message = thrown.getMessage();
         assertTrue(message.contains("color"), "Error should name 'color' field: " + message);
-        assertTrue(message.toLowerCase().contains("object") || message.toLowerCase().contains("type"),
+        assertTrue(message.toLowerCase(Locale.ROOT).contains("object") || message.toLowerCase(Locale.ROOT).contains("type"),
                 "Error should describe expected type: " + message);
     }
 
@@ -54,7 +55,7 @@ class ModSchemaValidatorTest {
         );
         String message = thrown.getMessage();
         assertTrue(message.contains("overides"), "Error should name unknown field 'overides': " + message);
-        assertTrue(message.toLowerCase().contains("additional") || message.toLowerCase().contains("unknown"),
+        assertTrue(message.toLowerCase(Locale.ROOT).contains("additional") || message.toLowerCase(Locale.ROOT).contains("unknown"),
                 "Error should mention unknown/additional property: " + message);
     }
 
@@ -66,7 +67,7 @@ class ModSchemaValidatorTest {
         );
         String message = thrown.getMessage();
         assertTrue(message.contains("/id") || message.contains("id"), "Error should reference the id field: " + message);
-        assertTrue(message.toLowerCase().contains("pattern") || message.toLowerCase().contains("regex"),
+        assertTrue(message.toLowerCase(Locale.ROOT).contains("pattern") || message.toLowerCase(Locale.ROOT).contains("regex"),
                 "Error should describe pattern/regex requirement: " + message);
     }
 

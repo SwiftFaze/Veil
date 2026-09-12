@@ -48,6 +48,8 @@ public class SuggestionOverlayWidget {
     }
 
     /**
+     * Shows the overlay anchored to {@code owner}, offset from its top edge.
+     *
      * @param ownerTopOffset how far down from owner's own top edge its actual visible box
      *                       begins - 0 if owner's border paints flush with its own bounds,
      *                       which is the Swing default. A positive value places the overlay's
@@ -61,6 +63,8 @@ public class SuggestionOverlayWidget {
     }
 
     /**
+     * Shows the overlay anchored to {@code owner}, offset from its top edge and inset horizontally.
+     *
      * @param horizontalInset how far in from owner's own left and right edges its actual visible
      *                        box sits, on each side - 0 if owner's border paints flush with its
      *                        own bounds. Needed separately from ownerTopOffset because a Swing

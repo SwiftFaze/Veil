@@ -193,6 +193,17 @@ UnitTestContainsTooManyAsserts VeilNoLogicInTests"
 MAIN_ONLY="GodClass TooManyMethods TooManyFields ExcessivePublicCount \
 CouplingBetweenObjects"
 
+# AvoidInstantiatingObjectsInLoops (#215, C5): allocation inside a loop is a
+# defect in the ~60fps render path, not repo-wide - a JSON-building loop in
+# ModLoader or a test step definition is cold code where the same allocation
+# is harmless. Scoped to GamePanel and the widget paint path (the only
+# classes that override paintComponent/paint - measured via `grep -rl "void
+# paintComponent\|void paint(Graphics" src/main/java`), per the issue's own
+# scope line. Repo-wide count before this narrowing: 27 violations across 9
+# files, none of them in either scoped file - see impacts.md.
+RENDER_SCOPED_RULES="AvoidInstantiatingObjectsInLoops"
+RENDER_PATH_PATTERN='src/main/java/com/swiftfaze/veil/game/GamePanel\.java$|src/main/java/com/swiftfaze/veil/ui/widget/PatternFieldWidget\.java$'
+
 # ADVISORY rules are heuristic proxies, not proofs. They are reported with
 # file:line and must be dispositioned in the completion report, but they do
 # not fail the gate on their own - a 2D renderer legitimately contains
@@ -273,11 +284,13 @@ awk '
 
 # Apply scope + main/test routing + advisory classification.
 awk -v scope="$SCOPE" -v addedfile="$WORK/addedlines" \
-    -v test_only="$TEST_ONLY" -v main_only="$MAIN_ONLY" -v advisory="$ADVISORY_RULES" '
+    -v test_only="$TEST_ONLY" -v main_only="$MAIN_ONLY" -v advisory="$ADVISORY_RULES" \
+    -v render_only="$RENDER_SCOPED_RULES" -v render_pattern="$RENDER_PATH_PATTERN" '
   BEGIN {
     n = split(test_only, a, /[ \t\n]+/); for (i=1;i<=n;i++) if(a[i]!="") TESTONLY[a[i]]=1
     n = split(main_only, b, /[ \t\n]+/); for (i=1;i<=n;i++) if(b[i]!="") MAINONLY[b[i]]=1
     n = split(advisory,  c, /[ \t\n]+/); for (i=1;i<=n;i++) if(c[i]!="") ADV[c[i]]=1
+    n = split(render_only, d, /[ \t\n]+/); for (i=1;i<=n;i++) if(d[i]!="") RENDERONLY[d[i]]=1
   }
   # Explicit filename test, not NR==FNR: the added-lines file is empty in
   # --all mode, and NR==FNR is true for the FIRST record of the second file
@@ -290,6 +303,7 @@ awk -v scope="$SCOPE" -v addedfile="$WORK/addedlines" \
     isTest = (file ~ /^src\/test\//)
     if ((rule in TESTONLY) && !isTest) next
     if ((rule in MAINONLY) &&  isTest) next
+    if ((rule in RENDERONLY) && (file !~ render_pattern)) next
     print ((rule in ADV) ? "ADVISORY|" : "BLOCKING|") $0
   }
 ' "$WORK/addedlines" "$WORK/violations.raw" > "$WORK/violations"

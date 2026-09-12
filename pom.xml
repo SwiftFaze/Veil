@@ -23,6 +23,12 @@
              a plain `-Dpmd.failOnViolation=false` is ignored when the value is
              set literally in the plugin's <configuration>. -->
         <pmd.failOnViolation>true</pmd.failOnViolation>
+        <!-- maven-pmd-plugin 3.28.0 manages PMD 7.17.0 by default. Bumped to the
+             latest stable PMD release for #215's full-catalogue audit: 18 of the
+             199 native rules the audit found only exist from PMD 7.2x onward.
+             See docs/clean-code-gate.md for the 4 rules that remain unavailable
+             (not yet in any stable PMD release as of this bump). -->
+        <pmd.version>7.27.0</pmd.version>
     </properties>
 
     <dependencyManagement>
@@ -177,7 +183,7 @@
                              Windows, so this is not theoretical - keep this whole string as one <arg>
                              with no embedded newlines.
                              Demoted checks: EnumOrdinal (fixed tab indices), StringCaseLocaleUsage (ASCII content types), MissingSummary (style-only), ImmutableEnumChecker (function field records) -->
-                        <arg>-Xplugin:ErrorProne -XepOpt:NullAway:AnnotatedPackages=com.swiftfaze.veil.world,com.swiftfaze.veil.entities -Xep:NullAway:ERROR -Xep:EnumOrdinal:WARN -Xep:StringCaseLocaleUsage:WARN -Xep:MissingSummary:WARN -Xep:ImmutableEnumChecker:WARN</arg>
+                        <arg>-Xplugin:ErrorProne -XepOpt:NullAway:AnnotatedPackages=com.swiftfaze.veil.world,com.swiftfaze.veil.entities -Xep:NullAway:ERROR -Xep:EnumOrdinal:ERROR -Xep:StringCaseLocaleUsage:ERROR -Xep:MissingSummary:ERROR -Xep:ImmutableEnumChecker:ERROR</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
@@ -371,6 +377,18 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>3.28.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.sourceforge.pmd</groupId>
+                        <artifactId>pmd-core</artifactId>
+                        <version>${pmd.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>net.sourceforge.pmd</groupId>
+                        <artifactId>pmd-java</artifactId>
+                        <version>${pmd.version}</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>pmd-check</id>
