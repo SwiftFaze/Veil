@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.26](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.25...v0.5.0-beta.26) (2026-09-12)
+
+
+### Features
+
+* add Error Prone + NullAway compile-time bug detection ([#214](https://github.com/SwiftFaze/Veil/issues/214)) ([2d66607](https://github.com/SwiftFaze/Veil/commit/2d66607f74b7aae91e9518bb5a733eeafbeaf240))
+
 ## [0.5.0-beta.25](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.24...v0.5.0-beta.25) (2026-09-11)
 
 
