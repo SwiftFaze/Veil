@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.29](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.28...v0.5.0-beta.29) (2026-09-12)
+
+
+### Features
+
+* adopt the full PMD rule catalogue as a strict Clean Code gate ([#226](https://github.com/SwiftFaze/Veil/issues/226)) ([b9570ad](https://github.com/SwiftFaze/Veil/commit/b9570adf8c46fd3779478270834e17e56451c9e1)), closes [#215](https://github.com/SwiftFaze/Veil/issues/215)
+
 ## [0.5.0-beta.28](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.27...v0.5.0-beta.28) (2026-09-12)
 
 
