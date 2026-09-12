@@ -35,7 +35,10 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          # 21, not 17: Error Prone 2.50.0's plugin class needs a JDK 21+ host to
+          # even load (crashes on 17 - see ci.yml's build-and-test job comment,
+          # issue #199). Doesn't change the project's own 17 compile target.
+          java-version: '21'
           cache: maven
 
       # test-compile explicitly: invoking the pitest goal standalone does not
