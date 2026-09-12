@@ -153,6 +153,13 @@
                     <compilerArgs>
                         <arg>-XDcompilePolicy=simple</arg>
                         <arg>--should-stop=ifError=FLOW</arg>
+                        <!-- Required by Error Prone whenever the JDK actually running javac is 16+
+                             (confirmed error message: "-XDaddTypeAnnotationsToSymbol=true is required
+                             by Error Prone on JDK 21"). This repo's CI runs JDK 17 for both Maven and
+                             the forked javac, where this is mandatory; a dev machine running Maven on
+                             a newer host JDK while cross-compiling to an older target can silently not
+                             need it, which is exactly how this got missed until CI caught it. -->
+                        <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
                         <!-- Everything ErrorProne/NullAway needs MUST stay on this single line, no
                              XML line-wrapping. maven-compiler-plugin forks javac via a generated
                              Windows batch file when <fork>true</fork> + -J flags are present, and on
