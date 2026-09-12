@@ -6,7 +6,10 @@
 - [`ui-widgets.md`](ui-widgets.md) — the reusable Swing widget framework in `ui/widget/` (`ListWidget`, `TableWidget`, `PopupWidget`, etc.) and the mod-driven theming system that colors it.
 - [`ui-styling.md`](ui-styling.md) — concrete layout/spacing, typography, and color rules any panel or widget should follow (outer padding, component gap, h1/h2/p sizes, when a new theme color is actually justified).
 - [`screens.md`](screens.md) — how `Main.java` assembles and navigates between screens, and how each screen panel (Title, Settings, Keybinds, Inventory, Codex) composes the widgets from `ui-widgets.md`.
-- [`testing.md`](testing.md) — the three test layers (unit, acceptance, integration), where each lives, and how to run them.
+- [`testing.md`](testing.md) — index: the three test layers (unit, acceptance, integration), where each lives, and how to run them.
+- [`testing-acceptance.md`](testing-acceptance.md) — Cucumber acceptance tests and glyph-grid approval tests.
+- [`testing-quality-gates.md`](testing-quality-gates.md) — mutation testing (PIT), PMD/JaCoCo, and the Error Prone/NullAway compile-time gates.
+- [`testing-module-dependency.md`](testing-module-dependency.md) — the ArchUnit module-dependency and package-cycle gate.
 - [`release.md`](release.md) — the two release channels (`master` stable, `develop` beta) and why versioning/changelog generation is fully automatic.
 - [`ui-verification.md`](ui-verification.md) — how to visually verify a Swing UI change actually renders correctly, since this project's tests don't assert on pixel layout or rendered text.
 - [`wiki.md`](wiki.md) — the split between `docs/` (for contributors) and the player-facing [GitHub wiki](https://github.com/SwiftFaze/Veil/wiki) (for game content/numbers).

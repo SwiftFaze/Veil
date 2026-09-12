@@ -94,14 +94,14 @@ re-derive them by eye:
   (PMD).
 - Minimum line coverage 85% repo-wide (JaCoCo).
 - Module dependency direction (ArchUnit, `ModuleDependencyTest`) — see Step 4
-  and `docs/testing.md` § "Module dependency gate".
+  and `docs/testing-module-dependency.md`.
 
 If a change can't meet a limit, stop and propose a decomposition rather than
 disabling the check. **One narrow exception:** a method overriding a JDK/library
 interface whose signature mandates 5+ parameters may carry
-`@SuppressWarnings` — precedent documented in `docs/testing.md` § "Code quality
-gates". It applies to parameter count only, never to complexity, length,
-coverage, or the module rule.
+`@SuppressWarnings` — precedent documented in `docs/testing-quality-gates.md`
+§ "Code quality gates". It applies to parameter count only, never to
+complexity, length, coverage, or the module rule.
 
 **SLAP (Single Level of Abstraction) is not enforced** — no tool backs it here.
 It's design guidance from the `uncle-bob-craft` checklist in Step 4; don't

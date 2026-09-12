@@ -21,6 +21,21 @@
 #     removes it from mutation testing entirely - the same shape of
 #     weakening as an exclusion, just phrased as a removal instead of an
 #     addition)
+#   - a newly added (or reintroduced) archunit_ignore_patterns.txt anywhere
+#     in the tree - this file makes ArchUnit silently skip any violation
+#     matching its regex patterns, and nothing in the filename says so
+#   - new @Generated usage in src/main/java - JaCoCo (0.8.2+) and PIT both
+#     drop any class/method carrying an annotation whose SIMPLE NAME is
+#     Generated from the coverage denominator, regardless of which package
+#     it comes from, which raises the score with no threshold or exclusion
+#     change to review. Checked as a delta (occurrence count per changed
+#     file, base vs head), not an absolute ban, so a genuinely justified
+#     @Generated on real generated code stays possible - it just can't land
+#     silently. Added for issue #199 (Error Prone/NullAway): that change
+#     introduced @SuppressWarnings("NullAway") as a new, legitimate,
+#     visible-in-diff way to bypass a gate; these two are the illegitimate,
+#     not-visible-in-diff ones in the same family, which is why they landed
+#     alongside it instead of as their own change.
 #
 # Raising a floor, adding a target, or removing an exclusion always passes.
 # This does not block weakening outright - a genuinely justified change
@@ -62,12 +77,16 @@ trap 'rm -rf "$WORK"' EXIT
 
 HEAD_POM="pom.xml"
 BASE_POM="$WORK/base-pom.xml"
-if ! git show "origin/$BASE_REF:pom.xml" > "$BASE_POM" 2>/dev/null; then
-  if ! git show "$BASE_REF:pom.xml" > "$BASE_POM" 2>/dev/null; then
+BASE_REV="origin/$BASE_REF"
+if ! git show "$BASE_REV:pom.xml" > "$BASE_POM" 2>/dev/null; then
+  BASE_REV="$BASE_REF"
+  if ! git show "$BASE_REV:pom.xml" > "$BASE_POM" 2>/dev/null; then
     echo "::error::could not read pom.xml from base ref '$BASE_REF' (tried origin/$BASE_REF and $BASE_REF)." >&2
     exit 2
   fi
 fi
+# $BASE_REV now names whichever of origin/$BASE_REF or $BASE_REF actually
+# resolved - reused below for the tree-wide (not just pom.xml) diff checks.
 
 status=0
 
@@ -221,6 +240,54 @@ while IFS= read -r target; do
     status=1
   fi
 done <<< "$base_targets"
+
+# ---------------------------------------------------------------------------
+# ArchUnit ignore file: archunit_ignore_patterns.txt anywhere in the tree
+# makes ArchUnit silently skip every violation matching its regex patterns.
+# Added (or reintroduced after a rename/delete-then-readd) is always a
+# weakening; a plain removal is fine, hence --diff-filter=d.
+# ---------------------------------------------------------------------------
+
+ignore_file_hits=$(git diff --name-only --diff-filter=d "$BASE_REV...HEAD" -- . \
+  | grep -E '(^|/)archunit_ignore_patterns\.txt$' || true)
+
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  echo "::error file=$f::archunit_ignore_patterns.txt makes ArchUnit silently skip any violation matching its regex patterns - nothing about the filename says so. Adding or changing one is a gate weakening - state the reason in the PR body, or remove the offending rule from the frozen violation store the normal way instead."
+  status=1
+done <<< "$ignore_file_hits"
+
+# ---------------------------------------------------------------------------
+# @Generated usage in src/main/java: JaCoCo (0.8.2+) and PIT both drop any
+# class/method carrying an annotation whose SIMPLE NAME is Generated
+# (CLASS/RUNTIME retention) from the coverage denominator, regardless of
+# which package it's imported from (javax.annotation, jakarta.annotation,
+# lombok, a hand-rolled one - all match). Checked as a per-file occurrence
+# delta against $BASE_REV, not an absolute ban, so a genuinely justified
+# @Generated on real generated code stays possible - it just can't land
+# silently. Anchored to start-of-line + whitespace so a comment or string
+# literal mentioning @Generated doesn't false-positive.
+# ---------------------------------------------------------------------------
+
+generated_pattern='^[[:space:]]*@Generated\b'
+
+changed_main_java=$(git diff --name-only --diff-filter=d "$BASE_REV...HEAD" -- '*.java' \
+  | grep '^src/main/java/' || true)
+
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  [ -f "$f" ] || continue  # path no longer exists at HEAD (rename target elsewhere)
+
+  head_count=$(grep -cE "$generated_pattern" "$f" 2>/dev/null || true)
+  head_count=${head_count:-0}
+  base_count=$(git show "$BASE_REV:$f" 2>/dev/null | grep -cE "$generated_pattern" || true)
+  base_count=${base_count:-0}
+
+  if [ "$head_count" -gt "$base_count" ]; then
+    echo "::error file=$f::new @Generated usage ($BASE_REF: $base_count -> head: $head_count) - JaCoCo/PIT silently drop any @Generated class or method from the coverage denominator, whatever package the annotation comes from. State the reason in the PR body, or remove it."
+    status=1
+  fi
+done <<< "$changed_main_java"
 
 if [ "$status" -eq 0 ]; then
   echo "No quality-gate weakening found relative to $BASE_REF."

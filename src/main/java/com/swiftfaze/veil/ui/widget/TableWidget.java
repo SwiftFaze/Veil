@@ -215,14 +215,19 @@ public class TableWidget<T> extends Widget {
         inputMap.put(Keybindings.MENU_RIGHT, "table-right");
         inputMap.put(Keybindings.MENU_CONFIRM, "table-confirm");
         actionMap.put("table-up", new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) { moveUp(); } });
         actionMap.put("table-down", new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) { moveDown(); } });
         actionMap.put("table-left", new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) { moveLeft(); } });
         actionMap.put("table-right", new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) { moveRight(); } });
         actionMap.put("table-confirm", new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 T selected = getSelectedRow();
                 if (selected != null) onConfirm.accept(selected);

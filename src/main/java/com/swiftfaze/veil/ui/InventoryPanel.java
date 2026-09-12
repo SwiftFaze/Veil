@@ -143,6 +143,7 @@ public class InventoryPanel extends PopupWidget {
         ActionMap actionMap = getActionMap();
         inputMap.put(Keybindings.DROP_ITEM, Keybindings.ACTION_DROP_ITEM);
         actionMap.put(Keybindings.ACTION_DROP_ITEM, new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 Item selected = itemList.getSelectedItem();
                 if (selected != null) {

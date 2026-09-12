@@ -182,20 +182,25 @@ public class RadioGroupWidget<T> extends Widget {
             inputMap.put(Keybindings.MENU_LEFT, "radio-left");
             inputMap.put(Keybindings.MENU_RIGHT, "radio-right");
             actionMap.put("radio-left", new AbstractAction() {
+                @Override
                 public void actionPerformed(ActionEvent e) { moveHorizontal(false); } });
             actionMap.put("radio-right", new AbstractAction() {
+                @Override
                 public void actionPerformed(ActionEvent e) { moveHorizontal(true); } });
         } else {
             inputMap.put(Keybindings.MENU_UP, "radio-up");
             inputMap.put(Keybindings.MENU_DOWN, "radio-down");
             actionMap.put("radio-up", new AbstractAction() {
+                @Override
                 public void actionPerformed(ActionEvent e) { moveVertical(false); } });
             actionMap.put("radio-down", new AbstractAction() {
+                @Override
                 public void actionPerformed(ActionEvent e) { moveVertical(true); } });
         }
 
         inputMap.put(Keybindings.MENU_CONFIRM, "radio-confirm");
         actionMap.put("radio-confirm", new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 selectedIndex = highlightedIndex;
                 // Without this, the confirmed border wasn't applied until whatever move happened

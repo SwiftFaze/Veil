@@ -74,7 +74,7 @@ restatement — two copies drift, and the reader cannot tell which is current.
 | Swing layout, spacing, colour | `docs/ui-styling.md` |
 | Repo-wide hard prohibitions, entry points | `CLAUDE.md` |
 
-`docs/testing.md` already models this correctly for the PMD/JaCoCo numbers: it
+`docs/testing-quality-gates.md` already models this correctly for the PMD/JaCoCo numbers: it
 points at `.claude/workflow.md` as the single source of truth and explicitly
 says *"don't restate them here."* That discipline just needs applying
 everywhere.
@@ -182,4 +182,4 @@ A note on limits, learned the expensive way: a lint rule that a test contains
 *an* assertion does not catch a test whose assertion is vacuous. Twenty-four
 tests here asserted `assertNotNull` on a freshly-constructed object and passed
 every gate. Only mutation testing catches that class of problem — see
-`docs/testing.md`. Prefer the check that can actually fail for the right reason.
+`docs/testing-quality-gates.md`. Prefer the check that can actually fail for the right reason.

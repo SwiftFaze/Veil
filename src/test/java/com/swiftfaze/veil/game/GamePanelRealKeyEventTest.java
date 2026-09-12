@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Proves GamePanel's WHEN_IN_FOCUSED_WINDOW key bindings actually route through Swing's
  * real focus machinery, not just that the bound Action works when invoked directly via
  * getActionMap() (every other test in GamePanelTest, and every Cucumber step definition
- * driving keyboard input, takes that shortcut — see docs/testing.md's key-event coverage
+ * driving keyboard input, takes that shortcut — see docs/testing-acceptance.md's key-event coverage
  * rule). Needs a real, OS-focused window: java.awt.HeadlessException rules that out
  * entirely on this repo's actual CI (ubuntu-latest, no virtual display configured), so
  * this is skipped there rather than failed, and runs for real on any machine with a

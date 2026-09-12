@@ -32,7 +32,7 @@ implementation — it does not replace or overlap with `CLAUDE.md`'s Step 4.5
 manual playtest, which is a human verifying real interactive *feel* (movement,
 menu navigation, timing) that no static render can capture.
 
-**Approval tests** (see `docs/testing.md`) now automatically verify glyph-grid
+**Approval tests** (see `docs/testing-acceptance.md`) now automatically verify glyph-grid
 regressions: camera viewport edges, building footprints, entity-over-tile
 layering, and viewport dimensions. That frees this manual process to focus on
 genuine Swing concerns — baseline positioning, HTML wrapping, `getPreferredSize()`

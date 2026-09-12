@@ -17,7 +17,6 @@ import java.util.function.Consumer;
 
 public class TitleScreenPanel extends JPanel implements HintAware {
     private static final Logger logger = LoggerFactory.getLogger(TitleScreenPanel.class);
-    private static final Font TERMINAL_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 16);
     private static final List<ControlsHintBarWidget.Hint> HINTS = List.of(new ControlsHintBarWidget.Hint("enter", "Select"));
 
     private final JLabel titleLabel;

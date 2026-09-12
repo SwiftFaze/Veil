@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.world;
 
+import com.swiftfaze.veil.annotations.Nullable;
 import com.swiftfaze.veil.Camera;
 import com.swiftfaze.veil.DrawableAsciiEntity;
 import com.swiftfaze.veil.entities.buildings.Building;
@@ -61,7 +62,7 @@ public abstract class WorldScene implements DrawableAsciiEntity {
         return type != null && type.isWalkable();
     }
 
-    public Tile getTile(int x, int y) {
+    public @Nullable Tile getTile(int x, int y) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return null;
         }
