@@ -1,6 +1,6 @@
 package com.swiftfaze.veil.world;
 
-import com.swiftfaze.veil.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.Camera;
 import com.swiftfaze.veil.DrawableAsciiEntity;
 import com.swiftfaze.veil.entities.buildings.Building;

@@ -1,6 +1,6 @@
 package com.swiftfaze.veil.entities.player.classes;
 
-import com.swiftfaze.veil.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.component.DetailTable;
 import com.swiftfaze.veil.component.Inspectable;
 import com.swiftfaze.veil.entities.player.Stats;
