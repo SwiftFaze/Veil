@@ -50,6 +50,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- JSpecify nullability annotations (@Nullable, @NullMarked) - issue #216 -->
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <!-- Module dependency gate (Constraints in .claude/workflow.md): ModuleDependencyTest
              enforces the engine/widgets/screens layering docs/architecture.md documents. -->
         <dependency>
@@ -148,14 +155,14 @@
         </testResources>
         <plugins>
             <!-- Step 4 compile-time gates: Error Prone (default check set, repo-wide) and NullAway
-                 (scoped to com.swiftfaze.veil.world and com.swiftfaze.veil.entities package tree).
-                 Both run at javac compile time (not a verify-bound analysis phase), failing the build
-                 on violations. Error Prone catches: @Override on non-overrides, enum switch exhaustiveness,
-                 format mismatches, mutable statics, reference-equality on boxed types. NullAway enforces
-                 non-null-by-default (see docs/testing-quality-gates.md for full rationale and how to expand the
-                 annotated packages list). This machine runs Maven on JDK 24, newer than the project's
-                 JDK 17 compile target, which is OK — the jdk.compiler internal packages these flags
-                 reach into have been stable since JDK 9. -->
+                 (scoped via @NullMarked package-info.java files, JSpecify mode - see below). Both run at
+                 javac compile time (not a verify-bound analysis phase), failing the build on violations.
+                 Error Prone catches: @Override on non-overrides, enum switch exhaustiveness, format
+                 mismatches, mutable statics, reference-equality on boxed types. NullAway enforces
+                 non-null-by-default on every @NullMarked package (see docs/testing-quality-gates.md for
+                 full rationale and how to extend coverage). This machine runs Maven on JDK 24, newer than
+                 the project's JDK 17 compile target, which is OK — the jdk.compiler internal packages
+                 these flags reach into have been stable since JDK 9. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -183,7 +190,7 @@
                              Windows, so this is not theoretical - keep this whole string as one <arg>
                              with no embedded newlines.
                              Demoted checks: EnumOrdinal (fixed tab indices), StringCaseLocaleUsage (ASCII content types), MissingSummary (style-only), ImmutableEnumChecker (function field records) -->
-                        <arg>-Xplugin:ErrorProne -XepOpt:NullAway:AnnotatedPackages=com.swiftfaze.veil.world,com.swiftfaze.veil.entities -Xep:NullAway:ERROR -Xep:EnumOrdinal:ERROR -Xep:StringCaseLocaleUsage:ERROR -Xep:MissingSummary:ERROR -Xep:ImmutableEnumChecker:ERROR</arg>
+                        <arg>-Xplugin:ErrorProne -XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:JSpecifyMode=true -Xep:NullAway:ERROR -Xep:EnumOrdinal:ERROR -Xep:StringCaseLocaleUsage:ERROR -Xep:MissingSummary:ERROR -Xep:ImmutableEnumChecker:ERROR</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>

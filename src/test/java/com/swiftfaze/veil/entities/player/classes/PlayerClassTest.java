@@ -7,6 +7,7 @@ import net.jqwik.api.Arbitrary;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -105,7 +106,7 @@ class PlayerClassTest {
     // ========== Property-based tests ==========
 
     @Provide
-    Arbitrary<String> growthCalcs() {
+    Arbitrary<@Nullable String> growthCalcs() {
         // Generate well-formed growth calculation expressions (or null for no growth curve).
         return VeilArbitraries.calcExpression().injectNull(0.2);
     }
@@ -117,7 +118,7 @@ class PlayerClassTest {
 
     @Property
     void applyStatsAtLevelIsDeterministic(
-            @ForAll("growthCalcs") String growthCalc,
+            @ForAll("growthCalcs") @Nullable String growthCalc,
             @ForAll("levels") int level) {
         // Create a PlayerClass with a single stat curve to test.
         PlayerClass testClass = new PlayerClass("test:det", "Determinism",

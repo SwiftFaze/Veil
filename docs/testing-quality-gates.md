@@ -79,17 +79,20 @@ gates. See [`testing.md`](testing.md) for the test layers themselves.
   `StringCaseLocaleUsage`, `MissingSummary`, `ImmutableEnumChecker`) each
   carry a one-line reason next to the `<arg>` in `pom.xml` - demote further
   noisy checks the same way, never silently.
-- NullAway's annotated-packages list starts at `com.swiftfaze.veil.world`
-  and `com.swiftfaze.veil.entities` (all `entities.*` subpackages), chosen
-  for value (a null tile/entity field is where null crashes the game), not
-  ease. **Only grows, never shrinks** - same ratchet as the ArchUnit store
-  (`docs/testing-module-dependency.md`). To extend: add the package to
-  `AnnotatedPackages` in that same `<arg>`, run `mvn compile`, fix every
-  finding for real (annotate a genuinely-optional reference `@Nullable`,
-  don't reach for a blanket `@SuppressWarnings("NullAway")` - that silences
-  the whole method).
-- `@Nullable` is `com.swiftfaze.veil.annotations.Nullable`, hand-rolled
-  (NullAway matches by simple class name) instead of a JSR-305 dependency -
-  use this one everywhere, not a per-file choice.
+- NullAway runs in JSpecify mode (`-XepOpt:NullAway:JSpecifyMode=true` with
+  `-XepOpt:NullAway:OnlyNullMarked=true`, not `AnnotatedPackages`).
+  Coverage starts at `com.swiftfaze.veil.world` and `com.swiftfaze.veil.entities`
+  (plus its `buildings`, `items`, `player`, `player.classes`, and `quests`
+  subpackages), each carrying its own `@NullMarked` `package-info.java` -
+  `@NullMarked` does not cascade to subpackages, so every covered package
+  needs one, chosen for value (a null tile/entity field is where null
+  crashes the game), not ease. **Only grows, never shrinks** - same ratchet
+  as the ArchUnit store (`docs/testing-module-dependency.md`). To extend:
+  add a `package-info.java` annotated `@NullMarked` to the new package, run
+  `mvn compile`, fix every finding for real (annotate a genuinely-optional
+  reference `@Nullable`, don't reach for a blanket
+  `@SuppressWarnings("NullAway")` - that silences the whole method).
+- `@Nullable` is `org.jspecify.annotations.Nullable` - use this one
+  everywhere, not a per-file choice.
 - Measured cost: clean `mvn compile` ~11.7s -> ~24.2s (+~12.5s) on the
   measuring machine - re-measure if it grows further as the list widens.
