@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.31](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.30...v0.5.0-beta.31) (2026-09-28)
+
+
+### Features
+
+* split Steps 4-7 into coder/hardener agents and sync skills from Veilclj ([#231](https://github.com/SwiftFaze/Veil/issues/231)) ([28f14ec](https://github.com/SwiftFaze/Veil/commit/28f14ece1641586a5c331b325046e3b58fbcf7c0))
+
 ## [0.5.0-beta.30](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.29...v0.5.0-beta.30) (2026-09-12)
 
 
