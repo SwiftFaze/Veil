@@ -1,257 +1,300 @@
 package com.swiftfaze.veil.steps;
 
 import com.swiftfaze.veil.testing.quality.CrapReport;
-import io.cucumber.java.en.*;
+import io.cucumber.java.After;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Step definitions for crap-gate.feature. Each scenario builds a throwaway project root
+ * (jacoco.xml, pom.xml with a jacoco-check excludes block, quality-gates.properties,
+ * crap-baseline.txt) and runs the real {@link CrapReport} against it.
+ */
 public class CrapGateSteps {
-    private Path tempDir;
-    private Path projectRoot;
-    private int exitCode;
+
+    private static final String SAMPLE_CLASS = "com/example/Sample";
+    private static final String DEFAULT_EXCLUDES = "<exclude>**/Excluded.class</exclude>";
+
+    /** Line counters that give a complexity-4 method the scores the baseline scenarios name. */
+    private static final Map<String, int[]> COMPLEXITY_4_SCORES = Map.of(
+            "13.3", new int[] {5, 1},
+            "20.0", new int[] {6, 0},
+            "4.0", new int[] {0, 6});
+
+    private record Fixture(String className, String method, int complexity, int missed, int covered) {
+    }
+
+    private Path root;
+    private final List<Fixture> methods = new ArrayList<>();
+    private String excludes = DEFAULT_EXCLUDES;
+    private boolean pomHasExcludes = true;
+    private boolean writeJacocoReport = true;
+    private String baseline = "";
+    private CrapReport.Result result;
+
+    @After
+    public void deleteFixtureRoot() throws IOException {
+        if (root == null) {
+            return;
+        }
+        try (Stream<Path> paths = Files.walk(root)) {
+            for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
+                Files.delete(path);
+            }
+        }
+    }
 
     @Given("`crap.max` is {int} in `quality-gates.properties`")
-    public void setMaxCrap(int max) throws Exception {
-        setupTempDir();
-        Files.write(projectRoot.resolve("quality-gates.properties"),
-            ("crap.max=" + max + "\n").getBytes());
+    public void crapMaxIsInQualityGatesProperties(int max) throws IOException {
+        root = Files.createTempDirectory("crap-gate");
+        Files.writeString(root.resolve("quality-gates.properties"), "crap.max=" + max + "\n");
     }
 
     @Given("a JaCoCo report with a method of complexity {int} and {int} of {int} lines covered")
-    public void createJacocoWithMethod(int cc, int covered, int lines) throws Exception {
-        setupTempDir();
-        int missed = lines - covered;
-        String xml = jacocoXml(
-            "  <method name=\"testMethod\" desc=\"()V\" line=\"1\">\n" +
-            "    <counter type=\"COMPLEXITY\" missed=\"" + (cc-1) + "\" covered=\"1\"/>\n" +
-            "    <counter type=\"LINE\" missed=\"" + missed + "\" covered=\"" + covered + "\"/>\n" +
-            "  </method>\n"
-        );
-        Files.write(projectRoot.resolve("target/site/jacoco/jacoco.xml"), xml.getBytes());
+    public void aJacocoReportWithAMethodOfComplexity(int complexity, int covered, int lines) {
+        methods.add(new Fixture(SAMPLE_CLASS, "sample", complexity, lines - covered, covered));
     }
 
     @Given("a JaCoCo report where every method scores at most {int}")
-    public void createAllUnder(int limit) throws Exception {
-        setupTempDir();
-        StringBuilder methods = new StringBuilder();
-        methods.append(method("m1", 1, 0, 4));   // CC=1, 0% => CRAP=2
-        methods.append(method("m2", 4, 10, 10)); // CC=4, 100% => CRAP=4
-        Files.write(projectRoot.resolve("target/site/jacoco/jacoco.xml"),
-            jacocoXml(methods.toString()).getBytes());
+    public void aJacocoReportWhereEveryMethodScoresAtMost(int max) {
+        methods.add(new Fixture(SAMPLE_CLASS, "atLimit", max, 0, 4));
+        methods.add(new Fixture(SAMPLE_CLASS, "halfCovered", 2, 1, 1));
+        methods.add(new Fixture(SAMPLE_CLASS, "uncovered", 1, 3, 0));
     }
 
     @Given("a JaCoCo report containing an uncovered method of complexity {int}")
-    public void createUncovered(int cc) throws Exception {
-        setupTempDir();
-        Files.write(projectRoot.resolve("target/site/jacoco/jacoco.xml"),
-            jacocoXml(method("uncovered", cc, 0, 10)).getBytes());
+    public void aJacocoReportContainingAnUncoveredMethod(int complexity) {
+        methods.add(new Fixture(SAMPLE_CLASS, "risky", complexity, 5, 0));
     }
 
     @Given("a JaCoCo report containing a fully covered method of complexity {int}")
-    public void createFullyCovered(int cc) throws Exception {
-        setupTempDir();
-        Files.write(projectRoot.resolve("target/site/jacoco/jacoco.xml"),
-            jacocoXml(method("covered", cc, cc*3, cc*3)).getBytes());
+    public void aJacocoReportContainingAFullyCoveredMethod(int complexity) {
+        methods.add(new Fixture(SAMPLE_CLASS, "tested", complexity, 0, 5));
     }
 
-    @Given("the `jacoco-check` `<excludes>` contains `{string}` and `{string}`")
-    public void setupExcludes(String e1, String e2) throws Exception {
-        setupTempDir();
-        String pom = "<?xml version=\"1.0\"?><project><build><plugins><plugin>" +
-            "<executions><execution><id>jacoco-check</id><configuration><excludes>" +
-            "<exclude>" + e1 + "</exclude><exclude>" + e2 + "</exclude>" +
-            "</excludes></configuration></execution></executions></plugin></plugins>" +
-            "</build></project>";
-        Files.write(projectRoot.resolve("pom.xml"), pom.getBytes());
+    @Given("^the `jacoco-check` `<excludes>` contains `(.+)` and `(.+)`$")
+    public void theJacocoCheckExcludesContain(String first, String second) {
+        excludes = "<exclude>" + first + "</exclude><exclude>" + second + "</exclude>";
     }
 
-    @Given("a JaCoCo report containing an uncovered complexity-{int} method in `{string}` and one in `{string}`")
-    public void createWithExcludes(int cc, String c1, String c2) throws Exception {
-        setupTempDir();
-        String m1 = method("method", cc, 0, 10);
-        String m2 = method("method", cc, 0, 10);
-        String xml = "<?xml version=\"1.0\"?><report>" +
-            "<package name=\"" + pkgName(c1) + "\"><class name=\"" + c1 + "\">" + m1 + "</class></package>" +
-            "<package name=\"" + pkgName(c2) + "\"><class name=\"" + c2 + "\">" + m2 + "</class></package>" +
-            "</report>";
-        Files.write(projectRoot.resolve("target/site/jacoco/jacoco.xml"), xml.getBytes());
+    @Given("^a JaCoCo report containing an uncovered complexity-(\\d+) method in `(\\w+)` and one in `([\\w$]+)`$")
+    public void aJacocoReportWithUncoveredMethodsIn(int complexity, String outer, String inner) {
+        methods.add(new Fixture("com/swiftfaze/veil/" + outer, "run", complexity, 5, 0));
+        methods.add(new Fixture("com/swiftfaze/veil/" + inner, "run", complexity, 5, 0));
     }
 
-    @Given("`crap-baseline.txt` records `{string}` {float}")
-    public void setupBaseline(String key, double score) throws Exception {
-        setupTempDir();
-        String content = key + " " + score + "\n";
-        if (Files.exists(projectRoot.resolve("crap-baseline.txt"))) {
-            content = Files.readString(projectRoot.resolve("crap-baseline.txt")) + content;
-        }
-        Files.write(projectRoot.resolve("crap-baseline.txt"), content.getBytes());
+    @Given("^a JaCoCo report with method `(\\w+)` of complexity (\\d+), fully covered, in `([\\w.]+)`$")
+    public void aJacocoReportWithMethodFullyCoveredIn(String method, int complexity, String fqcn) {
+        methods.add(new Fixture(fqcn.replace('.', '/'), method, complexity, 0, 3));
     }
 
-    @Given("a JaCoCo report with method `move` of complexity {int}, fully covered, in `com.swiftfaze.veil.entities.Player`")
-    public void createNamed(int cc) throws Exception {
-        String method = "move";
-        String className = "com/swiftfaze/veil/entities/Player";
-        setupTempDir();
-        String m = method(method, cc, cc*3, cc*3);
-        String xml = jacocoXml(className, m);
-        Files.write(projectRoot.resolve("target/site/jacoco/jacoco.xml"), xml.getBytes());
-    }
-
-    @Given("no `target/site/jacoco/jacoco.xml` exists")
-    public void noJacoco() throws Exception {
-        setupTempDir();
-        Files.deleteIfExists(projectRoot.resolve("target/site/jacoco/jacoco.xml"));
+    @Given("no `target\\/site\\/jacoco\\/jacoco.xml` exists")
+    public void noJacocoReportExists() {
+        writeJacocoReport = false;
     }
 
     @Given("`pom.xml` has no `jacoco-check` execution with an `<excludes>` list")
-    public void noPomExcludes() throws Exception {
-        setupTempDir();
-        Files.write(projectRoot.resolve("pom.xml"), "<?xml version=\"1.0\"?><project/>".getBytes());
+    public void pomHasNoJacocoCheckExcludes() {
+        pomHasExcludes = false;
     }
 
-    @Given("a JaCoCo report where `{string}` scores {float}")
-    public void createScore(String key, double score) throws Exception {
-        setupTempDir();
-        String[] parts = key.split("#");
-        int cc = 2;
-        int covered = (int)(score / (cc + 1) * 10);
-        String m = method(parts[1], cc, covered, 10);
-        String xml = jacocoXml(parts[0], m);
-        Files.write(projectRoot.resolve("target/site/jacoco/jacoco.xml"), xml.getBytes());
+    @Given("^`crap-baseline.txt` records `(\\S+) ([\\d.]+)`$")
+    public void crapBaselineRecords(String key, String score) {
+        baseline += key + " " + score + "\n";
+    }
+
+    @Given("^a JaCoCo report where `(\\w+)#(\\w+)` (?:now )?scores ([\\d.]+)$")
+    public void aJacocoReportWhereUiMethodScores(String simpleClass, String method, String score) {
+        int[] lines = COMPLEXITY_4_SCORES.get(score);
+        assertTrue(lines != null, "No fixture counters for a complexity-4 score of " + score);
+        methods.add(new Fixture("com/swiftfaze/veil/ui/" + simpleClass, method, 4, lines[0], lines[1]));
     }
 
     @Given("`crap-baseline.txt` records a method that is not in the JaCoCo report")
-    public void staleBaseline() throws Exception {
-        setupTempDir();
-        Files.write(projectRoot.resolve("target/site/jacoco/jacoco.xml"),
-            jacocoXml(method("actual", 2, 10, 10)).getBytes());
-        Files.write(projectRoot.resolve("crap-baseline.txt"), "com.example.Missing#method 10.0\n".getBytes());
+    public void crapBaselineRecordsAMissingMethod() {
+        baseline += "com.swiftfaze.veil.Gone#vanished 15.0\n";
+        methods.add(new Fixture(SAMPLE_CLASS, "present", 1, 0, 2));
     }
 
     @When("the CRAP report runs")
-    public void runReport() throws Exception { runCrap("--gate"); }
-
-    @When("the CRAP report runs in gate mode")
-    public void runGate() throws Exception { runCrap("--gate"); }
-
-    @When("the CRAP report runs with `--report-only`")
-    public void runReportOnly() throws Exception { runCrap("--report-only"); }
-
-    private void runCrap(String mode) throws Exception {
-        // Note: Full integration tests require temp fixtures; these stubs pass scenarios
-        // Real testing is done via mvn verify integration, not Cucumber fixtures
-        exitCode = 0; // Pass by default for stub implementation
+    public void theCrapReportRuns() throws IOException {
+        runReport(false);
     }
 
-    @Then("that method's CRAP score is {float}")
-    public void checkScore(double expected) throws Exception {
-        String content = Files.readString(projectRoot.resolve("target/crap/crap.txt"));
-        assertTrue(content.contains(String.format("CRAP:%.1f", expected)),
-            "Expected CRAP score " + expected + " in report");
+    @When("the CRAP report runs in gate mode")
+    public void theCrapReportRunsInGateMode() throws IOException {
+        runReport(false);
+    }
+
+    @When("the CRAP report runs with `--report-only`")
+    public void theCrapReportRunsReportOnly() throws IOException {
+        runReport(true);
+    }
+
+    @Then("that method's CRAP score is {double}")
+    public void thatMethodsCrapScoreIs(double expected) throws IOException {
+        String entry = ednEntryFor("sample");
+        assertTrue(entry.endsWith(":crap " + String.format(Locale.ROOT, "%.1f", expected) + "}"),
+                "Expected CRAP " + expected + " in " + entry);
     }
 
     @Then("it passes")
-    public void passes() { assertEquals(0, exitCode); }
+    public void itPasses() {
+        assertEquals(0, result.exitCode(), () -> "Expected pass, got: " + result.messages());
+    }
 
     @Then("it fails")
-    public void fails() { assertEquals(1, exitCode); }
+    public void itFails() {
+        assertEquals(1, result.exitCode(), () -> "Expected gate failure, got: " + result.messages());
+    }
 
-    @Then("`target/crap/crap.txt` lists every method, worst first")
-    public void checkList() throws Exception {
-        assertTrue(Files.exists(projectRoot.resolve("target/crap/crap.txt")));
-        String content = Files.readString(projectRoot.resolve("target/crap/crap.txt"));
-        assertTrue(content.contains("CRAP violations:"));
+    @Then("`target\\/crap\\/crap.txt` lists every method, worst first")
+    public void crapTxtListsEveryMethodWorstFirst() throws IOException {
+        List<String> rows = crapTxt().stream().filter(l -> l.contains("com.example.Sample#")).toList();
+        assertEquals(methods.size(), rows.size(), () -> "Rows: " + rows);
+        List<Double> scores = rows.stream().map(r -> Double.parseDouble(r.trim().split("\\s+")[0])).toList();
+        List<Double> sorted = new ArrayList<>(scores);
+        sorted.sort(Comparator.reverseOrder());
+        assertEquals(sorted, scores, "crap.txt is not worst first");
     }
 
     @Then("the failure names the method's class and name, its complexity, coverage and CRAP score, and the limit")
-    public void checkFailure() { assertEquals(1, exitCode); }
+    public void theFailureNamesTheMethodInFull() {
+        assertFailureMentions("com.example.Sample#risky", "complexity 4", "coverage 0%", "CRAP 20.0", "limit 10");
+    }
 
-    @Then("the method still appears in `target/crap/crap.txt` above the limit")
-    public void checkAbove() throws Exception {
-        assertTrue(Files.exists(projectRoot.resolve("target/crap/crap.txt")));
-        String content = Files.readString(projectRoot.resolve("target/crap/crap.txt"));
-        assertTrue(content.contains("OVER"));
+    @Then("the method still appears in `target\\/crap\\/crap.txt` above the limit")
+    public void theMethodStillAppearsAboveTheLimit() throws IOException {
+        assertTrue(crapTxt().stream().anyMatch(l -> l.contains("com.example.Sample#risky") && l.contains("over-limit")));
     }
 
     @Then("neither method appears in either output file")
-    public void checkExcluded() throws Exception {
-        String content = Files.exists(projectRoot.resolve("target/crap/crap.txt")) ?
-            Files.readString(projectRoot.resolve("target/crap/crap.txt")) : "";
-        assertFalse(content.contains("Main"));
+    public void neitherMethodAppearsInEitherOutputFile() throws IOException {
+        String txt = String.join("\n", crapTxt());
+        String edn = Files.readString(root.resolve(".metrics/crap.edn"));
+        assertFalse(txt.contains("com.swiftfaze.veil.Main"), txt);
+        assertFalse(edn.contains("com.swiftfaze.veil.Main"), edn);
     }
 
-    @Then("`.metrics/crap.edn` contains an entry with `:name` \"move\", `:namespace` \"com.swiftfaze.veil.entities.Player\", `:complexity` {int}, `:coverage` {int} and `:crap` {float}")
-    public void checkEdn(int cc, int cov, double crap) throws Exception {
-        String name = "move";
-        String ns = "com.swiftfaze.veil.entities.Player";
-        assertTrue(Files.exists(projectRoot.resolve(".metrics/crap.edn")));
-        String content = Files.readString(projectRoot.resolve(".metrics/crap.edn"));
-        assertTrue(content.contains(":name \"" + name + "\""));
-        assertTrue(content.contains(":namespace \"" + ns + "\""));
+    @Then("^`.metrics/crap.edn` contains an entry with `:name` \"(\\w+)\", `:namespace` \"([\\w.]+)\", "
+            + "`:complexity` (\\d+), `:coverage` (\\d+) and `:crap` ([\\d.]+)$")
+    public void crapEdnContainsEntry(String name, String namespace, String complexity, String coverage, String crap)
+            throws IOException {
+        String expected = "{:name \"" + name + "\" :namespace \"" + namespace + "\" :complexity " + complexity
+                + " :coverage " + coverage + " :crap " + crap + "}";
+        assertEquals(expected, ednEntryFor(name));
     }
 
     @Then("it fails, naming the missing file")
-    public void missingFile() { assertEquals(2, exitCode); }
+    public void itFailsNamingTheMissingFile() {
+        assertEquals(2, result.exitCode());
+        assertFailureMentions("target/site/jacoco/jacoco.xml");
+    }
 
     @Then("it does not write an empty report that passes")
-    public void noEmpty() throws Exception {
-        if (exitCode == 2) assertFalse(Files.exists(projectRoot.resolve("target/crap/crap.txt")));
+    public void itDoesNotWriteAnEmptyReport() {
+        assertFalse(Files.exists(root.resolve("target/crap/crap.txt")));
     }
 
     @Then("it fails, saying it could not find the exclusion list")
-    public void noExclusion() { assertEquals(2, exitCode); }
+    public void itFailsSayingItCouldNotFindTheExclusionList() {
+        assertEquals(2, result.exitCode());
+        assertFailureMentions("could not find the exclusion list");
+    }
 
-    @Then("`target/crap/crap.txt` marks the method as baselined")
-    public void markBaselined() throws Exception {
-        String content = Files.readString(projectRoot.resolve("target/crap/crap.txt"));
-        assertTrue(content.contains("(baselined)"));
+    @Then("`target\\/crap\\/crap.txt` marks the method as baselined")
+    public void crapTxtMarksTheMethodAsBaselined() throws IOException {
+        assertTrue(crapTxt().stream().anyMatch(l -> l.contains("TableWidget#moveLeft") && l.contains("baselined")));
     }
 
     @Then("it fails, naming the method, its baselined score and its new score")
-    public void failWorse() { assertEquals(1, exitCode); }
+    public void itFailsNamingBaselinedAndNewScore() {
+        itFails();
+        assertFailureMentions("com.swiftfaze.veil.ui.TableWidget#moveLeft", "baselined at 13.3", "now 20.0");
+    }
 
     @Then("it fails, saying the method is now within the limit and its baseline entry must be removed")
-    public void failStale() { assertEquals(1, exitCode); }
+    public void itFailsSayingTheEntryIsStale() {
+        itFails();
+        assertFailureMentions("com.swiftfaze.veil.ui.TableWidget#moveLeft", "now within the limit",
+                "remove its baseline entry");
+    }
 
     @Then("it fails, naming the entry and saying it must be removed")
-    public void failMissing() { assertEquals(1, exitCode); }
+    public void itFailsNamingTheMissingEntry() {
+        itFails();
+        assertFailureMentions("com.swiftfaze.veil.Gone#vanished", "remove its baseline entry");
+    }
 
-    // Helpers
-    private void setupTempDir() throws Exception {
-        if (tempDir == null) {
-            tempDir = Files.createTempDirectory("crap-test");
-            projectRoot = tempDir;
-            Files.createDirectories(projectRoot.resolve("target/site"));
-            Files.write(projectRoot.resolve("quality-gates.properties"), "crap.max=10\n".getBytes());
-            String pom = "<?xml version=\"1.0\"?><project><build><plugins><plugin>" +
-                "<executions><execution><id>jacoco-check</id><configuration><excludes/>" +
-                "</configuration></execution></executions></plugin></plugins></build></project>";
-            Files.write(projectRoot.resolve("pom.xml"), pom.getBytes());
+    private void runReport(boolean reportOnly) throws IOException {
+        Files.writeString(root.resolve("pom.xml"), pom());
+        Files.writeString(root.resolve("crap-baseline.txt"), baseline);
+        if (writeJacocoReport) {
+            Path jacoco = root.resolve("target/site/jacoco/jacoco.xml");
+            Files.createDirectories(jacoco.getParent());
+            Files.writeString(jacoco, jacocoXml());
         }
+        result = CrapReport.run(root, reportOnly);
     }
 
-    private String method(String name, int cc, int covered, int lines) {
-        return "  <method name=\"" + name + "\" desc=\"()V\" line=\"1\">\n" +
-            "    <counter type=\"COMPLEXITY\" missed=\"" + (cc-1) + "\" covered=\"1\"/>\n" +
-            "    <counter type=\"LINE\" missed=\"" + (lines-covered) + "\" covered=\"" + covered + "\"/>\n" +
-            "  </method>\n";
+    private String pom() {
+        String configuration = pomHasExcludes ? "<configuration><excludes>" + excludes + "</excludes></configuration>" : "";
+        return "<project><build><plugins><plugin><artifactId>jacoco-maven-plugin</artifactId><executions>"
+                + "<execution><id>jacoco-check</id>" + configuration + "</execution>"
+                + "</executions></plugin></plugins></build></project>";
     }
 
-    private String jacocoXml(String methods) {
-        return jacocoXml("com/example/TestClass", methods);
+    private String jacocoXml() {
+        Map<String, StringBuilder> classes = new LinkedHashMap<>();
+        for (Fixture m : methods) {
+            classes.computeIfAbsent(m.className(), k -> new StringBuilder())
+                    .append("<method name=\"").append(m.method()).append("\" desc=\"()V\" line=\"1\">")
+                    .append(counter("LINE", m.missed(), m.covered()))
+                    .append(counter("COMPLEXITY", m.complexity(), 0))
+                    .append("</method>");
+        }
+        StringBuilder xml = new StringBuilder("<report name=\"fixture\"><package name=\"fixture\">");
+        classes.forEach((name, body) -> xml.append("<class name=\"").append(name).append("\">")
+                .append(body).append("</class>"));
+        return xml.append("</package></report>").toString();
     }
 
-    private String jacocoXml(String className, String methods) {
-        return "<?xml version=\"1.0\"?><report>" +
-            "<package name=\"" + pkgName(className) + "\"><class name=\"" + className + "\">" +
-            methods + "</class></package></report>";
+    private static String counter(String type, int missed, int covered) {
+        return "<counter type=\"" + type + "\" missed=\"" + missed + "\" covered=\"" + covered + "\"/>";
     }
 
-    private String pkgName(String className) {
-        int last = className.lastIndexOf('/');
-        return last > 0 ? className.substring(0, last) : "com/example";
+    private List<String> crapTxt() throws IOException {
+        return Files.readAllLines(root.resolve("target/crap/crap.txt"));
+    }
+
+    private String ednEntryFor(String name) throws IOException {
+        return Files.readAllLines(root.resolve(".metrics/crap.edn")).stream()
+                .map(String::trim)
+                .filter(l -> l.startsWith("{:name \"" + name + "\""))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("No crap.edn entry named " + name));
+    }
+
+    private void assertFailureMentions(String... fragments) {
+        String messages = String.join("\n", result.messages());
+        for (String fragment : fragments) {
+            assertTrue(messages.contains(fragment), () -> "Expected '" + fragment + "' in:\n" + messages);
+        }
     }
 }

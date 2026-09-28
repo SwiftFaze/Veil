@@ -584,27 +584,30 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 6. CRAP gate (per-method complexity x coverage metric)
+# 6. CRAP (per-method complexity x coverage), repo-wide
+#    Section 1 ran the CRAP gate with -Dcrap.mode=--report-only so the build
+#    could finish; this section decides from its report. Not diff-scoped:
+#    CRAP is per method, and crap-baseline.txt already covers legacy methods.
 # ---------------------------------------------------------------------------
 
 hr
-echo "6. CRAP gate (per-method complexity-coverage scoring)"
+echo "6. CRAP (per-method complexity x coverage, crap.max in quality-gates.properties)"
 hr
 
 CRAP_REPORT="target/crap/crap.txt"
-if [ -f "$CRAP_REPORT" ]; then
-  crap_fail=$(grep "^FAIL " "$CRAP_REPORT" | wc -l)
-  if [ "$crap_fail" -gt 0 ]; then
-    echo "  FAIL  $crap_fail CRAP gate violation(s):"
-    echo
-    grep "^FAIL " "$CRAP_REPORT" | sed 's/^/    /'
-    blocking=$((blocking + 1))
-    sections_failed="$sections_failed crap"
-  else
-    echo "  PASS  no CRAP violations (all methods at or below limit/baseline)"
-  fi
+if [ "$RUN_MVN" = 0 ]; then
+  echo "  SKIP  --fast skipped mvn verify, so no CRAP report was produced"
+elif [ ! -f "$CRAP_REPORT" ]; then
+  echo "  FAIL  $CRAP_REPORT was not produced - the CRAP gate did not run"
+  blocking=$((blocking + 1))
+  sections_failed="$sections_failed crap"
+elif grep -q '^FAIL ' "$CRAP_REPORT"; then
+  echo "  FAIL  $(grep -c '^FAIL ' "$CRAP_REPORT") CRAP violation(s) (split the method or cover it; see docs/clean-code-gate.md):"
+  grep '^FAIL ' "$CRAP_REPORT" | sed 's/^/    /'
+  blocking=$((blocking + 1))
+  sections_failed="$sections_failed crap"
 else
-  echo "  SKIP  no CRAP report produced (gate in report-only mode during verify)"
+  echo "  PASS  every method within crap.max or at/under its crap-baseline.txt score"
 fi
 
 # ---------------------------------------------------------------------------
