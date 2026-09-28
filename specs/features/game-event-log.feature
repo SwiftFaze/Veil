@@ -42,12 +42,12 @@ Feature: Game event log records what the game did
 
   Scenario: A successful move records the new position once
     Given the player is at (5, 5) on an open floor
-    When the player moves right
+    When the player presses the move-right key
     Then the log contains exactly one `PlayerMoved` at (6, 5)
 
   Scenario: A blocked move records nothing
     Given the player is at (5, 5) with a wall to the right
-    When the player moves right
+    When the player presses the move-right key
     Then the log contains no `PlayerMoved` event
 
   Scenario: Toggling the inventory records open then closed

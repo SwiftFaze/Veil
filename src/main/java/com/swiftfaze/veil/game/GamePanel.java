@@ -4,6 +4,8 @@ import com.swiftfaze.veil.Camera;
 import com.swiftfaze.veil.DrawableAsciiEntity;
 import com.swiftfaze.veil.Positionable;
 import com.swiftfaze.veil.entities.player.Player;
+import com.swiftfaze.veil.game.event.GameEvent;
+import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.world.TileTestScene2;
 import com.swiftfaze.veil.world.WorldScene;
@@ -25,9 +27,15 @@ public class GamePanel extends JPanel {
     private final Camera camera = new Camera(GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
     private final List<Positionable> entitiesToDraw = new ArrayList<>();
     private final List<GameListener> listeners = new ArrayList<>();
+    private final GameEventLog eventLog;
     private boolean paused = false;
 
     public GamePanel() {
+        this(new GameEventLog());
+    }
+
+    public GamePanel(GameEventLog eventLog) {
+        this.eventLog = eventLog;
         setPreferredSize(new Dimension(GAME_WINDOW_WIDTH * TILE_WIDTH, GAME_WINDOW_HEIGHT * TILE_HEIGHT));
         setBackground(Color.BLACK);
         setFocusable(true);
@@ -148,7 +156,14 @@ public class GamePanel extends JPanel {
             if (paused) {
                 return;
             }
+            int beforeX = player.getX();
+            int beforeY = player.getY();
             move.accept(scene);
+            int afterX = player.getX();
+            int afterY = player.getY();
+            if (beforeX != afterX || beforeY != afterY) {
+                eventLog.append(new GameEvent.PlayerMoved(afterX, afterY));
+            }
             notifyPlayerUpdated();
         }
     }

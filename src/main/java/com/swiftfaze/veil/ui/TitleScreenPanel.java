@@ -1,5 +1,7 @@
 package com.swiftfaze.veil.ui;
 
+import com.swiftfaze.veil.game.event.GameEvent;
+import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
 import com.swiftfaze.veil.ui.widget.ListWidget;
@@ -23,10 +25,16 @@ public class TitleScreenPanel extends JPanel implements HintAware {
     private final ListWidget<String> menuWidget;
     private final Consumer<String> onMenuSelect;
     private final ControlsHintBarWidget hintBar;
+    private final GameEventLog eventLog;
 
     public TitleScreenPanel(Consumer<String> onMenuSelect, ControlsHintBarWidget hintBar) {
+        this(onMenuSelect, hintBar, new GameEventLog());
+    }
+
+    public TitleScreenPanel(Consumer<String> onMenuSelect, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
         this.onMenuSelect = onMenuSelect;
         this.hintBar = hintBar;
+        this.eventLog = eventLog;
         setBackground(WidgetTheme.BACKGROUND);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setFocusable(true);
@@ -42,6 +50,7 @@ public class TitleScreenPanel extends JPanel implements HintAware {
         menuWidget = new ListWidget<>(s -> s);
         menuWidget.setItems(menuItems);
         menuWidget.setOnConfirm(this::handleMenuSelect);
+        menuWidget.setOnSelectionChange(item -> eventLog.append(new GameEvent.MenuSelectionChanged(item)));
         menuWidget.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         add(Box.createVerticalGlue());

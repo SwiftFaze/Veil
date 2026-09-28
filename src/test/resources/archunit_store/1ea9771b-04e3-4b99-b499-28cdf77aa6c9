@@ -538,6 +538,109 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getX()> in (WorldScene.java:115)\
     - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getY()> in (WorldScene.java:116)
 Cycle detected: Slice veil -> \
+                Slice veil.game -> \
+                Slice veil.world -> \
+                Slice veil\
+  1. Dependencies of Slice veil\
+    - Class <com.swiftfaze.veil.Main$1> implements interface <com.swiftfaze.veil.game.GameListener> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> has return type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.buildUIScreens(com.swiftfaze.veil.Main$ScreenDeck, com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.handleMenuSelection(java.lang.String, com.swiftfaze.veil.Main$ScreenDeck, com.swiftfaze.veil.game.GamePanel)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.restoreGameFocus(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.wirePauseMenuNavigation(com.swiftfaze.veil.Main$ScreenDeck, com.swiftfaze.veil.game.GamePanel)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls constructor <com.swiftfaze.veil.game.GamePanel.<init>()> in (Main.java:76)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.game.GamePanel.setPaused(boolean)> in (Main.java:117)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.game.GamePanel.addGameListener(com.swiftfaze.veil.game.GameListener)> in (Main.java:121)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.game.GamePanel.addGameListener(com.swiftfaze.veil.game.GameListener)> in (Main.java:122)\
+    - Method <com.swiftfaze.veil.Main.restoreGameFocus(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.game.GamePanel.requestFocusInWindow()> in (Main.java:126)\
+    - Method <com.swiftfaze.veil.Main.handleMenuSelection(java.lang.String, com.swiftfaze.veil.Main$ScreenDeck, com.swiftfaze.veil.game.GamePanel)> calls method <com.swiftfaze.veil.game.GamePanel.requestFocusInWindow()> in (Main.java:153)\
+    - Method <com.swiftfaze.veil.Main.handleMenuSelection(java.lang.String, com.swiftfaze.veil.Main$ScreenDeck, com.swiftfaze.veil.game.GamePanel)> calls method <com.swiftfaze.veil.game.GamePanel.startGameLoop()> in (Main.java:154)\
+    - Method <com.swiftfaze.veil.Main.wirePauseMenuNavigation(com.swiftfaze.veil.Main$ScreenDeck, com.swiftfaze.veil.game.GamePanel)> calls method <com.swiftfaze.veil.game.GamePanel.resetState()> in (Main.java:180)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> references method <com.swiftfaze.veil.game.GamePanel.getPlayer()> in (Main.java:192)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls method <com.swiftfaze.veil.game.GamePanel.addGameListener(com.swiftfaze.veil.game.GameListener)> in (Main.java:202)\
+  2. Dependencies of Slice veil.game\
+    - Constructor <com.swiftfaze.veil.game.GamePanel$MoveAction.<init>(com.swiftfaze.veil.game.GamePanel, java.util.function.Consumer)> has generic parameter type <java.util.function.Consumer<com.swiftfaze.veil.world.WorldScene>> with type argument depending on <com.swiftfaze.veil.world.WorldScene> in (GamePanel.java:0)\
+    - Field <com.swiftfaze.veil.game.GamePanel$MoveAction.move> has generic type <java.util.function.Consumer<com.swiftfaze.veil.world.WorldScene>> with type argument depending on <com.swiftfaze.veil.world.WorldScene> in (GamePanel.java:0)\
+    - Field <com.swiftfaze.veil.game.GamePanel.scene> has type <com.swiftfaze.veil.world.TileTestScene2> in (GamePanel.java:0)\
+    - Constructor <com.swiftfaze.veil.game.GamePanel.<init>()> calls constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> in (GamePanel.java:24)\
+    - Method <com.swiftfaze.veil.game.GamePanel.resetState()> calls constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> in (GamePanel.java:110)\
+    - Method <com.swiftfaze.veil.game.GamePanel.paintComponent(java.awt.Graphics)> calls method <com.swiftfaze.veil.world.TileTestScene2.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> in (GamePanel.java:124)\
+  3. Dependencies of Slice veil.world\
+    - Class <com.swiftfaze.veil.world.WorldScene> implements interface <com.swiftfaze.veil.DrawableAsciiEntity> in (WorldScene.java:0)\
+    - Method <com.swiftfaze.veil.world.WorldScene.render(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> has parameter of type <com.swiftfaze.veil.Camera> in (WorldScene.java:0)\
+    - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> has parameter of type <com.swiftfaze.veil.Camera> in (WorldScene.java:0)\
+    - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getX()> in (WorldScene.java:115)\
+    - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getY()> in (WorldScene.java:116)
+Cycle detected: Slice veil -> \
+                Slice veil.game -> \
+                Slice veil.world -> \
+                Slice veil.mods -> \
+                Slice veil.entities.player.classes -> \
+                Slice veil.entities.player -> \
+                Slice veil\
+  1. Dependencies of Slice veil\
+    - Class <com.swiftfaze.veil.Main$1> implements interface <com.swiftfaze.veil.game.GameListener> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> has return type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.buildUIScreens(com.swiftfaze.veil.Main$ScreenDeck, com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.handleMenuSelection(java.lang.String, com.swiftfaze.veil.Main$ScreenDeck, com.swiftfaze.veil.game.GamePanel)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.restoreGameFocus(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.wirePauseMenuNavigation(com.swiftfaze.veil.Main$ScreenDeck, com.swiftfaze.veil.game.GamePanel)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls constructor <com.swiftfaze.veil.game.GamePanel.<init>()> in (Main.java:76)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.game.GamePanel.setPaused(boolean)> in (Main.java:117)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.game.GamePanel.addGameListener(com.swiftfaze.veil.game.GameListener)> in (Main.java:121)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.game.GamePanel.addGameListener(com.swiftfaze.veil.game.GameListener)> in (Main.java:122)\
+    - Method <com.swiftfaze.veil.Main.restoreGameFocus(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.game.GamePanel.requestFocusInWindow()> in (Main.java:126)\
+    - Method <com.swiftfaze.veil.Main.handleMenuSelection(java.lang.String, com.swiftfaze.veil.Main$ScreenDeck, com.swiftfaze.veil.game.GamePanel)> calls method <com.swiftfaze.veil.game.GamePanel.requestFocusInWindow()> in (Main.java:153)\
+    - Method <com.swiftfaze.veil.Main.handleMenuSelection(java.lang.String, com.swiftfaze.veil.Main$ScreenDeck, com.swiftfaze.veil.game.GamePanel)> calls method <com.swiftfaze.veil.game.GamePanel.startGameLoop()> in (Main.java:154)\
+    - Method <com.swiftfaze.veil.Main.wirePauseMenuNavigation(com.swiftfaze.veil.Main$ScreenDeck, com.swiftfaze.veil.game.GamePanel)> calls method <com.swiftfaze.veil.game.GamePanel.resetState()> in (Main.java:180)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> references method <com.swiftfaze.veil.game.GamePanel.getPlayer()> in (Main.java:192)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls method <com.swiftfaze.veil.game.GamePanel.addGameListener(com.swiftfaze.veil.game.GameListener)> in (Main.java:202)\
+  2. Dependencies of Slice veil.game\
+    - Constructor <com.swiftfaze.veil.game.GamePanel$MoveAction.<init>(com.swiftfaze.veil.game.GamePanel, java.util.function.Consumer)> has generic parameter type <java.util.function.Consumer<com.swiftfaze.veil.world.WorldScene>> with type argument depending on <com.swiftfaze.veil.world.WorldScene> in (GamePanel.java:0)\
+    - Field <com.swiftfaze.veil.game.GamePanel$MoveAction.move> has generic type <java.util.function.Consumer<com.swiftfaze.veil.world.WorldScene>> with type argument depending on <com.swiftfaze.veil.world.WorldScene> in (GamePanel.java:0)\
+    - Field <com.swiftfaze.veil.game.GamePanel.scene> has type <com.swiftfaze.veil.world.TileTestScene2> in (GamePanel.java:0)\
+    - Constructor <com.swiftfaze.veil.game.GamePanel.<init>()> calls constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> in (GamePanel.java:24)\
+    - Method <com.swiftfaze.veil.game.GamePanel.resetState()> calls constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> in (GamePanel.java:110)\
+    - Method <com.swiftfaze.veil.game.GamePanel.paintComponent(java.awt.Graphics)> calls method <com.swiftfaze.veil.world.TileTestScene2.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> in (GamePanel.java:124)\
+  3. Dependencies of Slice veil.world\
+    - Constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> calls method <com.swiftfaze.veil.mods.ModLoader.load(java.nio.file.Path)> in (TileTestScene2.java:14)\
+    - Constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> calls method <com.swiftfaze.veil.mods.ModRegistry.getTile(java.lang.String)> in (TileTestScene2.java:15)\
+    - Constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> calls method <com.swiftfaze.veil.mods.ModRegistry.getBuilding(java.lang.String)> in (TileTestScene2.java:17)\
+  4. Dependencies of Slice veil.mods\
+    - Constructor <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.<init>(java.util.Map, java.util.Map, java.util.Map, java.util.Map, java.util.Map, java.util.Map)> has generic parameter type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Field <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.classesById> has generic type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Field <com.swiftfaze.veil.mods.ModRegistry.classesById> has generic type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.loadClass(java.nio.file.Path, java.lang.String, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> has generic parameter type <com.swiftfaze.veil.mods.ModLoader$RegistryTarget<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModLoader.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.loadClasses(java.nio.file.Path, com.swiftfaze.veil.mods.ModLoader$ModManifest, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> has generic parameter type <com.swiftfaze.veil.mods.ModLoader$RegistryTarget<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModLoader.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.parseClassStats(com.google.gson.JsonObject, java.lang.String, java.util.Set, java.nio.file.Path)> has generic return type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve> in (ModLoader.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.classesById()> has generic return type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModRegistry.getAllPlayerClasses()> has generic return type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModRegistry.getPlayerClass(java.lang.String)> has return type <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.loadClass(java.nio.file.Path, java.lang.String, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass.<init>(java.lang.String, java.lang.String, java.util.Map)> in (ModLoader.java:331)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.parseClassStats(com.google.gson.JsonObject, java.lang.String, java.util.Set, java.nio.file.Path)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve.<init>(int, java.lang.String)> in (ModLoader.java:350)\
+  5. Dependencies of Slice veil.entities.player.classes\
+    - Field <com.swiftfaze.veil.entities.player.classes.PlayerClass.ATTRIBUTE_SETTERS> has generic type <java.util.Map<java.lang.String, java.util.function.BiConsumer<com.swiftfaze.veil.entities.player.Stats, java.lang.Integer>>> with type argument depending on <com.swiftfaze.veil.entities.player.Stats> in (PlayerClass.java:0)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> has parameter of type <com.swiftfaze.veil.entities.player.Stats> in (PlayerClass.java:0)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setConstitution(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setDexterity(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setIntelligence(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setLuck(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setStrength(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setWisdom(int)> in (PlayerClass.java:17)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> calls method <com.swiftfaze.veil.entities.player.Stats.setMaxHp(int)> in (PlayerClass.java:52)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> calls method <com.swiftfaze.veil.entities.player.Stats.setCurrentHp(int)> in (PlayerClass.java:53)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> calls method <com.swiftfaze.veil.entities.player.Stats.setMaxMana(int)> in (PlayerClass.java:56)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> calls method <com.swiftfaze.veil.entities.player.Stats.setCurrentMana(int)> in (PlayerClass.java:57)\
+  6. Dependencies of Slice veil.entities.player\
+    - Class <com.swiftfaze.veil.entities.player.Player> implements interface <com.swiftfaze.veil.DrawableAsciiEntity> in (Player.java:0)\
+    - Method <com.swiftfaze.veil.entities.player.Player.render(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> has parameter of type <com.swiftfaze.veil.Camera> in (Player.java:0)\
+    - Method <com.swiftfaze.veil.entities.player.Player.render(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getX()> in (Player.java:86)\
+    - Method <com.swiftfaze.veil.entities.player.Player.render(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getY()> in (Player.java:87)
+Cycle detected: Slice veil -> \
                 Slice veil.mods -> \
                 Slice veil.entities.buildings -> \
                 Slice veil.world -> \
@@ -2450,6 +2553,109 @@ Cycle detected: Slice veil -> \
 Cycle detected: Slice veil -> \
                 Slice veil.sandbox -> \
                 Slice veil.ui -> \
+                Slice veil.game -> \
+                Slice veil.world -> \
+                Slice veil\
+  1. Dependencies of Slice veil\
+    - Constructor <com.swiftfaze.veil.Main$1.<init>(javax.swing.JFrame, com.swiftfaze.veil.sandbox.DevConsolePanel)> has parameter of type <com.swiftfaze.veil.sandbox.DevConsolePanel> in (Main.java:0)\
+    - Field <com.swiftfaze.veil.Main$1.val$console> has type <com.swiftfaze.veil.sandbox.DevConsolePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.ClassSandboxProvider.<init>()> in (Main.java:191)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsoleModel.<init>(java.util.List)> in (Main.java:192)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.PlayerSandboxProvider.<init>(java.util.function.Supplier)> in (Main.java:192)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:194)\
+    - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:213)\
+  2. Dependencies of Slice veil.sandbox\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+  3. Dependencies of Slice veil.ui\
+    - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
+    - Class <com.swiftfaze.veil.ui.PopupToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PopupToggleListener.java:0)\
+    - Constructor <com.swiftfaze.veil.ui.PauseToggleListener.<init>(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PauseMenuPopup)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (PauseToggleListener.java:0)\
+    - Field <com.swiftfaze.veil.ui.PauseToggleListener.gamePanel> has type <com.swiftfaze.veil.game.GamePanel> in (PauseToggleListener.java:0)\
+    - Method <com.swiftfaze.veil.ui.GameWindow.buildContentArea(com.swiftfaze.veil.game.GamePanel)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (GameWindow.java:0)\
+    - Method <com.swiftfaze.veil.ui.PauseToggleListener.togglePause()> calls method <com.swiftfaze.veil.game.GamePanel.setPaused(boolean)> in (PauseToggleListener.java:31)\
+  4. Dependencies of Slice veil.game\
+    - Constructor <com.swiftfaze.veil.game.GamePanel$MoveAction.<init>(com.swiftfaze.veil.game.GamePanel, java.util.function.Consumer)> has generic parameter type <java.util.function.Consumer<com.swiftfaze.veil.world.WorldScene>> with type argument depending on <com.swiftfaze.veil.world.WorldScene> in (GamePanel.java:0)\
+    - Field <com.swiftfaze.veil.game.GamePanel$MoveAction.move> has generic type <java.util.function.Consumer<com.swiftfaze.veil.world.WorldScene>> with type argument depending on <com.swiftfaze.veil.world.WorldScene> in (GamePanel.java:0)\
+    - Field <com.swiftfaze.veil.game.GamePanel.scene> has type <com.swiftfaze.veil.world.TileTestScene2> in (GamePanel.java:0)\
+    - Constructor <com.swiftfaze.veil.game.GamePanel.<init>()> calls constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> in (GamePanel.java:24)\
+    - Method <com.swiftfaze.veil.game.GamePanel.resetState()> calls constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> in (GamePanel.java:110)\
+    - Method <com.swiftfaze.veil.game.GamePanel.paintComponent(java.awt.Graphics)> calls method <com.swiftfaze.veil.world.TileTestScene2.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> in (GamePanel.java:124)\
+  5. Dependencies of Slice veil.world\
+    - Class <com.swiftfaze.veil.world.WorldScene> implements interface <com.swiftfaze.veil.DrawableAsciiEntity> in (WorldScene.java:0)\
+    - Method <com.swiftfaze.veil.world.WorldScene.render(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> has parameter of type <com.swiftfaze.veil.Camera> in (WorldScene.java:0)\
+    - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> has parameter of type <com.swiftfaze.veil.Camera> in (WorldScene.java:0)\
+    - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getX()> in (WorldScene.java:115)\
+    - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getY()> in (WorldScene.java:116)
+Cycle detected: Slice veil -> \
+                Slice veil.sandbox -> \
+                Slice veil.ui -> \
+                Slice veil.game -> \
+                Slice veil.world -> \
+                Slice veil.mods -> \
+                Slice veil.entities.player.classes -> \
+                Slice veil.entities.player -> \
+                Slice veil\
+  1. Dependencies of Slice veil\
+    - Constructor <com.swiftfaze.veil.Main$1.<init>(javax.swing.JFrame, com.swiftfaze.veil.sandbox.DevConsolePanel)> has parameter of type <com.swiftfaze.veil.sandbox.DevConsolePanel> in (Main.java:0)\
+    - Field <com.swiftfaze.veil.Main$1.val$console> has type <com.swiftfaze.veil.sandbox.DevConsolePanel> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.ClassSandboxProvider.<init>()> in (Main.java:191)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsoleModel.<init>(java.util.List)> in (Main.java:192)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.PlayerSandboxProvider.<init>(java.util.function.Supplier)> in (Main.java:192)\
+    - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:194)\
+    - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:213)\
+  2. Dependencies of Slice veil.sandbox\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+  3. Dependencies of Slice veil.ui\
+    - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
+    - Class <com.swiftfaze.veil.ui.PopupToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PopupToggleListener.java:0)\
+    - Constructor <com.swiftfaze.veil.ui.PauseToggleListener.<init>(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PauseMenuPopup)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (PauseToggleListener.java:0)\
+    - Field <com.swiftfaze.veil.ui.PauseToggleListener.gamePanel> has type <com.swiftfaze.veil.game.GamePanel> in (PauseToggleListener.java:0)\
+    - Method <com.swiftfaze.veil.ui.GameWindow.buildContentArea(com.swiftfaze.veil.game.GamePanel)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (GameWindow.java:0)\
+    - Method <com.swiftfaze.veil.ui.PauseToggleListener.togglePause()> calls method <com.swiftfaze.veil.game.GamePanel.setPaused(boolean)> in (PauseToggleListener.java:31)\
+  4. Dependencies of Slice veil.game\
+    - Constructor <com.swiftfaze.veil.game.GamePanel$MoveAction.<init>(com.swiftfaze.veil.game.GamePanel, java.util.function.Consumer)> has generic parameter type <java.util.function.Consumer<com.swiftfaze.veil.world.WorldScene>> with type argument depending on <com.swiftfaze.veil.world.WorldScene> in (GamePanel.java:0)\
+    - Field <com.swiftfaze.veil.game.GamePanel$MoveAction.move> has generic type <java.util.function.Consumer<com.swiftfaze.veil.world.WorldScene>> with type argument depending on <com.swiftfaze.veil.world.WorldScene> in (GamePanel.java:0)\
+    - Field <com.swiftfaze.veil.game.GamePanel.scene> has type <com.swiftfaze.veil.world.TileTestScene2> in (GamePanel.java:0)\
+    - Constructor <com.swiftfaze.veil.game.GamePanel.<init>()> calls constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> in (GamePanel.java:24)\
+    - Method <com.swiftfaze.veil.game.GamePanel.resetState()> calls constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> in (GamePanel.java:110)\
+    - Method <com.swiftfaze.veil.game.GamePanel.paintComponent(java.awt.Graphics)> calls method <com.swiftfaze.veil.world.TileTestScene2.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> in (GamePanel.java:124)\
+  5. Dependencies of Slice veil.world\
+    - Constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> calls method <com.swiftfaze.veil.mods.ModLoader.load(java.nio.file.Path)> in (TileTestScene2.java:14)\
+    - Constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> calls method <com.swiftfaze.veil.mods.ModRegistry.getTile(java.lang.String)> in (TileTestScene2.java:15)\
+    - Constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> calls method <com.swiftfaze.veil.mods.ModRegistry.getBuilding(java.lang.String)> in (TileTestScene2.java:17)\
+  6. Dependencies of Slice veil.mods\
+    - Constructor <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.<init>(java.util.Map, java.util.Map, java.util.Map, java.util.Map, java.util.Map, java.util.Map)> has generic parameter type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Field <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.classesById> has generic type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Field <com.swiftfaze.veil.mods.ModRegistry.classesById> has generic type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.loadClass(java.nio.file.Path, java.lang.String, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> has generic parameter type <com.swiftfaze.veil.mods.ModLoader$RegistryTarget<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModLoader.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.loadClasses(java.nio.file.Path, com.swiftfaze.veil.mods.ModLoader$ModManifest, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> has generic parameter type <com.swiftfaze.veil.mods.ModLoader$RegistryTarget<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModLoader.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.parseClassStats(com.google.gson.JsonObject, java.lang.String, java.util.Set, java.nio.file.Path)> has generic return type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve> in (ModLoader.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.classesById()> has generic return type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModRegistry.getAllPlayerClasses()> has generic return type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModRegistry.getPlayerClass(java.lang.String)> has return type <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.loadClass(java.nio.file.Path, java.lang.String, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass.<init>(java.lang.String, java.lang.String, java.util.Map)> in (ModLoader.java:331)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.parseClassStats(com.google.gson.JsonObject, java.lang.String, java.util.Set, java.nio.file.Path)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve.<init>(int, java.lang.String)> in (ModLoader.java:350)\
+  7. Dependencies of Slice veil.entities.player.classes\
+    - Field <com.swiftfaze.veil.entities.player.classes.PlayerClass.ATTRIBUTE_SETTERS> has generic type <java.util.Map<java.lang.String, java.util.function.BiConsumer<com.swiftfaze.veil.entities.player.Stats, java.lang.Integer>>> with type argument depending on <com.swiftfaze.veil.entities.player.Stats> in (PlayerClass.java:0)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> has parameter of type <com.swiftfaze.veil.entities.player.Stats> in (PlayerClass.java:0)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setConstitution(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setDexterity(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setIntelligence(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setLuck(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setStrength(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setWisdom(int)> in (PlayerClass.java:17)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> calls method <com.swiftfaze.veil.entities.player.Stats.setMaxHp(int)> in (PlayerClass.java:52)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> calls method <com.swiftfaze.veil.entities.player.Stats.setCurrentHp(int)> in (PlayerClass.java:53)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> calls method <com.swiftfaze.veil.entities.player.Stats.setMaxMana(int)> in (PlayerClass.java:56)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> calls method <com.swiftfaze.veil.entities.player.Stats.setCurrentMana(int)> in (PlayerClass.java:57)\
+  8. Dependencies of Slice veil.entities.player\
+    - Class <com.swiftfaze.veil.entities.player.Player> implements interface <com.swiftfaze.veil.DrawableAsciiEntity> in (Player.java:0)\
+    - Method <com.swiftfaze.veil.entities.player.Player.render(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> has parameter of type <com.swiftfaze.veil.Camera> in (Player.java:0)\
+    - Method <com.swiftfaze.veil.entities.player.Player.render(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getX()> in (Player.java:86)\
+    - Method <com.swiftfaze.veil.entities.player.Player.render(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getY()> in (Player.java:87)
+Cycle detected: Slice veil -> \
+                Slice veil.sandbox -> \
+                Slice veil.ui -> \
                 Slice veil.ui.widget -> \
                 Slice veil.mods -> \
                 Slice veil.entities.buildings -> \
@@ -4267,6 +4473,131 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> has parameter of type <com.swiftfaze.veil.Camera> in (WorldScene.java:0)\
     - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getX()> in (WorldScene.java:115)\
     - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getY()> in (WorldScene.java:116)
+Cycle detected: Slice veil -> \
+                Slice veil.ui -> \
+                Slice veil.game -> \
+                Slice veil.world -> \
+                Slice veil\
+  1. Dependencies of Slice veil\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> has parameter of type <com.swiftfaze.veil.ui.PopupPanels> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls constructor <com.swiftfaze.veil.ui.InventoryPanel.<init>(com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> in (Main.java:77)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls constructor <com.swiftfaze.veil.ui.CodexPanel.<init>(com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> in (Main.java:78)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls constructor <com.swiftfaze.veil.ui.PauseMenuPopup.<init>()> in (Main.java:79)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls constructor <com.swiftfaze.veil.ui.PopupPanels.<init>(com.swiftfaze.veil.ui.InventoryPanel, com.swiftfaze.veil.ui.CodexPanel, com.swiftfaze.veil.ui.PauseMenuPopup)> in (Main.java:81)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.GameWindow.buildContentArea(com.swiftfaze.veil.game.GamePanel)> in (Main.java:83)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.InventoryPanel.getDropConfirmationPopup()> in (Main.java:87)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.PopupPanels.inventory()> in (Main.java:101)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.PopupPanels.codex()> in (Main.java:102)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.PopupPanels.pause()> in (Main.java:103)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.InventoryPanel.setFocusManager(com.swiftfaze.veil.ui.widget.FocusManager)> in (Main.java:105)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.InventoryPanel.showItems(java.util.List)> in (Main.java:106)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.InventoryPanel.setOnDismiss(java.lang.Runnable)> in (Main.java:107)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.CodexPanel.setFocusManager(com.swiftfaze.veil.ui.widget.FocusManager)> in (Main.java:109)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.CodexPanel.showItems(java.util.List)> in (Main.java:110)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.CodexPanel.showTiles(java.util.List)> in (Main.java:111)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> in (Main.java:112)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.CodexPanel.setOnDismiss(java.lang.Runnable)> in (Main.java:113)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.PauseMenuPopup.setFocusManager(com.swiftfaze.veil.ui.widget.FocusManager)> in (Main.java:115)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.PauseMenuPopup.setOnDismiss(java.lang.Runnable)> in (Main.java:116)\
+    (15 further dependencies have been omitted...)\
+  2. Dependencies of Slice veil.ui\
+    - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
+    - Class <com.swiftfaze.veil.ui.PopupToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PopupToggleListener.java:0)\
+    - Constructor <com.swiftfaze.veil.ui.PauseToggleListener.<init>(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PauseMenuPopup)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (PauseToggleListener.java:0)\
+    - Field <com.swiftfaze.veil.ui.PauseToggleListener.gamePanel> has type <com.swiftfaze.veil.game.GamePanel> in (PauseToggleListener.java:0)\
+    - Method <com.swiftfaze.veil.ui.GameWindow.buildContentArea(com.swiftfaze.veil.game.GamePanel)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (GameWindow.java:0)\
+    - Method <com.swiftfaze.veil.ui.PauseToggleListener.togglePause()> calls method <com.swiftfaze.veil.game.GamePanel.setPaused(boolean)> in (PauseToggleListener.java:31)\
+  3. Dependencies of Slice veil.game\
+    - Constructor <com.swiftfaze.veil.game.GamePanel$MoveAction.<init>(com.swiftfaze.veil.game.GamePanel, java.util.function.Consumer)> has generic parameter type <java.util.function.Consumer<com.swiftfaze.veil.world.WorldScene>> with type argument depending on <com.swiftfaze.veil.world.WorldScene> in (GamePanel.java:0)\
+    - Field <com.swiftfaze.veil.game.GamePanel$MoveAction.move> has generic type <java.util.function.Consumer<com.swiftfaze.veil.world.WorldScene>> with type argument depending on <com.swiftfaze.veil.world.WorldScene> in (GamePanel.java:0)\
+    - Field <com.swiftfaze.veil.game.GamePanel.scene> has type <com.swiftfaze.veil.world.TileTestScene2> in (GamePanel.java:0)\
+    - Constructor <com.swiftfaze.veil.game.GamePanel.<init>()> calls constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> in (GamePanel.java:24)\
+    - Method <com.swiftfaze.veil.game.GamePanel.resetState()> calls constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> in (GamePanel.java:110)\
+    - Method <com.swiftfaze.veil.game.GamePanel.paintComponent(java.awt.Graphics)> calls method <com.swiftfaze.veil.world.TileTestScene2.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> in (GamePanel.java:124)\
+  4. Dependencies of Slice veil.world\
+    - Class <com.swiftfaze.veil.world.WorldScene> implements interface <com.swiftfaze.veil.DrawableAsciiEntity> in (WorldScene.java:0)\
+    - Method <com.swiftfaze.veil.world.WorldScene.render(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> has parameter of type <com.swiftfaze.veil.Camera> in (WorldScene.java:0)\
+    - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> has parameter of type <com.swiftfaze.veil.Camera> in (WorldScene.java:0)\
+    - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getX()> in (WorldScene.java:115)\
+    - Method <com.swiftfaze.veil.world.WorldScene.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getY()> in (WorldScene.java:116)
+Cycle detected: Slice veil -> \
+                Slice veil.ui -> \
+                Slice veil.game -> \
+                Slice veil.world -> \
+                Slice veil.mods -> \
+                Slice veil.entities.player.classes -> \
+                Slice veil.entities.player -> \
+                Slice veil\
+  1. Dependencies of Slice veil\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> has parameter of type <com.swiftfaze.veil.ui.PopupPanels> in (Main.java:0)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls constructor <com.swiftfaze.veil.ui.InventoryPanel.<init>(com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> in (Main.java:77)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls constructor <com.swiftfaze.veil.ui.CodexPanel.<init>(com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> in (Main.java:78)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls constructor <com.swiftfaze.veil.ui.PauseMenuPopup.<init>()> in (Main.java:79)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls constructor <com.swiftfaze.veil.ui.PopupPanels.<init>(com.swiftfaze.veil.ui.InventoryPanel, com.swiftfaze.veil.ui.CodexPanel, com.swiftfaze.veil.ui.PauseMenuPopup)> in (Main.java:81)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.GameWindow.buildContentArea(com.swiftfaze.veil.game.GamePanel)> in (Main.java:83)\
+    - Method <com.swiftfaze.veil.Main.buildGameCard(javax.swing.JPanel, java.util.Map, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.InventoryPanel.getDropConfirmationPopup()> in (Main.java:87)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.PopupPanels.inventory()> in (Main.java:101)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.PopupPanels.codex()> in (Main.java:102)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.PopupPanels.pause()> in (Main.java:103)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.InventoryPanel.setFocusManager(com.swiftfaze.veil.ui.widget.FocusManager)> in (Main.java:105)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.InventoryPanel.showItems(java.util.List)> in (Main.java:106)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.InventoryPanel.setOnDismiss(java.lang.Runnable)> in (Main.java:107)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.CodexPanel.setFocusManager(com.swiftfaze.veil.ui.widget.FocusManager)> in (Main.java:109)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.CodexPanel.showItems(java.util.List)> in (Main.java:110)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.CodexPanel.showTiles(java.util.List)> in (Main.java:111)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> in (Main.java:112)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.CodexPanel.setOnDismiss(java.lang.Runnable)> in (Main.java:113)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.PauseMenuPopup.setFocusManager(com.swiftfaze.veil.ui.widget.FocusManager)> in (Main.java:115)\
+    - Method <com.swiftfaze.veil.Main.wirePopups(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PopupPanels, com.swiftfaze.veil.ui.widget.ControlsHintBarWidget)> calls method <com.swiftfaze.veil.ui.PauseMenuPopup.setOnDismiss(java.lang.Runnable)> in (Main.java:116)\
+    (15 further dependencies have been omitted...)\
+  2. Dependencies of Slice veil.ui\
+    - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
+    - Class <com.swiftfaze.veil.ui.PopupToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PopupToggleListener.java:0)\
+    - Constructor <com.swiftfaze.veil.ui.PauseToggleListener.<init>(com.swiftfaze.veil.game.GamePanel, com.swiftfaze.veil.ui.PauseMenuPopup)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (PauseToggleListener.java:0)\
+    - Field <com.swiftfaze.veil.ui.PauseToggleListener.gamePanel> has type <com.swiftfaze.veil.game.GamePanel> in (PauseToggleListener.java:0)\
+    - Method <com.swiftfaze.veil.ui.GameWindow.buildContentArea(com.swiftfaze.veil.game.GamePanel)> has parameter of type <com.swiftfaze.veil.game.GamePanel> in (GameWindow.java:0)\
+    - Method <com.swiftfaze.veil.ui.PauseToggleListener.togglePause()> calls method <com.swiftfaze.veil.game.GamePanel.setPaused(boolean)> in (PauseToggleListener.java:31)\
+  3. Dependencies of Slice veil.game\
+    - Constructor <com.swiftfaze.veil.game.GamePanel$MoveAction.<init>(com.swiftfaze.veil.game.GamePanel, java.util.function.Consumer)> has generic parameter type <java.util.function.Consumer<com.swiftfaze.veil.world.WorldScene>> with type argument depending on <com.swiftfaze.veil.world.WorldScene> in (GamePanel.java:0)\
+    - Field <com.swiftfaze.veil.game.GamePanel$MoveAction.move> has generic type <java.util.function.Consumer<com.swiftfaze.veil.world.WorldScene>> with type argument depending on <com.swiftfaze.veil.world.WorldScene> in (GamePanel.java:0)\
+    - Field <com.swiftfaze.veil.game.GamePanel.scene> has type <com.swiftfaze.veil.world.TileTestScene2> in (GamePanel.java:0)\
+    - Constructor <com.swiftfaze.veil.game.GamePanel.<init>()> calls constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> in (GamePanel.java:24)\
+    - Method <com.swiftfaze.veil.game.GamePanel.resetState()> calls constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> in (GamePanel.java:110)\
+    - Method <com.swiftfaze.veil.game.GamePanel.paintComponent(java.awt.Graphics)> calls method <com.swiftfaze.veil.world.TileTestScene2.renderWorld(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> in (GamePanel.java:124)\
+  4. Dependencies of Slice veil.world\
+    - Constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> calls method <com.swiftfaze.veil.mods.ModLoader.load(java.nio.file.Path)> in (TileTestScene2.java:14)\
+    - Constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> calls method <com.swiftfaze.veil.mods.ModRegistry.getTile(java.lang.String)> in (TileTestScene2.java:15)\
+    - Constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> calls method <com.swiftfaze.veil.mods.ModRegistry.getBuilding(java.lang.String)> in (TileTestScene2.java:17)\
+  5. Dependencies of Slice veil.mods\
+    - Constructor <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.<init>(java.util.Map, java.util.Map, java.util.Map, java.util.Map, java.util.Map, java.util.Map)> has generic parameter type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Field <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.classesById> has generic type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Field <com.swiftfaze.veil.mods.ModRegistry.classesById> has generic type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.loadClass(java.nio.file.Path, java.lang.String, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> has generic parameter type <com.swiftfaze.veil.mods.ModLoader$RegistryTarget<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModLoader.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.loadClasses(java.nio.file.Path, com.swiftfaze.veil.mods.ModLoader$ModManifest, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> has generic parameter type <com.swiftfaze.veil.mods.ModLoader$RegistryTarget<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModLoader.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.parseClassStats(com.google.gson.JsonObject, java.lang.String, java.util.Set, java.nio.file.Path)> has generic return type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve> in (ModLoader.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.classesById()> has generic return type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModRegistry.getAllPlayerClasses()> has generic return type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModRegistry.getPlayerClass(java.lang.String)> has return type <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.loadClass(java.nio.file.Path, java.lang.String, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass.<init>(java.lang.String, java.lang.String, java.util.Map)> in (ModLoader.java:331)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.parseClassStats(com.google.gson.JsonObject, java.lang.String, java.util.Set, java.nio.file.Path)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve.<init>(int, java.lang.String)> in (ModLoader.java:350)\
+  6. Dependencies of Slice veil.entities.player.classes\
+    - Field <com.swiftfaze.veil.entities.player.classes.PlayerClass.ATTRIBUTE_SETTERS> has generic type <java.util.Map<java.lang.String, java.util.function.BiConsumer<com.swiftfaze.veil.entities.player.Stats, java.lang.Integer>>> with type argument depending on <com.swiftfaze.veil.entities.player.Stats> in (PlayerClass.java:0)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> has parameter of type <com.swiftfaze.veil.entities.player.Stats> in (PlayerClass.java:0)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setConstitution(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setDexterity(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setIntelligence(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setLuck(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setStrength(int)> in (PlayerClass.java:17)\
+    - Static Initializer <com.swiftfaze.veil.entities.player.classes.PlayerClass.<clinit>()> references method <com.swiftfaze.veil.entities.player.Stats.setWisdom(int)> in (PlayerClass.java:17)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> calls method <com.swiftfaze.veil.entities.player.Stats.setMaxHp(int)> in (PlayerClass.java:52)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> calls method <com.swiftfaze.veil.entities.player.Stats.setCurrentHp(int)> in (PlayerClass.java:53)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> calls method <com.swiftfaze.veil.entities.player.Stats.setMaxMana(int)> in (PlayerClass.java:56)\
+    - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> calls method <com.swiftfaze.veil.entities.player.Stats.setCurrentMana(int)> in (PlayerClass.java:57)\
+  7. Dependencies of Slice veil.entities.player\
+    - Class <com.swiftfaze.veil.entities.player.Player> implements interface <com.swiftfaze.veil.DrawableAsciiEntity> in (Player.java:0)\
+    - Method <com.swiftfaze.veil.entities.player.Player.render(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> has parameter of type <com.swiftfaze.veil.Camera> in (Player.java:0)\
+    - Method <com.swiftfaze.veil.entities.player.Player.render(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getX()> in (Player.java:86)\
+    - Method <com.swiftfaze.veil.entities.player.Player.render(java.awt.Graphics2D, int, int, com.swiftfaze.veil.Camera)> calls method <com.swiftfaze.veil.Camera.getY()> in (Player.java:87)
 Cycle detected: Slice veil -> \
                 Slice veil.ui -> \
                 Slice veil.ui.widget -> \
