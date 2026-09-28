@@ -631,6 +631,10 @@ one clause of evidence. "All good" is not an answer; name the file.
                   order, with no assertion before the act.
   [ ] No new debt I introduced no code path that exists only for tests, and no
                   abstraction with a single caller added "for later".
+  [ ] Single answer For each thing a changed com.swiftfaze.veil.ui class shows
+                  or decides, the engine method that supplies it - the UI
+                  translates, it doesn't re-derive a rule the engine owns.
+                  Evidence: name one ui method and the engine method it calls.
 
 Criteria and worked examples: docs/clean-code-gate.md
 EOF

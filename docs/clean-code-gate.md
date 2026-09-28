@@ -172,11 +172,8 @@ Each of these was measured against this repo, not assumed:
   minimum-to-trigger (`>=`); `.pmd-minimal.xml`'s `minimum` moved from 4
   to 5 to keep the same effective threshold (5+ parameters fails) — see
   that file's own comment.
-- **4 rules from the audit are not in any released PMD version**
-  (`OnDemandImport`, `TypeNameMismatch`, `CStyleArrayDeclaration`,
-  `LongLiteralEndingWithLowercaseL`) — they exist only on PMD's unreleased
-  `main` branch as of this change. Add them once PMD ships a stable
-  release containing them; tracked in `impacts.md`.
+- **Not yet in any released PMD, so absent:** `OnDemandImport`,
+  `TypeNameMismatch`, `CStyleArrayDeclaration`, `LongLiteralEndingWithLowercaseL`.
 - **`AvoidInstantiatingObjectsInLoops` is scoped to the render path**
   (`GamePanel`, `PatternFieldWidget` — the only two classes in the repo
   that override `paintComponent`/`paint`), not repo-wide. Allocation in a
@@ -235,6 +232,15 @@ an assertion appears before the act.
 
 **No new debt.** FAIL if you added a code path that exists only to make a test
 pass, or an abstraction with a single caller added "for later".
+
+<!-- added 2026-09-28: ArchUnit sees only the direction of a dependency, not a rule worked out twice -->
+**Single answer — the UI translates, it doesn't decide.** For each thing a
+changed `com.swiftfaze.veil.ui` class shows or decides, name the engine method
+that supplies it. FAIL if UI code re-derives an answer the engine already owns
+(is this tile walkable, which menu item is next): every arrow still points the
+right way, but the rule now exists twice and the copies drift. Fix by calling
+the engine, not by moving the duplicate. Also FAIL for the converse: an engine
+method only tests call while the UI reimplements it.
 
 ## Thresholds are dials
 

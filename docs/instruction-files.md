@@ -20,7 +20,7 @@ actually costs — a line in `CLAUDE.md` is paid on every task, a line in a
 | File | Loaded | Budget | Now |
 |---|---|---|---|
 | `CLAUDE.md` | every session | 100 lines | 95 |
-| `.claude/workflow.md` | every pipeline step | 150 lines | 148 |
+| `.claude/workflow*.md` | every pipeline step | 145 lines | 145 |
 | `.claude/agents/*.md` | every agent run | 60 lines | 54–59 |
 | `.claude/skills/*/SKILL.md` | on skill use | 215 lines | 28–210 |
 | `docs/*.md` | on demand | 250 lines | 11–226 |
