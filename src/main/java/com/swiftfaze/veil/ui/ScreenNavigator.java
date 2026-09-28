@@ -1,50 +1,66 @@
 package com.swiftfaze.veil.ui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.function.BiConsumer;
+import com.swiftfaze.veil.game.event.GameEvent;
+import com.swiftfaze.veil.game.event.GameEventLog;
+import org.jspecify.annotations.Nullable;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.CardLayout;
+import java.util.Map;
 
 /**
- * Routes all card switches through a single point, tracking the current card and
- * notifying listeners. Testable, holds the current card name, and avoids duplicate
- * events when from==to.
+ * The one place a main card (title, settings, keybinds, game) is switched. Tracks
+ * which card is showing so each real switch records exactly one
+ * {@link GameEvent.ScreenChanged}, and moves focus/hints to the new card the way
+ * Main's navigation always has.
  */
 public class ScreenNavigator {
     private final CardLayout cardLayout;
     private final JPanel cardPanel;
-    private final BiConsumer<String, String> onScreenChange;
-    private String currentCard;
+    private final Map<String, JComponent> cards;
+    private final GameEventLog eventLog;
+    private @Nullable String currentCard;
 
-    public ScreenNavigator(CardLayout cardLayout, JPanel cardPanel, BiConsumer<String, String> onScreenChange, String initialCard) {
+    public ScreenNavigator(CardLayout cardLayout, JPanel cardPanel, Map<String, JComponent> cards,
+                           GameEventLog eventLog) {
         this.cardLayout = cardLayout;
         this.cardPanel = cardPanel;
-        this.onScreenChange = onScreenChange;
-        this.currentCard = initialCard;
+        this.cards = cards;
+        this.eventLog = eventLog;
     }
 
     /**
-     * Navigates to a card by name. Calls the screen change listener if the card
-     * actually changes (from != to).
-     *
-     * @param cardName the name of the card to show
+     * Shows the first card at startup. Records nothing (no screen was left) and leaves
+     * focus to the caller, as Main's startup has always handled it itself.
      */
-    public void navigateTo(String cardName) {
-        if (cardName.equals(currentCard)) {
-            return;
-        }
-
-        String previousCard = currentCard;
+    public void showInitial(String cardName) {
         currentCard = cardName;
         cardLayout.show(cardPanel, cardName);
-        onScreenChange.accept(previousCard, cardName);
     }
 
-    /**
-     * Returns the name of the currently visible card.
-     *
-     * @return the current card name
-     */
-    public String getCurrentCard() {
+    /** Shows {@code cardName}, recording a ScreenChanged if it differs from the current card. */
+    public void navigateTo(String cardName) {
+        String previous = currentCard;
+        currentCard = cardName;
+        show(cardName);
+        if (previous != null && !previous.equals(cardName)) {
+            eventLog.append(GameEvent.screenChanged(previous, cardName));
+        }
+    }
+
+    public @Nullable String getCurrentCard() {
         return currentCard;
+    }
+
+    private void show(String cardName) {
+        cardLayout.show(cardPanel, cardName);
+        JComponent target = cards.get(cardName);
+        if (target != null) {
+            target.requestFocusInWindow();
+            if (target instanceof HintAware hintAware) {
+                hintAware.refreshHints();
+            }
+        }
     }
 }

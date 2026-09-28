@@ -31,7 +31,7 @@ public class GamePanel extends JPanel {
     private boolean paused = false;
 
     public GamePanel() {
-        this(new GameEventLog());
+        this(GameEventLog.noOp());
     }
 
     public GamePanel(GameEventLog eventLog) {
@@ -162,7 +162,7 @@ public class GamePanel extends JPanel {
             int afterX = player.getX();
             int afterY = player.getY();
             if (beforeX != afterX || beforeY != afterY) {
-                eventLog.append(new GameEvent.PlayerMoved(afterX, afterY));
+                eventLog.append(GameEvent.playerMoved(afterX, afterY));
             }
             notifyPlayerUpdated();
         }

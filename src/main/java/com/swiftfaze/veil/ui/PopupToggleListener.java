@@ -11,12 +11,14 @@ import com.swiftfaze.veil.game.event.GameEventLog;
  * the inventory and codex popups, same behavior EastPanel used to provide.
  */
 public class PopupToggleListener implements GameListener {
+    static final String INVENTORY = "inventory";
+
     private final InventoryPanel inventoryPanel;
     private final CodexPanel codexPanel;
     private final GameEventLog eventLog;
 
     public PopupToggleListener(InventoryPanel inventoryPanel, CodexPanel codexPanel) {
-        this(inventoryPanel, codexPanel, new GameEventLog());
+        this(inventoryPanel, codexPanel, GameEventLog.noOp());
     }
 
     public PopupToggleListener(InventoryPanel inventoryPanel, CodexPanel codexPanel, GameEventLog eventLog) {
@@ -34,13 +36,13 @@ public class PopupToggleListener implements GameListener {
     public void toggleInventory() {
         if (inventoryPanel.isVisible()) {
             inventoryPanel.dismiss();
-            eventLog.append(new GameEvent.PopupToggled("inventory", false));
+            eventLog.append(GameEvent.popupToggled(INVENTORY, false));
         } else {
             if (codexPanel.isVisible()) {
                 codexPanel.dismiss();
             }
             inventoryPanel.open();
-            eventLog.append(new GameEvent.PopupToggled("inventory", true));
+            eventLog.append(GameEvent.popupToggled(INVENTORY, true));
         }
     }
 

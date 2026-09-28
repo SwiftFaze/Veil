@@ -3,6 +3,7 @@ package com.swiftfaze.veil.ui;
 import com.swiftfaze.veil.game.event.GameEvent;
 import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.input.Keybindings;
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
 import com.swiftfaze.veil.ui.widget.ListWidget;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
@@ -26,9 +27,10 @@ public class TitleScreenPanel extends JPanel implements HintAware {
     private final Consumer<String> onMenuSelect;
     private final ControlsHintBarWidget hintBar;
     private final GameEventLog eventLog;
+    private @Nullable String lastHighlighted;
 
     public TitleScreenPanel(Consumer<String> onMenuSelect, ControlsHintBarWidget hintBar) {
-        this(onMenuSelect, hintBar, new GameEventLog());
+        this(onMenuSelect, hintBar, GameEventLog.noOp());
     }
 
     public TitleScreenPanel(Consumer<String> onMenuSelect, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
@@ -49,8 +51,9 @@ public class TitleScreenPanel extends JPanel implements HintAware {
         List<String> menuItems = List.of("Continue", "New", "Load", "Settings", "Exit");
         menuWidget = new ListWidget<>(s -> s);
         menuWidget.setItems(menuItems);
+        lastHighlighted = menuWidget.getSelectedItem();
         menuWidget.setOnConfirm(this::handleMenuSelect);
-        menuWidget.setOnSelectionChange(item -> eventLog.append(new GameEvent.MenuSelectionChanged(item)));
+        menuWidget.setOnSelectionChange(this::recordSelectionChange);
         menuWidget.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         add(Box.createVerticalGlue());
@@ -107,6 +110,16 @@ public class TitleScreenPanel extends JPanel implements HintAware {
 
     private void handleMenuSelect(String item) {
         onMenuSelect.accept(item);
+    }
+
+    // ListWidget reports every highlight refresh, including a move that stays put at a
+    // boundary; only a real change of item is a MenuSelectionChanged.
+    private void recordSelectionChange(String item) {
+        if (item.equals(lastHighlighted)) {
+            return;
+        }
+        lastHighlighted = item;
+        eventLog.append(GameEvent.menuSelectionChanged(item));
     }
 
     public String getHighlightedMenuItem() {

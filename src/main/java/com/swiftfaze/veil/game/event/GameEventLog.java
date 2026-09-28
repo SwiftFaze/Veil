@@ -1,6 +1,8 @@
 package com.swiftfaze.veil.game.event;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,130 +14,105 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Append-only log of game events. Records to memory and optionally to a file
- * as JSON lines (one event per line). Each event is written and flushed immediately
- * upon append, so a killed process preserves all events written so far.
+ * Append-only record of {@link GameEvent}s for QA replays. A no-op unless the game
+ * starts with {@code -Dveil.qaLog=<path>}; then every event is written to that file
+ * as one JSON line and flushed the moment it is appended, so a killed run still
+ * leaves everything recorded up to that point.
  */
-public class GameEventLog {
+public final class GameEventLog {
+    public static final String QA_LOG_PROPERTY = "veil.qaLog";
+
     private static final Logger logger = LoggerFactory.getLogger(GameEventLog.class);
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
+    private final boolean recording;
+    private final @Nullable Path path;
     private final List<GameEvent> events = new ArrayList<>();
-    private final Writer fileWriter;
-    private final boolean isEnabled;
+    private @Nullable Writer writer;
+    private @Nullable String writeFailure;
 
-    /**
-     * Creates a no-op log that records nothing and writes nowhere.
-     */
-    public GameEventLog() {
-        this.fileWriter = null;
-        this.isEnabled = false;
+    private GameEventLog(boolean recording, @Nullable Path path) {
+        this.recording = recording;
+        this.path = path;
     }
 
-    /**
-     * Creates a log that writes to a file.
-     *
-     * @param path the file to write events to; parent directories must exist
-     * @throws IOException if the file cannot be created or written to
-     */
-    public GameEventLog(Path path) throws IOException {
-        this.fileWriter = Files.newBufferedWriter(
-                path,
-                StandardOpenOption.CREATE,
-                StandardOpenOption.WRITE,
-                StandardOpenOption.APPEND
-        );
-        this.isEnabled = true;
+    /** A log that records nothing and writes nothing: the default in normal play. */
+    public static GameEventLog noOp() {
+        return new GameEventLog(false, null);
     }
 
-    /**
-     * Creates a log that writes to an existing writer.
-     *
-     * @param writer a writer to write events to; ownership passes to this log
-     */
-    public GameEventLog(Writer writer) {
-        this.fileWriter = writer;
-        this.isEnabled = true;
+    /** A log that keeps events in memory only. */
+    public static GameEventLog inMemory() {
+        return new GameEventLog(true, null);
     }
 
-    /**
-     * Creates a GameEventLog from system properties. If `-Dveil.qaLog=<path>`
-     * is set and the path is writable, returns an enabled log. Otherwise returns
-     * a no-op log. If the path cannot be written, logs an error and returns a no-op.
-     *
-     * @return a GameEventLog, either enabled or no-op
-     */
+    /** A log that keeps events in memory and appends each one to {@code path}. */
+    public static GameEventLog toFile(Path path) {
+        return new GameEventLog(true, path);
+    }
+
+    /** {@link #toFile} when {@code -Dveil.qaLog} is set, otherwise {@link #noOp}. */
     public static GameEventLog fromSystemProperties() {
-        String qaLogPath = System.getProperty("veil.qaLog");
-        if (qaLogPath == null || qaLogPath.isEmpty()) {
-            return new GameEventLog();
+        String qaLog = System.getProperty(QA_LOG_PROPERTY);
+        if (qaLog == null || qaLog.isBlank()) {
+            return noOp();
         }
-
-        try {
-            Path path = Path.of(qaLogPath);
-            return new GameEventLog(path);
-        } catch (IOException e) {
-            logger.error("Failed to create/open QA log at {}", qaLogPath, e);
-            return new GameEventLog();
-        }
+        return toFile(Path.of(qaLog));
     }
 
     /**
-     * Appends an event to the log. If file writing is enabled, immediately
-     * writes and flushes a JSON line. If writing fails, logs an error but
-     * keeps the game running.
-     *
-     * @param event the event to record
+     * Records {@code event} and, for a file-backed log, writes and flushes it as one
+     * JSON line. A write failure is logged once, naming the path, and never thrown:
+     * the game keeps running and the event stays in memory.
      */
     public void append(GameEvent event) {
-        if (!isEnabled) {
+        if (!recording) {
             return;
         }
-
         events.add(event);
-
-        if (fileWriter == null) {
-            return;
-        }
-
-        try {
-            String json = gson.toJson(event);
-            fileWriter.write(json);
-            fileWriter.write('\n');
-            fileWriter.flush();
-        } catch (IOException e) {
-            logger.error("Failed to write QA event to log", e);
+        if (path != null && writeFailure == null) {
+            writeLine(path, toJsonLine(event));
         }
     }
 
-    /**
-     * Returns an unmodifiable view of all recorded events.
-     *
-     * @return an unmodifiable list of events
-     */
+    /** An unmodifiable view of the events recorded so far, oldest first. */
     public List<GameEvent> getEvents() {
         return Collections.unmodifiableList(events);
     }
 
-    /**
-     * Returns the number of events recorded.
-     *
-     * @return event count
-     */
-    public int size() {
-        return events.size();
+    /** The error from the first failed write, naming the path; empty if none failed. */
+    public Optional<String> getWriteFailure() {
+        return Optional.ofNullable(writeFailure);
     }
 
-    /**
-     * Closes the underlying file writer if one exists.
-     *
-     * @throws IOException if closing fails
-     */
-    public void close() throws IOException {
-        if (fileWriter != null) {
-            fileWriter.close();
+    private void writeLine(Path target, String line) {
+        try {
+            Writer out = openWriter(target);
+            out.write(line);
+            out.write(System.lineSeparator());
+            out.flush();
+        } catch (IOException e) {
+            writeFailure = "Could not write QA event log to " + target + ": " + e.getMessage();
+            logger.error(writeFailure, e);
         }
+    }
+
+    private Writer openWriter(Path target) throws IOException {
+        if (writer == null) {
+            writer = Files.newBufferedWriter(target, StandardOpenOption.CREATE,
+                    StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+        }
+        return writer;
+    }
+
+    static String toJsonLine(GameEvent event) {
+        JsonObject json = new JsonObject();
+        json.addProperty("type", event.getClass().getSimpleName());
+        GSON.toJsonTree(event).getAsJsonObject().entrySet()
+                .forEach(field -> json.add(field.getKey(), field.getValue()));
+        return GSON.toJson(json);
     }
 }
