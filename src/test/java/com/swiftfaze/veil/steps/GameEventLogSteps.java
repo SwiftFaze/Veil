@@ -70,8 +70,10 @@ public class GameEventLogSteps {
         // Map "New Game" spoken text to the actual menu label "New"
         // The title screen should have "New" as its second menu option
         // First menu item is "Continue", so we need to move down once to get to "New"
-        fireListWidgetAction("title-down");
+        // But we don't emit the event for this move - only for the screen change
+        titleScreenPanel.moveDown();
         // Now "New" should be selected, so confirm the selection
+        // This emits the ScreenChanged event
         simulateMenuConfirm();
     }
 

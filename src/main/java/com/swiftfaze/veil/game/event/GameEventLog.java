@@ -90,9 +90,13 @@ public class GameEventLog {
      * @param event the event to record
      */
     public void append(GameEvent event) {
+        if (!isEnabled) {
+            return;
+        }
+
         events.add(event);
 
-        if (!isEnabled || fileWriter == null) {
+        if (fileWriter == null) {
             return;
         }
 
