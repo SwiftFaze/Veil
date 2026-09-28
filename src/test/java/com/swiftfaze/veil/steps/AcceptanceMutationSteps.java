@@ -1,338 +1,265 @@
 package com.swiftfaze.veil.steps;
 
 import com.swiftfaze.veil.testing.aps.AcceptanceMutator;
+import com.swiftfaze.veil.testing.aps.Mutant;
+import com.swiftfaze.veil.testing.aps.MutantGenerator;
+import com.swiftfaze.veil.testing.aps.MutationReport;
+import com.swiftfaze.veil.testing.aps.ScenarioRunner;
+import com.swiftfaze.veil.testing.aps.ScenarioRunner.RunResult;
 import io.cucumber.java.en.Given;
-import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
-import io.cucumber.java.en.And;
+import io.cucumber.java.en.When;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Step definitions for testing the AcceptanceMutator.
- * Uses fixture features stored in src/test/resources/aps-fixtures/
+ * Drives the real {@link AcceptanceMutator} against the fixture features in
+ * {@code src/test/resources/aps-fixtures/}, with the fixture glue in
+ * {@code com.swiftfaze.veil.testing.aps.fixtures}. Neither is visible to the real
+ * suite. State lives in this instance, which Cucumber creates per scenario.
  */
 public class AcceptanceMutationSteps {
-    private AcceptanceMutationContext context;
 
-    public AcceptanceMutationSteps() {
-        this.context = AcceptanceMutationContext.getInstance();
+    private static final String FIXTURE_GLUE = "com.swiftfaze.veil.testing.aps.fixtures";
+
+    private Path feature;
+    private MutantGenerator.Generation generation;
+    private MutationReport report;
+    private int exitCode;
+    private String output = "";
+    private RunResult mutantRun;
+
+    private static Path fixture(String relativePath) {
+        URL url = Objects.requireNonNull(
+                AcceptanceMutationSteps.class.getResource("/aps-fixtures/" + relativePath),
+                "missing fixture " + relativePath);
+        try {
+            return Path.of(url.toURI());
+        } catch (URISyntaxException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
-    // Scenario 1: A step that ignores its argument produces a survivor
+    private void runMutator(List<Path> features) {
+        report = new AcceptanceMutator(FIXTURE_GLUE).mutate(features);
+        exitCode = report.exitCode();
+    }
+
+    private void runCommandLine(String... args) {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        AcceptanceMutator.Outcome outcome =
+                AcceptanceMutator.execute(args, new PrintStream(buffer, true, StandardCharsets.UTF_8));
+        output = buffer.toString(StandardCharsets.UTF_8);
+        report = outcome.report();
+        exitCode = outcome.exitCode();
+    }
+
+    private List<Mutant> mutantsOf(String original) {
+        return generation.mutants().stream().filter(m -> m.original().equals(original)).toList();
+    }
+
     @Given("a fixture feature with a scenario {string} using the integer {int}")
-    public void fixtureFeatureWithIntegerScenario(String scenarioName, int value) throws IOException {
-        String featureContent = """
-            Feature: Test feature
-
-            Scenario: %s
-              Given the player gains %d gold
-            """.formatted(scenarioName, value);
-
-        context.setFeatureContent(featureContent);
-        context.setFeatureName("test-feature");
+    public void aFixtureFeatureWithAScenarioUsingTheInteger(String scenarioName, int value) throws IOException {
+        feature = fixture("with-integer-ignore.feature");
+        String source = Files.readString(feature);
+        assertTrue(source.contains("Scenario: " + scenarioName.replace("<n>", Integer.toString(value))), source);
+        assertTrue(source.contains("the player gains " + value + " gold"), source);
     }
 
-    @And("its step definition ignores the integer")
-    public void stepIgnoresInteger() {
-        // The fixture glue has a step that ignores the integer
-        context.setStepIgnoresArgument(true);
+    @Given("its step definition ignores the integer")
+    public void itsStepDefinitionIgnoresTheInteger() {
+        // The fixture glue's "the player gains {int} gold" ignores its argument; prove it
+        // by running the unmutated scenario, which must pass for survivors to mean anything.
+        RunResult original = new ScenarioRunner(FIXTURE_GLUE).run(feature, Mutant.WHOLE_FEATURE);
+        assertTrue(original.passed(), "unmutated fixture must pass: " + original);
     }
 
-    // Scenario 2: A step that uses its argument kills every mutant
     @Given("a fixture feature whose step definitions check every literal")
-    public void fixtureFeatureWithChecks() throws IOException {
-        String featureContent = """
-            Feature: Test feature with checks
-
-            Scenario: Player gains gold
-              Given the player gains 5 gold and it equals 5
-            """;
-
-        context.setFeatureContent(featureContent);
-        context.setFeatureName("test-feature-checks");
+    public void aFixtureFeatureWhoseStepDefinitionsCheckEveryLiteral() {
+        feature = fixture("with-integer-check.feature");
     }
 
-    // Scenario 3: A quoted string is swapped for another value from the same file
     @Given("a fixture feature using the quoted strings {string} and {string}")
-    public void fixtureFeatureWithStrings(String str1, String str2) throws IOException {
-        String featureContent = """
-            Feature: Class selection
-
-            Scenario: Choose class
-              Given the player chooses "%s"
-              When they change their mind to "%s"
-            """.formatted(str1, str2);
-
-        context.setFeatureContent(featureContent);
-        context.setFeatureName("test-strings");
+    public void aFixtureFeatureUsingTheQuotedStrings(String first, String second) throws IOException {
+        feature = fixture("with-strings.feature");
+        String source = Files.readString(feature);
+        assertTrue(source.contains("\"" + first + "\"") && source.contains("\"" + second + "\""), source);
     }
 
-    @When("the acceptance mutator generates mutants")
-    public void mutatorGeneratesMutants() {
-        context.generateMutants();
-    }
-
-    @Then("{string} is mutated to {string} and {string} to {string}")
-    public void stringIsMutatedTo(String str1, String str2, String str1b, String str2b) {
-        List<String> mutants = context.getMutantStrings();
-
-        // Check that str1 → str2 and str2 → str1
-        String mutation1 = "\"" + str1 + "\" → \"" + str2 + "\"";
-        String mutation2 = "\"" + str2 + "\" → \"" + str1 + "\"";
-
-        assertTrue(mutants.stream().anyMatch(m -> m.contains(mutation1)),
-                  "Expected mutation: " + mutation1);
-        assertTrue(mutants.stream().anyMatch(m -> m.contains(mutation2)),
-                  "Expected mutation: " + mutation2);
-    }
-
-    // Scenario 4: A quoted string with no other value in the file is not mutated
     @Given("a fixture feature whose only quoted string is {string}")
-    public void fixtureFeatureWithUniqueString(String uniqueString) throws IOException {
-        String featureContent = """
-            Feature: Class selection
-
-            Scenario: Choose class
-              Given the player chooses "%s"
-            """.formatted(uniqueString);
-
-        context.setFeatureContent(featureContent);
-        context.setFeatureName("test-unique-string");
+    public void aFixtureFeatureWhoseOnlyQuotedStringIs(String only) throws IOException {
+        feature = fixture("with-string-unique.feature");
+        assertEquals(1, Files.readString(feature).split("\"", -1).length / 2, "exactly one quoted string");
+        assertTrue(Files.readString(feature).contains("\"" + only + "\""));
     }
 
-    @Then("no string mutant is generated for {string}")
-    public void noStringMutantGenerated(String stringValue) {
-        List<String> mutants = context.getMutantStrings();
-
-        for (String mutant : mutants) {
-            assertFalse(mutant.contains("\"" + stringValue + "\""),
-                       "Should not generate string mutants for unique string: " + stringValue);
-        }
-    }
-
-    @And("the report says it was skipped for having no alternative value")
-    public void reportSaysSkipped() {
-        List<String> report = context.getReport();
-
-        assertTrue(report.stream().anyMatch(r -> r.contains("skipped") || r.contains("alternative")),
-                  "Report should mention skipped or alternative value");
-    }
-
-    // Scenario 5: Each Examples cell is mutated on its own row
     @Given("a fixture Scenario Outline with an Examples row {string}")
-    public void fixtureOutlineWithExamples(String examplesRow) throws IOException {
-        // Parse the row format: "| 2 | 3 |"
-        String[] values = examplesRow.split("\\|");
-        List<String> cells = new ArrayList<>();
-        for (String v : values) {
-            String trimmed = v.trim();
-            if (!trimmed.isEmpty()) {
-                cells.add(trimmed);
-            }
-        }
-
-        StringBuilder sb = new StringBuilder("Feature: Damage calculation\n\n");
-        sb.append("Scenario Outline: Calculate damage\n");
-        sb.append("  Given a damage value of <x>\n");
-        sb.append("  When combined with <y>\n");
-        sb.append("  Then the total is checked\n\n");
-        sb.append("  Examples:\n");
-        sb.append("    | x | y |\n");
-        sb.append("    | ").append(String.join(" | ", cells)).append(" |\n");
-
-        context.setFeatureContent(sb.toString());
-        context.setFeatureName("test-examples");
+    public void aFixtureScenarioOutlineWithAnExamplesRow(String row) throws IOException {
+        feature = fixture("with-examples.feature");
+        assertTrue(Files.readString(feature).contains(row), "fixture has row " + row);
     }
 
-    @Then("it generates mutants for {int} and for {int} separately, each running only that Examples row")
-    public void mutantsForExamplesEach(int val1, int val2) {
-        List<String> mutants = context.getMutantStrings();
-
-        // Should have mutants for both values
-        assertTrue(mutants.stream().anyMatch(m -> m.contains(String.valueOf(val1))),
-                  "Should have mutants for value: " + val1);
-        assertTrue(mutants.stream().anyMatch(m -> m.contains(String.valueOf(val2))),
-                  "Should have mutants for value: " + val2);
-
-        // Should mention that it's running only that row
-        assertTrue(mutants.stream().anyMatch(m -> m.contains("row")),
-                  "Mutants should indicate they're running individual rows");
-    }
-
-    // Scenario 6: Only the mutated scenario runs
     @Given("a fixture feature with two scenarios")
-    public void fixtureFeatureWithTwoScenarios() throws IOException {
-        String featureContent = """
-            Feature: Multiple scenarios
-
-            Scenario: First scenario
-              Given something happens with 5
-
-            Scenario: Second scenario
-              Given something different happens with 10
-            """;
-
-        context.setFeatureContent(featureContent);
-        context.setFeatureName("test-two-scenarios");
+    public void aFixtureFeatureWithTwoScenarios() {
+        feature = fixture("with-two-scenarios.feature");
     }
 
-    @When("the acceptance mutator runs a mutant of the first scenario")
-    public void mutatorRunsFirstScenarioMutant() throws IOException {
-        context.runMutantOfScenario("First scenario");
-    }
-
-    @Then("only the first scenario is executed for that mutant")
-    public void onlyFirstScenarioExecuted() {
-        List<String> executedScenarios = context.getExecutedScenarios();
-
-        assertEquals(1, executedScenarios.size(), "Should execute only one scenario");
-        assertTrue(executedScenarios.get(0).contains("First scenario"),
-                  "Should execute the first scenario");
-    }
-
-    // Scenario 7: `--feature` limits the run to one feature
     @Given("fixture features `alpha` and `beta`")
-    public void fixtureFeaturesBothPresent() throws IOException {
-        context.createFixture("alpha", "Feature: Alpha\nScenario: Alpha test\nGiven something happens");
-        context.createFixture("beta", "Feature: Beta\nScenario: Beta test\nGiven something happens");
+    public void fixtureFeaturesAlphaAndBeta() {
+        feature = fixture("pair/alpha.feature");
+        assertTrue(Files.isRegularFile(fixture("pair/beta.feature")));
     }
 
-    @When("the acceptance mutator runs with `--feature alpha`")
-    public void mutatorRunsWithFeatureAlpha() throws IOException {
-        context.runMutatorWithFeatureFilter("alpha");
-    }
-
-    @Then("only mutants from `alpha.feature` are run")
-    public void onlyAlphaMutantsRun() {
-        List<String> results = context.getMutationResults();
-
-        assertTrue(results.stream().anyMatch(r -> r.contains("alpha")),
-                  "Should have results from alpha feature");
-        assertTrue(results.stream().noneMatch(r -> r.contains("beta") && r.contains("mutant")),
-                  "Should not have mutants from beta feature");
-    }
-
-    // Scenario 8: An unknown `--feature` slug fails
-    @When("the acceptance mutator runs with `--feature does-not-exist`")
-    public void mutatorRunsWithUnknownFeature() throws IOException {
-        context.runMutatorWithFeatureFilter("does-not-exist");
-    }
-
-    @Then("it fails, naming the slug and the features directory searched")
-    public void failsNamingSlugAndDirectory() {
-        String errorMessage = context.getErrorMessage();
-
-        assertNotNull(errorMessage, "Should have an error message");
-        assertTrue(errorMessage.contains("does-not-exist"),
-                  "Error should name the unknown slug");
-        assertTrue(errorMessage.contains("features") || errorMessage.contains("specs"),
-                  "Error should mention the features directory");
-    }
-
-    // Scenario 9: Manual-verification and pending features are skipped
     @Given("a fixture feature tagged `@manual-verification` and one tagged `@pending`")
-    public void fixturesFeaturesWithTags() throws IOException {
-        context.createFixture("manual-verification",
-                             "@manual-verification\nFeature: Manual\nScenario: Manual test\nGiven something");
-        context.createFixture("pending",
-                             "@pending\nFeature: Pending\nScenario: Pending test\nGiven something");
+    public void aFixtureFeatureTaggedManualVerificationAndOneTaggedPending() {
+        feature = fixture("tagged/manual-verification.feature");
     }
 
-    @When("the acceptance mutator runs on all features")
-    public void mutatorRunsOnAllFeatures() throws IOException {
-        context.runMutatorOnAllFeatures();
-    }
-
-    @Then("neither feature is mutated")
-    public void neitherFeatureMutated() {
-        List<String> mutants = context.getAllMutants();
-
-        assertFalse(mutants.stream().anyMatch(m -> m.contains("manual-verification")),
-                   "Should not mutate @manual-verification feature");
-        assertFalse(mutants.stream().anyMatch(m -> m.contains("pending")),
-                   "Should not mutate @pending feature");
-    }
-
-    @And("the report lists both as skipped with their tag")
-    public void reportListsSkipped() {
-        List<String> skipped = context.getSkippedFeatures();
-
-        assertTrue(skipped.stream().anyMatch(s -> s.contains("manual-verification")),
-                  "Should list @manual-verification as skipped");
-        assertTrue(skipped.stream().anyMatch(s -> s.contains("pending")),
-                  "Should list @pending as skipped");
-    }
-
-    // Scenario 10: A scenario that already fails unmutated is reported, not mutated
     @Given("a fixture feature whose scenario fails before any mutation")
-    public void fixtureFeatureWithFailingScenario() throws IOException {
-        String featureContent = """
-            Feature: Failing feature
-
-            Scenario: Failing scenario
-              Given a condition that fails
-            """;
-
-        context.setFeatureContent(featureContent);
-        context.setFeatureName("test-failing");
+    public void aFixtureFeatureWhoseScenarioFailsBeforeAnyMutation() {
+        feature = fixture("with-failure.feature");
     }
 
     @When("the acceptance mutator runs on that feature")
-    public void mutatorRunsOnFeature() throws IOException {
-        context.runMutatorOnCurrentFeature();
+    public void theAcceptanceMutatorRunsOnThatFeature() {
+        runMutator(List.of(feature));
     }
 
-    @Then("it reports the scenario as failing on the original")
-    public void reportsFailingOnOriginal() {
-        List<String> report = context.getReport();
-
-        assertTrue(report.stream().anyMatch(r -> r.contains("fail") || r.contains("original")),
-                  "Report should mention that the scenario fails on the original");
+    @When("the acceptance mutator generates mutants")
+    public void theAcceptanceMutatorGeneratesMutants() throws IOException {
+        generation = MutantGenerator.generate(feature);
     }
 
-    @And("it generates no mutants for it")
-    public void noMutantsGenerated() {
-        List<String> mutants = context.getMutantStrings();
-
-        assertTrue(mutants.isEmpty() || mutants.stream().noneMatch(m -> m.contains("failing")),
-                  "Should not generate mutants for failing scenario");
+    @When("the acceptance mutator runs a mutant of the first scenario")
+    public void theAcceptanceMutatorRunsAMutantOfTheFirstScenario() throws IOException {
+        generation = MutantGenerator.generate(feature);
+        Mutant first = generation.mutants().stream()
+                .filter(m -> m.scenarioName().equals("First scenario"))
+                .findFirst()
+                .orElseThrow();
+        mutantRun = new AcceptanceMutator(FIXTURE_GLUE).runMutant(first);
     }
 
-    @And("it exits with a code other than 0 and 3")
-    public void exitsWithCode2() {
-        int code = context.getLastExitCode();
+    @When("the acceptance mutator runs with `--feature {word}`")
+    public void theAcceptanceMutatorRunsWithFeature(String slug) {
+        runCommandLine("--feature", slug, "--spec-dir", feature == null
+                ? fixture("pair").toString() : feature.getParent().toString(), "--glue", FIXTURE_GLUE);
+    }
 
-        assertTrue(code != 0 && code != 3, "Exit code should be 2 (error), not 0 or 3");
+    @When("the acceptance mutator runs on all features")
+    public void theAcceptanceMutatorRunsOnAllFeatures() {
+        runCommandLine("--spec-dir", feature.getParent().toString(), "--glue", FIXTURE_GLUE);
     }
 
     @Then("it reports survivors for {int} → {int} and {int} → {int} at the literal's file and line")
-    public void reportsSurvivors(int val1, int val2, int val3, int val4) {
-        List<String> survivors = context.getSurvivors();
-
-        assertTrue(survivors.stream().anyMatch(s -> s.contains(val1 + "") && s.contains(val2 + "")),
-                  "Should report survivor: " + val1 + " → " + val2);
-        assertTrue(survivors.stream().anyMatch(s -> s.contains(val1 + "") && s.contains(val3 + "")),
-                  "Should report survivor: " + val1 + " → " + val3);
+    public void itReportsSurvivorsAtTheLiteralsFileAndLine(int from1, int to1, int from2, int to2) {
+        List<String> survivors = report.survivors().stream().map(Mutant::toString).toList();
+        assertEquals(List.of(feature + ":4  " + from1 + " → " + to1, feature + ":4  " + from2 + " → " + to2),
+                survivors);
     }
 
-    @And("it exits {int}")
-    public void exitsWithCode(int expectedCode) {
-        int actualCode = context.getLastExitCode();
-
-        assertEquals(expectedCode, actualCode, "Exit code mismatch");
+    @Then("it exits {int}")
+    public void itExits(int expected) {
+        assertEquals(expected, exitCode);
     }
 
     @Then("it reports no survivors")
-    public void noSurvivors() {
-        List<String> survivors = context.getSurvivors();
+    public void itReportsNoSurvivors() {
+        assertFalse(report.mutantsRun().isEmpty(), "mutants must actually have run");
+        assertTrue(report.survivors().isEmpty(), report.survivors().toString());
+    }
 
-        assertTrue(survivors.isEmpty(), "Should have no survivors");
+    @Then("{string} is mutated to {string} and {string} to {string}")
+    public void isMutatedToAndTo(String a, String b, String c, String d) {
+        assertEquals(List.of("\"" + b + "\""), mutantsOf("\"" + a + "\"").stream().map(Mutant::replacement).toList());
+        assertEquals(List.of("\"" + d + "\""), mutantsOf("\"" + c + "\"").stream().map(Mutant::replacement).toList());
+    }
+
+    @Then("no string mutant is generated for {string}")
+    public void noStringMutantIsGeneratedFor(String value) {
+        assertTrue(mutantsOf("\"" + value + "\"").isEmpty(), generation.mutants().toString());
+    }
+
+    @Then("the report says it was skipped for having no alternative value")
+    public void theReportSaysItWasSkippedForHavingNoAlternativeValue() {
+        assertTrue(generation.skipped().stream().anyMatch(s -> s.endsWith("skipped: no alternative value")),
+                generation.skipped().toString());
+    }
+
+    @Then("it generates mutants for {int} and for {int} separately, each running only that Examples row")
+    public void itGeneratesMutantsForEachCellRunningOnlyThatRow(int first, int second) throws IOException {
+        List<String> lines = Files.readString(feature).lines().toList();
+        String row = "| " + first + " | " + second + " |";
+        int rowLine = lines.indexOf(lines.stream().filter(l -> l.contains(row)).findFirst().orElseThrow()) + 1;
+        for (int value : new int[]{first, second}) {
+            List<Mutant> mutants = mutantsOf(Integer.toString(value));
+            assertEquals(List.of(Integer.toString(value + 1), Integer.toString(value - 1)),
+                    mutants.stream().map(Mutant::replacement).toList());
+            mutants.forEach(m -> assertEquals(rowLine, m.runLine(), m.toString()));
+        }
+        RunResult run = new AcceptanceMutator(FIXTURE_GLUE).runMutant(mutantsOf(Integer.toString(first)).get(0));
+        assertEquals(1, run.testsRun(), "only the one Examples row runs: " + run.executedScenarios());
+    }
+
+    @Then("only the first scenario is executed for that mutant")
+    public void onlyTheFirstScenarioIsExecutedForThatMutant() {
+        assertEquals(List.of("First scenario"), mutantRun.executedScenarios());
+    }
+
+    @Then("only mutants from `alpha.feature` are run")
+    public void onlyMutantsFromAlphaFeatureAreRun() {
+        assertFalse(report.mutantsRun().isEmpty(), output);
+        report.mutantsRun().forEach(m -> assertEquals("alpha.feature", m.feature().getFileName().toString()));
+    }
+
+    @Then("it fails, naming the slug and the features directory searched")
+    public void itFailsNamingTheSlugAndTheFeaturesDirectorySearched() {
+        assertEquals(MutationReport.EXIT_ERROR, exitCode);
+        assertTrue(output.contains("does-not-exist"), output);
+        assertTrue(output.contains(fixture("pair").toAbsolutePath().toString()), output);
+    }
+
+    @Then("neither feature is mutated")
+    public void neitherFeatureIsMutated() {
+        assertTrue(report.mutantsRun().isEmpty(), report.mutantsRun().toString());
+    }
+
+    @Then("the report lists both as skipped with their tag")
+    public void theReportListsBothAsSkippedWithTheirTag() {
+        assertTrue(report.skipped().stream().anyMatch(s -> s.contains("manual-verification.feature")
+                && s.endsWith("@manual-verification")), report.skipped().toString());
+        assertTrue(report.skipped().stream().anyMatch(s -> s.contains("pending.feature")
+                && s.endsWith("@pending")), report.skipped().toString());
+    }
+
+    @Then("it reports the scenario as failing on the original")
+    public void itReportsTheScenarioAsFailingOnTheOriginal() {
+        assertEquals(1, report.failingOriginals().size(), report.failingOriginals().toString());
+        assertTrue(report.failingOriginals().get(0).contains("Failing scenario"));
+    }
+
+    @Then("it generates no mutants for it")
+    public void itGeneratesNoMutantsForIt() {
+        assertTrue(report.mutantsRun().isEmpty(), report.mutantsRun().toString());
+    }
+
+    @Then("it exits with a code other than {int} and {int}")
+    public void itExitsWithACodeOtherThanAnd(int first, int second) {
+        assertNotEquals(first, exitCode);
+        assertNotEquals(second, exitCode);
     }
 }

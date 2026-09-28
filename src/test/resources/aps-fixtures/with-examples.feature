@@ -8,3 +8,4 @@ Feature: Damage calculation
     Examples:
       | x | y |
       | 2 | 3 |
+      | 4 | 5 |

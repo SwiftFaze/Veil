@@ -1,163 +1,183 @@
 package com.swiftfaze.veil.testing.aps;
 
+import io.cucumber.gherkin.GherkinParser;
+import io.cucumber.messages.types.Background;
+import io.cucumber.messages.types.Envelope;
+import io.cucumber.messages.types.Examples;
+import io.cucumber.messages.types.Feature;
+import io.cucumber.messages.types.FeatureChild;
+import io.cucumber.messages.types.GherkinDocument;
+import io.cucumber.messages.types.RuleChild;
+import io.cucumber.messages.types.Scenario;
+import io.cucumber.messages.types.Step;
+import io.cucumber.messages.types.TableCell;
+import io.cucumber.messages.types.TableRow;
+import io.cucumber.messages.types.Tag;
+
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Generates mutants from a feature file by identifying and mutating literals.
- * Mutations include:
- * - Integers: +1 and -1
- * - Quoted strings: swapped for another value from the same file
+ * Parses a feature file with {@code io.cucumber:gherkin} and lists its mutants.
+ *
+ * <p>Only step text and Examples cells are mutated, never keywords, names,
+ * descriptions, comments or tags. Integers become +1 and -1. A double-quoted string
+ * becomes each other distinct double-quoted value used in the same file, or is
+ * skipped with a reason when there is none.
  */
-public class MutantGenerator {
-    private static final Pattern INTEGER_PATTERN = Pattern.compile("\\b\\d+\\b");
-    private static final Pattern STRING_PATTERN = Pattern.compile("\"([^\"]+)\"");
+public final class MutantGenerator {
 
-    private final Path featurePath;
-    private final String featureContent;
+    /** Tags whose scenarios never run in the real suite, so mutating them proves nothing. */
+    public static final Set<String> SKIPPED_TAGS = Set.of("@manual-verification", "@pending");
 
-    public MutantGenerator(Path featurePath, String featureContent) {
-        this.featurePath = featurePath;
-        this.featureContent = featureContent;
+    private static final Pattern LITERAL = Pattern.compile("\"[^\"]*\"|(?<![\\w.])\\d+(?![\\w.])");
+    private static final Pattern INTEGER = Pattern.compile("\\d+");
+    private static final Pattern QUOTED = Pattern.compile("\"[^\"]*\"");
+
+    /** The result of generating one feature's mutants. */
+    public record Generation(List<Mutant> mutants, List<String> skipped, Optional<String> featureSkipTag) {
     }
 
-    public List<Mutant> generateMutants() {
-        List<Mutant> mutants = new ArrayList<>();
+    private record Literal(int line, int column, String text, int runLine, String scenarioName) {
+    }
 
-        String[] lines = featureContent.split("\n", -1);
-        Map<String, String> stringReplacements = buildStringReplacements();
+    private final Path feature;
+    private final List<Literal> literals = new ArrayList<>();
+    private final List<String> skipped = new ArrayList<>();
 
-        String currentScenario = "Scenario";
-        boolean inExamples = false;
-        int exampleRowCount = 0;
-        boolean seenHeaderRow = false;
+    private MutantGenerator(Path feature) {
+        this.feature = feature;
+    }
 
-        for (int i = 0; i < lines.length; i++) {
-            String line = lines[i];
+    public static Generation generate(Path feature) throws IOException {
+        return new MutantGenerator(feature).run();
+    }
 
-            if (line.trim().startsWith("Scenario")) {
-                currentScenario = line.replaceAll(".*Scenario.*:\\s+", "").trim();
-                inExamples = false;
-                exampleRowCount = 0;
-                seenHeaderRow = false;
-            }
-
-            if (line.trim().startsWith("Examples:")) {
-                inExamples = true;
-                exampleRowCount = 0;
-                seenHeaderRow = false;
-                continue;
-            }
-
-            // Skip non-step lines
-            if (line.trim().isEmpty() || line.trim().startsWith("#") || line.trim().startsWith("Feature:")) {
-                continue;
-            }
-
-            String label = currentScenario;
-
-            // Handle Examples table rows
-            if (inExamples && line.trim().startsWith("|")) {
-                if (!seenHeaderRow) {
-                    // This is the header row, skip mutation
-                    seenHeaderRow = true;
-                    continue;
-                }
-
-                exampleRowCount++;
-                label = currentScenario + " (row " + exampleRowCount + ")";
-            }
-
-            // Mutate integers in this line
-            mutateIntegersInLine(line, i + 1, label, mutants);
-
-            // Mutate strings in this line
-            mutateStringsInLine(line, i + 1, label, stringReplacements, mutants);
+    private Generation run() throws IOException {
+        Feature parsed = parse();
+        Optional<String> featureSkipTag = skipTag(parsed.getTags());
+        if (featureSkipTag.isPresent()) {
+            return new Generation(List.of(), List.of(), featureSkipTag);
         }
+        for (FeatureChild child : parsed.getChildren()) {
+            child.getBackground().ifPresent(this::collectBackground);
+            child.getScenario().ifPresent(this::collectScenario);
+            child.getRule().ifPresent(rule -> rule.getChildren().forEach(this::collectRuleChild));
+        }
+        return new Generation(mutate(), List.copyOf(skipped), Optional.empty());
+    }
 
+    private Feature parse() throws IOException {
+        GherkinParser parser = GherkinParser.builder()
+                .includeSource(false)
+                .includePickles(false)
+                .build();
+        List<Envelope> envelopes = parser.parse(feature).toList();
+        envelopes.stream()
+                .flatMap(e -> e.getParseError().stream())
+                .findFirst()
+                .ifPresent(error -> {
+                    throw new IllegalArgumentException("Cannot parse " + feature + ": " + error.getMessage());
+                });
+        return envelopes.stream()
+                .flatMap(e -> e.getGherkinDocument().stream())
+                .map(GherkinDocument::getFeature)
+                .flatMap(Optional::stream)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No Feature in " + feature));
+    }
+
+    private void collectRuleChild(RuleChild child) {
+        child.getBackground().ifPresent(this::collectBackground);
+        child.getScenario().ifPresent(this::collectScenario);
+    }
+
+    private void collectBackground(Background background) {
+        for (Step step : background.getSteps()) {
+            collectStep(step, Mutant.WHOLE_FEATURE, "Background");
+        }
+    }
+
+    private void collectScenario(Scenario scenario) {
+        Optional<String> tag = skipTag(scenario.getTags());
+        if (tag.isPresent()) {
+            skipped.add(feature + ":" + scenario.getLocation().getLine()
+                    + "  scenario \"" + scenario.getName() + "\" skipped: " + tag.get());
+            return;
+        }
+        int scenarioLine = scenario.getLocation().getLine().intValue();
+        for (Step step : scenario.getSteps()) {
+            collectStep(step, scenarioLine, scenario.getName());
+        }
+        for (Examples examples : scenario.getExamples()) {
+            collectExamples(examples, scenario.getName());
+        }
+    }
+
+    private void collectStep(Step step, int runLine, String scenarioName) {
+        int line = step.getLocation().getLine().intValue();
+        int textColumn = step.getLocation().getColumn().orElseThrow().intValue() + step.getKeyword().length();
+        Matcher matcher = LITERAL.matcher(step.getText());
+        while (matcher.find()) {
+            literals.add(new Literal(line, textColumn + matcher.start(), matcher.group(), runLine, scenarioName));
+        }
+    }
+
+    private void collectExamples(Examples examples, String scenarioName) {
+        if (skipTag(examples.getTags()).isPresent()) {
+            return;
+        }
+        for (TableRow row : examples.getTableBody()) {
+            int rowLine = row.getLocation().getLine().intValue();
+            for (TableCell cell : row.getCells()) {
+                String value = cell.getValue();
+                if (INTEGER.matcher(value).matches() || QUOTED.matcher(value).matches()) {
+                    int column = cell.getLocation().getColumn().orElseThrow().intValue();
+                    literals.add(new Literal(rowLine, column, value, rowLine, scenarioName));
+                }
+            }
+        }
+    }
+
+    private List<Mutant> mutate() {
+        Set<String> quotedValues = new LinkedHashSet<>();
+        literals.stream().map(Literal::text).filter(t -> t.startsWith("\"")).forEach(quotedValues::add);
+
+        List<Mutant> mutants = new ArrayList<>();
+        for (Literal literal : literals) {
+            if (literal.text().startsWith("\"")) {
+                addStringMutants(literal, quotedValues, mutants);
+            } else {
+                long value = Long.parseLong(literal.text());
+                mutants.add(mutant(literal, Long.toString(value + 1)));
+                mutants.add(mutant(literal, Long.toString(value - 1)));
+            }
+        }
         return mutants;
     }
 
-    private void mutateIntegersInLine(String line, int lineNum, String scenarioName, List<Mutant> mutants) {
-        Matcher matcher = INTEGER_PATTERN.matcher(line);
-        while (matcher.find()) {
-            String original = matcher.group();
-            try {
-                int value = Integer.parseInt(original);
-
-                // Generate +1 mutation
-                mutants.add(new Mutant(
-                    featurePath,
-                    lineNum,
-                    matcher.start(),
-                    original,
-                    String.valueOf(value + 1),
-                    scenarioName
-                ));
-
-                // Generate -1 mutation
-                mutants.add(new Mutant(
-                    featurePath,
-                    lineNum,
-                    matcher.start(),
-                    original,
-                    String.valueOf(value - 1),
-                    scenarioName
-                ));
-            } catch (NumberFormatException e) {
-                // Skip non-parseable integers
-            }
+    private void addStringMutants(Literal literal, Set<String> quotedValues, List<Mutant> mutants) {
+        List<String> alternatives = quotedValues.stream().filter(v -> !v.equals(literal.text())).toList();
+        if (alternatives.isEmpty()) {
+            skipped.add(feature + ":" + literal.line() + "  " + literal.text() + " skipped: no alternative value");
+            return;
         }
+        alternatives.forEach(alternative -> mutants.add(mutant(literal, alternative)));
     }
 
-    private void mutateStringsInLine(String line, int lineNum, String scenarioName,
-                                     Map<String, String> stringReplacements, List<Mutant> mutants) {
-        Matcher matcher = STRING_PATTERN.matcher(line);
-        while (matcher.find()) {
-            String original = matcher.group(1);  // content without quotes
-            String quotedOriginal = matcher.group();  // with quotes
-            String replacement = stringReplacements.get(original);
-
-            if (replacement != null) {
-                mutants.add(new Mutant(
-                    featurePath,
-                    lineNum,
-                    matcher.start(),
-                    quotedOriginal,
-                    "\"" + replacement + "\"",
-                    scenarioName
-                ));
-            }
-        }
+    private Mutant mutant(Literal literal, String replacement) {
+        return new Mutant(feature, literal.line(), literal.column(), literal.text(), replacement,
+                literal.runLine(), literal.scenarioName());
     }
 
-    private Map<String, String> buildStringReplacements() {
-        Set<String> uniqueStrings = new HashSet<>();
-        List<String> stringList = new ArrayList<>();
-
-        Matcher matcher = STRING_PATTERN.matcher(featureContent);
-        while (matcher.find()) {
-            String value = matcher.group(1);
-            if (uniqueStrings.add(value)) {
-                stringList.add(value);
-            }
-        }
-
-        // For each string, find another value to swap it with
-        Map<String, String> replacements = new HashMap<>();
-
-        for (String value : stringList) {
-            // Only mutate if there's another value in the file
-            for (String other : stringList) {
-                if (!value.equals(other)) {
-                    replacements.put(value, other);
-                    break;
-                }
-            }
-        }
-
-        return replacements;
+    private static Optional<String> skipTag(List<Tag> tags) {
+        return tags.stream().map(Tag::getName).filter(SKIPPED_TAGS::contains).findFirst();
     }
 }
