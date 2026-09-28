@@ -16,6 +16,10 @@ public record Mutant(
 ) {
     @Override
     public String toString() {
-        return String.format("%s:%d  %s → %s", featurePath.getFileName(), line, original, replacement);
+        String msg = String.format("%s:%d  %s → %s", featurePath.getFileName(), line, original, replacement);
+        if (scenarioName != null && !scenarioName.isEmpty()) {
+            msg += " [" + scenarioName + "]";
+        }
+        return msg;
     }
 }
