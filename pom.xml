@@ -23,6 +23,10 @@
              a plain `-Dpmd.failOnViolation=false` is ignored when the value is
              set literally in the plugin's <configuration>. -->
         <pmd.failOnViolation>true</pmd.failOnViolation>
+        <!-- CRAP gate mode: pass to CrapReport main class (verify phase).
+             gate (default) fails on violations; report-only never fails.
+             check-clean.sh overrides to report-only, like pmd.failOnViolation. -->
+        <crap.mode>--gate</crap.mode>
         <!-- maven-pmd-plugin 3.28.0 manages PMD 7.17.0 by default. Bumped to the
              latest stable PMD release for #215's full-catalogue audit: 18 of the
              199 native rules the audit found only exist from PMD 7.2x onward.
@@ -290,6 +294,22 @@
                 <configuration>
                     <mainClass>${exec.mainClass}</mainClass>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>crap-gate</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>com.swiftfaze.veil.testing.quality.CrapReport</mainClass>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>${crap.mode}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <!-- Step 6 (mutation testing): `mvn org.pitest:pitest-maven:mutationCoverage`.
                  Targets the domain/logic classes that have real unit tests; Swing view

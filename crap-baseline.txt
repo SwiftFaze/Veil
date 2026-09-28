@@ -1,0 +1,7 @@
+# CRAP baseline - methods currently exceeding the gate limit.
+# Format: <fully.qualified.ClassName>#<method> <score>
+# The baseline only shrinks; worse scores or new entries fail check-quality-gates.sh.
+# To remove an entry, fix the method to score below crap.max.
+#
+# These are known high-complexity methods in UI widgets with low coverage.
+# See spec for full ratchet rules.

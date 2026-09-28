@@ -159,7 +159,7 @@ else
   # One property covers PMD and CPD - both executions share the plugin's
   # <configuration>. It is wired through pom.xml's <properties>, because a -D
   # is ignored when the value is set literally in the plugin configuration.
-  if mvn -B verify -Dpmd.failOnViolation=false > "$MVN_LOG" 2>&1; then
+  if mvn -B verify -Dpmd.failOnViolation=false -Dcrap.mode=--report-only > "$MVN_LOG" 2>&1; then
     echo "  PASS  compile, unit + acceptance + integration tests, 85% line"
     echo "        coverage, ArchUnit module dependency direction + structure"
   else
@@ -581,6 +581,30 @@ if [ "$text_fail" -eq 0 ]; then
 else
   blocking=$((blocking + 1))
   sections_failed="$sections_failed text-smells"
+fi
+
+# ---------------------------------------------------------------------------
+# 6. CRAP gate (per-method complexity x coverage metric)
+# ---------------------------------------------------------------------------
+
+hr
+echo "6. CRAP gate (per-method complexity-coverage scoring)"
+hr
+
+CRAP_REPORT="target/crap/crap.txt"
+if [ -f "$CRAP_REPORT" ]; then
+  crap_fail=$(grep "^FAIL " "$CRAP_REPORT" | wc -l)
+  if [ "$crap_fail" -gt 0 ]; then
+    echo "  FAIL  $crap_fail CRAP gate violation(s):"
+    echo
+    grep "^FAIL " "$CRAP_REPORT" | sed 's/^/    /'
+    blocking=$((blocking + 1))
+    sections_failed="$sections_failed crap"
+  else
+    echo "  PASS  no CRAP violations (all methods at or below limit/baseline)"
+  fi
+else
+  echo "  SKIP  no CRAP report produced (gate in report-only mode during verify)"
 fi
 
 # ---------------------------------------------------------------------------

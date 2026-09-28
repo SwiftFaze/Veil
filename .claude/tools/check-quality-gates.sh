@@ -258,6 +258,47 @@ while IFS= read -r f; do
 done <<< "$ignore_file_hits"
 
 # ---------------------------------------------------------------------------
+# CRAP gate: ratchet crap.max (raising it is weakening) and crap-baseline.txt
+# (adding entries or raising scores are weakening)
+# ---------------------------------------------------------------------------
+
+# Check crap.max property ratcheting (REVERSE direction from JaCoCo floors:
+# raising is the weakening, lowering passes)
+head_crap_max=$(grep "^crap.max=" quality-gates.properties 2>/dev/null | cut -d= -f2 || echo "")
+if [ -n "$head_crap_max" ]; then
+  base_crap_max=$(git show "$BASE_REV:quality-gates.properties" 2>/dev/null | grep "^crap.max=" | cut -d= -f2 || echo "")
+  if [ -n "$base_crap_max" ] && [ "$head_crap_max" -gt "$base_crap_max" ]; then
+    echo "::error file=quality-gates.properties::crap.max raised from $base_crap_max (base) to $head_crap_max (head) - this weakens the gate and needs approval."
+    status=1
+  fi
+fi
+
+# Check crap-baseline.txt ratcheting (adding entries or raising scores weakens)
+if [ -f "crap-baseline.txt" ]; then
+  base_baseline=$(git show "$BASE_REV:crap-baseline.txt" 2>/dev/null || echo "")
+  head_baseline=$(cat crap-baseline.txt)
+
+  # Check for added entries (newly appearing lines)
+  while IFS= read -r line; do
+    [ -z "$line" ] || [ "$line" = "${line#\#}" ] || continue
+    key=$(echo "$line" | awk '{print $1}')
+    if ! grep -qF "$key " <<< "$base_baseline"; then
+      echo "::error file=crap-baseline.txt::Added baseline entry not on base branch: $key"
+      echo "  Baseline entries are gate weakenings. State the reason in the PR body."
+      status=1
+    else
+      # Check if score was raised
+      base_score=$(grep "^$key " <<< "$base_baseline" | awk '{print $2}')
+      head_score=$(grep "^$key " <<< "$head_baseline" | awk '{print $2}')
+      if [ -n "$base_score" ] && [ -n "$head_score" ] && [ "${head_score%.*}" -gt "${base_score%.*}" ]; then
+        echo "::error file=crap-baseline.txt::$key score raised from $base_score to $head_score"
+        status=1
+      fi
+    fi
+  done <<< "$head_baseline"
+fi
+
+# ---------------------------------------------------------------------------
 # @Generated usage in src/main/java: JaCoCo (0.8.2+) and PIT both drop any
 # class/method carrying an annotation whose SIMPLE NAME is Generated
 # (CLASS/RUNTIME retention) from the coverage denominator, regardless of

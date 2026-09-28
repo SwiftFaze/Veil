@@ -1,4 +1,3 @@
-@pending
 Feature: CRAP gate links per-method complexity to per-method coverage
   PMD caps cyclomatic complexity at 8 and JaCoCo sets an 85% coverage floor,
   but the coverage floor is bundle-wide. A complexity-8 method at 0% coverage
