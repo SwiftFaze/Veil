@@ -3,8 +3,8 @@
 Status: proposal, 2026-09-28. Turn into a milestone with `brainstorm-milestone`,
 then delete this file. The issues are the tracking record, not this file.
 
-Run it **after** [`workflow-agents-sync.md`](workflow-agents-sync.md): each
-item below goes through the coder/hardener pipeline that plan sets up.
+Each item goes through the coder/hardener pipeline (`implement-issue`), set up
+in #230.
 
 ## Why
 
@@ -27,7 +27,7 @@ What Veil already has, so none of these gets rebuilt:
 | `gate-ratchet` | `check-quality-gates.sh`, which is stricter: it also checks excludes, `@Generated` and ArchUnit ignore files | Covered |
 | SCRAP (spec structure) | Full PMD catalogue (#226), including its JUnit rules | Mostly covered, so skip |
 | `deintroverter` (assertions that never touch `src`) | PIT: an assertion-free test kills no mutants | Mostly covered, so skip |
-| `shell-check` (the Quil shell decides nothing) | None | Deferred. There is no mechanical Java version worth building yet. The "Single answer" checklist line in the other plan covers the judgment part |
+| `shell-check` (the Quil shell decides nothing) | None | Deferred. There is no mechanical Java version worth building yet. The "Single answer" judgment-checklist line (`docs/clean-code-gate.md`) covers the judgment part |
 
 What to build, in dependency order:
 
@@ -139,8 +139,8 @@ against expectations. The human then only has to check feel and rendering.
 - Write procedures for `main-menu`, `map-movement` and `inventory-toggle`
   first.
 
-**Wiring.** Enable the QA step in `implement-issue`. The other plan ships it
-disabled because nothing exists to run yet. Add a "QA runs" section to
+**Wiring.** Add the QA step to `implement-issue`. #230 left it out
+because nothing existed to run yet. Add a "QA runs" section to
 `docs/testing.md`.
 
 **Done when.** `QaRunner --all` passes on `develop`, and a planted wrong
