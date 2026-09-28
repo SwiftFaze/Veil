@@ -1,5 +1,6 @@
 ---
 name: brainstorm-milestone
+model: opus
 description: Plan a big feature out loud, split it into a sequence of GitHub issues, and file them together under one new numbered milestone, skipping specs/intent/ entirely — the multi-issue sibling of brainstorm-issue. Use when the user wants to plan a feature arc big enough to need several issues, not spec it through the full intent -> .feature -> approval pipeline.
 ---
 
@@ -164,12 +165,10 @@ gh issue edit <number> --repo SwiftFaze/Veil --milestone "<n>. <Title>"
 
 ## Step 5 — Add each to the project board and set priority
 
-Same as `brainstorm-issue` Step 4, for every issue created in Step 4:
-
-```
-gh project item-add 2 --owner SwiftFaze --url <issue-url>
-gh project item-edit 2 --owner SwiftFaze --url <issue-url> --field "Priority" --value "<P0|P1|P2>"
-```
+Same as `brainstorm-issue` Step 5, for every issue created in Step 4: add it
+to the board and set `Priority` with the snippet in
+[`docs/project-board.md`](../../../docs/project-board.md), and run its
+read-back check before reporting.
 
 ## Step 6 — Report back
 

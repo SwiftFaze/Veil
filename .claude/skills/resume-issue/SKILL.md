@@ -106,8 +106,8 @@ Before resuming, state in a few lines:
 
 Unless `--report-only` was passed, continue the pipeline from the resume point,
 following `.claude/workflow.md` for that step exactly as a fresh run would —
-including `.claude/subagent-delegation.md` before dispatching Steps 4-7, and
-the blocking `check-clean.sh` gate.
+including the `implement-issue` skill for Steps 4-7 (`--from-hardener <sha>` if
+the coder's commit already exists), and the blocking `check-clean.sh` gate.
 
 Two things to get right on a resume specifically:
 
@@ -125,3 +125,9 @@ mid-conflict.
 Checkpoint at each step boundary and suggest clearing, per
 `.claude/workflow.md`'s session-management notes — a resumed session is already
 carrying the reconciliation you just did.
+
+<!-- added 2026-09-28: spec-feature's `model: opus` pin lasts one turn, so its multi-turn grilling loop falls back to the session model -->
+**Resume point is Step 2 → hand back instead of running `/spec-feature`.** Its
+`model: opus` pin covers only the invoking turn; every grilling round after the
+user's first answer would run on this session's model. Tell the user to switch
+with `/model opus` and run `/spec-feature <slug>` themselves.

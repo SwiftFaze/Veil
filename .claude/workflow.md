@@ -36,31 +36,25 @@ gets built. Pay the approval latency only where being wrong is expensive.
    regenerate `.feature`, then ask what's still open.
 3. **Human approval — high-risk path only** — stop and wait. Do not proceed on
    your own.
-4. **Implementation** (Haiku 4.5) — **read `.claude/subagent-delegation.md`
-   before dispatching.** It covers agent type/model, handoff prompt contents,
-   staying in one agent across 4→5→7, and verifying what comes back.
-    - **The Clean Code gate is mandatory and blocking.** You may not report
-      this step finished until `bash .claude/tools/check-clean.sh` exits 0 and
-      you have answered every line of the judgment checklist it prints, with
-      evidence. It is the same command the orchestrator runs to verify you.
-      <!-- added 2026-09-06: replaces the hand-run PMD loop. develop is red
-           from pre-existing violations, so the gate scopes to added lines. -->
-      Rules, thresholds and carve-outs: `docs/clean-code-gate.md`.
+4. **Implementation** (`coder`, `.claude/agents/coder.md`) — **run Steps 4-7
+   through the `implement-issue` skill** (`.claude/skills/implement-issue/`).
+   <!-- added 2026-09-28: one agent owning Steps 4-7 was overloaded; split into coder and hardener -->
+   It owns the coder → commit → playtest → hardener handoff, prompt contents,
+   verifying what comes back, and where the PR fits. The Clean Code gate
+   (`check-clean.sh`, `docs/clean-code-gate.md`) is the hardener's
+   (`.claude/agents/hardener.md`), not this step's.
+    - **Test-first.** Write the failing JUnit test before the code that passes
+      it. Uncle Bob's three laws of TDD are the default loop, not an aspiration.
     - **Respect the module dependency direction** — `ModuleDependencyTest`
       (ArchUnit) fails the build if engine code depends on
       `com.swiftfaze.veil.ui`, or a `ui.widget` class depends on a screen in
       `com.swiftfaze.veil.ui`. Fix by inverting the dependency or extracting an
       interface, never by weakening the rule.
-    - The gate's checklist mechanizes `uncle-bob-craft`; read that skill for the
-      design lens. Neither makes implementation code human-reviewed.
-    - **UI work:** the handoff prompt must include `docs/ui-styling.md` itself,
-      not a secondhand summary — Step 4 agents are told not to explore.
     - **Swing rendering/layout/sizing/text changes must be visually verified**
-      before the step is done — `mvn test` passing proves the code runs, not
-      that it renders correctly; no test here asserts on pixels or rendered
-      text. Technique: `docs/ui-verification.md`. This is the agent checking
-      itself; it does not replace the human playtest (`CLAUDE.md` Step 4.5).
-5. **Acceptance tests** (Haiku 4.5, same agent as Step 4) — wire the `.feature`
+      — no test here asserts on pixels or rendered text. Technique:
+      `docs/ui-verification.md`. It doesn't replace the human playtest
+      (`CLAUDE.md` Step 4.5); say which screens changed so the playtest covers them.
+5. **Acceptance tests** (`coder`, same agent as Step 4) — wire the `.feature`
    file to the runner so it's executable, not documentation.
       <!-- added 2026-09-06: the duplicate-step check that used to be a manual
            grep here is now NoDuplicateStepDefinitionsTest, so the prose is gone.
@@ -69,11 +63,11 @@ gets built. Pay the approval latency only where being wrong is expensive.
       `UiComponentFrameworkSteps.java`, which backs several features), run
       `mvn clean verify` **twice** and require identical results. One green run
       isn't evidence when shared test infrastructure changed.
-6. **Mutation testing** (tooling, no model) — run it against new/changed code.
-   This is the check on the unit tests, since they aren't reviewed. Confirm
-   `pom.xml`'s `targetClasses` actually includes the feature's new classes
-   before trusting the score.
-7. **Documentation** (Haiku 4.5, same agent as Steps 4-5) — part of done, not
+6. **Mutation testing** (`hardener`, after the gate is clean) — PIT against
+   new/changed code. This is the check on the unit tests, since they aren't
+   reviewed. Confirm `pom.xml`'s `targetClasses` actually includes the
+   feature's new classes before trusting the score.
+7. **Documentation** (`hardener`, same agent as Step 6) — part of done, not
    cleanup:
     - New domain concept, non-obvious design decision, or a deviation from an
       existing pattern → add/update an entry in `docs/`.
@@ -104,7 +98,8 @@ interface whose signature mandates 5+ parameters may carry
 complexity, length, coverage, or the module rule.
 
 **SLAP (Single Level of Abstraction) is not enforced** — no tool backs it here.
-It's design guidance from the `uncle-bob-craft` checklist in Step 4; don't
+It's design guidance from the `uncle-bob-craft` checklist the hardener
+applies (`.claude/agents/hardener.md`); don't
 describe it as a build gate.
 
 These thresholds are a deliberate dial for agent-authored code, not a constant.

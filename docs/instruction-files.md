@@ -20,8 +20,8 @@ actually costs — a line in `CLAUDE.md` is paid on every task, a line in a
 | File | Loaded | Budget | Now |
 |---|---|---|---|
 | `CLAUDE.md` | every session | 100 lines | 95 |
-| `.claude/workflow.md` | every pipeline step | 150 lines | 148 |
-| `.claude/subagent-delegation.md` | on dispatch | 90 lines | 74 |
+| `.claude/workflow*.md` | every pipeline step | 145 lines | 145 |
+| `.claude/agents/*.md` | every agent run | 60 lines | 54–59 |
 | `.claude/skills/*/SKILL.md` | on skill use | 215 lines | 28–210 |
 | `docs/*.md` | on demand | 250 lines | 11–226 |
 
@@ -69,7 +69,7 @@ restatement — two copies drift, and the reader cannot tell which is current.
 |---|---|
 | Pipeline sequencing, gates, thresholds | `.claude/workflow.md` |
 | Test layers, runners, test mechanics | `docs/testing.md` |
-| Delegating a step to a subagent | `.claude/subagent-delegation.md` |
+| Delegating Steps 4-7 to subagents | `implement-issue` skill; each role in `.claude/agents/` |
 | Release, versioning, changelog | `docs/release.md` |
 | Swing layout, spacing, colour | `docs/ui-styling.md` |
 | Repo-wide hard prohibitions, entry points | `CLAUDE.md` |

@@ -7,7 +7,7 @@
 #
 #   every session      CLAUDE.md                     tightest budget
 #   every pipeline step .claude/workflow.md
-#   on dispatch        .claude/subagent-delegation.md
+#   every agent run    .claude/agents/*.md
 #   on skill use       .claude/skills/*/SKILL.md
 #   on demand          docs/*.md                     loosest budget
 #
@@ -38,8 +38,11 @@ VERBOSE=0
 # needs to be bigger.
 BUDGETS=(
   "CLAUDE.md:100"
-  ".claude/workflow.md:150"
-  ".claude/subagent-delegation.md:90"
+  # Glob, not the one path: a workflow variant is loaded the same way and decays
+  # the same way, so a new one must not land unmeasured.
+  ".claude/workflow*.md:145"
+  # Baselined 2026-09-28 at the larger agent file (hardener.md) when added.
+  ".claude/agents/*.md:60"
   ".claude/skills/*/SKILL.md:215"
   "docs/*.md:250"
 )
