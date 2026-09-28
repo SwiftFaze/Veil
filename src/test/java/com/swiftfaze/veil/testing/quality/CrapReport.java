@@ -1,5 +1,8 @@
 package com.swiftfaze.veil.testing.quality;
 
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -37,31 +40,40 @@ public final class CrapReport {
 
     /** Exit code plus the lines printed for the human; the violations are the FAIL lines. */
     public record Result(int exitCode, List<String> messages) {
+        public Result {
+            messages = List.copyOf(messages);
+        }
     }
 
     private CrapReport() {
     }
 
-    public static void main(String[] args) {
-        boolean reportOnly = args.length > 0 && "--report-only".equals(args[0]);
+    // exec:java runs inside Maven's own JVM, so a System.exit here would kill Maven too:
+    // an exception thrown from main fails the build cleanly instead.
+    public static void main(String[] arguments) {
+        boolean reportOnly = arguments.length > 0 && "--report-only".equals(arguments[0]);
         Result result = run(Paths.get("").toAbsolutePath(), reportOnly);
         result.messages().forEach(System.out::println);
         if (result.exitCode() != PASS) {
-            // exec:java runs inside Maven's JVM, where System.exit would kill Maven itself;
-            // an exception from main fails the build cleanly instead.
             throw new IllegalStateException("CRAP gate failed with exit code " + result.exitCode());
         }
     }
 
+    /**
+     * Catches every failure mode {@link #runChecked} can raise (malformed input as well as I/O and
+     * XML parsing) and turns it into a {@link #CANNOT_RUN} result rather than crashing the build with
+     * a raw stack trace.
+     */
     public static Result run(Path root, boolean reportOnly) {
         try {
             return runChecked(root, reportOnly);
-        } catch (Exception e) {
+        } catch (IOException | ParserConfigurationException | SAXException | IllegalArgumentException e) {
             return new Result(CANNOT_RUN, List.of("CRAP gate could not run: " + e));
         }
     }
 
-    private static Result runChecked(Path root, boolean reportOnly) throws Exception {
+    private static Result runChecked(Path root, boolean reportOnly)
+            throws IOException, ParserConfigurationException, SAXException {
         Path jacocoXml = root.resolve(JACOCO_XML);
         if (!Files.exists(jacocoXml)) {
             return new Result(CANNOT_RUN, List.of("CRAP gate could not run: JaCoCo report not found: " + JACOCO_XML));
@@ -93,8 +105,8 @@ public final class CrapReport {
             throw new IOException(PROPERTIES + " not found");
         }
         Properties properties = new Properties();
-        try (InputStream in = Files.newInputStream(propertiesFile)) {
-            properties.load(in);
+        try (InputStream inputStream = Files.newInputStream(propertiesFile)) {
+            properties.load(inputStream);
         }
         String max = properties.getProperty("crap.max");
         if (max == null) {

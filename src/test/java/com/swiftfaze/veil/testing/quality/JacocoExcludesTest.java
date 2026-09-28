@@ -2,7 +2,10 @@ package com.swiftfaze.veil.testing.quality;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -11,18 +14,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JacocoExcludesTest {
 
+    private static final String THREE_EXCLUDE_GLOBS = "<execution><id>jacoco-check</id><configuration><excludes>"
+            + "<exclude>**/Main.class</exclude><exclude>**/Main$*.class</exclude>"
+            + "<exclude>**/ui/widget/Widget.class</exclude></excludes></configuration></execution>";
+
     @TempDir
     Path dir;
 
     @Test
-    void matchesTheCheckExecutionsGlobsAgainstSlashSeparatedClassNames() throws Exception {
-        JacocoExcludes excludes = excludesFrom("<execution><id>jacoco-check</id><configuration><excludes>"
-                + "<exclude>**/Main.class</exclude><exclude>**/Main$*.class</exclude>"
-                + "<exclude>**/ui/widget/Widget.class</exclude></excludes></configuration></execution>");
+    void matchesEveryConfiguredGlobAgainstItsSlashSeparatedClassName() throws Exception {
+        JacocoExcludes excludes = excludesFrom(THREE_EXCLUDE_GLOBS);
 
         assertTrue(excludes.matches("com/swiftfaze/veil/Main"));
         assertTrue(excludes.matches("com/swiftfaze/veil/Main$1"));
         assertTrue(excludes.matches("com/swiftfaze/veil/ui/widget/Widget"));
+    }
+
+    @Test
+    void doesNotMatchAClassNameThatOnlySharesAPrefixWithAGlob() throws Exception {
+        JacocoExcludes excludes = excludesFrom(THREE_EXCLUDE_GLOBS);
+
         assertFalse(excludes.matches("com/swiftfaze/veil/MainMenu"));
         assertFalse(excludes.matches("com/swiftfaze/veil/ui/widget/WidgetTheme"));
     }
@@ -50,11 +61,11 @@ class JacocoExcludesTest {
         assertTrue(JacocoExcludes.fromPom(writePom(pom)).isEmpty());
     }
 
-    private JacocoExcludes excludesFrom(String executions) throws Exception {
+    private JacocoExcludes excludesFrom(String executions) throws IOException, ParserConfigurationException, SAXException {
         return JacocoExcludes.fromPom(writePom(executions)).orElseThrow();
     }
 
-    private Path writePom(String executions) throws Exception {
+    private Path writePom(String executions) throws IOException {
         Path pom = dir.resolve("pom.xml");
         Files.writeString(pom, "<project><build><plugins><plugin><executions>" + executions
                 + "</executions></plugin></plugins></build></project>");

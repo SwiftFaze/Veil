@@ -15,13 +15,15 @@ import java.util.Locale;
  */
 final class CrapOutputs {
 
+    private static final Comparator<MethodCoverage> WORST_FIRST = Comparator.comparingDouble(MethodCoverage::crap).reversed();
+
     private CrapOutputs() {
     }
 
     static void write(Path root, List<MethodCoverage> methods, CrapGate gate, List<String> failures)
             throws IOException {
         List<MethodCoverage> worstFirst = new ArrayList<>(methods);
-        worstFirst.sort(Comparator.comparingDouble(MethodCoverage::crap).reversed());
+        worstFirst.sort(WORST_FIRST);
         writeFile(root.resolve(CrapReport.CRAP_TXT), table(worstFirst, gate, failures));
         writeFile(root.resolve(CrapReport.CRAP_EDN), edn(worstFirst));
     }

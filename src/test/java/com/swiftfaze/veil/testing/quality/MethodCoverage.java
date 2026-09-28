@@ -10,6 +10,9 @@ package com.swiftfaze.veil.testing.quality;
  */
 record MethodCoverage(String className, String method, int complexity, int linesMissed, int linesCovered) {
 
+    private static final double PERCENT = 100.0;
+    private static final double ONE_DECIMAL_PLACE = 10.0;
+
     String fqcn() {
         return className.replace('/', '.');
     }
@@ -25,7 +28,7 @@ record MethodCoverage(String className, String method, int complexity, int lines
     }
 
     int coveragePercent() {
-        return (int) Math.round(coverage() * 100);
+        return (int) Math.round(coverage() * PERCENT);
     }
 
     double crap() {
@@ -35,6 +38,6 @@ record MethodCoverage(String className, String method, int complexity, int lines
 
     /** The score as reported and as recorded in the baseline: one decimal place. */
     double roundedCrap() {
-        return Math.round(crap() * 10.0) / 10.0;
+        return Math.round(crap() * ONE_DECIMAL_PLACE) / ONE_DECIMAL_PLACE;
     }
 }

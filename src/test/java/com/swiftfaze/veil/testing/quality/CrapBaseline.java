@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * crap-baseline.txt: methods allowed over {@code crap.max}, each capped at its recorded
@@ -13,6 +14,9 @@ import java.util.Map;
  * line. Overloads share a key, so a repeated key keeps the worse score.
  */
 final class CrapBaseline {
+
+    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
+    private static final int KEY_AND_SCORE = 2;
 
     private CrapBaseline() {
     }
@@ -27,8 +31,8 @@ final class CrapBaseline {
             if (line.isEmpty() || line.startsWith("#")) {
                 continue;
             }
-            String[] parts = line.split("\\s+");
-            if (parts.length != 2) {
+            String[] parts = WHITESPACE.split(line);
+            if (parts.length != KEY_AND_SCORE) {
                 throw new IllegalArgumentException("Malformed crap-baseline.txt line: " + raw);
             }
             entries.merge(parts[0], Double.parseDouble(parts[1]), Math::max);

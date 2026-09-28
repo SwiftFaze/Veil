@@ -16,6 +16,7 @@ import java.util.Map;
 final class CrapGate {
 
     private static final double TOLERANCE = 1e-9;
+    private static final String FAIL_PREFIX = "FAIL ";
 
     private final double max;
     private final Map<String, Double> baseline;
@@ -33,7 +34,7 @@ final class CrapGate {
         }
         for (String key : baseline.keySet()) {
             if (!worstByKey.containsKey(key)) {
-                failures.add("FAIL " + key + " is in crap-baseline.txt but not in the JaCoCo report:"
+                failures.add(FAIL_PREFIX + key + " is in crap-baseline.txt but not in the JaCoCo report:"
                         + " remove its baseline entry");
             }
         }
@@ -48,19 +49,24 @@ final class CrapGate {
         return method.crap() > max + TOLERANCE;
     }
 
+    /** Split so the negation lives only in the "back within the limit" branch, not as an else-of-negation. */
     private void checkMethod(MethodCoverage method, List<String> failures) {
         Double recorded = baseline.get(method.key());
-        if (recorded == null) {
-            if (isOverLimit(method)) {
-                failures.add("FAIL " + method.key() + " complexity " + method.complexity()
-                        + ", coverage " + method.coveragePercent() + "%, CRAP " + CrapFormat.score(method.roundedCrap())
-                        + " exceeds the limit " + CrapFormat.limit(max));
-            }
-        } else if (!isOverLimit(method)) {
-            failures.add("FAIL " + method.key() + " CRAP " + CrapFormat.score(method.roundedCrap())
+        if (isOverLimit(method)) {
+            checkOverLimitMethod(method, recorded, failures);
+        } else if (recorded != null) {
+            failures.add(FAIL_PREFIX + method.key() + " CRAP " + CrapFormat.score(method.roundedCrap())
                     + " is now within the limit " + CrapFormat.limit(max) + ": remove its baseline entry");
+        }
+    }
+
+    private void checkOverLimitMethod(MethodCoverage method, Double recorded, List<String> failures) {
+        if (recorded == null) {
+            failures.add(FAIL_PREFIX + method.key() + " complexity " + method.complexity()
+                    + ", coverage " + method.coveragePercent() + "%, CRAP " + CrapFormat.score(method.roundedCrap())
+                    + " exceeds the limit " + CrapFormat.limit(max));
         } else if (method.roundedCrap() > recorded + TOLERANCE) {
-            failures.add("FAIL " + method.key() + " got worse: baselined at " + CrapFormat.score(recorded)
+            failures.add(FAIL_PREFIX + method.key() + " got worse: baselined at " + CrapFormat.score(recorded)
                     + ", now " + CrapFormat.score(method.roundedCrap()));
         }
     }

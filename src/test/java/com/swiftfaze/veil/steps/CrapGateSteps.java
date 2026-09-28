@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,15 +31,15 @@ public class CrapGateSteps {
 
     private static final String SAMPLE_CLASS = "com/example/Sample";
     private static final String DEFAULT_EXCLUDES = "<exclude>**/Excluded.class</exclude>";
+    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
+    /** Generous headroom for the fixture XML's header plus every method/counter tag appended after it. */
+    private static final int FIXTURE_XML_CAPACITY = 1024;
 
     /** Line counters that give a complexity-4 method the scores the baseline scenarios name. */
     private static final Map<String, int[]> COMPLEXITY_4_SCORES = Map.of(
             "13.3", new int[] {5, 1},
             "20.0", new int[] {6, 0},
             "4.0", new int[] {0, 6});
-
-    private record Fixture(String className, String method, int complexity, int missed, int covered) {
-    }
 
     private Path root;
     private final List<Fixture> methods = new ArrayList<>();
@@ -47,6 +48,9 @@ public class CrapGateSteps {
     private boolean writeJacocoReport = true;
     private String baseline = "";
     private CrapReport.Result result;
+
+    private record Fixture(String className, String method, int complexity, int missed, int covered) {
+    }
 
     @After
     public void deleteFixtureRoot() throws IOException {
@@ -168,7 +172,7 @@ public class CrapGateSteps {
     public void crapTxtListsEveryMethodWorstFirst() throws IOException {
         List<String> rows = crapTxt().stream().filter(l -> l.contains("com.example.Sample#")).toList();
         assertEquals(methods.size(), rows.size(), () -> "Rows: " + rows);
-        List<Double> scores = rows.stream().map(r -> Double.parseDouble(r.trim().split("\\s+")[0])).toList();
+        List<Double> scores = rows.stream().map(r -> Double.parseDouble(WHITESPACE.split(r.trim())[0])).toList();
         List<Double> sorted = new ArrayList<>(scores);
         sorted.sort(Comparator.reverseOrder());
         assertEquals(sorted, scores, "crap.txt is not worst first");
@@ -269,7 +273,7 @@ public class CrapGateSteps {
                     .append(counter("COMPLEXITY", m.complexity(), 0))
                     .append("</method>");
         }
-        StringBuilder xml = new StringBuilder("<report name=\"fixture\"><package name=\"fixture\">");
+        StringBuilder xml = new StringBuilder(FIXTURE_XML_CAPACITY).append("<report name=\"fixture\"><package name=\"fixture\">");
         classes.forEach((name, body) -> xml.append("<class name=\"").append(name).append("\">")
                 .append(body).append("</class>"));
         return xml.append("</package></report>").toString();

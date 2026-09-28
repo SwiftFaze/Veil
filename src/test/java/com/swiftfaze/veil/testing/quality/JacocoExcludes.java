@@ -3,7 +3,10 @@ package com.swiftfaze.veil.testing.quality;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +24,8 @@ import java.util.regex.Pattern;
 final class JacocoExcludes {
 
     private static final String EXECUTION_ID = "jacoco-check";
+    private static final char SINGLE_STAR = '*';
+    private static final char SINGLE_QUESTION = '?';
 
     private final List<Pattern> patterns;
 
@@ -29,7 +34,7 @@ final class JacocoExcludes {
     }
 
     /** Empty when the pom has no {@code jacoco-check} execution with an {@code <excludes>} list. */
-    static Optional<JacocoExcludes> fromPom(Path pom) throws Exception {
+    static Optional<JacocoExcludes> fromPom(Path pom) throws IOException, ParserConfigurationException, SAXException {
         Document doc = XmlDocuments.parse(pom);
         NodeList executions = doc.getElementsByTagName("execution");
         for (int i = 0; i < executions.getLength(); i++) {
@@ -56,10 +61,15 @@ final class JacocoExcludes {
         for (int e = 0; e < entries.getLength(); e++) {
             String glob = entries.item(e).getTextContent().trim();
             if (!glob.isEmpty()) {
-                patterns.add(Pattern.compile(globToRegex(glob)));
+                patterns.add(compileGlob(glob));
             }
         }
         return Optional.of(new JacocoExcludes(patterns));
+    }
+
+    /** Each call compiles a different exclude entry, not one fixed pattern reused. */
+    private static Pattern compileGlob(String glob) {
+        return Pattern.compile(globToRegex(glob));
     }
 
     private static String firstText(Element parent, String tag) {
@@ -70,30 +80,30 @@ final class JacocoExcludes {
     /** Ant-style glob: {@code **}/ spans directories, {@code *} and {@code ?} stay within one. */
     static String globToRegex(String glob) {
         StringBuilder regex = new StringBuilder();
-        int i = 0;
-        while (i < glob.length()) {
-            i = appendToken(glob, i, regex);
+        int index = 0;
+        while (index < glob.length()) {
+            index = appendToken(glob, index, regex);
         }
         return regex.toString();
     }
 
-    private static int appendToken(String glob, int i, StringBuilder regex) {
-        if (glob.startsWith("**/", i)) {
+    private static int appendToken(String glob, int index, StringBuilder regex) {
+        if (glob.startsWith("**/", index)) {
             regex.append("(?:.*/)?");
-            return i + 3;
+            return index + "**/".length();
         }
-        if (glob.startsWith("**", i)) {
+        if (glob.startsWith("**", index)) {
             regex.append(".*");
-            return i + 2;
+            return index + "**".length();
         }
-        char ch = glob.charAt(i);
-        if (ch == '*') {
+        char character = glob.charAt(index);
+        if (character == SINGLE_STAR) {
             regex.append("[^/]*");
-        } else if (ch == '?') {
+        } else if (character == SINGLE_QUESTION) {
             regex.append("[^/]");
         } else {
-            regex.append(Pattern.quote(String.valueOf(ch)));
+            regex.append(Pattern.quote(String.valueOf(character)));
         }
-        return i + 1;
+        return index + 1;
     }
 }

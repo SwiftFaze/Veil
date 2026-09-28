@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -88,7 +89,7 @@ class CrapReportTest {
         assertTrue(result.messages().get(0).contains("could not find the exclusion list"));
     }
 
-    private void writeJacoco(String methods) throws Exception {
+    private void writeJacoco(String methods) throws IOException {
         Files.createDirectories(root.resolve("target/site/jacoco"));
         Files.writeString(root.resolve(CrapReport.JACOCO_XML),
                 "<report><package><class name=\"a/B\">" + methods + "</class></package></report>");

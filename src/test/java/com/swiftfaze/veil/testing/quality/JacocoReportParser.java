@@ -3,7 +3,10 @@ package com.swiftfaze.veil.testing.quality;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +17,7 @@ final class JacocoReportParser {
     private JacocoReportParser() {
     }
 
-    static List<MethodCoverage> parse(Path jacocoXml) throws Exception {
+    static List<MethodCoverage> parse(Path jacocoXml) throws IOException, ParserConfigurationException, SAXException {
         Document doc = XmlDocuments.parse(jacocoXml);
         List<MethodCoverage> methods = new ArrayList<>();
         NodeList classes = doc.getElementsByTagName("class");
