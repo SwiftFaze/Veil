@@ -56,7 +56,6 @@ public class GameEventLogSteps {
     @When("the player chooses \"New Game\"")
     public void thePlayerChoosesNewGame() {
         titleScreenPanel.moveDown();
-        eventLog.getEvents().clear();
         titleScreenPanel.confirm();
     }
 
@@ -214,12 +213,12 @@ public class GameEventLogSteps {
     @Then("the log contains exactly one `ScreenChanged` from \"title\" to \"game\"")
     public void theLogContainsExactlyOneScreenChangedFromTitleToGame() {
         List<GameEvent> events = eventLog.getEvents();
-        long count = events.stream().filter(e -> e instanceof GameEvent.ScreenChanged).count();
-        assertEquals(1, count);
-        GameEvent.ScreenChanged sc = events.stream()
+        List<GameEvent.ScreenChanged> screenChanges = events.stream()
             .filter(e -> e instanceof GameEvent.ScreenChanged)
             .map(e -> (GameEvent.ScreenChanged) e)
-            .findFirst().orElseThrow();
+            .toList();
+        assertEquals(1, screenChanges.size());
+        GameEvent.ScreenChanged sc = screenChanges.get(0);
         assertEquals("title", sc.from());
         assertEquals("game", sc.to());
     }
