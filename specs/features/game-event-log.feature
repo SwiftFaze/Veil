@@ -1,4 +1,3 @@
-@pending
 Feature: Game event log records what the game did
   A QA replay (qa-key-replay.feature) needs to know what the game *did*, not
   just what it drew. `GameListener` only carries UI callbacks

@@ -90,6 +90,10 @@ public class GamePanel extends JPanel {
         return player;
     }
 
+    public WorldScene getScene() {
+        return scene;
+    }
+
     public void setPaused(boolean paused) {
         this.paused = paused;
     }
