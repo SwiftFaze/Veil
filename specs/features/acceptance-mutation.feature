@@ -1,4 +1,3 @@
-@pending
 Feature: Acceptance mutation tests the acceptance tests
   PIT mutates the code to test the unit tests. Nothing tests the acceptance
   tests themselves: if a step definition ignores its `<n>` argument, every

@@ -7,5 +7,6 @@ public class Hooks {
     @After
     public void cleanupScenarioContext() {
         SharedScenarioContext.cleanup();
+        AcceptanceMutationContext.cleanup();
     }
 }
