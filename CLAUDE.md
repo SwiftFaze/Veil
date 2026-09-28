@@ -84,8 +84,8 @@ pipeline step, not every session. Repo-specific file layout:
 
 Two repo-specific pipeline steps, both mandatory:
 
-- **Step 4.5 — human playtest.** After implementation, before acceptance tests:
-  the human runs `mvn compile exec:java` and plays the changed behavior. Tests
+- **Step 4.5 — human playtest.** After the coder's commit, before the hardener
+  (`implement-issue`): the human runs `mvn compile exec:java` and plays the changed behavior. Tests
   prove the code does what the spec says, not whether movement, navigation, or
   rendering *feel* right. For a multi-area change, playtest each area as it
   lands, not once at the end. Record what was tested in the PR description. No
