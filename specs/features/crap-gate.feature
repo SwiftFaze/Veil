@@ -29,6 +29,10 @@ Feature: CRAP gate links per-method complexity to per-method coverage
   raises a recorded score, and the gate fails on a stale entry, so a fixed
   method must be removed.
 
+  The five ratchet scenarios exercise `check-quality-gates.sh`, a CI shell
+  script with no Java code path, so they are tagged `@manual-verification`
+  like quality-gate-ratchet.feature and verified by running the script.
+
   Covers: the report, the gate, the baseline, the `crap.max` and baseline
   ratchets in `check-quality-gates.sh`, and the `check-clean.sh` section.
   Supersedes: nothing. The complexity and coverage floors in
@@ -123,27 +127,32 @@ Feature: CRAP gate links per-method complexity to per-method coverage
     When the CRAP report runs in gate mode
     Then it fails, naming the entry and saying it must be removed
 
+  @manual-verification
   Scenario: Adding a baseline entry fails the ratchet
     Given a PR that adds a line to `crap-baseline.txt`
     When `check-quality-gates.sh` runs
     Then it fails, naming the added entry
     And the failure message states that a baseline entry is a gate weakening and needs a stated reason in the PR
 
+  @manual-verification
   Scenario: Raising a recorded baseline score fails the ratchet
     Given a PR that raises a method's score in `crap-baseline.txt`
     When `check-quality-gates.sh` runs
     Then it fails, naming the method, its base-branch score and the proposed score
 
+  @manual-verification
   Scenario: Removing a baseline entry passes the ratchet
     Given a PR that removes a line from `crap-baseline.txt`
     When `check-quality-gates.sh` runs
     Then it passes
 
+  @manual-verification
   Scenario: Raising `crap.max` fails the ratchet
     Given a PR that raises `crap.max` above its value on the base branch
     When `check-quality-gates.sh` runs
     Then it fails, naming `crap.max`, its base-branch value and the proposed value
 
+  @manual-verification
   Scenario: Lowering `crap.max` passes the ratchet
     Given a PR that lowers `crap.max` below its value on the base branch
     When `check-quality-gates.sh` runs
