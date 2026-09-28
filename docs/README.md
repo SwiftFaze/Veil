@@ -14,4 +14,5 @@
 - [`ui-verification.md`](ui-verification.md) — how to visually verify a Swing UI change actually renders correctly, since this project's tests don't assert on pixel layout or rendered text.
 - [`wiki.md`](wiki.md) — the split between `docs/` (for contributors) and the player-facing [GitHub wiki](https://github.com/SwiftFaze/Veil/wiki) (for game content/numbers).
 - [`clean-code-gate.md`](clean-code-gate.md) — the one command (`.claude/tools/check-clean.sh`) a subagent must pass before reporting a task finished and the orchestrator runs to verify it: which Clean Code rules are automated, which are advisory heuristics, which stay judgment calls, and the checklist for those.
+- [`project-board.md`](project-board.md) — the one snippet skills use to set a `Status`/`Priority` field on the VEIL project board, and the read-back check that confirms it landed.
 - [`instruction-files.md`](instruction-files.md) — how `CLAUDE.md` and `.claude/*.md` are kept from decaying: size budgets tiered by load frequency, the one-canonical-home rule, the review checklist for changes to them, and the monthly audit.

@@ -66,22 +66,11 @@ separate linking step needed.
 
 ## Step 4 — Move the tracker item to In progress
 
-The issue must be on the VEIL project board (project number 2, owner
-`SwiftFaze`) before its status can be set. Add it if it isn't already
-there (ignore an "already exists" error from this call — it just means it
-was already added, e.g. by `brainstorm-issue`):
-
-```
-gh project item-add 2 --owner SwiftFaze --url <issue-url>
-```
-
-Then set its status:
-
-```
-gh project item-edit 2 --owner SwiftFaze --url <issue-url> --field "Status" --value "In progress"
-```
-
-(Exact option name is `In progress`, lowercase p — match it exactly.)
+Set the issue's `Status` to `In progress` (`FIELD="Status"`,
+`OPTION="In progress"`, lowercase p) with the snippet in
+[`docs/project-board.md`](../../../docs/project-board.md). It adds the issue to
+the VEIL board first if it isn't already there. Run its read-back check
+before reporting: the status must actually show `In progress`.
 
 ## Step 5 — Derive specs/intent/<slug>.md from the issue
 
