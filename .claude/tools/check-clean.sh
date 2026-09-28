@@ -562,7 +562,7 @@ report_text_smell \
   '\|[0-9]+\|.*(//|/\*|\*)[[:space:]]*(TODO|FIXME|XXX|HACK)' \
   "Do it now, or open an issue and reference it by number instead."
 
-# PMD suppressions. subagent-delegation.md says "fixed means decomposed"; this
+# PMD suppressions. workflow.md says to decompose, never disable a check; this
 # is that rule mechanized. The one documented exception (a JDK/library override
 # whose signature mandates 5+ params) is ExcessiveParameterList only.
 sup=$(grep -E '\|[0-9]+\|.*@SuppressWarnings\("PMD' "$WORK/added.txt" 2>/dev/null \

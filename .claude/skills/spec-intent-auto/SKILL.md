@@ -83,103 +83,51 @@ Since Step 0 already confirmed this is standard-path work, there is no
 Step 3 approval gate to wait for (`.claude/workflow.md`'s Step 3 is
 high-risk-path only) — move straight to implementation.
 
-## Step 4 — Implementation + acceptance tests + docs, in one Haiku handoff
+## Step 4 — Coder, then hardener, per implement-issue
 
-Follow `.claude/workflow.md`'s Step 4 model selection and
-`.claude/subagent-delegation.md`'s handoff rules exactly: dispatch a
-**fresh agent pinned to Haiku 4.5** (not `/fork`, unless the context
-genuinely can't be compressed — see that file's criteria) with a
-self-contained prompt built by you, the orchestrator —
-explicit file paths with line numbers, actual referenced code (not just
-names), and the reasoning already settled in `intent.md` and the
-`.feature` file. Tell it explicitly not to explore beyond what you hand
-it; if something's missing it should stop and report rather than
-scanning the repo.
+Run the `implement-issue` skill's sequence with one change: **no mid-pipeline
+playtest.** Dispatch `coder`, verify it, then go straight to `hardener` and
+verify that — both exactly as `implement-issue`'s "Dispatching" and
+"Verifying what comes back" sections say, including the escalation ladder.
+Don't open the PR at the end of that sequence; that is this skill's Step 6.
 
-Per the "Context handoff rule," this is one continuous handoff spanning
-Steps 4, 5, and 7 of the normal pipeline — implementation, wiring the
-`.feature` file to Cucumber, and the documentation update — not three
-separate delegations. Include in the prompt:
+The playtest is the one step this skill deliberately relocates: it happens
+once, at the very end (Step 5), not between the two agents. Include in the
+coder's prompt the `A (auto-decided):` entries from Step 2, so it builds what
+was decided rather than re-deciding it.
 
-- The complexity budget (root `CLAUDE.md`'s Constraints section).
-- The `uncle-bob-craft` self-check to apply while writing (not a separate
-  review pass).
-- The PMD fix-loop requirement (`mvn verify`, fix every violation, rerun
-  until clean) before reporting done.
-- The `ModuleDependencyTest` (ArchUnit) module-boundary rule.
-- The duplicate-step-definition check from workflow.md's Step 5 (the
-  `grep`/`sed`/`sort`/`uniq -d` one-liner) if this touches shared step
-  definitions, plus the "run `mvn clean test` twice" requirement in that
-  case.
-- Visual verification (`docs/ui-verification.md`) if the change touches
-  Swing rendering, layout, sizing, or text content.
-- The documentation requirements from workflow.md's Step 7, including the
-  wiki (`docs/wiki.md`) if this changes player-facing class stats,
-  attributes, or combat formulas.
-
-**Skip repo CLAUDE.md's Step 4.5 mid-pipeline playtest entirely — do not
-have the agent or yourself pause for it here.** That's the one step this
-skill deliberately relocates; it happens once, at the very end (Step 6
-below), not here.
-
-## Step 5 — Verify the handoff yourself, then run mutation testing
-
-Per "Verifying what comes back" in `.claude/subagent-delegation.md`: do not
-relay the Haiku agent's "done" report as fact. Independently open the
-files it claims to have changed, and re-run `mvn verify` yourself. If it's
-wrong, follow the escalation path in that file (corrective follow-up
-first, `/fork` only after a second same-class failure).
-
-Once `mvn verify` is genuinely clean, run mutation testing yourself
-(Step 6 of the normal pipeline, tooling only):
-
-```
-mvn org.pitest:pitest-maven:mutationCoverage
-```
-
-Skim the report in `target/pit-reports/`. This is a self-check, not
-something to relay unexamined — if coverage on the changed code looks
-weak, that's worth fixing before the playtest, not after.
-
-## Step 6 — Stop here: the one human checkpoint
+## Step 5 — Stop here: the one human checkpoint
 
 This is the only point in the run where you wait for the user. Report,
 in one message:
 
 - Branch name and what issue/slug it covers.
 - A short summary of what was implemented (not a full diff dump).
-- Confirmation that `mvn verify` is green (build, tests, PMD, CPD, JaCoCo,
-  ArchUnit) and mutation testing has been skimmed.
+- The coder's and hardener's commit shas, confirmation that `mvn verify` and
+  `check-clean.sh` are green when you ran them, and the PIT counts for the
+  changed classes.
 - Any `A (auto-decided):` entries from Step 2, so the human can see what
   was decided without them, not just what was asked.
 - Explicit instructions for the playtest: `mvn compile exec:java`, and
   what specifically to try given what changed.
 - That you're waiting for either "looks good" or a bug report before
-  going further — nothing is committed or pushed yet.
+  going further — nothing is pushed yet.
 
-Do not commit, push, or open a PR before this confirmation. If the user
-reports a problem instead, fix it, re-run the relevant checks from Step 5,
-and ask for the playtest again — don't silently re-expand scope while
-you're at it.
+Do not push or open a PR before this confirmation. If the user reports a
+problem instead, resume the coder with it (`implement-issue`'s hand-back),
+re-run the hardener and its verification, and ask for the playtest again —
+don't silently re-expand scope while you're at it.
 
-## Step 7 — Commit, push, open the PR
+## Step 6 — Push, open the PR
 
 Once the user confirms the playtest passed:
 
 1. Update `intent.md`'s Status checklist (Implemented, Manually
    playtested, Acceptance tests passing, Mutation testing passed,
    Documentation updated — all now true).
-2. Stage and commit with a Conventional Commits message, ending with this
-   session's attribution footer (see system reminder — do not use any
-   other attribution).
-3. Push the branch.
-4. Open the PR against `develop` (never `master` — see root `CLAUDE.md`'s
-   branch protection notes), referencing the source issue (`Closes #<n>`
-   only applies once merged into the actual default branch this repo uses
-   for auto-close, which per root `CLAUDE.md`'s Step 7.5 is not automatic
-   here — still write "Relates to #<n>" in the body for traceability, but
-   tell the user Step 7.5's manual `gh issue close` is still needed after
-   merge, same as every other feature PR in this repo).
-5. Report the PR URL and stop. Closing the issue (Step 7.5) and merging
-   are still separate, later, human-driven actions outside this skill's
-   scope.
+2. Push the branch.
+3. Open the PR against `develop` (never `master` — see root `CLAUDE.md`),
+   with `Closes #<n>` in the body (the `CLAUDE.md` rule; CI rejects a PR
+   without it) and what the playtest covered, in the user's words.
+4. Report the PR URL and stop. Merging is a separate, human-driven action
+   outside this skill's scope.

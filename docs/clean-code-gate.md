@@ -70,7 +70,7 @@ If the subagent worked in a git worktree, run it there, or pass
    file, function, or test*. "All good" is not an answer, and a checklist
    returned without evidence is the same signal as a skipped step.
 
-`.claude/subagent-delegation.md` still applies: a report is not evidence. The
+`implement-issue`'s "Verifying what comes back" still applies: a report is not evidence. The
 point of this tool is that verifying it costs one command.
 
 Other flags: `--all` (whole repo, for baselining — not the gate), `--files`
