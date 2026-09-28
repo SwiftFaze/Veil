@@ -248,10 +248,10 @@ public class GameEventLogSteps {
 
     @Then("the log contains no `PlayerMoved` event")
     public void theLogContainsNoPlayerMovedEvent() {
-        List<GameEvent.PlayerMoved> events = eventLog.getEvents().stream()
+        long count = eventLog.getEvents().stream()
             .filter(e -> e instanceof GameEvent.PlayerMoved)
-            .toList();
-        assertEquals(0, events.size());
+            .count();
+        assertEquals(0, count);
     }
 
     @Then("the log contains `PopupToggled` \"inventory\" open, then `PopupToggled` \"inventory\" closed")
