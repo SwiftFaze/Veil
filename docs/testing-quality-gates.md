@@ -67,6 +67,10 @@ gates. See [`testing.md`](testing.md) for the test layers themselves.
   ones) — see `pom.xml`'s `jacoco-check` execution for the full list.
 - **Mutation testing** (above) also carries a ratcheted `mutationThreshold`,
   enforced by the same `check-quality-gates.sh`.
+- **CRAP** (per-method complexity × coverage, `check-clean.sh` section 6) has
+  its own `crap.max` and `crap-baseline.txt` ratchets in the same script —
+  formula, baseline and how to lower a score: `docs/clean-code-gate.md`
+  § "CRAP (per-method complexity × coverage)".
 
 ## Compile-time gates (Error Prone + NullAway)
 

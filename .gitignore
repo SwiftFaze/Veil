@@ -10,3 +10,6 @@
 /specs/intent/*
 !/specs/intent/README.md
 !/specs/intent/TEMPLATE.md
+
+# CRAP gate metrics for uml-viewer (written by CrapReport during mvn verify)
+/.metrics/
