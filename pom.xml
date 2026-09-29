@@ -387,6 +387,7 @@
                     <threads>4</threads>
                     <outputFormats>
                         <param>HTML</param>
+                        <param>XML</param>
                     </outputFormats>
                     <!-- Added for #196: measured baseline on develop, fresh run against the
                          full targetClasses/excludedClasses lists above -
