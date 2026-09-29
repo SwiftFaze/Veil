@@ -2,6 +2,7 @@ package com.swiftfaze.veil.testing.qa;
 
 import com.google.gson.JsonObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,20 +23,25 @@ public final class EventMatcher {
      */
     public record Result(boolean passed, int matchedCount, List<JsonObject> expected, List<JsonObject> recordedAfter) {
 
+        public Result {
+            expected = List.copyOf(expected);
+            recordedAfter = List.copyOf(recordedAfter);
+        }
+
         public String describeFailure() {
             if (passed) {
                 return "";
             }
-            StringBuilder out = new StringBuilder();
-            out.append("first unmatched expected event (#").append(matchedCount + 1).append(" of ")
-                    .append(expected.size()).append("): ").append(expected.get(matchedCount)).append('\n');
-            out.append("events recorded after the last match (")
-                    .append(matchedCount == 0 ? "none matched" : "expected #" + matchedCount).append("):");
+            List<String> lines = new ArrayList<>();
+            lines.add("first unmatched expected event (#" + (matchedCount + 1) + " of " + expected.size() + "): "
+                    + expected.get(matchedCount));
+            lines.add("events recorded after the last match ("
+                    + (matchedCount == 0 ? "none matched" : "expected #" + matchedCount) + "):");
             if (recordedAfter.isEmpty()) {
-                out.append("\n  (none)");
+                lines.add("  (none)");
             }
-            recordedAfter.forEach(event -> out.append("\n  ").append(event));
-            return out.toString();
+            recordedAfter.forEach(event -> lines.add("  " + event));
+            return String.join("\n", lines);
         }
     }
 
@@ -48,7 +54,7 @@ public final class EventMatcher {
                 lastMatchIndex = i;
             }
         }
-        List<JsonObject> after = List.copyOf(recorded.subList(lastMatchIndex + 1, recorded.size()));
-        return new Result(matched == expected.size(), matched, List.copyOf(expected), after);
+        List<JsonObject> after = recorded.subList(lastMatchIndex + 1, recorded.size());
+        return new Result(matched == expected.size(), matched, expected, after);
     }
 }

@@ -23,7 +23,7 @@ public final class KeyScript {
         try {
             lines = Files.readAllLines(file);
         } catch (IOException e) {
-            throw new QaException("Cannot read key script " + file + ": " + e.getMessage());
+            throw new QaException("Cannot read key script " + file + ": " + e.getMessage(), e);
         }
         return parse(file.toString(), lines);
     }
@@ -49,7 +49,7 @@ public final class KeyScript {
             Field field = KeyEvent.class.getField("VK_" + name.toUpperCase(Locale.ROOT));
             return field.getInt(null);
         } catch (ReflectiveOperationException e) {
-            throw new QaException(fileName + ":" + lineNumber + ": unknown key '" + name + "'");
+            throw new QaException(fileName + ":" + lineNumber + ": unknown key '" + name + "'", e);
         }
     }
 }

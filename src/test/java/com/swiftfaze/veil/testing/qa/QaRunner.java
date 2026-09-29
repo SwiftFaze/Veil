@@ -11,6 +11,7 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,19 +21,12 @@ import java.util.stream.Stream;
 
 /**
  * Replays a {@code specs/qa/<slug>.keys} script as real key events against the real game
- * (booted in-process through {@link Main#main}) and checks the game event log against
- * {@code specs/qa/<slug>.json}. Test scope, local only: it opens a window and needs focus.
+ * (booted through {@link Main#main}) and checks the game event log against the slug's
+ * {@code .json}. Local only: it opens a window and needs focus. Usage and format:
+ * {@code docs/testing.md}, "QA runs".
  *
- * <pre>
- * mvn -q test-compile exec:java -Dexec.classpathScope=test \
- *     -Dexec.mainClass=com.swiftfaze.veil.testing.qa.QaRunner "-Dexec.args=map-movement"
- * mvn -q test-compile exec:java -Dexec.classpathScope=test \
- *     -Dexec.mainClass=com.swiftfaze.veil.testing.qa.QaRunner "-Dexec.args=--all"
- * </pre>
- *
- * Output is one PASS/FAIL line per procedure; the exit code is non-zero if any failed.
- * {@link #main} ends in {@code System.exit}: Swing's non-daemon EDT (and the game's own
- * timers) would otherwise keep the JVM, and so {@code exec:java}, alive forever.
+ * <p>{@link #main} ends in {@code System.exit} on purpose: Swing's non-daemon EDT (and the
+ * game's own timers) would otherwise keep the JVM, and so {@code exec:java}, alive forever.
  */
 public final class QaRunner {
     static final Path QA_DIR = Path.of("specs", "qa");
@@ -41,26 +35,30 @@ public final class QaRunner {
     private static final int POLL_MS = 50;
     private static final int SETTLE_MS = 150;
 
-    private QaRunner() {
+    private final PrintStream out;
+
+    private QaRunner(PrintStream out) {
+        this.out = out;
     }
 
-    public static void main(String[] args) {
-        int code;
+    public static void main(String[] arguments) {
+        QaRunner runner = new QaRunner(System.out);
+        int code = 1;
         try {
-            code = run(args);
-        } catch (RuntimeException e) {
-            System.out.println("FAIL: " + e.getMessage());
-            code = 1;
+            code = runner.run(arguments);
+        } catch (QaException e) {
+            runner.out.println("FAIL: " + e.getMessage());
+        } finally {
+            System.exit(code);
         }
-        System.exit(code);
     }
 
-    private static int run(String[] args) {
-        if (args.length != 1) {
-            System.out.println("usage: QaRunner <slug> | --all");
+    private int run(String[] arguments) {
+        if (arguments.length != 1) {
+            out.println("usage: QaRunner <slug> | --all");
             return 2;
         }
-        List<String> slugs = "--all".equals(args[0]) ? allSlugs() : List.of(args[0]);
+        List<String> slugs = "--all".equals(arguments[0]) ? allSlugs() : List.of(arguments[0]);
         int failures = 0;
         for (String slug : slugs) {
             if (!runOne(slug)) {
@@ -77,22 +75,22 @@ public final class QaRunner {
                     .map(n -> n.substring(0, n.lastIndexOf('.')))
                     .distinct().sorted().toList();
         } catch (IOException e) {
-            throw new QaException("Cannot list " + QA_DIR + ": " + e.getMessage());
+            throw new QaException("Cannot list " + QA_DIR + ": " + e.getMessage(), e);
         }
     }
 
-    private static boolean runOne(String slug) {
+    private boolean runOne(String slug) {
         try {
             // Loading (and so key-name validation) happens before any window opens.
             QaProcedure procedure = QaProcedure.load(QA_DIR, slug);
             EventMatcher.Result result = EventMatcher.match(procedure.expected(), replay(procedure));
             if (result.passed()) {
-                System.out.println("PASS " + slug);
+                out.println("PASS " + slug);
                 return true;
             }
-            System.out.println("FAIL " + slug + "\n" + result.describeFailure().indent(2).stripTrailing());
+            out.println("FAIL " + slug + "\n" + result.describeFailure().indent(2).stripTrailing());
         } catch (QaException e) {
-            System.out.println("FAIL " + slug + ": " + e.getMessage());
+            out.println("FAIL " + slug + ": " + e.getMessage());
         } finally {
             disposeAllWindows();
         }
@@ -120,7 +118,7 @@ public final class QaRunner {
             log.toFile().deleteOnExit();
             return log;
         } catch (IOException e) {
-            throw new QaException("Cannot create a temp event log: " + e.getMessage());
+            throw new QaException("Cannot create a temp event log: " + e.getMessage(), e);
         }
     }
 
@@ -163,10 +161,10 @@ public final class QaRunner {
         try {
             SwingUtilities.invokeAndWait(action);
         } catch (InvocationTargetException e) {
-            throw new QaException("Error on the event thread: " + e.getCause());
+            throw new QaException("Error on the event thread: " + e.getCause(), e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new QaException("Interrupted");
+            throw new QaException("Interrupted", e);
         }
     }
 
@@ -180,7 +178,7 @@ public final class QaRunner {
             }
             return events;
         } catch (IOException e) {
-            throw new QaException("Cannot read the event log " + log + ": " + e.getMessage());
+            throw new QaException("Cannot read the event log " + log + ": " + e.getMessage(), e);
         }
     }
 
@@ -195,7 +193,7 @@ public final class QaRunner {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new QaException("Interrupted");
+            throw new QaException("Interrupted", e);
         }
     }
 }

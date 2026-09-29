@@ -14,6 +14,11 @@ import java.util.List;
 /** A loaded {@code specs/qa/<slug>} procedure: the keys to press and the events to expect. */
 public record QaProcedure(String slug, List<Integer> keys, List<JsonObject> expected) {
 
+    public QaProcedure {
+        keys = List.copyOf(keys);
+        expected = List.copyOf(expected);
+    }
+
     public static QaProcedure load(Path dir, String slug) {
         Path keysFile = dir.resolve(slug + ".keys");
         Path jsonFile = dir.resolve(slug + ".json");
@@ -35,7 +40,7 @@ public record QaProcedure(String slug, List<Integer> keys, List<JsonObject> expe
         try {
             return JsonParser.parseString(Files.readString(file)).getAsJsonObject();
         } catch (IOException | JsonParseException | IllegalStateException e) {
-            throw new QaException("Cannot parse " + file + ": " + e.getMessage());
+            throw new QaException("Cannot parse " + file + ": " + e.getMessage(), e);
         }
     }
 

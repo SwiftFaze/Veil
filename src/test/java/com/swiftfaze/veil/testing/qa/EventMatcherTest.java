@@ -46,15 +46,33 @@ class EventMatcherTest {
     }
 
     @Test
-    void theDiffNamesTheFirstUnmatchedEventAndWhatWasRecordedAfterTheLastMatch() {
+    void theDiffNamesTheFirstUnmatchedEventAndItsPosition() {
         EventMatcher.Result result = EventMatcher.match(events(MOVED_6, MOVED_7), events(MENU, MOVED_6, MENU));
 
-        assertEquals(1, result.matchedCount());
         String diff = result.describeFailure();
+        assertEquals(1, result.matchedCount());
         assertTrue(diff.contains("#2 of 2"), diff);
         assertTrue(diff.contains("\"x\":7"), diff);
+    }
+
+    @Test
+    void theDiffListsOnlyWhatWasRecordedAfterTheLastMatch() {
+        String diff = EventMatcher.match(events(MOVED_6, MOVED_7), events(MENU, MOVED_6, MENU)).describeFailure();
+
         assertTrue(diff.contains("MenuSelectionChanged"), diff);
         assertFalse(diff.contains("\"x\":6"), diff);
+    }
+
+    @Test
+    void aPassingResultHasNoFailureText() {
+        assertEquals("", EventMatcher.match(events(MOVED_6), events(MOVED_6)).describeFailure());
+    }
+
+    @Test
+    void whenNothingWasRecordedAfterTheLastMatchTheDiffSaysNone() {
+        String diff = EventMatcher.match(events(MOVED_6, MOVED_7), events(MOVED_6)).describeFailure();
+
+        assertTrue(diff.contains("(none)"), diff);
     }
 
     @Test
@@ -62,7 +80,6 @@ class EventMatcherTest {
         String diff = EventMatcher.match(events(MOVED_7), events(MENU, MOVED_6)).describeFailure();
 
         assertTrue(diff.contains("none matched"), diff);
-        assertTrue(diff.contains("MenuSelectionChanged"), diff);
-        assertTrue(diff.contains("\"x\":6"), diff);
+        assertTrue(diff.contains("MenuSelectionChanged") && diff.contains("\"x\":6"), diff);
     }
 }

@@ -5,4 +5,8 @@ public class QaException extends RuntimeException {
     public QaException(String message) {
         super(message);
     }
+
+    public QaException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
