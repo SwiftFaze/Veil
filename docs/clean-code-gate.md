@@ -39,8 +39,10 @@ is untracked and `git diff` cannot see it.
 
 ## Running it
 
-**Subagent, before reporting a task finished** — this is mandatory, see
-`.claude/workflow.md` Step 4:
+**Subagent, before reporting a task finished** (mandatory, see
+`.claude/workflow.md` Step 4) **and orchestrator, verifying a subagent's
+report** — the identical command, from the same branch (a worktree: run it
+there, or pass `--base <the branch point>`):
 
 ```
 bash .claude/tools/check-clean.sh
@@ -53,15 +55,7 @@ During the edit loop, `--fast` skips `mvn verify` for a quicker signal. A
 `--fast` run is never sufficient to report a task finished, and the script says
 so in its own output.
 
-**Orchestrator, verifying a subagent's report** — the same command, from the
-same branch:
-
-```
-bash .claude/tools/check-clean.sh
-```
-
-If the subagent worked in a git worktree, run it there, or pass
-`--base <the branch point>`. What to check in the report:
+Orchestrator, what to check in the report:
 
 1. Exit status is 0.
 2. Every **advisory** finding the script listed has a disposition in the report
@@ -121,68 +115,73 @@ their own.
 Advisory is not "ignorable". An advisory finding with no disposition is an
 incomplete report.
 
+## CRAP (per-method complexity × coverage)
+
+Row 1's caps are independent: a CC-8 method at 0% coverage passes both.
+`CrapReport` (test scope, `check-clean.sh` section 6,
+`specs/features/crap-gate.feature`) links them per method:
+
+    CRAP(m) = CC(m)^2 * (1 - cov(m))^3 + CC(m)
+
+At 100% coverage a method passes up to CC 10 (`crap.max`,
+`quality-gates.properties`); at 0% only up to CC 2. `target/crap/crap.txt`
+lists every method worst-first with its complexity, coverage and score.
+
+9 methods were already over the limit when the gate landed; they're
+baselined in `crap-baseline.txt` (`<FQCN>#<method> <score>`) and pass at or
+under their recorded score. Shrink-only, ratcheted like the other gates'
+floors — see `docs/testing-quality-gates.md`.
+
+**To lower a score:** decomposition moves complexity to the extracted method,
+it doesn't remove it — CRAP falls only when a branch is actually eliminated
+or the method gains real coverage. A split helps only when the *caller's*
+complexity also drops, e.g. a CC-8 method becoming a CC-2 orchestrator plus a
+fully-covered CC-6 helper.
+
 ## Known carve-outs, and why
 
 Each of these was measured against this repo, not assumed:
 
 - **Find Security Bugs is excluded from SpotBugs.** Veil is an offline single-player desktop game with no network surface and no untrusted input beyond local mod JSON. That detector set (SQL injection, XSS, command injection, insecure cryptography, etc.) is built for web applications and would report almost entirely inapplicable noise. Only the core SpotBugs + fb-contrib detectors are loaded.
-- **SpotBugs `threshold` is `Medium`, not `High`.** Measured at `effort=Max`
-  against the full codebase: `High` reports 32 findings but misses
-  `EI_EXPOSE_REP`/`EI_EXPOSE_REP2` entirely — 0 of the 75 pre-existing
-  instances surface, which is the exact defect class row 10 exists to catch.
-  `Medium` reports 269 (236 unique) and includes all 75. `Low` reports 368
-  (335 unique) but adds no more `EI_EXPOSE_REP`/`REP2` instances than
-  `Medium` (39/36 either way) — only lower-precision noise (`S508C_*`
-  Swing-accessibility detectors, `FII_USE_FUNCTION_IDENTITY`, etc.). `Medium`
-  is the smallest threshold that still reports every rule `check-clean.sh`
-  classifies as blocking.
-
+- **SpotBugs `threshold` is `Medium`, not `High`.** Measured at `effort=Max`:
+  `High` misses `EI_EXPOSE_REP`/`EI_EXPOSE_REP2` entirely (0 of 75 pre-existing
+  instances); `Medium` catches all 75 plus 269 total findings; `Low` adds only
+  lower-precision noise on top of `Medium`, no more `EI_EXPOSE_REP`/`REP2`
+  instances. `Medium` is the smallest threshold that still reports every rule
+  `check-clean.sh` classifies as blocking.
 - **`x y z w h dx dy dw dh cx cy g g2 e id`** are exempt from the short-name
-  rule. The unmodified rule produced 224 hits, of which `e` (ActionEvent, 60),
-  `x`/`y` (tile coordinates, 48), `g` (Graphics2D, 16) and `id` (43) are all
-  clearer than any longer name. Names like `r` and `c` are still flagged —
-  checking their sites showed genuine "what is this?" locals.
-- **`logger` / `log`** are exempt from the constant-name pattern. It is the
-  slf4j convention the repo already follows; without this the rule fires on
-  every new file.
+  rule — measured clearer than any longer name at their sites (tile
+  coordinates, `Graphics2D`, `ActionEvent`). `r`/`c` are still flagged; their
+  sites were genuine "what is this?" locals.
+- **`logger` / `log`** are exempt from the constant-name pattern — the slf4j
+  convention the repo already follows.
 - **`VeilNoLogicInTests` is advisory**, not blocking. It fires on
-  `NoDuplicateStepDefinitionsTest`, which loops over step definitions on
-  purpose. Structural tests that scan the codebase legitimately contain a loop.
-- **Assert ceiling is 3, not 1.** One assert per test is the ideal, but a strict
-  1 flags every legitimate "assert the value AND that it was persisted" pair and
-  trains people to suppress the rule. The checklist enforces the real rule — one
+  `NoDuplicateStepDefinitionsTest`, a structural test that legitimately loops.
+- **Assert ceiling is 3, not 1.** A strict 1 flags legitimate "assert the value
+  AND that it was persisted" pairs. The checklist enforces the real rule — one
   *concept* per test.
 - **`GenericsNaming` and `AvoidLosingExceptionInformation` are absent.** PMD
   7.17 reports both as scheduled for removal in PMD 8.
 - **`FieldNamingConventions`'s `staticFieldPattern` matches `constantPattern`
   (UPPER_SNAKE).** `WidgetTheme`'s color fields are `public static` (not
   `final`, so `applyTheme()` can repopulate them from a mod-loaded theme) but
-  are conceptually fixed named color slots, each name mirroring a theme JSON
-  key 1:1 — the default camelCase `staticFieldPattern` would rename
-  `NORMAL_TEXT` to `normalText`, breaking that mapping for every one of its
-  12 pre-existing fields for no benefit. Surfaced 2026-09-07 when adding a
-  13th field (`TABLE_HEADER_TEXT`) put a line in this file into a diff for
-  the first time since the gate shipped.
-- **PMD bumped from 7.17.0 to 7.27.0 (#215).** 18 of the 196 native rules
-  the full-catalogue audit found only exist from PMD 7.2x onward — the
-  audit was done against PMD's current documentation, which is already
-  several releases ahead of what `maven-pmd-plugin` 3.28.0 manages by
-  default. Overridden via `pmd.version` in `pom.xml`. The bump also
-  shifted `ExcessiveParameterList`'s `minimum` semantics back to
-  minimum-to-trigger (`>=`); `.pmd-minimal.xml`'s `minimum` moved from 4
-  to 5 to keep the same effective threshold (5+ parameters fails) — see
-  that file's own comment.
+  each name mirrors a theme JSON key 1:1 — the default camelCase pattern would
+  rename `NORMAL_TEXT` to `normalText`, breaking that mapping for no benefit.
+- **PMD bumped from 7.17.0 to 7.27.0 (#215).** 18 of the 196 native rules the
+  full-catalogue audit found only exist from PMD 7.2x onward. Overridden via
+  `pmd.version` in `pom.xml`; also shifted `ExcessiveParameterList`'s
+  `minimum` back to minimum-to-trigger (`>=`), so `.pmd-minimal.xml` moved
+  4→5 to keep the same effective threshold — see that file's own comment.
 - **Not yet in any released PMD, so absent:** `OnDemandImport`,
   `TypeNameMismatch`, `CStyleArrayDeclaration`, `LongLiteralEndingWithLowercaseL`.
 - **`AvoidInstantiatingObjectsInLoops` is scoped to the render path**
-  (`GamePanel`, `PatternFieldWidget` — the only two classes in the repo
-  that override `paintComponent`/`paint`), not repo-wide. Allocation in a
-  ~60fps paint loop is a real defect; allocation in a cold loop (JSON
-  building, mod loading, test step definitions) is not, so applying it
-  repo-wide would flag correct code. `check-clean.sh`'s `RENDER_SCOPED_RULES`
-  routes this the same way `TEST_ONLY`/`MAIN_ONLY` route test-quality and
-  SRP rules. Repo-wide count measured before narrowing: 27 violations
-  across 9 files, none in either scoped file — see `impacts.md`.
+  (`GamePanel`, `PatternFieldWidget` — the only classes overriding
+  `paintComponent`/`paint`), not repo-wide: allocation in a ~60fps paint loop
+  is a real defect, in a cold loop (JSON building, mod loading) it is not.
+  `check-clean.sh`'s `RENDER_SCOPED_RULES` routes this like `TEST_ONLY`/
+  `MAIN_ONLY` route test-quality and SRP rules; repo-wide count measured
+  before narrowing was 27 violations across 9 files, none in either scoped
+  file — see `impacts.md`.
 
 ## Suppressions
 

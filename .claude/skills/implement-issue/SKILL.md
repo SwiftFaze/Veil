@@ -25,6 +25,11 @@ as the baseline (a hand-written commit, or one already built and playtested).
    `git status`). If not, stop and point to `/spec-feature`. Don't write the
    feature yourself.
 2. **Dispatch `coder`, verify its commit.** Run `mvn verify` yourself (below).
+   **Then QA:** `bash .claude/tools/check-qa-coverage.sh`. A changed `.feature` with
+   neither `specs/qa/<slug>.*` nor a `QA: none - <reason>` line blocks the handoff:
+   get a procedure or the line first. Then run each changed feature's procedure:
+   `mvn -q test-compile exec:java -Dexec.classpathScope=test -Dexec.mainClass=com.swiftfaze.veil.testing.qa.QaRunner "-Dexec.args=<slug>"`
+   (needs a desktop; `qa-key-replay.feature`). It narrows step 3, doesn't replace it.
 3. **Stop for the Step 4.5 human playtest** (`CLAUDE.md`). Say which screens
    changed (the coder's note) and what the tests don't cover. Wait for the human.
 4. **Dispatch `hardener`** with the coder's sha, then verify it (below),

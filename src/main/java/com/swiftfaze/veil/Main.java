@@ -3,18 +3,19 @@ package com.swiftfaze.veil;
 import com.swiftfaze.veil.config.SettingsConfig;
 import com.swiftfaze.veil.config.SettingsStore;
 import com.swiftfaze.veil.game.GamePanel;
+import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.mods.WidgetColorTheme;
 import com.swiftfaze.veil.ui.CodexPanel;
 import com.swiftfaze.veil.ui.GameWindow;
-import com.swiftfaze.veil.ui.HintAware;
 import com.swiftfaze.veil.ui.InventoryPanel;
 import com.swiftfaze.veil.ui.PauseMenuPopup;
 import com.swiftfaze.veil.ui.PauseToggleListener;
 import com.swiftfaze.veil.ui.PopupPanels;
 import com.swiftfaze.veil.ui.PopupToggleListener;
+import com.swiftfaze.veil.ui.ScreenNavigator;
 import com.swiftfaze.veil.ui.SettingsKeybindsPanel;
 import com.swiftfaze.veil.ui.SettingsKeybindsWindow;
 import com.swiftfaze.veil.ui.SettingsScreenPanel;
@@ -38,12 +39,57 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class Main {
-    private record ScreenDeck(CardLayout cardLayout, JPanel cardPanel, Map<String, JComponent> cards) {
+    /**
+     * The card deck the screens live in: what to do with it (add a screen, register a
+     * card for lookup, navigate, read the registry) without handing out the Swing
+     * container or the mutable registry itself.
+     */
+    private static final class ScreenDeck {
+        private final BiConsumer<Component, String> addScreen;
+        private final Consumer<JFrame> addTo;
+        private final BiConsumer<String, JComponent> register;
+        private final Map<String, JComponent> cardsView;
+        private final Consumer<String> navigateTo;
+
+        ScreenDeck(JPanel cardPanel, Map<String, JComponent> cards, Consumer<String> navigateTo) {
+            this.addScreen = cardPanel::add;
+            this.addTo = frame -> frame.add(cardPanel, BorderLayout.CENTER);
+            this.register = cards::put;
+            this.cardsView = Collections.unmodifiableMap(cards);
+            this.navigateTo = navigateTo;
+        }
+
+        void addScreen(Component screen, String name) {
+            addScreen.accept(screen, name);
+        }
+
+        void addTo(JFrame frame) {
+            addTo.accept(frame);
+        }
+
+        void register(String name, JComponent card) {
+            register.accept(name, card);
+        }
+
+        JComponent card(String name) {
+            return cardsView.get(name);
+        }
+
+        Map<String, JComponent> cardsView() {
+            return cardsView;
+        }
+
+        void navigateTo(String name) {
+            navigateTo.accept(name);
+        }
     }
 
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -63,22 +109,24 @@ public class Main {
         loadAndApplyDefaultTheme();
         Map<String, JComponent> cards = new HashMap<>();
         ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
+        GameEventLog eventLog = GameEventLog.fromSystemProperties();
 
-        GamePanel gamePanel = buildGameCard(cardPanel, cards, hintBar);
-        ScreenDeck deck = new ScreenDeck(cardLayout, cardPanel, cards);
-        buildUIScreens(deck, gamePanel, hintBar);
+        GamePanel gamePanel = buildGameCard(cardPanel, cards, hintBar, eventLog);
+        ScreenNavigator navigator = new ScreenNavigator(cardLayout, cardPanel, cards, eventLog);
+        ScreenDeck deck = new ScreenDeck(cardPanel, cards, navigator::navigateTo);
+        buildUIScreens(deck, gamePanel, hintBar, eventLog);
         wirePauseMenuNavigation(deck, gamePanel);
         wireDevConsole(gamePanel);
-        configureAndShowFrame(frame, deck, hintBar);
+        configureAndShowFrame(frame, deck, hintBar, navigator);
     }
 
-    private static GamePanel buildGameCard(JPanel cardPanel, Map<String, JComponent> cards, ControlsHintBarWidget hintBar) {
-        GamePanel gamePanel = new GamePanel();
+    private static GamePanel buildGameCard(JPanel cardPanel, Map<String, JComponent> cards, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
+        GamePanel gamePanel = new GamePanel(eventLog);
         InventoryPanel inventoryPanel = new InventoryPanel(hintBar);
         CodexPanel codexPanel = new CodexPanel(hintBar);
         PauseMenuPopup pauseMenuPopup = new PauseMenuPopup();
         cards.put("pause", pauseMenuPopup);
-        wirePopups(gamePanel, new PopupPanels(inventoryPanel, codexPanel, pauseMenuPopup), hintBar);
+        wirePopups(gamePanel, new PopupPanels(inventoryPanel, codexPanel, pauseMenuPopup), hintBar, eventLog);
 
         JLayeredPane gameContentArea = GameWindow.buildContentArea(gamePanel);
         gameContentArea.add(inventoryPanel, JLayeredPane.POPUP_LAYER);
@@ -95,7 +143,7 @@ public class Main {
     // Minimal stopgap wiring so the I/X toggles keep working with EastPanel gone — no
     // sidebar, no player-info display, just enough plumbing for the two popups to open/close/exclude
     // each other and hand focus back to the game on dismiss, same as EastPanel used to.
-    private static void wirePopups(GamePanel gamePanel, PopupPanels popups, ControlsHintBarWidget hintBar) {
+    private static void wirePopups(GamePanel gamePanel, PopupPanels popups, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
         ModRegistry mods = ModLoader.load(Paths.get("mods"));
         FocusManager focusManager = new FocusManager();
         InventoryPanel inventoryPanel = popups.inventory();
@@ -118,7 +166,7 @@ public class Main {
             restoreGameFocus(gamePanel, hintBar);
         });
 
-        gamePanel.addGameListener(new PopupToggleListener(inventoryPanel, codexPanel));
+        gamePanel.addGameListener(new PopupToggleListener(inventoryPanel, codexPanel, eventLog));
         gamePanel.addGameListener(new PauseToggleListener(gamePanel, pauseMenuPopup));
     }
 
@@ -127,34 +175,34 @@ public class Main {
         hintBar.setHints(GAME_HINTS);
     }
 
-    private static void buildUIScreens(ScreenDeck deck, GamePanel gamePanel, ControlsHintBarWidget hintBar) {
+    private static void buildUIScreens(ScreenDeck deck, GamePanel gamePanel, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
         TitleScreenPanel titleScreen = new TitleScreenPanel(menuItem -> {
             handleMenuSelection(menuItem, deck, gamePanel);
             if ("New".equals(menuItem)) {
                 hintBar.setHints(GAME_HINTS);
             }
-        }, hintBar);
+        }, hintBar, eventLog);
         SettingsStore settingsStore = new SettingsStore(Path.of("").toAbsolutePath());
         SettingsScreenPanel settingsScreen = new SettingsScreenPanel(
                 screen -> handleSettingsBack(screen, deck), Main::openFolder, hintBar, settingsStore);
         SettingsKeybindsPanel keybindsScreen = new SettingsKeybindsPanel(
-                screen -> navigateTo(deck, screen), hintBar, settingsStore);
-        deck.cards().put("title", titleScreen);
-        deck.cards().put("settings", settingsScreen);
-        deck.cards().put("keybinds", keybindsScreen);
-        deck.cardPanel().add(titleScreen, "title");
-        deck.cardPanel().add(SettingsWindow.buildContentArea(settingsScreen), "settings");
-        deck.cardPanel().add(SettingsKeybindsWindow.buildContentArea(keybindsScreen), "keybinds");
+                deck::navigateTo, hintBar, settingsStore);
+        deck.register("title", titleScreen);
+        deck.register("settings", settingsScreen);
+        deck.register("keybinds", keybindsScreen);
+        deck.addScreen(titleScreen, "title");
+        deck.addScreen(SettingsWindow.buildContentArea(settingsScreen), "settings");
+        deck.addScreen(SettingsKeybindsWindow.buildContentArea(keybindsScreen), "keybinds");
     }
 
     private static void handleMenuSelection(String menuItem, ScreenDeck deck, GamePanel gamePanel) {
         if ("New".equals(menuItem)) {
-            deck.cardLayout().show(deck.cardPanel(), "game");
+            deck.navigateTo("game");
             gamePanel.requestFocusInWindow();
             gamePanel.startGameLoop();
         } else if ("Settings".equals(menuItem)) {
-            ((SettingsScreenPanel) deck.cards().get("settings")).setBackTarget("title");
-            navigateTo(deck, "settings");
+            ((SettingsScreenPanel) deck.card("settings")).setBackTarget("title");
+            deck.navigateTo("settings");
         } else if ("Exit".equals(menuItem)) {
             System.exit(0);
         }
@@ -162,23 +210,23 @@ public class Main {
 
     private static void handleSettingsBack(String screen, ScreenDeck deck) {
         if ("pause".equals(screen)) {
-            deck.cardLayout().show(deck.cardPanel(), "game");
-            deck.cards().get("pause").requestFocusInWindow();
+            deck.navigateTo("game");
+            deck.card("pause").requestFocusInWindow();
         } else {
-            navigateTo(deck, screen);
+            deck.navigateTo(screen);
         }
     }
 
     private static void wirePauseMenuNavigation(ScreenDeck deck, GamePanel gamePanel) {
-        PauseMenuPopup pauseMenuPopup = (PauseMenuPopup) deck.cards().get("pause");
-        SettingsScreenPanel settingsScreen = (SettingsScreenPanel) deck.cards().get("settings");
+        PauseMenuPopup pauseMenuPopup = (PauseMenuPopup) deck.card("pause");
+        SettingsScreenPanel settingsScreen = (SettingsScreenPanel) deck.card("settings");
         pauseMenuPopup.setOnMenuSelect(item -> {
             if (PauseMenuPopup.SETTINGS.equals(item)) {
                 settingsScreen.setBackTarget("pause");
-                navigateTo(deck, "settings");
+                deck.navigateTo("settings");
             } else if (PauseMenuPopup.EXIT_TO_MAIN_MENU.equals(item)) {
                 gamePanel.resetState();
-                navigateTo(deck, "title");
+                deck.navigateTo("title");
             }
         });
     }
@@ -220,27 +268,28 @@ public class Main {
         });
     }
 
-    private static void configureAndShowFrame(JFrame frame, ScreenDeck deck, ControlsHintBarWidget hintBar) {
+    private static void configureAndShowFrame(JFrame frame, ScreenDeck deck, ControlsHintBarWidget hintBar,
+                                              ScreenNavigator navigator) {
         // Border lives on the frame's content pane, not on any individual screen, so it's
         // flush against the true window edge and shows on every card (title/settings/
         // keybinds/game) uniformly rather than only around whichever panel drew its own.
         ((JComponent) frame.getContentPane()).setBorder(
                 BorderFactory.createLineBorder(WidgetTheme.WINDOW_BORDER, 2));
         frame.setLayout(new BorderLayout());
-        frame.add(deck.cardPanel(), BorderLayout.CENTER);
+        deck.addTo(frame);
         frame.add(hintBar, BorderLayout.SOUTH);
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        wireWindowMode(frame, deck.cards());
+        wireWindowMode(frame, deck.cardsView());
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-        deck.cardLayout().show(deck.cardPanel(), "title");
+        navigator.showInitial("title");
         // cardPanel.getComponent(0) is whichever card was added to the container FIRST
         // (the "game" card, added in buildGameCard() before buildUIScreens() adds "title") -
         // not whichever card CardLayout is currently showing. Requesting focus on that
         // hidden, non-showing component silently fails, so no component ever holds
         // keyboard focus. Look the actually-visible card up by name instead.
-        deck.cards().get("title").requestFocusInWindow();
+        deck.card("title").requestFocusInWindow();
     }
 
     // Must run before any screen/widget is constructed below - they read WidgetTheme's
@@ -251,17 +300,6 @@ public class Main {
         WidgetColorTheme defaultTheme = mods.getTheme("core:default");
         if (defaultTheme != null) {
             WidgetTheme.applyTheme(defaultTheme);
-        }
-    }
-
-    private static void navigateTo(ScreenDeck deck, String cardName) {
-        deck.cardLayout().show(deck.cardPanel(), cardName);
-        JComponent target = deck.cards().get(cardName);
-        if (target != null) {
-            target.requestFocusInWindow();
-            if (target instanceof HintAware hintAware) {
-                hintAware.refreshHints();
-            }
         }
     }
 

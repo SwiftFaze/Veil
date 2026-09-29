@@ -5,7 +5,10 @@ import com.swiftfaze.veil.input.Keybindings;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.Action;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,6 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GamePanelTest {
+    private static final int PAINT_WIDTH = 300;
+    private static final int PAINT_HEIGHT = 225;
 
     @Test
     void constructorInitializes() {
@@ -20,6 +25,31 @@ class GamePanelTest {
 
         assertEquals(com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_X, panel.getPlayer().getX());
         assertEquals(com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_Y, panel.getPlayer().getY());
+    }
+
+    /**
+     * Paints into an off-screen image, so it runs the same with or without a display.
+     * Without it, paintComponent is only covered when some other test happens to show
+     * a real window, and CI (headless) scores it at 0% coverage in the CRAP gate.
+     */
+    @Test
+    void paintingRendersTheWorldIntoTheGraphics() {
+        GamePanel panel = new GamePanel();
+        panel.setSize(PAINT_WIDTH, PAINT_HEIGHT);
+        BufferedImage image = new BufferedImage(PAINT_WIDTH, PAINT_HEIGHT, BufferedImage.TYPE_INT_RGB);
+
+        Graphics2D graphics = image.createGraphics();
+        panel.paint(graphics);
+        graphics.dispose();
+
+        assertTrue(distinctColours(image) > 1, "painting should draw tiles and glyphs, not one flat fill");
+    }
+
+    private static long distinctColours(BufferedImage image) {
+        return IntStream.range(0, image.getHeight())
+                .flatMap(y -> IntStream.range(0, image.getWidth()).map(x -> image.getRGB(x, y)))
+                .distinct()
+                .count();
     }
 
     @Test

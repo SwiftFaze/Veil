@@ -2,6 +2,8 @@ package com.swiftfaze.veil.ui;
 
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.GameListener;
+import com.swiftfaze.veil.game.event.GameEvent;
+import com.swiftfaze.veil.game.event.GameEventLog;
 
 /**
  * Minimal stopgap wiring so the I/X toggles keep working with EastPanel gone —
@@ -9,12 +11,20 @@ import com.swiftfaze.veil.game.GameListener;
  * the inventory and codex popups, same behavior EastPanel used to provide.
  */
 public class PopupToggleListener implements GameListener {
+    static final String INVENTORY = "inventory";
+
     private final InventoryPanel inventoryPanel;
     private final CodexPanel codexPanel;
+    private final GameEventLog eventLog;
 
     public PopupToggleListener(InventoryPanel inventoryPanel, CodexPanel codexPanel) {
+        this(inventoryPanel, codexPanel, GameEventLog.noOp());
+    }
+
+    public PopupToggleListener(InventoryPanel inventoryPanel, CodexPanel codexPanel, GameEventLog eventLog) {
         this.inventoryPanel = inventoryPanel;
         this.codexPanel = codexPanel;
+        this.eventLog = eventLog;
     }
 
     @Override
@@ -26,11 +36,13 @@ public class PopupToggleListener implements GameListener {
     public void toggleInventory() {
         if (inventoryPanel.isVisible()) {
             inventoryPanel.dismiss();
+            eventLog.recordEvent(GameEvent.popupToggled(INVENTORY, false));
         } else {
             if (codexPanel.isVisible()) {
                 codexPanel.dismiss();
             }
             inventoryPanel.open();
+            eventLog.recordEvent(GameEvent.popupToggled(INVENTORY, true));
         }
     }
 

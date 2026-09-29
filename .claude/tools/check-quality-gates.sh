@@ -24,6 +24,9 @@
 #   - a newly added (or reintroduced) archunit_ignore_patterns.txt anywhere
 #     in the tree - this file makes ArchUnit silently skip any violation
 #     matching its regex patterns, and nothing in the filename says so
+#   - a raised (or removed) crap.max in quality-gates.properties, or an
+#     added entry / raised score in crap-baseline.txt (the CRAP gate;
+#     here RAISING the number is the weakening)
 #   - new @Generated usage in src/main/java - JaCoCo (0.8.2+) and PIT both
 #     drop any class/method carrying an annotation whose SIMPLE NAME is
 #     Generated from the coverage denominator, regardless of which package
@@ -256,6 +259,49 @@ while IFS= read -r f; do
   echo "::error file=$f::archunit_ignore_patterns.txt makes ArchUnit silently skip any violation matching its regex patterns - nothing about the filename says so. Adding or changing one is a gate weakening - state the reason in the PR body, or remove the offending rule from the frozen violation store the normal way instead."
   status=1
 done <<< "$ignore_file_hits"
+
+# ---------------------------------------------------------------------------
+# CRAP gate (specs/features/crap-gate.feature). The direction is the REVERSE of
+# the coverage floors above: RAISING crap.max is the weakening. crap-baseline.txt
+# may only shrink: an added entry or a raised recorded score is a weakening, a
+# removed entry passes. A base branch without either file (the change that
+# introduces the gate) has nothing to ratchet against, so it passes.
+# ---------------------------------------------------------------------------
+
+# Prints "<key> <score>" per baseline entry, skipping comments and blank lines.
+baseline_entries() {
+  awk '!/^[[:space:]]*(#|$)/ { print $1, $2 }'
+}
+
+base_crap_max=$(git show "$BASE_REV:quality-gates.properties" 2>/dev/null   | sed -n 's/^crap\.max[[:space:]]*=[[:space:]]*//p' | tr -d '[:space:]')
+head_crap_max=$(sed -n 's/^crap\.max[[:space:]]*=[[:space:]]*//p' quality-gates.properties 2>/dev/null   | tr -d '[:space:]')
+if [ -n "$base_crap_max" ]; then
+  if [ -z "$head_crap_max" ]; then
+    echo "::error file=quality-gates.properties::crap.max was removed (base branch: $base_crap_max) - that disables the CRAP gate."
+    status=1
+  elif awk -v h="$head_crap_max" -v b="$base_crap_max" 'BEGIN { exit !(h > b) }'; then
+    echo "::error file=quality-gates.properties::crap.max raised: base branch $base_crap_max, proposed $head_crap_max."
+    echo "  Raising the CRAP limit weakens the gate. If it is genuinely justified, state why in the PR."
+    status=1
+  fi
+fi
+
+if git cat-file -e "$BASE_REV:crap-baseline.txt" 2>/dev/null; then
+  base_entries=$(git show "$BASE_REV:crap-baseline.txt" | baseline_entries)
+  head_entries=$( { cat crap-baseline.txt 2>/dev/null || true; } | baseline_entries)
+  while read -r key head_score; do
+    [ -n "$key" ] || continue
+    base_score=$(awk -v k="$key" '$1 == k { print $2; exit }' <<< "$base_entries")
+    if [ -z "$base_score" ]; then
+      echo "::error file=crap-baseline.txt::baseline entry added: $key $head_score"
+      echo "  A baseline entry is a gate weakening: it exempts a method from crap.max. State the reason in the PR."
+      status=1
+    elif awk -v h="$head_score" -v b="$base_score" 'BEGIN { exit !(h > b) }'; then
+      echo "::error file=crap-baseline.txt::baseline score raised for $key: base branch $base_score, proposed $head_score"
+      status=1
+    fi
+  done <<< "$head_entries"
+fi
 
 # ---------------------------------------------------------------------------
 # @Generated usage in src/main/java: JaCoCo (0.8.2+) and PIT both drop any

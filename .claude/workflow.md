@@ -64,9 +64,9 @@ gets built. Pay the approval latency only where being wrong is expensive.
       `mvn clean verify` **twice** and require identical results. One green run
       isn't evidence when shared test infrastructure changed.
 6. **Mutation testing** (`hardener`, after the gate is clean) — PIT against
-   new/changed code. This is the check on the unit tests, since they aren't
-   reviewed. Confirm `pom.xml`'s `targetClasses` actually includes the
-   feature's new classes before trusting the score.
+   new/changed code (the check on the unit tests; confirm `pom.xml`'s `targetClasses`
+   includes the new classes). Also run the acceptance mutator with `--feature <slug>`
+   per changed `.feature`: [`docs/testing-acceptance.md`](../docs/testing-acceptance.md#acceptance-mutation).
 7. **Documentation** (`hardener`, same agent as Step 6) — part of done, not
    cleanup:
     - New domain concept, non-obvious design decision, or a deviation from an

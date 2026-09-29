@@ -159,7 +159,7 @@ else
   # One property covers PMD and CPD - both executions share the plugin's
   # <configuration>. It is wired through pom.xml's <properties>, because a -D
   # is ignored when the value is set literally in the plugin configuration.
-  if mvn -B verify -Dpmd.failOnViolation=false > "$MVN_LOG" 2>&1; then
+  if mvn -B verify -Dpmd.failOnViolation=false -Dcrap.mode=--report-only > "$MVN_LOG" 2>&1; then
     echo "  PASS  compile, unit + acceptance + integration tests, 85% line"
     echo "        coverage, ArchUnit module dependency direction + structure"
   else
@@ -581,6 +581,33 @@ if [ "$text_fail" -eq 0 ]; then
 else
   blocking=$((blocking + 1))
   sections_failed="$sections_failed text-smells"
+fi
+
+# ---------------------------------------------------------------------------
+# 6. CRAP (per-method complexity x coverage), repo-wide
+#    Section 1 ran the CRAP gate with -Dcrap.mode=--report-only so the build
+#    could finish; this section decides from its report. Not diff-scoped:
+#    CRAP is per method, and crap-baseline.txt already covers legacy methods.
+# ---------------------------------------------------------------------------
+
+hr
+echo "6. CRAP (per-method complexity x coverage, crap.max in quality-gates.properties)"
+hr
+
+CRAP_REPORT="target/crap/crap.txt"
+if [ "$RUN_MVN" = 0 ]; then
+  echo "  SKIP  --fast skipped mvn verify, so no CRAP report was produced"
+elif [ ! -f "$CRAP_REPORT" ]; then
+  echo "  FAIL  $CRAP_REPORT was not produced - the CRAP gate did not run"
+  blocking=$((blocking + 1))
+  sections_failed="$sections_failed crap"
+elif grep -q '^FAIL ' "$CRAP_REPORT"; then
+  echo "  FAIL  $(grep -c '^FAIL ' "$CRAP_REPORT") CRAP violation(s) (split the method or cover it; see docs/clean-code-gate.md):"
+  grep '^FAIL ' "$CRAP_REPORT" | sed 's/^/    /'
+  blocking=$((blocking + 1))
+  sections_failed="$sections_failed crap"
+else
+  echo "  PASS  every method within crap.max or at/under its crap-baseline.txt score"
 fi
 
 # ---------------------------------------------------------------------------

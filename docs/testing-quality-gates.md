@@ -20,6 +20,9 @@ gates. See [`testing.md`](testing.md) for the test layers themselves.
   coverage constraint is easy to satisfy with weak assertions; mutation
   score catches that) — not a substitute for acceptance tests or the
   Step 4.5 manual playtest.
+- PIT mutates `src/main` bytecode only, so test-scope tooling
+  (`testing.aps`, `testing.qa`, `testing.quality`, `testing.uml`) cannot be a target, and the acceptance features have their own
+  mutator: [`testing-acceptance.md`](testing-acceptance.md#acceptance-mutation).
 - `<mutationThreshold>` in `pom.xml`: 51% (measured baseline 1088/2115
   mutations killed). Ratcheted by the same `check-quality-gates.sh` as the
   JaCoCo floors below. Stays a manual command, not bound to `mvn verify`.
@@ -67,6 +70,10 @@ gates. See [`testing.md`](testing.md) for the test layers themselves.
   ones) — see `pom.xml`'s `jacoco-check` execution for the full list.
 - **Mutation testing** (above) also carries a ratcheted `mutationThreshold`,
   enforced by the same `check-quality-gates.sh`.
+- **CRAP** (per-method complexity × coverage, `check-clean.sh` section 6) has
+  its own `crap.max` and `crap-baseline.txt` ratchets in the same script —
+  formula, baseline and how to lower a score: `docs/clean-code-gate.md`
+  § "CRAP (per-method complexity × coverage)".
 
 ## Compile-time gates (Error Prone + NullAway)
 

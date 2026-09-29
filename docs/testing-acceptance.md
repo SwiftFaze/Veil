@@ -93,6 +93,42 @@ correct single-method pattern (guard with `if (x == null) { build it }
 else { just assert }`) when the same text is genuinely reused as both a
 fresh-build precondition and a later assertion.
 
+## Acceptance mutation
+
+PIT mutates production code; nothing else tests the `.feature` files. A step
+definition that ignores its `{int}` argument passes every scenario. The
+acceptance mutator changes each literal in a scenario and expects that scenario
+to fail. Spec: `specs/features/acceptance-mutation.feature`. It is test-scope
+(`com.swiftfaze.veil.testing.aps`), a manual Step 6 command for the hardener
+like PIT, not a CI gate.
+
+```
+mvn -q exec:java -Dexec.classpathScope=test \
+  -Dexec.mainClass=com.swiftfaze.veil.testing.aps.AcceptanceMutator \
+  -Dexec.args="--feature <slug>"
+```
+
+- **When:** hardener, Step 6, once per changed or added `.feature`
+  (`--feature <slug>`, no `.feature` suffix). Omit `--feature` only for a
+  whole-suite baseline; runtime grows with literals x scenario cost.
+- **Mutations:** integers +1/-1, quoted strings swapped for another quoted
+  value in the same file, each `Examples` cell on its own row. Features and
+  scenarios tagged `@pending` or `@manual-verification` are skipped and listed.
+- **Exit codes:** `0` no survivors; `3` a mutant survived; `2` something could
+  not be checked (unknown slug, scenario failing unmutated, run found no test).
+  `2` wins over `3`.
+- **Reading survivors:** `SURVIVED  <file>:<line>  <original> → <mutant>` means
+  the scenario still passed with that literal changed, so a step (or an
+  assertion) ignores it. Fix the step definition to use the value, or the
+  scenario to assert it; a survivor that is genuinely equivalent is named as
+  such in the report, not left silent.
+- **Do not pass `-Dcucumber.features`.** The engine lets that property
+  override every selector, so each nested run would execute those features
+  instead of the mutant; the runner throws if it is set.
+- Nested runs use their own glue package and thread, and the mutator's own
+  fixtures live in `src/test/resources/aps-fixtures/` (outside `features/`),
+  so they never join the real suite.
+
 ## Approval tests
 
 Approval tests compare rendered output (the ASCII glyph grid) against committed
