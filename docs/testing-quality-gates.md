@@ -21,7 +21,7 @@ gates. See [`testing.md`](testing.md) for the test layers themselves.
   score catches that) — not a substitute for acceptance tests or the
   Step 4.5 manual playtest.
 - PIT mutates `src/main` bytecode only, so test-scope tooling
-  (`testing.aps`) cannot be a target, and the acceptance features have their own
+  (`testing.aps`, `testing.uml`) cannot be a target, and the acceptance features have their own
   mutator: [`testing-acceptance.md`](testing-acceptance.md#acceptance-mutation).
 - `<mutationThreshold>` in `pom.xml`: 51% (measured baseline 1088/2115
   mutations killed). Ratcheted by the same `check-quality-gates.sh` as the
