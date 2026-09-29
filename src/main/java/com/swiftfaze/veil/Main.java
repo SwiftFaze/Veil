@@ -39,14 +39,57 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class Main {
-    private record ScreenDeck(CardLayout cardLayout, JPanel cardPanel, Map<String, JComponent> cards,
-                              Consumer<String> navigateTo) {
+    /**
+     * The card deck the screens live in: what to do with it (add a screen, register a
+     * card for lookup, navigate, read the registry) without handing out the Swing
+     * container or the mutable registry itself.
+     */
+    private static final class ScreenDeck {
+        private final BiConsumer<Component, String> addScreen;
+        private final Consumer<JFrame> addTo;
+        private final BiConsumer<String, JComponent> register;
+        private final Map<String, JComponent> cardsView;
+        private final Consumer<String> navigateTo;
+
+        ScreenDeck(JPanel cardPanel, Map<String, JComponent> cards, Consumer<String> navigateTo) {
+            this.addScreen = cardPanel::add;
+            this.addTo = frame -> frame.add(cardPanel, BorderLayout.CENTER);
+            this.register = cards::put;
+            this.cardsView = Collections.unmodifiableMap(cards);
+            this.navigateTo = navigateTo;
+        }
+
+        void addScreen(Component screen, String name) {
+            addScreen.accept(screen, name);
+        }
+
+        void addTo(JFrame frame) {
+            addTo.accept(frame);
+        }
+
+        void register(String name, JComponent card) {
+            register.accept(name, card);
+        }
+
+        JComponent card(String name) {
+            return cardsView.get(name);
+        }
+
+        Map<String, JComponent> cardsView() {
+            return cardsView;
+        }
+
+        void navigateTo(String name) {
+            navigateTo.accept(name);
+        }
     }
 
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -70,7 +113,7 @@ public class Main {
 
         GamePanel gamePanel = buildGameCard(cardPanel, cards, hintBar, eventLog);
         ScreenNavigator navigator = new ScreenNavigator(cardLayout, cardPanel, cards, eventLog);
-        ScreenDeck deck = new ScreenDeck(cardLayout, cardPanel, cards, navigator::navigateTo);
+        ScreenDeck deck = new ScreenDeck(cardPanel, cards, navigator::navigateTo);
         buildUIScreens(deck, gamePanel, hintBar, eventLog);
         wirePauseMenuNavigation(deck, gamePanel);
         wireDevConsole(gamePanel);
@@ -143,23 +186,23 @@ public class Main {
         SettingsScreenPanel settingsScreen = new SettingsScreenPanel(
                 screen -> handleSettingsBack(screen, deck), Main::openFolder, hintBar, settingsStore);
         SettingsKeybindsPanel keybindsScreen = new SettingsKeybindsPanel(
-                screen -> deck.navigateTo().accept(screen), hintBar, settingsStore);
-        deck.cards().put("title", titleScreen);
-        deck.cards().put("settings", settingsScreen);
-        deck.cards().put("keybinds", keybindsScreen);
-        deck.cardPanel().add(titleScreen, "title");
-        deck.cardPanel().add(SettingsWindow.buildContentArea(settingsScreen), "settings");
-        deck.cardPanel().add(SettingsKeybindsWindow.buildContentArea(keybindsScreen), "keybinds");
+                deck::navigateTo, hintBar, settingsStore);
+        deck.register("title", titleScreen);
+        deck.register("settings", settingsScreen);
+        deck.register("keybinds", keybindsScreen);
+        deck.addScreen(titleScreen, "title");
+        deck.addScreen(SettingsWindow.buildContentArea(settingsScreen), "settings");
+        deck.addScreen(SettingsKeybindsWindow.buildContentArea(keybindsScreen), "keybinds");
     }
 
     private static void handleMenuSelection(String menuItem, ScreenDeck deck, GamePanel gamePanel) {
         if ("New".equals(menuItem)) {
-            deck.navigateTo().accept("game");
+            deck.navigateTo("game");
             gamePanel.requestFocusInWindow();
             gamePanel.startGameLoop();
         } else if ("Settings".equals(menuItem)) {
-            ((SettingsScreenPanel) deck.cards().get("settings")).setBackTarget("title");
-            deck.navigateTo().accept("settings");
+            ((SettingsScreenPanel) deck.card("settings")).setBackTarget("title");
+            deck.navigateTo("settings");
         } else if ("Exit".equals(menuItem)) {
             System.exit(0);
         }
@@ -167,23 +210,23 @@ public class Main {
 
     private static void handleSettingsBack(String screen, ScreenDeck deck) {
         if ("pause".equals(screen)) {
-            deck.navigateTo().accept("game");
-            deck.cards().get("pause").requestFocusInWindow();
+            deck.navigateTo("game");
+            deck.card("pause").requestFocusInWindow();
         } else {
-            deck.navigateTo().accept(screen);
+            deck.navigateTo(screen);
         }
     }
 
     private static void wirePauseMenuNavigation(ScreenDeck deck, GamePanel gamePanel) {
-        PauseMenuPopup pauseMenuPopup = (PauseMenuPopup) deck.cards().get("pause");
-        SettingsScreenPanel settingsScreen = (SettingsScreenPanel) deck.cards().get("settings");
+        PauseMenuPopup pauseMenuPopup = (PauseMenuPopup) deck.card("pause");
+        SettingsScreenPanel settingsScreen = (SettingsScreenPanel) deck.card("settings");
         pauseMenuPopup.setOnMenuSelect(item -> {
             if (PauseMenuPopup.SETTINGS.equals(item)) {
                 settingsScreen.setBackTarget("pause");
-                deck.navigateTo().accept("settings");
+                deck.navigateTo("settings");
             } else if (PauseMenuPopup.EXIT_TO_MAIN_MENU.equals(item)) {
                 gamePanel.resetState();
-                deck.navigateTo().accept("title");
+                deck.navigateTo("title");
             }
         });
     }
@@ -233,11 +276,11 @@ public class Main {
         ((JComponent) frame.getContentPane()).setBorder(
                 BorderFactory.createLineBorder(WidgetTheme.WINDOW_BORDER, 2));
         frame.setLayout(new BorderLayout());
-        frame.add(deck.cardPanel(), BorderLayout.CENTER);
+        deck.addTo(frame);
         frame.add(hintBar, BorderLayout.SOUTH);
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        wireWindowMode(frame, deck.cards());
+        wireWindowMode(frame, deck.cardsView());
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         navigator.showInitial("title");
@@ -246,7 +289,7 @@ public class Main {
         // not whichever card CardLayout is currently showing. Requesting focus on that
         // hidden, non-showing component silently fails, so no component ever holds
         // keyboard focus. Look the actually-visible card up by name instead.
-        deck.cards().get("title").requestFocusInWindow();
+        deck.card("title").requestFocusInWindow();
     }
 
     // Must run before any screen/widget is constructed below - they read WidgetTheme's
