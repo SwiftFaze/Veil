@@ -193,7 +193,8 @@ public class AcceptanceMutationSteps {
     }
 
     @Then("no string mutant is generated for {string}")
-    public void noStringMutantIsGeneratedFor(String value) {
+    public void noStringMutantIsGeneratedFor(String value) throws IOException {
+        assertTrue(Files.readString(feature).contains("\"" + value + "\""), "the fixture holds " + value);
         assertTrue(mutantsOf("\"" + value + "\"").isEmpty(), generation.mutants().toString());
     }
 
