@@ -31,11 +31,11 @@ public final class AcceptanceMutator {
     static final String DEFAULT_SPEC_DIR = "specs/features";
     static final String DEFAULT_GLUE = "com.swiftfaze.veil.steps";
 
+    private final ScenarioRunner runner;
+
     /** The outcome of a command-line run. */
     public record Outcome(int exitCode, MutationReport report) {
     }
-
-    private final ScenarioRunner runner;
 
     public AcceptanceMutator(String glue) {
         this.runner = new ScenarioRunner(glue);
@@ -65,11 +65,11 @@ public final class AcceptanceMutator {
 
     private static Map<String, String> parse(String[] args) {
         Map<String, String> options = new HashMap<>();
-        for (int i = 0; i < args.length; i++) {
+        for (int i = 0; i < args.length; i += 2) {
             if (!args[i].startsWith("--") || i + 1 >= args.length) {
                 throw new IllegalArgumentException("Expected --option value pairs, got: " + String.join(" ", args));
             }
-            options.put(args[i], args[++i]);
+            options.put(args[i], args[i + 1]);
         }
         return options;
     }
@@ -92,7 +92,7 @@ public final class AcceptanceMutator {
         for (Path feature : features) {
             try {
                 mutateFeature(feature, report);
-            } catch (IOException | RuntimeException e) {
+            } catch (IOException | IllegalArgumentException | IllegalStateException e) {
                 report.error(feature + ": " + e.getMessage());
             }
         }

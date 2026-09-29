@@ -7,6 +7,7 @@ import io.cucumber.messages.types.Examples;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.FeatureChild;
 import io.cucumber.messages.types.GherkinDocument;
+import io.cucumber.messages.types.Location;
 import io.cucumber.messages.types.RuleChild;
 import io.cucumber.messages.types.Scenario;
 import io.cucumber.messages.types.Step;
@@ -41,16 +42,20 @@ public final class MutantGenerator {
     private static final Pattern INTEGER = Pattern.compile("\\d+");
     private static final Pattern QUOTED = Pattern.compile("\"[^\"]*\"");
 
+    private final Path feature;
+    private final List<Literal> literals = new ArrayList<>();
+    private final List<String> skipped = new ArrayList<>();
+
     /** The result of generating one feature's mutants. */
     public record Generation(List<Mutant> mutants, List<String> skipped, Optional<String> featureSkipTag) {
+        public Generation {
+            mutants = List.copyOf(mutants);
+            skipped = List.copyOf(skipped);
+        }
     }
 
     private record Literal(int line, int column, String text, int runLine, String scenarioName) {
     }
-
-    private final Path feature;
-    private final List<Literal> literals = new ArrayList<>();
-    private final List<String> skipped = new ArrayList<>();
 
     private MutantGenerator(Path feature) {
         this.feature = feature;
@@ -108,11 +113,11 @@ public final class MutantGenerator {
     private void collectScenario(Scenario scenario) {
         Optional<String> tag = skipTag(scenario.getTags());
         if (tag.isPresent()) {
-            skipped.add(feature + ":" + scenario.getLocation().getLine()
+            skipped.add(feature + ":" + lineOf(scenario.getLocation())
                     + "  scenario \"" + scenario.getName() + "\" skipped: " + tag.get());
             return;
         }
-        int scenarioLine = scenario.getLocation().getLine().intValue();
+        int scenarioLine = (int) lineOf(scenario.getLocation());
         for (Step step : scenario.getSteps()) {
             collectStep(step, scenarioLine, scenario.getName());
         }
@@ -122,8 +127,8 @@ public final class MutantGenerator {
     }
 
     private void collectStep(Step step, int runLine, String scenarioName) {
-        int line = step.getLocation().getLine().intValue();
-        int textColumn = step.getLocation().getColumn().orElseThrow().intValue() + step.getKeyword().length();
+        int line = (int) lineOf(step.getLocation());
+        int textColumn = (int) columnOf(step.getLocation()) + step.getKeyword().length();
         Matcher matcher = LITERAL.matcher(step.getText());
         while (matcher.find()) {
             literals.add(new Literal(line, textColumn + matcher.start(), matcher.group(), runLine, scenarioName));
@@ -135,15 +140,25 @@ public final class MutantGenerator {
             return;
         }
         for (TableRow row : examples.getTableBody()) {
-            int rowLine = row.getLocation().getLine().intValue();
+            int rowLine = (int) lineOf(row.getLocation());
             for (TableCell cell : row.getCells()) {
                 String value = cell.getValue();
                 if (INTEGER.matcher(value).matches() || QUOTED.matcher(value).matches()) {
-                    int column = cell.getLocation().getColumn().orElseThrow().intValue();
-                    literals.add(new Literal(rowLine, column, value, rowLine, scenarioName));
+                    literals.add(new Literal(rowLine, (int) columnOf(cell.getLocation()), value, rowLine, scenarioName));
                 }
             }
         }
+    }
+
+    // Gherkin's own types only ever hand back a Location; reading the line/column out of it
+    // is this pair's one job, so no caller reaches past Location itself - the boundary
+    // LawOfDemeter checks for.
+    private static long lineOf(Location location) {
+        return location.getLine();
+    }
+
+    private static long columnOf(Location location) {
+        return location.getColumn().orElseThrow();
     }
 
     private List<Mutant> mutate() {

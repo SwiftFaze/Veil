@@ -148,7 +148,7 @@ public class AcceptanceMutationSteps {
     public void theAcceptanceMutatorRunsAMutantOfTheFirstScenario() throws IOException {
         generation = MutantGenerator.generate(feature);
         Mutant first = generation.mutants().stream()
-                .filter(m -> m.scenarioName().equals("First scenario"))
+                .filter(m -> "First scenario".equals(m.scenarioName()))
                 .findFirst()
                 .orElseThrow();
         mutantRun = new AcceptanceMutator(FIXTURE_GLUE).runMutant(first);
@@ -184,9 +184,12 @@ public class AcceptanceMutationSteps {
     }
 
     @Then("{string} is mutated to {string} and {string} to {string}")
-    public void isMutatedToAndTo(String a, String b, String c, String d) {
-        assertEquals(List.of("\"" + b + "\""), mutantsOf("\"" + a + "\"").stream().map(Mutant::replacement).toList());
-        assertEquals(List.of("\"" + d + "\""), mutantsOf("\"" + c + "\"").stream().map(Mutant::replacement).toList());
+    public void isMutatedToAndTo(String firstOriginal, String firstReplacement,
+                                  String secondOriginal, String secondReplacement) {
+        assertEquals(List.of("\"" + firstReplacement + "\""),
+                mutantsOf("\"" + firstOriginal + "\"").stream().map(Mutant::replacement).toList());
+        assertEquals(List.of("\"" + secondReplacement + "\""),
+                mutantsOf("\"" + secondOriginal + "\"").stream().map(Mutant::replacement).toList());
     }
 
     @Then("no string mutant is generated for {string}")

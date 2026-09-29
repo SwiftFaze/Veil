@@ -30,7 +30,7 @@ class MutantGeneratorTest {
 
     @Test
     void integersInStepTextBecomePlusAndMinusOneRunningTheirScenario() throws IOException {
-        var generation = generate("""
+        MutantGenerator.Generation generation = generate("""
                 Feature: F
 
                   Scenario: Gold 12
@@ -41,7 +41,7 @@ class MutantGeneratorTest {
 
     @Test
     void namesKeywordsCommentsAndTagsAreNeverMutated() throws IOException {
-        var generation = generate("""
+        MutantGenerator.Generation generation = generate("""
                 @tag1
                 Feature: F 1
                   Description 2
@@ -55,7 +55,7 @@ class MutantGeneratorTest {
 
     @Test
     void digitsInsideWordsOrDecimalsAreNotIntegers() throws IOException {
-        var generation = generate("""
+        MutantGenerator.Generation generation = generate("""
                 Feature: F
 
                   Scenario: S
@@ -66,7 +66,7 @@ class MutantGeneratorTest {
 
     @Test
     void quotedStringsSwapWithEveryOtherDistinctValueInTheFile() throws IOException {
-        var generation = generate("""
+        MutantGenerator.Generation generation = generate("""
                 Feature: F
 
                   Scenario: S
@@ -82,7 +82,7 @@ class MutantGeneratorTest {
 
     @Test
     void aQuotedStringWithNoAlternativeIsSkippedWithAReason() throws IOException {
-        var generation = generate("""
+        MutantGenerator.Generation generation = generate("""
                 Feature: F
 
                   Scenario: S
@@ -95,7 +95,7 @@ class MutantGeneratorTest {
 
     @Test
     void examplesCellsRunOnlyTheirOwnRowAndPlaceholdersAreIgnored() throws IOException {
-        var generation = generate("""
+        MutantGenerator.Generation generation = generate("""
                 Feature: F
 
                   Scenario Outline: O
@@ -112,7 +112,7 @@ class MutantGeneratorTest {
 
     @Test
     void backgroundLiteralsRunTheWholeFeature() throws IOException {
-        var generation = generate("""
+        MutantGenerator.Generation generation = generate("""
                 Feature: F
 
                   Background:
@@ -125,8 +125,8 @@ class MutantGeneratorTest {
     }
 
     @Test
-    void featuresAndScenariosTaggedToNeverRunAreSkipped() throws IOException {
-        var feature = generate("""
+    void aFeatureTaggedToNeverRunIsSkippedEntirely() throws IOException {
+        MutantGenerator.Generation feature = generate("""
                 @pending
                 Feature: F
 
@@ -135,8 +135,11 @@ class MutantGeneratorTest {
                 """);
         assertEquals("@pending", feature.featureSkipTag().orElseThrow());
         assertTrue(feature.mutants().isEmpty());
+    }
 
-        var scenario = generate("""
+    @Test
+    void aScenarioTaggedToNeverRunIsSkippedWithItsTag() throws IOException {
+        MutantGenerator.Generation scenario = generate("""
                 Feature: F
 
                   @manual-verification
