@@ -38,7 +38,7 @@ class QaProcedureTest {
 
     @Test
     void missingJsonNamesTheJsonFile() throws IOException {
-        Files.writeString(dir.resolve(FOO_KEYS), "RIGHT\n");
+        Files.writeString(dir.resolve(FOO_KEYS), RIGHT_KEY);
 
         QaException e = assertThrows(QaException.class, () -> QaProcedure.load(dir, FOO));
 
@@ -67,7 +67,7 @@ class QaProcedureTest {
 
     @Test
     void aJsonFileWithoutExpectFails() throws IOException {
-        Files.writeString(dir.resolve(FOO_KEYS), "RIGHT\n");
+        Files.writeString(dir.resolve(FOO_KEYS), RIGHT_KEY);
         Files.writeString(dir.resolve(FOO_JSON), "{}");
 
         assertThrows(QaException.class, () -> QaProcedure.load(dir, FOO));
@@ -76,7 +76,7 @@ class QaProcedureTest {
     @Test
     void aScriptPropertyPointsAtAnotherKeysFile() throws IOException {
         Files.writeString(dir.resolve("shared.keys"), "DOWN\n");
-        Files.writeString(dir.resolve(FOO_KEYS), "RIGHT\n");
+        Files.writeString(dir.resolve(FOO_KEYS), RIGHT_KEY);
         Files.writeString(dir.resolve(FOO_JSON), "{\"script\":\"shared.keys\",\"expect\":[]}");
 
         assertEquals(List.of(KeyEvent.VK_DOWN), QaProcedure.load(dir, FOO).keys());
@@ -84,7 +84,7 @@ class QaProcedureTest {
 
     @Test
     void anExpectEntryThatIsNotAnObjectFails() throws IOException {
-        Files.writeString(dir.resolve(FOO_KEYS), "RIGHT\n");
+        Files.writeString(dir.resolve(FOO_KEYS), RIGHT_KEY);
         Files.writeString(dir.resolve(FOO_JSON), "{\"expect\":[1]}");
 
         QaException e = assertThrows(QaException.class, () -> QaProcedure.load(dir, FOO));
