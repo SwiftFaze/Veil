@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.32](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.31...v0.5.0-beta.32) (2026-09-29)
+
+
+### Features
+
+* port Uncle Bob's tooling from Veilclj ([#234](https://github.com/SwiftFaze/Veil/issues/234)) ([22e03c2](https://github.com/SwiftFaze/Veil/commit/22e03c2e9b3e377ed49cc88e41d3f5b4a1563c07))
+
 ## [0.5.0-beta.31](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.30...v0.5.0-beta.31) (2026-09-28)
 
 
