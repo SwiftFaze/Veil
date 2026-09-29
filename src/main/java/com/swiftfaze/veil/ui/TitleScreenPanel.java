@@ -119,7 +119,7 @@ public class TitleScreenPanel extends JPanel implements HintAware {
             return;
         }
         lastHighlighted = item;
-        eventLog.append(GameEvent.menuSelectionChanged(item));
+        eventLog.recordEvent(GameEvent.menuSelectionChanged(item));
     }
 
     public String getHighlightedMenuItem() {

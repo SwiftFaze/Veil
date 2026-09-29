@@ -68,13 +68,13 @@ public final class GameEventLog {
      * JSON line. A write failure is logged once, naming the path, and never thrown:
      * the game keeps running and the event stays in memory.
      */
-    public void append(GameEvent event) {
+    public void recordEvent(GameEvent event) {
         if (!recording) {
             return;
         }
         events.add(event);
         if (path != null && writeFailure == null) {
-            writeLine(path, toJsonLine(event));
+            persistLine(path, toJsonLine(event));
         }
     }
 
@@ -88,19 +88,20 @@ public final class GameEventLog {
         return Optional.ofNullable(writeFailure);
     }
 
-    private void writeLine(Path target, String line) {
+    private void persistLine(Path target, String line) {
         try {
-            Writer out = openWriter(target);
-            out.write(line);
-            out.write(System.lineSeparator());
-            out.flush();
+            currentWriter(target).write(line);
+            currentWriter(target).write(System.lineSeparator());
+            currentWriter(target).flush();
         } catch (IOException e) {
             writeFailure = "Could not write QA event log to " + target + ": " + e.getMessage();
             logger.error(writeFailure, e);
         }
     }
 
-    private Writer openWriter(Path target) throws IOException {
+    // The writer is deliberately held open for the life of the process and never closed:
+    // each line is flushed as it is written, so a killed run loses nothing.
+    private Writer currentWriter(Path target) throws IOException {
         if (writer == null) {
             writer = Files.newBufferedWriter(target, StandardOpenOption.CREATE,
                     StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);

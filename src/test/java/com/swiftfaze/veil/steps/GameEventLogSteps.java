@@ -2,17 +2,11 @@ package com.swiftfaze.veil.steps;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.swiftfaze.veil.game.GamePanel;
 import com.swiftfaze.veil.game.event.GameEvent;
 import com.swiftfaze.veil.game.event.GameEventLog;
-import com.swiftfaze.veil.input.Keybindings;
-import com.swiftfaze.veil.ui.CodexPanel;
-import com.swiftfaze.veil.ui.InventoryPanel;
-import com.swiftfaze.veil.ui.PopupToggleListener;
 import com.swiftfaze.veil.ui.ScreenNavigator;
 import com.swiftfaze.veil.ui.TitleScreenPanel;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
-import com.swiftfaze.veil.world.Tile;
 import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -21,9 +15,6 @@ import io.cucumber.java.en.When;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,7 +24,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,12 +33,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * to the log itself.
  */
 public class GameEventLogSteps {
-    private static final Tile FLOOR = new Tile("test:floor", '.', Color.GRAY, true);
-    private static final Tile WALL = new Tile("test:wall", '#', Color.WHITE, false);
+    private static final String NEW_GAME_ITEM = "New";
+    private static final int START_X = 5;
+    private static final int START_Y = 5;
+    private static final int ONE_STEP_RIGHT_X = START_X + 1;
+    private static final int TWO_STEPS_RIGHT_X = START_X + 2;
 
     private GameEventLog eventLog;
     private TitleScreenPanel titleScreen;
-    private GamePanel gamePanel;
+    private GamePanelFixture game;
     private Path logFile;
 
     @After
@@ -69,7 +62,7 @@ public class GameEventLogSteps {
         ScreenNavigator navigator = new ScreenNavigator(cardLayout, cardPanel, cards, eventLog);
         // Mirrors Main's title-menu wiring: "New" switches to the game card.
         titleScreen = new TitleScreenPanel(item -> {
-            if ("New".equals(item)) {
+            if (NEW_GAME_ITEM.equals(item)) {
                 navigator.navigateTo("game");
             }
         }, new ControlsHintBarWidget(), eventLog);
@@ -88,7 +81,7 @@ public class GameEventLogSteps {
     @When("the player chooses \"New Game\"")
     public void thePlayerChoosesNewGame() {
         // The title menu labels this item "New".
-        while (!"New".equals(titleScreen.getHighlightedMenuItem())) {
+        while (!NEW_GAME_ITEM.equals(titleScreen.getHighlightedMenuItem())) {
             titleScreen.moveDown();
         }
         titleScreen.confirm();
@@ -102,36 +95,33 @@ public class GameEventLogSteps {
 
     @Given("the player is at \\({int}, {int}) on an open floor")
     public void thePlayerIsAtOnAnOpenFloor(int x, int y) {
-        placePlayer(x, y, FLOOR);
+        game().placePlayerOnOpenFloor(x, y);
     }
 
     @Given("the player is at \\({int}, {int}) with a wall to the right")
     public void thePlayerIsAtWithAWallToTheRight(int x, int y) {
-        placePlayer(x, y, WALL);
+        game().placePlayerBesideWall(x, y);
     }
 
     @When("the player presses the move-right key")
     public void thePlayerPressesTheMoveRightKey() {
-        fire(Keybindings.ACTION_MOVE_RIGHT);
+        game.pressMoveRight();
     }
 
     @Given("the game screen is showing with the inventory closed")
     public void theGameScreenIsShowingWithTheInventoryClosed() {
-        gamePanel = gamePanelWithInventory(eventLog);
+        game = GamePanelFixture.withInventory(eventLog);
     }
 
     @When("the player presses the inventory key twice")
     public void thePlayerPressesTheInventoryKeyTwice() {
-        fire(Keybindings.ACTION_TOGGLE_INVENTORY);
-        fire(Keybindings.ACTION_TOGGLE_INVENTORY);
+        game.pressInventoryKey();
+        game.pressInventoryKey();
     }
 
     @Given("a log that has recorded two events")
     public void aLogThatHasRecordedTwoEvents() {
-        placePlayer(5, 5, FLOOR);
-        gamePanel.getScene().fillRegion(new Rectangle(7, 5, 1, 1), FLOOR);
-        fire(Keybindings.ACTION_MOVE_RIGHT);
-        fire(Keybindings.ACTION_MOVE_RIGHT);
+        movedRightTwiceFromTheStart();
         assertEquals(2, eventLog.getEvents().size());
     }
 
@@ -153,12 +143,11 @@ public class GameEventLogSteps {
 
     @When("the player moves and toggles the inventory")
     public void thePlayerMovesAndTogglesTheInventory() {
-        gamePanel = gamePanelWithInventory(eventLog);
-        gamePanel.getPlayer().setPosition(5, 5);
-        gamePanel.getScene().fillRegion(new Rectangle(5, 5, 2, 1), FLOOR);
-        fire(Keybindings.ACTION_MOVE_RIGHT);
-        fire(Keybindings.ACTION_TOGGLE_INVENTORY);
-        assertEquals(6, gamePanel.getPlayer().getX());
+        game = GamePanelFixture.withInventory(eventLog);
+        game.placePlayerOnOpenFloor(START_X, START_Y);
+        game.pressMoveRight();
+        game.pressInventoryKey();
+        assertEquals(ONE_STEP_RIGHT_X, game.playerX());
     }
 
     @Then("no events are kept and no log file is written")
@@ -175,8 +164,8 @@ public class GameEventLogSteps {
 
     @When("the player moves right once")
     public void thePlayerMovesRightOnce() {
-        placePlayer(5, 5, FLOOR);
-        fire(Keybindings.ACTION_MOVE_RIGHT);
+        game().placePlayerOnOpenFloor(START_X, START_Y);
+        game.pressMoveRight();
     }
 
     @Then("the file already has one line for that `PlayerMoved` before the game exits")
@@ -188,16 +177,13 @@ public class GameEventLogSteps {
     public void theLineIsAJsonObjectWithItsEventTypeXAndY() throws IOException {
         JsonObject line = JsonParser.parseString(Files.readAllLines(logFile).get(0)).getAsJsonObject();
         assertEquals("PlayerMoved", line.get("type").getAsString());
-        assertEquals(6, line.get("x").getAsInt());
-        assertEquals(5, line.get("y").getAsInt());
+        assertEquals(ONE_STEP_RIGHT_X, line.get("x").getAsInt());
+        assertEquals(START_Y, line.get("y").getAsInt());
     }
 
     @Given("the player has moved right twice")
     public void thePlayerHasMovedRightTwice() {
-        placePlayer(5, 5, FLOOR);
-        gamePanel.getScene().fillRegion(new Rectangle(7, 5, 1, 1), FLOOR);
-        fire(Keybindings.ACTION_MOVE_RIGHT);
-        fire(Keybindings.ACTION_MOVE_RIGHT);
+        movedRightTwiceFromTheStart();
     }
 
     @When("the game process is killed without a clean shutdown")
@@ -210,8 +196,8 @@ public class GameEventLogSteps {
     public void theFileHoldsBothPlayerMovedLines() throws IOException {
         List<String> lines = Files.readAllLines(logFile);
         assertEquals(2, lines.size());
-        assertTrue(lines.get(0).contains("\"x\":6"));
-        assertTrue(lines.get(1).contains("\"x\":7"));
+        assertTrue(lines.get(0).contains("\"x\":" + ONE_STEP_RIGHT_X));
+        assertTrue(lines.get(1).contains("\"x\":" + TWO_STEPS_RIGHT_X));
     }
 
     @Given("`-Dveil.qaLog` points at a directory that does not exist")
@@ -224,8 +210,8 @@ public class GameEventLogSteps {
 
     @When("the first event is recorded")
     public void theFirstEventIsRecorded() {
-        placePlayer(5, 5, FLOOR);
-        assertDoesNotThrow(() -> fire(Keybindings.ACTION_MOVE_RIGHT));
+        game().placePlayerOnOpenFloor(START_X, START_Y);
+        assertDoesNotThrow(game::pressMoveRight);
     }
 
     @Then("the game reports an error naming the path")
@@ -236,22 +222,22 @@ public class GameEventLogSteps {
 
     @Then("the game itself keeps running")
     public void theGameItselfKeepsRunning() {
-        assertEquals(6, gamePanel.getPlayer().getX());
-        assertFalse(Files.exists(logFile));
-        placePlayer(6, 5, FLOOR);
-        assertDoesNotThrow(() -> fire(Keybindings.ACTION_MOVE_RIGHT));
-        assertEquals(7, gamePanel.getPlayer().getX());
+        assertEquals(ONE_STEP_RIGHT_X, game.playerX());
+        assertTrue(Files.notExists(logFile));
+        game.placePlayerOnOpenFloor(ONE_STEP_RIGHT_X, START_Y);
+        assertDoesNotThrow(game::pressMoveRight);
+        assertEquals(TWO_STEPS_RIGHT_X, game.playerX());
     }
 
     @Then("the log contains exactly one `ScreenChanged` from {string} to {string}")
-    public void theLogContainsExactlyOneScreenChanged(String from, String to) {
+    public void theLogContainsExactlyOneScreenChanged(String from, String destination) {
         List<GameEvent.ScreenChanged> changes = eventsOf(GameEvent.ScreenChanged.class);
-        assertEquals(List.of(new GameEvent.ScreenChanged(from, to)), changes);
+        assertEquals(List.of(new GameEvent.ScreenChanged(from, destination)), changes);
     }
 
     @Then("the log contains two `MenuSelectionChanged` events, in order, naming the second and third options")
     public void theLogContainsTwoMenuSelectionChangedEvents() {
-        assertEquals(List.of(new GameEvent.MenuSelectionChanged("New"), new GameEvent.MenuSelectionChanged("Load")),
+        assertEquals(List.of(new GameEvent.MenuSelectionChanged(NEW_GAME_ITEM), new GameEvent.MenuSelectionChanged("Load")),
                 eventsOf(GameEvent.MenuSelectionChanged.class));
     }
 
@@ -263,7 +249,7 @@ public class GameEventLogSteps {
     @Then("the log contains no `PlayerMoved` event")
     public void theLogContainsNoPlayerMovedEvent() {
         assertTrue(eventsOf(GameEvent.PlayerMoved.class).isEmpty());
-        assertEquals(5, gamePanel.getPlayer().getX());
+        assertEquals(START_X, game.playerX());
     }
 
     @Then("the log contains `PopupToggled` {string} open, then `PopupToggled` {string} closed")
@@ -277,25 +263,19 @@ public class GameEventLogSteps {
         eventLog = GameEventLog.fromSystemProperties();
     }
 
-    private void placePlayer(int x, int y, Tile tileToTheRight) {
-        if (gamePanel == null) {
-            gamePanel = new GamePanel(eventLog);
+    /** The scenarios' plain game: created on first use, wired only to the log. */
+    private GamePanelFixture game() {
+        if (game == null) {
+            game = new GamePanelFixture(eventLog);
         }
-        gamePanel.getPlayer().setPosition(x, y);
-        gamePanel.getScene().fillRegion(new Rectangle(x, y, 1, 1), FLOOR);
-        gamePanel.getScene().fillRegion(new Rectangle(x + 1, y, 1, 1), tileToTheRight);
+        return game;
     }
 
-    private static GamePanel gamePanelWithInventory(GameEventLog log) {
-        GamePanel panel = new GamePanel(log);
-        ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
-        panel.addGameListener(new PopupToggleListener(new InventoryPanel(hintBar), new CodexPanel(hintBar), log));
-        return panel;
-    }
-
-    private void fire(String actionName) {
-        gamePanel.getActionMap().get(actionName)
-                .actionPerformed(new ActionEvent(gamePanel, ActionEvent.ACTION_PERFORMED, actionName));
+    private void movedRightTwiceFromTheStart() {
+        game().placePlayerOnOpenFloor(START_X, START_Y);
+        game.openFloorAt(TWO_STEPS_RIGHT_X, START_Y);
+        game.pressMoveRight();
+        game.pressMoveRight();
     }
 
     private <T extends GameEvent> List<T> eventsOf(Class<T> type) {

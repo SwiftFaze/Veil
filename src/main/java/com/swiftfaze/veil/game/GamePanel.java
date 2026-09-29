@@ -162,7 +162,7 @@ public class GamePanel extends JPanel {
             int afterX = player.getX();
             int afterY = player.getY();
             if (beforeX != afterX || beforeY != afterY) {
-                eventLog.append(GameEvent.playerMoved(afterX, afterY));
+                eventLog.recordEvent(GameEvent.playerMoved(afterX, afterY));
             }
             notifyPlayerUpdated();
         }

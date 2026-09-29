@@ -8,6 +8,8 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.CardLayout;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * The one place a main card (title, settings, keybinds, game) is switched. Tracks
@@ -16,17 +18,20 @@ import java.util.Map;
  * Main's navigation always has.
  */
 public class ScreenNavigator {
-    private final CardLayout cardLayout;
-    private final JPanel cardPanel;
-    private final Map<String, JComponent> cards;
+    private final Consumer<String> showCard;
+    private final Function<String, JComponent> cardNamed;
     private final GameEventLog eventLog;
     private @Nullable String currentCard;
 
+    /**
+     * The navigator keeps only what it does with the deck (show a card, look one up), not
+     * the Swing containers themselves. {@code cards} is read live, so cards registered
+     * after construction are still found.
+     */
     public ScreenNavigator(CardLayout cardLayout, JPanel cardPanel, Map<String, JComponent> cards,
                            GameEventLog eventLog) {
-        this.cardLayout = cardLayout;
-        this.cardPanel = cardPanel;
-        this.cards = cards;
+        this.showCard = name -> cardLayout.show(cardPanel, name);
+        this.cardNamed = cards::get;
         this.eventLog = eventLog;
     }
 
@@ -36,7 +41,7 @@ public class ScreenNavigator {
      */
     public void showInitial(String cardName) {
         currentCard = cardName;
-        cardLayout.show(cardPanel, cardName);
+        showCard.accept(cardName);
     }
 
     /** Shows {@code cardName}, recording a ScreenChanged if it differs from the current card. */
@@ -45,7 +50,7 @@ public class ScreenNavigator {
         currentCard = cardName;
         show(cardName);
         if (previous != null && !previous.equals(cardName)) {
-            eventLog.append(GameEvent.screenChanged(previous, cardName));
+            eventLog.recordEvent(GameEvent.screenChanged(previous, cardName));
         }
     }
 
@@ -54,8 +59,8 @@ public class ScreenNavigator {
     }
 
     private void show(String cardName) {
-        cardLayout.show(cardPanel, cardName);
-        JComponent target = cards.get(cardName);
+        showCard.accept(cardName);
+        JComponent target = cardNamed.apply(cardName);
         if (target != null) {
             target.requestFocusInWindow();
             if (target instanceof HintAware hintAware) {
