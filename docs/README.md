@@ -10,6 +10,7 @@
 - [`testing-acceptance.md`](testing-acceptance.md) — Cucumber acceptance tests and glyph-grid approval tests.
 - [`testing-quality-gates.md`](testing-quality-gates.md) — mutation testing (PIT), PMD/JaCoCo, and the Error Prone/NullAway compile-time gates.
 - [`testing-module-dependency.md`](testing-module-dependency.md) — the ArchUnit module-dependency and package-cycle gate.
+- [`uml-viewer.md`](uml-viewer.md) — the local UML diagram of Veil's classes with CRAP and mutation colouring: prerequisites, `bb export` / `bb metrics` / `bb view`, and its known limits.
 - [`release.md`](release.md) — the two release channels (`master` stable, `develop` beta) and why versioning/changelog generation is fully automatic.
 - [`ui-verification.md`](ui-verification.md) — how to visually verify a Swing UI change actually renders correctly, since this project's tests don't assert on pixel layout or rendered text.
 - [`wiki.md`](wiki.md) — the split between `docs/` (for contributors) and the player-facing [GitHub wiki](https://github.com/SwiftFaze/Veil/wiki) (for game content/numbers).

@@ -4,9 +4,13 @@ Feature: UML export shows Veil's structure with CRAP and mutation colouring
   its CRAP and mutation colouring, running on Veil's Java code rather than
   Veilclj's Clojure, which the author can't read.
 
-  The viewer is language-neutral: it takes
-  `{:classes [{:id :name :ns :stereotype}] :edges [{:from :to :kind}]}`
-  (`:kind` is `:dependency` or `:implements`) and reads metrics from
+  The viewer is language-neutral: it takes Veilclj's hierarchical IR,
+  `{:hierarchical true :title :prefix :edge-kinds :omit-edges :omit :levels
+  :order :classes :edges}`, where each class is `{:id :name :ns :stereotype
+  :level}` and each edge `{:from :to :kind :violating}` (`:kind` is
+  `:dependency` or `:implements`; `:level` and `:violating` are set only when
+  the policy ranks the packages involved). It reads its levels from the IR,
+  not from the policy file, so the export embeds them. Metrics are read from
   `.metrics/`, keyed by class `:ns`.
 
   `com.swiftfaze.veil.testing.uml.UmlExport` (test scope) walks
@@ -17,7 +21,8 @@ Feature: UML export shows Veil's structure with CRAP and mutation colouring
   output format beside `HTML`), converted to Veilclj's `.metrics/mutate/`
   shape. `docs/uml/veil.policy.edn` encodes the layers from
   `docs/architecture.md` (engine below `ui`, `ui` below `Main`), so the viewer
-  draws a layer violation in red where ArchUnit would catch it.
+  draws a layer violation in red where ArchUnit would catch it. `sandbox`
+  shares the `ui` level, being dev-only UI tooling.
 
   This file is `@manual-verification`: the end result is a diagram in an
   external viewer, checked by opening it.

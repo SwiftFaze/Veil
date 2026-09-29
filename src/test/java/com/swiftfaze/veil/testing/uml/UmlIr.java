@@ -40,23 +40,16 @@ final class UmlIr {
     }
 
     private static String classEntry(UmlGraph.Node node, List<List<String>> levels) {
-        StringBuilder entry = new StringBuilder("{:id :").append(node.id())
-                .append(" :name \"").append(node.name())
-                .append("\" :ns \"").append(node.fqcn()).append('"');
-        if (node.isInterface()) {
-            entry.append(" :stereotype :interface");
-        }
         int rank = rank(node.id(), levels);
-        if (rank >= 0) {
-            entry.append(" :level ").append(rank);
-        }
-        return entry.append('}').toString();
+        return "{:id :" + node.id() + " :name \"" + node.name() + "\" :ns \"" + node.fqcn() + '"'
+                + (node.isInterface() ? " :stereotype :interface" : "")
+                + (rank >= 0 ? " :level " + rank : "") + "}";
     }
 
     private static String edgeEntry(UmlGraph.Edge edge, List<List<String>> levels) {
-        int from = rank(edge.from(), levels);
-        int to = rank(edge.to(), levels);
-        boolean violating = "dependency".equals(edge.kind()) && from >= 0 && to >= 0 && from < to;
+        int fromRank = rank(edge.from(), levels);
+        int toRank = rank(edge.to(), levels);
+        boolean violating = "dependency".equals(edge.kind()) && fromRank >= 0 && toRank >= 0 && fromRank < toRank;
         return "{:from :" + edge.from() + " :to :" + edge.to() + " :kind :" + edge.kind()
                 + (violating ? " :violating true" : "") + "}";
     }

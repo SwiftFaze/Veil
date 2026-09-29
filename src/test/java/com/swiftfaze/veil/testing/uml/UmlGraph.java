@@ -2,15 +2,17 @@ package com.swiftfaze.veil.testing.uml;
 
 import com.tngtech.archunit.core.domain.Dependency;
 import com.tngtech.archunit.core.domain.JavaClass;
-import com.tngtech.archunit.core.domain.JavaClasses;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 /**
  * The Veil-only class graph the viewer draws. Nested and anonymous classes fold into their
@@ -21,6 +23,15 @@ record UmlGraph(List<Node> classes, List<Edge> edges) {
 
     static final String ROOT_PACKAGE = "com.swiftfaze.veil";
 
+    private static final Pattern CAMEL_BOUNDARY = Pattern.compile("([a-z0-9])([A-Z])");
+    private static final Comparator<Node> NODE_ORDER = Comparator.comparing(Node::id);
+    private static final Comparator<Edge> EDGE_ORDER = Comparator.comparing(Edge::from).thenComparing(Edge::to);
+
+    UmlGraph {
+        classes = List.copyOf(classes);
+        edges = List.copyOf(edges);
+    }
+
     /** One top-level class: {@code id} is the viewer id (kebab-case path below the root package). */
     record Node(String id, String name, String fqcn, boolean isInterface) {
     }
@@ -28,7 +39,7 @@ record UmlGraph(List<Node> classes, List<Edge> edges) {
     record Edge(String from, String to, String kind) {
     }
 
-    static UmlGraph of(JavaClasses imported) {
+    static UmlGraph fromClasses(Collection<JavaClass> imported) {
         Map<String, Node> nodes = new LinkedHashMap<>();
         for (JavaClass javaClass : imported) {
             if (isExported(javaClass) && javaClass.getEnclosingClass().isEmpty()) {
@@ -42,9 +53,9 @@ record UmlGraph(List<Node> classes, List<Edge> edges) {
             }
         }
         List<Node> sortedNodes = new ArrayList<>(nodes.values());
-        sortedNodes.sort(Comparator.comparing(Node::id));
+        sortedNodes.sort(NODE_ORDER);
         List<Edge> sortedEdges = new ArrayList<>(edges.values());
-        sortedEdges.sort(Comparator.comparing(Edge::from).thenComparing(Edge::to));
+        sortedEdges.sort(EDGE_ORDER);
         return new UmlGraph(sortedNodes, sortedEdges);
     }
 
@@ -70,7 +81,7 @@ record UmlGraph(List<Node> classes, List<Edge> edges) {
     }
 
     static String kebab(String simpleName) {
-        return simpleName.replaceAll("([a-z0-9])([A-Z])", "$1-$2").toLowerCase(java.util.Locale.ROOT);
+        return CAMEL_BOUNDARY.matcher(simpleName).replaceAll("$1-$2").toLowerCase(Locale.ROOT);
     }
 
     private static void collectEdges(JavaClass source, Map<String, Node> nodes, Map<String, Edge> edges) {
@@ -90,14 +101,14 @@ record UmlGraph(List<Node> classes, List<Edge> edges) {
 
     private static void addEdge(Map<String, Node> nodes, Map<String, Edge> edges, Node from, String target,
                                 String kind) {
-        Node to = nodes.get(target);
-        if (to == null || to.equals(from)) {
+        Node destination = nodes.get(target);
+        if (destination == null || destination.equals(from)) {
             return;
         }
-        String key = from.id() + ">" + to.id();
+        String key = from.id() + ">" + destination.id();
         Edge existing = edges.get(key);
         if (existing == null || "dependency".equals(existing.kind())) {
-            edges.put(key, new Edge(from.id(), to.id(), kind));
+            edges.put(key, new Edge(from.id(), destination.id(), kind));
         }
     }
 }

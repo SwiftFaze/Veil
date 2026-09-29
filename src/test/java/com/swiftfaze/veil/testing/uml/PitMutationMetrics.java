@@ -1,12 +1,17 @@
 package com.swiftfaze.veil.testing.uml;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -41,44 +46,50 @@ public final class PitMutationMetrics {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        System.out.println(convert(Path.of("").toAbsolutePath()));
+    public static void main(String[] arguments) {
+        run(Path.of("").toAbsolutePath(), System.out);
+    }
+
+    static void run(Path root, PrintStream out) {
+        out.println(convert(root));
     }
 
     /** Converts if the PIT XML exists under {@code root}; returns a one-line message either way. */
-    static String convert(Path root) throws Exception {
+    static String convert(Path root) {
         Path xml = root.resolve(MUTATIONS_XML);
         if (!Files.isRegularFile(xml)) {
             return "Mutation report missing (" + MUTATIONS_XML + "): skipping mutation colouring."
                     + " Run: mvn org.pitest:pitest-maven:mutationCoverage";
         }
-        Map<String, Map<String, Tally>> byClass;
-        try (InputStream in = Files.newInputStream(xml)) {
-            byClass = tally(in);
+        try {
+            Map<String, Map<String, Tally>> byClass;
+            try (InputStream stream = Files.newInputStream(xml)) {
+                byClass = tally(stream);
+            }
+            Path outputDir = root.resolve(OUTPUT_DIR);
+            clearSnapshots(outputDir);
+            for (Map.Entry<String, Map<String, Tally>> entry : byClass.entrySet()) {
+                Files.writeString(outputDir.resolve(entry.getKey() + ".edn"),
+                        snapshot(entry.getKey(), entry.getValue()));
+            }
+            return "Wrote " + byClass.size() + " mutation snapshots to " + OUTPUT_DIR;
+        } catch (IOException e) {
+            throw new UncheckedIOException("Could not convert " + MUTATIONS_XML, e);
         }
-        Path out = root.resolve(OUTPUT_DIR);
-        clearSnapshots(out);
-        for (Map.Entry<String, Map<String, Tally>> entry : byClass.entrySet()) {
-            Files.writeString(out.resolve(entry.getKey() + ".edn"), snapshot(entry.getKey(), entry.getValue()));
-        }
-        return "Wrote " + byClass.size() + " mutation snapshots to " + OUTPUT_DIR;
     }
 
     private static void clearSnapshots(Path dir) throws IOException {
         Files.createDirectories(dir);
         try (Stream<Path> files = Files.list(dir)) {
-            for (Path old : files.filter(p -> p.toString().endsWith(".edn")).toList()) {
+            for (Path old : files.filter(file -> file.toString().endsWith(".edn")).toList()) {
                 Files.delete(old);
             }
         }
     }
 
     /** {@code fqcn -> method -> tally}, folding nested classes into the outer class. */
-    static Map<String, Map<String, Tally>> tally(InputStream xml) throws Exception {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-        NodeList mutations = factory.newDocumentBuilder().parse(xml).getElementsByTagName("mutation");
+    static Map<String, Map<String, Tally>> tally(InputStream xml) throws IOException {
+        NodeList mutations = parse(xml).getElementsByTagName("mutation");
         Map<String, Map<String, Tally>> byClass = new TreeMap<>();
         for (int i = 0; i < mutations.getLength(); i++) {
             Element mutation = (Element) mutations.item(i);
@@ -90,6 +101,17 @@ public final class PitMutationMetrics {
             }
         }
         return byClass;
+    }
+
+    private static Document parse(InputStream xml) throws IOException {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            return factory.newDocumentBuilder().parse(xml);
+        } catch (ParserConfigurationException | SAXException e) {
+            throw new IllegalStateException("PIT mutations.xml is not readable XML", e);
+        }
     }
 
     private static Tally outcome(String status) {

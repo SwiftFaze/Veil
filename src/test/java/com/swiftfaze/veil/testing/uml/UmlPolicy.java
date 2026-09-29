@@ -1,7 +1,10 @@
 package com.swiftfaze.veil.testing.uml;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Reads the {@code :levels} vector of {@code docs/uml/veil.policy.edn}: groups of
@@ -10,48 +13,27 @@ import java.util.List;
  */
 final class UmlPolicy {
 
-    private static final String LEVELS_KEY = ":levels";
+    private static final Pattern LEVELS = Pattern.compile(":levels\\s*\\[((?:\\s*\\[[^\\[\\]]*\\]\\s*)*)\\]");
+    private static final Pattern GROUP = Pattern.compile("\\[([^\\[\\]]*)\\]");
+    private static final Pattern SEPARATORS = Pattern.compile("[\\s,]+");
 
     private UmlPolicy() {
     }
 
     static List<List<String>> levels(String policyEdn) {
-        int key = policyEdn.indexOf(LEVELS_KEY);
-        if (key < 0) {
-            throw new IllegalArgumentException("policy has no :levels");
+        Matcher vector = LEVELS.matcher(policyEdn);
+        if (!vector.find()) {
+            throw new IllegalArgumentException("policy has no well-formed :levels vector of vectors");
         }
         List<List<String>> groups = new ArrayList<>();
-        List<String> group = null;
-        StringBuilder token = new StringBuilder();
-        int depth = 0;
-        for (int i = policyEdn.indexOf('[', key); i < policyEdn.length(); i++) {
-            char c = policyEdn.charAt(i);
-            if (c == '[') {
-                depth++;
-                if (depth == 2) {
-                    group = new ArrayList<>();
-                }
-            } else if (c == ']' || Character.isWhitespace(c) || c == ',') {
-                flush(group, token);
-                if (c == ']') {
-                    depth--;
-                    if (depth == 1) {
-                        groups.add(group);
-                    } else if (depth == 0) {
-                        return groups;
-                    }
-                }
-            } else {
-                token.append(c);
-            }
+        Matcher group = GROUP.matcher(vector.group(1));
+        while (group.find()) {
+            groups.add(names(group.group(1)));
         }
-        throw new IllegalArgumentException("unbalanced :levels vector");
+        return groups;
     }
 
-    private static void flush(List<String> group, StringBuilder token) {
-        if (token.length() > 0 && group != null) {
-            group.add(token.toString());
-        }
-        token.setLength(0);
+    private static List<String> names(String groupBody) {
+        return Arrays.stream(SEPARATORS.split(groupBody)).filter(name -> !name.isEmpty()).toList();
     }
 }

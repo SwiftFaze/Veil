@@ -3,9 +3,12 @@ package com.swiftfaze.veil.testing.uml;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -34,28 +37,43 @@ class PitMutationMetricsTest {
             </mutations>
             """;
 
+    private static final String PLAYER = "com.swiftfaze.veil.entities.player.Player";
+    private static final String MAIN = "com.swiftfaze.veil.Main";
+
     @TempDir
     Path root;
 
     @Test
-    void aMissingReportSkipsWithAMessageAndWritesNothing() throws Exception {
+    void aMissingReportSkipsWithAMessageAndWritesNothing() {
         String message = PitMutationMetrics.convert(root);
         assertTrue(message.contains("Mutation report missing"));
         assertFalse(Files.exists(root.resolve(PitMutationMetrics.OUTPUT_DIR)));
     }
 
     @Test
-    void outcomesAreTalliedPerMethodAndNestedClassesFoldIntoTheirOuterClass() throws Exception {
-        var byClass = PitMutationMetrics.tally(new java.io.ByteArrayInputStream(XML.getBytes(StandardCharsets.UTF_8)));
-        var player = byClass.get("com.swiftfaze.veil.entities.player.Player");
+    void killedAndSurvivedMutantsAreTalliedPerMethod() throws IOException {
+        Map<String, PitMutationMetrics.Tally> player = tallied().get(PLAYER);
         assertEquals(new PitMutationMetrics.Tally(1, 1, 0), player.get("move"));
-        assertEquals(new PitMutationMetrics.Tally(0, 0, 1), player.get("heal"));
-        assertEquals(new PitMutationMetrics.Tally(1, 0, 0), byClass.get("com.swiftfaze.veil.Main").get("<init>"));
-        assertFalse(byClass.get("com.swiftfaze.veil.Main").containsKey("main"));
+        assertEquals(new PitMutationMetrics.Tally(1, 0, 0), tallied().get(MAIN).get("<init>"));
     }
 
     @Test
-    void oneSnapshotPerClassIsWrittenInTheOverlaysShape() throws Exception {
+    void nestedClassesFoldIntoTheirOuterClass() throws IOException {
+        assertEquals(new PitMutationMetrics.Tally(0, 0, 1), tallied().get(PLAYER).get("heal"));
+        assertFalse(tallied().containsKey(PLAYER + "$1"));
+    }
+
+    @Test
+    void nonViableMutantsAreNotCounted() throws IOException {
+        assertFalse(tallied().get(MAIN).containsKey("main"));
+    }
+
+    private static Map<String, Map<String, PitMutationMetrics.Tally>> tallied() throws IOException {
+        return PitMutationMetrics.tally(new ByteArrayInputStream(XML.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    @Test
+    void oneSnapshotPerClassIsWrittenInTheOverlaysShape() throws IOException {
         Path xml = root.resolve(PitMutationMetrics.MUTATIONS_XML);
         Files.createDirectories(xml.getParent());
         Files.writeString(xml, XML);
