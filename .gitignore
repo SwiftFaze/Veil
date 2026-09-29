@@ -13,3 +13,6 @@
 
 # CRAP gate metrics for uml-viewer (written by CrapReport during mvn verify)
 /.metrics/
+
+# uml-viewer session state (tmux/companion mailbox), written by `bb view`
+/.uml-viewer/
