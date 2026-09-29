@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.steps;
 
+import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.GamePanel;
 import com.swiftfaze.veil.game.event.GameEventLog;
@@ -9,6 +10,7 @@ import com.swiftfaze.veil.ui.InventoryPanel;
 import com.swiftfaze.veil.ui.PopupToggleListener;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
 import com.swiftfaze.veil.world.Tile;
+import com.swiftfaze.veil.world.TileTestScene2;
 import com.swiftfaze.veil.world.WorldScene;
 
 import java.awt.Color;
@@ -29,10 +31,9 @@ final class GamePanelFixture {
 
     /** A game panel wired to {@code log} alone. */
     GamePanelFixture(GameEventLog log) {
-        GamePanel created = new GamePanel(log);
-        this.panel = created;
-        this.player = created.getPlayer();
-        this.scene = created.getScene();
+        this.player = new Player(GameConst.DEFAULT_PLAYER_START_X, GameConst.DEFAULT_PLAYER_START_Y);
+        this.scene = new TileTestScene2(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT);
+        this.panel = new GamePanel(log, player, scene);
     }
 
     /** A game panel wired to {@code log}, with the inventory popup listener attached. */

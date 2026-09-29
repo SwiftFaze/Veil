@@ -22,8 +22,8 @@ import static com.swiftfaze.veil.GameConst.*;
 
 public class GamePanel extends JPanel {
 
-    private Player player = new Player(DEFAULT_PLAYER_START_X, DEFAULT_PLAYER_START_Y);
-    private TileTestScene2 scene = new TileTestScene2(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT);
+    private Player player;
+    private WorldScene scene;
     private final Camera camera = new Camera(GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
     private final List<Positionable> entitiesToDraw = new ArrayList<>();
     private final List<GameListener> listeners = new ArrayList<>();
@@ -35,12 +35,17 @@ public class GamePanel extends JPanel {
     }
 
     public GamePanel(GameEventLog eventLog) {
+        this(eventLog, new Player(DEFAULT_PLAYER_START_X, DEFAULT_PLAYER_START_Y),
+                new TileTestScene2(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT));
+    }
+
+    public GamePanel(GameEventLog eventLog, Player player, WorldScene scene) {
+        this.player = player;
+        this.scene = scene;
         this.eventLog = eventLog;
         setPreferredSize(new Dimension(GAME_WINDOW_WIDTH * TILE_WIDTH, GAME_WINDOW_HEIGHT * TILE_HEIGHT));
         setBackground(Color.BLACK);
         setFocusable(true);
-
-        player.setPosition(DEFAULT_PLAYER_START_X, DEFAULT_PLAYER_START_Y);
 
         addEntity(scene);
         addEntity(player);
@@ -96,10 +101,6 @@ public class GamePanel extends JPanel {
 
     public Player getPlayer() {
         return player;
-    }
-
-    public WorldScene getScene() {
-        return scene;
     }
 
     public void setPaused(boolean paused) {
