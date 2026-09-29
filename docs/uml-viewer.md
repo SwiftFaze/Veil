@@ -22,7 +22,13 @@ Run these from `tools/uml`:
   `.metrics/mutate/` (`PitMutationMetrics`).
 - `bb view` opens the viewer on `target/uml/veil.edn`.
 
-Typical: `bb export && bb view`.
+- `bb uml` runs `export` then `view`, using the colours from your last
+  `mvn verify` and PIT run.
+- `bb uml-fresh` first runs `mvn verify` and PIT (about 17 minutes), so
+  CRAP and mutation colouring are current, then exports and views.
+
+IntelliJ has matching run configurations: **UML viewer** and **UML viewer
+(fresh tests + PIT)**.
 
 ## Where the colours come from
 

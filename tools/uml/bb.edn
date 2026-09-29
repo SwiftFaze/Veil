@@ -12,4 +12,13 @@
                         "-Dexec.classpathScope=test"
                         "-Dexec.mainClass=com.swiftfaze.veil.testing.uml.PitMutationMetrics")}
   view {:doc "Open the viewer on target/uml/veil.edn (run bb export first)"
-        :task (clojure "-M:uml" (str (babashka.fs/path repo "target" "uml" "veil.edn")))}}}
+        :task (clojure "-M:uml" (str (babashka.fs/path repo "target" "uml" "veil.edn")))}
+  uml {:doc "Export, then open the viewer (colours from the last mvn verify / PIT run)"
+       :task (do (run 'export) (run 'view))}
+  uml-fresh {:doc "mvn verify + PIT for fresh CRAP and mutation colouring, then export and view (PIT takes ~17 min)"
+             ;; :continue on PIT: a run under the mutation threshold still writes
+             ;; mutations.xml, which is all the overlay needs.
+             :task (do (shell {:dir repo} "mvn" "verify")
+                       (shell {:dir repo :continue true} "mvn" "org.pitest:pitest-maven:mutationCoverage")
+                       (run 'export)
+                       (run 'view))}}}
