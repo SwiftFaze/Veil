@@ -233,6 +233,16 @@ one, the supplier returns the new object immediately, so edits stay attached
 to the live game player even across a "New Game" restart without restarting
 the dev console.
 
+**Game event log** (`game/event/`): sealed `GameEvent` records (`ScreenChanged`,
+`MenuSelectionChanged`, `PlayerMoved`, `PopupToggled`) recorded into a
+`GameEventLog` for QA replays. It lives in the engine so the UI may depend on
+it. `Main` builds one and injects it into `GamePanel`, `TitleScreenPanel`,
+`PopupToggleListener` and `ui/ScreenNavigator`, which owns every main-card
+switch: one `ScreenChanged` per real change, plus focus and hint refresh, so
+`Main` never calls `CardLayout.show`. A no-op by default; `mvn compile
+exec:java -Dveil.qaLog=<path>` writes each event as one JSON line, flushed on
+append, so a killed run keeps it. A write failure is logged, never thrown.
+
 **`GameConst`** centralizes tunable gameplay constants (window/tile
 dimensions, map size, player start position) — check here first before
 hardcoding a magic number elsewhere. Keyboard bindings live separately in
