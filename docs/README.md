@@ -6,7 +6,7 @@
 - [`ui-widgets.md`](ui-widgets.md) — the reusable Swing widget framework in `ui/widget/` (`ListWidget`, `TableWidget`, `PopupWidget`, etc.) and the mod-driven theming system that colors it.
 - [`ui-styling.md`](ui-styling.md) — concrete layout/spacing, typography, and color rules any panel or widget should follow (outer padding, component gap, h1/h2/p sizes, when a new theme color is actually justified).
 - [`screens.md`](screens.md) — how `Main.java` assembles and navigates between screens, and how each screen panel (Title, Settings, Keybinds, Inventory, Codex) composes the widgets from `ui-widgets.md`.
-- [`testing.md`](testing.md) — index: the three test layers (unit, acceptance, integration), where each lives, and how to run them.
+- [`testing.md`](testing.md) — index: the three test layers (unit, acceptance, integration), where each lives, and how to run them, plus local-only QA key-replay runs.
 - [`testing-acceptance.md`](testing-acceptance.md) — Cucumber acceptance tests and glyph-grid approval tests.
 - [`testing-quality-gates.md`](testing-quality-gates.md) — mutation testing (PIT), PMD/JaCoCo, and the Error Prone/NullAway compile-time gates.
 - [`testing-module-dependency.md`](testing-module-dependency.md) — the ArchUnit module-dependency and package-cycle gate.

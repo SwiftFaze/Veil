@@ -32,6 +32,7 @@ Feature: CRAP gate links per-method complexity to per-method coverage
   script with no Java code path, so they are tagged `@manual-verification`
   like quality-gate-ratchet.feature and verified by running the script.
 
+  QA: none - build tooling, no keyboard input
   Covers: the report, the gate, the baseline, the `crap.max` and baseline
   ratchets in `check-quality-gates.sh`, and the `check-clean.sh` section.
   Supersedes: nothing. The complexity and coverage floors in

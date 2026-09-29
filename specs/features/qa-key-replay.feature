@@ -17,13 +17,26 @@ Feature: QA key-replay procedures check key-driven behaviour in the real window
   Swing's focus machinery. It then checks that `expect` appears in the log as
   an in-order subsequence.
 
-  Run with `mvn -q exec:java -Dexec.mainClass=…QaRunner -Dexec.args=<slug>`
-  or `--all`. It opens a window, so it is local-only: not in CI and not in
-  `check-clean.sh`. That is why this file is `@manual-verification`: the
-  runner is its own check, verified by running it.
+  Run with `mvn -q test-compile exec:java -Dexec.classpathScope=test
+  -Dexec.mainClass=…QaRunner "-Dexec.args=<slug>"` or `--all` (see
+  `docs/testing.md`, "QA runs"). It opens a window, so it is local-only: not
+  in CI and not in `check-clean.sh`. That is why this file is
+  `@manual-verification`: the runner is its own check, verified by running it.
+  The parsing and matching classes (`KeyScript`, `QaProcedure`,
+  `EventMatcher`) have unit tests.
+
+  Each key is dispatched as a KEY_PRESSED then a KEY_RELEASED event to the
+  current focus owner, re-read per key, with the event queue drained between
+  keys. `main` ends in `System.exit` because Swing's non-daemon event thread
+  would otherwise keep `exec:java` alive forever.
+
+  Coordinates in the scenarios below, such as (6, 5), are illustrative. The
+  procedures use the real start position (125, 125), so `map-movement`
+  expects (126, 125) then (127, 125).
 
   First procedures: `main-menu`, `map-movement`, `inventory-toggle`.
 
+  QA: none - this is the QA tooling itself, verified by running QaRunner
   Covers: the procedure file format, the runner, the pass/fail rule, the
   `QA: none - <reason>` opt-out, and the QA step in `implement-issue`.
   Supersedes: nothing. It narrows the Step 4.5 human playtest to feel and

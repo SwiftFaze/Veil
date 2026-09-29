@@ -20,6 +20,7 @@ Feature: Game event log records what the game did
     - `PlayerMoved(x, y)`: the player's position actually changes
     - `PopupToggled(name, open)`: the inventory popup opens or closes
 
+  QA: none - no keyboard input of its own; recorded through the key-driven procedures
   Covers: the event types, when each fires, the no-op default, and the
   `-Dveil.qaLog` file.
   Supersedes: nothing. `GameListener` keeps its UI callbacks.

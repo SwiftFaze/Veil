@@ -27,6 +27,7 @@ Feature: UML export shows Veil's structure with CRAP and mutation colouring
   This file is `@manual-verification`: the end result is a diagram in an
   external viewer, checked by opening it.
 
+  QA: none - build tooling, no keyboard input
   Covers: the export, the mutation-metrics conversion, the policy file, and
   the viewer command.
   Supersedes: nothing. ArchUnit's `ModuleDependencyTest` stays the gate; the
