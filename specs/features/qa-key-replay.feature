@@ -24,6 +24,7 @@ Feature: QA key-replay procedures check key-driven behaviour in the real window
 
   First procedures: `main-menu`, `map-movement`, `inventory-toggle`.
 
+  QA: none - this is the QA tooling itself, verified by running QaRunner
   Covers: the procedure file format, the runner, the pass/fail rule, the
   `QA: none - <reason>` opt-out, and the QA step in `implement-issue`.
   Supersedes: nothing. It narrows the Step 4.5 human playtest to feel and

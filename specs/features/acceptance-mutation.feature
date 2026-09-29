@@ -19,6 +19,7 @@ Feature: Acceptance mutation tests the acceptance tests
   exits 3 if any survived. Like PIT, it is a manual Step 6 command for the
   hardener, not a CI gate. `--feature <slug>` targets one feature.
 
+  QA: none - build tooling, no keyboard input
   Covers: mutant generation, the per-mutant run, survivor reporting, exit
   codes, and `--feature`.
   Supersedes: nothing. PIT (pit-mutation-threshold.feature) still owns
