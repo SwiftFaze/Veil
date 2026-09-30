@@ -28,7 +28,7 @@ public class DevConsoleCommandRunner {
     private static final String SNAPSHOT_VERB = "snapshot";
     private static final String RESTORE_VERB = "restore";
     private static final int MUTATION_MIN_PARTS = 3;
-    private static final int SNAPSHOT_MIN_PARTS = 3;
+    private static final int SNAPSHOT_MIN_PARTS = 2;
     private static final List<String> RESULT_HEADERS = List.of("#", "ID", "Name", "Category", "Mod");
 
     private final DevConsoleModel model;
@@ -114,19 +114,13 @@ public class DevConsoleCommandRunner {
     }
 
     private void runSnapshot(String argument) {
-        String[] parts = argument.split("\\s+", SNAPSHOT_MIN_PARTS);
-        if (parts.length < SNAPSHOT_MIN_PARTS) {
+        String[] parts = argument.split("\\s+", 2);
+        if (parts.length < 2) {
             transcript.appendError("Usage: snapshot <entry> <name>");
             return;
         }
-        Optional<DevConsoleModel.SearchResult> found = model.findByEntryToken(parts[0]);
-        if (found.isEmpty()) {
-            transcript.appendError("No entry found for id: " + parts[0]);
-            return;
-        }
-        Optional<DevConsoleSnapshotter> snapshotter = found.get().provider().snapshotter(found.get().entry().id());
+        Optional<DevConsoleSnapshotter> snapshotter = resolveSnapshotter(parts[0], "snapshot");
         if (snapshotter.isEmpty()) {
-            transcript.appendError("Entry does not support snapshots: " + parts[0]);
             return;
         }
         String message = snapshotter.get().takeSnapshot(parts[1]);
@@ -134,19 +128,13 @@ public class DevConsoleCommandRunner {
     }
 
     private void runRestore(String argument) {
-        String[] parts = argument.split("\\s+", SNAPSHOT_MIN_PARTS);
-        if (parts.length < SNAPSHOT_MIN_PARTS) {
+        String[] parts = argument.split("\\s+", 2);
+        if (parts.length < 2) {
             transcript.appendError("Usage: restore <entry> <name>");
             return;
         }
-        Optional<DevConsoleModel.SearchResult> found = model.findByEntryToken(parts[0]);
-        if (found.isEmpty()) {
-            transcript.appendError("No entry found for id: " + parts[0]);
-            return;
-        }
-        Optional<DevConsoleSnapshotter> snapshotter = found.get().provider().snapshotter(found.get().entry().id());
+        Optional<DevConsoleSnapshotter> snapshotter = resolveSnapshotter(parts[0], "restore");
         if (snapshotter.isEmpty()) {
-            transcript.appendError("Entry does not support snapshots: " + parts[0]);
             return;
         }
         Optional<String> result = snapshotter.get().restoreSnapshot(parts[1]);
@@ -155,6 +143,20 @@ public class DevConsoleCommandRunner {
         } else {
             transcript.appendError("No snapshot named: " + parts[1]);
         }
+    }
+
+    private Optional<DevConsoleSnapshotter> resolveSnapshotter(String entryToken, String verb) {
+        Optional<DevConsoleModel.SearchResult> found = model.findByEntryToken(entryToken);
+        if (found.isEmpty()) {
+            transcript.appendError("No entry found for id: " + entryToken);
+            return Optional.empty();
+        }
+        Optional<DevConsoleSnapshotter> snapshotter = found.get().provider().snapshotter(found.get().entry().id());
+        if (snapshotter.isEmpty()) {
+            transcript.appendError("Entry does not support snapshots: " + entryToken);
+            return Optional.empty();
+        }
+        return snapshotter;
     }
 
     private List<List<String>> resultRows(List<DevConsoleModel.SearchResult> results) {
