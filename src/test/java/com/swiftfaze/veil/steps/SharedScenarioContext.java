@@ -1,6 +1,6 @@
 package com.swiftfaze.veil.steps;
 
-import com.swiftfaze.veil.Camera;
+import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel;
 
 /**

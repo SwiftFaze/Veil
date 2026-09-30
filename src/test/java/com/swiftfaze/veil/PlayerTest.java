@@ -1,6 +1,7 @@
 package com.swiftfaze.veil;
 
 import com.swiftfaze.veil.entities.player.Player;
+import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.world.Tile;
 import com.swiftfaze.veil.world.WorldScene;
 import org.junit.jupiter.api.Test;

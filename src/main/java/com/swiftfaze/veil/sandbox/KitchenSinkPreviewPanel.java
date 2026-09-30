@@ -1,6 +1,6 @@
 package com.swiftfaze.veil.sandbox;
 
-import com.swiftfaze.veil.Camera;
+import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;

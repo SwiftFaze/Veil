@@ -1,8 +1,8 @@
 package com.swiftfaze.veil.game;
 
-import com.swiftfaze.veil.Camera;
-import com.swiftfaze.veil.DrawableAsciiEntity;
-import com.swiftfaze.veil.Positionable;
+import com.swiftfaze.veil.render.Camera;
+import com.swiftfaze.veil.render.DrawableAsciiEntity;
+import com.swiftfaze.veil.render.Positionable;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.event.GameEvent;
 import com.swiftfaze.veil.game.event.GameEventLog;

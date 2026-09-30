@@ -1,4 +1,4 @@
-package com.swiftfaze.veil;
+package com.swiftfaze.veil.render;
 
 public class Camera {
     private static final int MIN_VIEWPORT_TILES = 5;

@@ -1,4 +1,4 @@
-package com.swiftfaze.veil;
+package com.swiftfaze.veil.render;
 
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package com.swiftfaze.veil;
+package com.swiftfaze.veil.render;
 
 public interface Positionable {
     int getX();

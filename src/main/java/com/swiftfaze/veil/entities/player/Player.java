@@ -1,7 +1,7 @@
 package com.swiftfaze.veil.entities.player;
 
-import com.swiftfaze.veil.Camera;
-import com.swiftfaze.veil.DrawableAsciiEntity;
+import com.swiftfaze.veil.render.Camera;
+import com.swiftfaze.veil.render.DrawableAsciiEntity;
 import com.swiftfaze.veil.world.WorldScene;
 
 import java.awt.*;
