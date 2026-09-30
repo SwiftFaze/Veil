@@ -9,6 +9,7 @@ import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
+import com.swiftfaze.veil.sandbox.KitchenSinkProvider;
 import com.swiftfaze.veil.sandbox.PlayerDetailPanel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.ui.widget.TableWidget;
@@ -38,6 +39,7 @@ public class DevConsoleSteps {
     private static final String TRANSCRIPT_SHOULD_HAVE_ENTRIES = "Transcript should have entries";
     private static final String CLASSES_PROVIDER_NAME = "Classes";
     private static final String PLAYER_PROVIDER_NAME = "Player";
+    private static final String KITCHEN_SINK_PROVIDER_NAME = "Kitchen Sink";
 
     private DevConsoleModel model;
     private DevConsolePanel panel;
@@ -639,6 +641,17 @@ public class DevConsoleSteps {
         if (PLAYER_PROVIDER_NAME.equals(name)) {
             return new PlayerSandboxProvider(() -> livePlayer);
         }
+        if (KITCHEN_SINK_PROVIDER_NAME.equals(name)) {
+            return new KitchenSinkProvider();
+        }
         throw new IllegalArgumentException("Unknown provider: " + name);
+    }
+
+    public DevConsoleModel getModel() {
+        return model;
+    }
+
+    public DevConsolePanel getPanel() {
+        return panel;
     }
 }

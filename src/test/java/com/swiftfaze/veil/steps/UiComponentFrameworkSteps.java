@@ -7,6 +7,7 @@ import com.swiftfaze.veil.game.GamePanel;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.sandbox.ClassSandboxModel;
 import com.swiftfaze.veil.sandbox.ClassSandboxPanel;
+import com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel;
 import com.swiftfaze.veil.ui.CodexPanel;
 import com.swiftfaze.veil.ui.InventoryPanel;
 import com.swiftfaze.veil.ui.ResetConfirmationPopup;
@@ -70,6 +71,7 @@ public class UiComponentFrameworkSteps {
     private ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
     private InventoryPanel inventoryPanel;
     private CodexPanel codexPanel;
+    private KitchenSinkPreviewPanel kitchenSinkPreviewPanel;
 
     private static final List<ControlsHintBarWidget.Hint> GAME_HINTS = List.of(
             new ControlsHintBarWidget.Hint("i", "Inventory"),
@@ -122,6 +124,17 @@ public class UiComponentFrameworkSteps {
             case "Down" -> fireDownKey();
             case "Left" -> fireLeftKey();
             case "Right" -> fireRightKey();
+            case "Z" -> fireUpKey();
+            case "S" -> fireDownKey();
+            case "Q" -> fireLeftKey();
+            case "D" -> fireRightKey();
+            case "W" -> {
+                if (kitchenSinkPreviewPanel != null) {
+                    firePreviewPanelKey("toggle-walkability");
+                } else {
+                    throw new IllegalArgumentException("W key only works with kitchen-sink preview");
+                }
+            }
             case "Enter" -> fireEnterKey();
             case "Escape" -> fireEscapeKey();
             case "I" -> fireToggleInventoryKey();
@@ -131,7 +144,9 @@ public class UiComponentFrameworkSteps {
     }
 
     private void fireUpKey() {
-        if (keybindsPanel != null) {
+        if (kitchenSinkPreviewPanel != null) {
+            firePreviewPanelKey("move-up");
+        } else if (keybindsPanel != null) {
             keybindsPanel.moveUp();
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
             firePopupAction(inventoryPanel, "popup-up");
@@ -151,7 +166,9 @@ public class UiComponentFrameworkSteps {
     }
 
     private void fireDownKey() {
-        if (keybindsPanel != null) {
+        if (kitchenSinkPreviewPanel != null) {
+            firePreviewPanelKey("move-down");
+        } else if (keybindsPanel != null) {
             keybindsPanel.moveDown();
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
             firePopupAction(inventoryPanel, "popup-down");
@@ -171,7 +188,9 @@ public class UiComponentFrameworkSteps {
     }
 
     private void fireLeftKey() {
-        if (confirmationPopupIsOpen()) {
+        if (kitchenSinkPreviewPanel != null) {
+            firePreviewPanelKey("move-left");
+        } else if (confirmationPopupIsOpen()) {
             fireResetChoiceAction("radio-left");
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
             firePopupAction(inventoryPanel, "popup-left");
@@ -189,7 +208,9 @@ public class UiComponentFrameworkSteps {
     }
 
     private void fireRightKey() {
-        if (confirmationPopupIsOpen()) {
+        if (kitchenSinkPreviewPanel != null) {
+            firePreviewPanelKey("move-right");
+        } else if (confirmationPopupIsOpen()) {
             fireResetChoiceAction("radio-right");
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
             firePopupAction(inventoryPanel, "popup-right");
@@ -252,6 +273,16 @@ public class UiComponentFrameworkSteps {
         Action action = widget.getActionMap().get(actionName);
         if (action != null) {
             action.actionPerformed(new ActionEvent(widget, ActionEvent.ACTION_PERFORMED, actionName));
+        }
+    }
+
+    private void firePreviewPanelKey(String actionName) {
+        if (kitchenSinkPreviewPanel == null) {
+            return;
+        }
+        Action action = kitchenSinkPreviewPanel.getActionMap().get(actionName);
+        if (action != null) {
+            action.actionPerformed(new ActionEvent(kitchenSinkPreviewPanel, ActionEvent.ACTION_PERFORMED, actionName));
         }
     }
 
@@ -1099,6 +1130,10 @@ public class UiComponentFrameworkSteps {
             guard++;
         }
         assertEquals(option, choice.getHighlightedOption());
+    }
+
+    public void setKitchenSinkPreviewPanel(KitchenSinkPreviewPanel panel) {
+        this.kitchenSinkPreviewPanel = panel;
     }
 
 }

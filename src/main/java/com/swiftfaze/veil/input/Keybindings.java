@@ -16,6 +16,7 @@ public final class Keybindings {
     public static final KeyStroke TOGGLE_INVENTORY = KeyStroke.getKeyStroke(KeyEvent.VK_I, 0);
     public static final KeyStroke TOGGLE_CODEX = KeyStroke.getKeyStroke(KeyEvent.VK_X, 0);
     public static final KeyStroke TOGGLE_DEV_CONSOLE = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0);
+    public static final KeyStroke TOGGLE_WALKABILITY = KeyStroke.getKeyStroke(KeyEvent.VK_W, 0);
     public static final KeyStroke NEXT_TAB = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0);
     public static final KeyStroke PREV_TAB = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, KeyEvent.SHIFT_DOWN_MASK);
 
@@ -34,6 +35,7 @@ public final class Keybindings {
     public static final String ACTION_TOGGLE_INVENTORY = "toggle-inventory";
     public static final String ACTION_TOGGLE_CODEX = "toggle-codex";
     public static final String ACTION_TOGGLE_DEV_CONSOLE = "toggle-dev-console";
+    public static final String ACTION_TOGGLE_WALKABILITY = "toggle-walkability";
     public static final String ACTION_TOGGLE_PAUSE = "toggle-pause";
     public static final String ACTION_NEXT_TAB = "next-tab";
     public static final String ACTION_PREV_TAB = "prev-tab";

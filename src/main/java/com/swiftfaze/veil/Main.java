@@ -28,6 +28,7 @@ import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
+import com.swiftfaze.veil.sandbox.KitchenSinkProvider;
 import com.swiftfaze.veil.game.GameListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,7 +238,7 @@ public class Main {
         }
 
         DevConsoleModel model = new DevConsoleModel(
-            List.of(new ClassSandboxProvider(), new PlayerSandboxProvider(gamePanel::getPlayer))
+            List.of(new ClassSandboxProvider(), new PlayerSandboxProvider(gamePanel::getPlayer), new KitchenSinkProvider())
         );
         DevConsolePanel console = new DevConsolePanel(model);
 
