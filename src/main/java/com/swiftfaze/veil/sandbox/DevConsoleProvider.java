@@ -34,4 +34,15 @@ public interface DevConsoleProvider {
     default Optional<DevConsoleFieldMutator> fieldMutator(String id) {
         return Optional.empty();
     }
+
+    /**
+     * Opt-in hook for a provider whose entries support snapshot/restore of position and stats
+     * via the command bar's snapshot/restore verbs. Empty by default - only
+     * {@link PlayerSandboxProvider} overrides it for v1.
+     *
+     * @param id the {@link DevConsoleEntry#id()} the snapshots target
+     */
+    default Optional<DevConsoleSnapshotter> snapshotter(String id) {
+        return Optional.empty();
+    }
 }

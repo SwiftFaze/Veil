@@ -15,6 +15,8 @@ public class DevConsoleCompletion {
     private static final String SET_VERB = "set";
     private static final String ADD_VERB = "add";
     private static final String SUBTRACT_VERB = "subtract";
+    private static final String SNAPSHOT_VERB = "snapshot";
+    private static final String RESTORE_VERB = "restore";
     private static final String DEFAULT_VALUE = "default";
 
     private final DevConsoleModel model;
@@ -83,6 +85,7 @@ public class DevConsoleCompletion {
             case SEARCH_VERB -> searchCandidates(prefix);
             case EDIT_VERB -> editCandidates(prefix);
             case SET_VERB, ADD_VERB, SUBTRACT_VERB -> mutationEntryCandidates(prefix);
+            case SNAPSHOT_VERB, RESTORE_VERB -> snapshotterEntryCandidates(prefix);
             default -> List.of();
         };
     }
@@ -112,7 +115,7 @@ public class DevConsoleCompletion {
      * Position 0: verb candidates from the fixed verb set.
      */
     private List<String> verbCandidates(String prefix) {
-        List<String> verbs = List.of(SEARCH_VERB, EDIT_VERB, SET_VERB, ADD_VERB, SUBTRACT_VERB);
+        List<String> verbs = List.of(SEARCH_VERB, EDIT_VERB, SET_VERB, ADD_VERB, SUBTRACT_VERB, SNAPSHOT_VERB, RESTORE_VERB);
         return verbs.stream()
                 .filter(v -> v.startsWith(prefix.toLowerCase(Locale.ROOT)))
                 .toList();
@@ -158,6 +161,19 @@ public class DevConsoleCompletion {
         String lowerPrefix = prefix.toLowerCase(Locale.ROOT);
         return model.allResults().stream()
                 .filter(result -> result.provider().fieldMutator(result.entry().id()).isPresent())
+                .map(result -> localId(result.entry().id()))
+                .filter(localId -> localId.toLowerCase(Locale.ROOT).startsWith(lowerPrefix))
+                .toList();
+    }
+
+    /**
+     * Position 1, verb=snapshot/restore: candidates from local-id form (part after `:`)
+     * of entries whose provider has a snapshotter.
+     */
+    private List<String> snapshotterEntryCandidates(String prefix) {
+        String lowerPrefix = prefix.toLowerCase(Locale.ROOT);
+        return model.allResults().stream()
+                .filter(result -> result.provider().snapshotter(result.entry().id()).isPresent())
                 .map(result -> localId(result.entry().id()))
                 .filter(localId -> localId.toLowerCase(Locale.ROOT).startsWith(lowerPrefix))
                 .toList();

@@ -13,6 +13,7 @@ import java.util.function.Consumer;
  * it to the caller to open. `set`/`add`/`subtract <entry> <field> <value>` mutate a live entity's
  * field via {@link DevConsoleFieldMutator} and write a SUCCESS/ERROR transcript line - only
  * entities whose provider returns one from {@link DevConsoleProvider#fieldMutator} support this.
+ * `snapshot`/`restore <entry> <name>` capture or restore entity state via {@link DevConsoleSnapshotter}.
  * Anything else writes a specific error line instead of running anything - an unrecognized verb
  * ("Unknown command: ..."), a verb missing its required argument ("Usage: ..."), or an `edit` id
  * that resolves to no entry ("No entry found for id: ...").
@@ -24,7 +25,10 @@ public class DevConsoleCommandRunner {
     private static final String SET_VERB = "set";
     private static final String ADD_VERB = "add";
     private static final String SUBTRACT_VERB = "subtract";
+    private static final String SNAPSHOT_VERB = "snapshot";
+    private static final String RESTORE_VERB = "restore";
     private static final int MUTATION_MIN_PARTS = 3;
+    private static final int SNAPSHOT_MIN_PARTS = 3;
     private static final List<String> RESULT_HEADERS = List.of("#", "ID", "Name", "Category", "Mod");
 
     private final DevConsoleModel model;
@@ -49,6 +53,8 @@ public class DevConsoleCommandRunner {
             case SET_VERB -> runMutation(DevConsoleMutationVerb.SET, argument);
             case ADD_VERB -> runMutation(DevConsoleMutationVerb.ADD, argument);
             case SUBTRACT_VERB -> runMutation(DevConsoleMutationVerb.SUBTRACT, argument);
+            case SNAPSHOT_VERB -> runSnapshot(argument);
+            case RESTORE_VERB -> runRestore(argument);
             default -> transcript.appendError("Unknown command: " + trimmed);
         }
     }
@@ -104,6 +110,50 @@ public class DevConsoleCommandRunner {
             transcript.appendSuccess(success.fieldName() + " set to " + success.newValue());
         } else if (result instanceof DevConsoleMutationResult.Failure failure) {
             transcript.appendError("Invalid input: " + failure.token());
+        }
+    }
+
+    private void runSnapshot(String argument) {
+        String[] parts = argument.split("\\s+", SNAPSHOT_MIN_PARTS);
+        if (parts.length < SNAPSHOT_MIN_PARTS) {
+            transcript.appendError("Usage: snapshot <entry> <name>");
+            return;
+        }
+        Optional<DevConsoleModel.SearchResult> found = model.findByEntryToken(parts[0]);
+        if (found.isEmpty()) {
+            transcript.appendError("No entry found for id: " + parts[0]);
+            return;
+        }
+        Optional<DevConsoleSnapshotter> snapshotter = found.get().provider().snapshotter(found.get().entry().id());
+        if (snapshotter.isEmpty()) {
+            transcript.appendError("Entry does not support snapshots: " + parts[0]);
+            return;
+        }
+        String message = snapshotter.get().takeSnapshot(parts[1]);
+        transcript.appendSuccess(message);
+    }
+
+    private void runRestore(String argument) {
+        String[] parts = argument.split("\\s+", SNAPSHOT_MIN_PARTS);
+        if (parts.length < SNAPSHOT_MIN_PARTS) {
+            transcript.appendError("Usage: restore <entry> <name>");
+            return;
+        }
+        Optional<DevConsoleModel.SearchResult> found = model.findByEntryToken(parts[0]);
+        if (found.isEmpty()) {
+            transcript.appendError("No entry found for id: " + parts[0]);
+            return;
+        }
+        Optional<DevConsoleSnapshotter> snapshotter = found.get().provider().snapshotter(found.get().entry().id());
+        if (snapshotter.isEmpty()) {
+            transcript.appendError("Entry does not support snapshots: " + parts[0]);
+            return;
+        }
+        Optional<String> result = snapshotter.get().restoreSnapshot(parts[1]);
+        if (result.isPresent()) {
+            transcript.appendSuccess(result.get());
+        } else {
+            transcript.appendError("No snapshot named: " + parts[1]);
         }
     }
 
