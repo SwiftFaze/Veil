@@ -2,10 +2,12 @@ package com.swiftfaze.veil.steps;
 
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.entities.player.Stats;
+import com.swiftfaze.veil.exceptions.ModLoadException;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
+import com.swiftfaze.veil.sandbox.DevConsoleEntry;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
@@ -42,6 +44,7 @@ public class DevConsoleSteps {
     private DevConsoleModel model;
     private DevConsolePanel panel;
     private Player livePlayer;
+    private Player playerBeforeReload;
     private PlayerDetailPanel playerDetailPanel;
     private Player identityBeforeEdit;
     private int maxHpBeforeEdit;
@@ -49,6 +52,8 @@ public class DevConsoleSteps {
     private int lastEditedFieldValue;
     private Stats statsSnapshot;
     private String classSnapshot;
+    private FakeDevConsoleProvider fakeProvider;
+    private FakeDevConsoleProvider secondProvider;
 
     @Given("the dev console is running with the {string} provider registered")
     public void theDevConsoleIsRunningWithTheProviderRegistered(String providerName) {
@@ -379,8 +384,11 @@ public class DevConsoleSteps {
 
     @When("the command bar is set to {string}")
     public void theCommandBarIsSetTo(String command) {
-        statsSnapshot = snapshot(livePlayer.getPlayerInfo().getStats());
-        classSnapshot = livePlayer.getPlayerInfo().getPlayerClass().getName();
+        if (livePlayer != null) {
+            statsSnapshot = snapshot(livePlayer.getPlayerInfo().getStats());
+            classSnapshot = livePlayer.getPlayerInfo().getPlayerClass().getName();
+            playerBeforeReload = livePlayer;
+        }
         panel.getSearchField().setText(command);
         panel.runCommand();
     }
@@ -632,6 +640,130 @@ public class DevConsoleSteps {
                 .orElseThrow(() -> new IllegalArgumentException("No result named: " + name));
     }
 
+    @Given("the dev console is running with a provider whose entries can change")
+    public void theDevConsoleIsRunningWithAProviderWhoseEntriesCanChange() {
+        fakeProvider = new FakeDevConsoleProvider("Classes");
+        List<DevConsoleProvider> providers = List.of(fakeProvider);
+        model = new DevConsoleModel(providers);
+        panel = new DevConsolePanel(model);
+    }
+
+    @Given("the provider starts with the entry {string}")
+    public void theProviderStartsWithTheEntry(String entryId) {
+        // Entries must be set before model construction, so recreate
+        fakeProvider.addEntry(createEntry(entryId));
+        model = new DevConsoleModel(List.of(fakeProvider));
+        panel = new DevConsolePanel(model);
+    }
+
+    @Given("the provider starts with the entries {string} and {string}")
+    public void theProviderStartsWithTheEntries(String entry1, String entry2) {
+        fakeProvider.addEntry(createEntry(entry1));
+        fakeProvider.addEntry(createEntry(entry2));
+        model = new DevConsoleModel(List.of(fakeProvider));
+        panel = new DevConsolePanel(model);
+    }
+
+    @Given("the provider's data now also contains the entry {string}")
+    public void theProviderSDataNowAlsoContainsTheEntry(String entryId) {
+        fakeProvider.addEntry(createEntry(entryId));
+    }
+
+    @Given("the provider's data now only contains the entry {string}")
+    public void theProviderSDataNowOnlyContainsTheEntry(String entryId) {
+        fakeProvider.clearEntries();
+        fakeProvider.addEntry(createEntry(entryId));
+    }
+
+    @Given("the provider's next refresh fails with {string}")
+    public void theProviderSNextRefreshFailsWith(String errorMessage) {
+        fakeProvider.setNextReloadFails(errorMessage);
+    }
+
+    @Then("searching for {string} finds the entry {string}")
+    public void searchingForFindsTheEntry(String searchTerm, String expectedEntryId) {
+        model.setSearchText(searchTerm);
+        List<DevConsoleModel.SearchResult> results = model.filteredResults();
+        boolean found = results.stream()
+                .anyMatch(r -> r.entry().id().equals(expectedEntryId));
+        assertTrue(found, "Entry " + expectedEntryId + " not found in search results for: " + searchTerm);
+    }
+
+    @Then("searching for {string} finds no entries")
+    public void searchingForFindsNoEntries(String searchTerm) {
+        model.setSearchText(searchTerm);
+        List<DevConsoleModel.SearchResult> results = model.filteredResults();
+        assertTrue(results.isEmpty(), "Expected no results for search: " + searchTerm);
+    }
+
+    @Then("the transcript's last line is a SUCCESS line {string}")
+    public void theTranscriptSLastLineIsASuccessLine(String expectedText) {
+        var lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level(),
+            "Expected SUCCESS line but got: " + lastEntry.level());
+        assertTrue(lastEntry.text().contains(expectedText),
+            "Expected SUCCESS line to contain: " + expectedText + ", but got: " + lastEntry.text());
+    }
+
+    @Then("the transcript's last line is an ERROR line {string}")
+    public void theTranscriptSLastLineIsAnErrorLine(String expectedText) {
+        var lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level(),
+            "Expected ERROR line but got: " + lastEntry.level());
+        assertTrue(lastEntry.text().contains(expectedText),
+            "Expected ERROR line to contain: " + expectedText + ", but got: " + lastEntry.text());
+    }
+
+    @Then("every registered provider was asked to refresh exactly once")
+    public void everyRegisteredProviderWasAskedToRefreshExactlyOnce() {
+        assertEquals(1, fakeProvider.reloadCallCount(), "First provider should be reloaded once");
+        if (secondProvider != null) {
+            assertEquals(1, secondProvider.reloadCallCount(), "Second provider should be reloaded once");
+        }
+    }
+
+    @Then("no provider was asked to refresh")
+    public void noProviderWasAskedToRefresh() {
+        assertEquals(0, fakeProvider.reloadCallCount(), "Provider should not be reloaded");
+        if (secondProvider != null) {
+            assertEquals(0, secondProvider.reloadCallCount(), "Second provider should not be reloaded");
+        }
+    }
+
+    @Given("a second provider is also registered")
+    public void aSecondProviderIsAlsoRegistered() {
+        secondProvider = new FakeDevConsoleProvider("Quests");
+        List<DevConsoleProvider> providers = List.of(fakeProvider, secondProvider);
+        model = new DevConsoleModel(providers);
+        panel = new DevConsolePanel(model);
+    }
+
+    @Given("the dev console also has the {string} provider attached to the running player")
+    public void theDevConsoleAlsoHasTheProviderAttachedToTheRunningPlayer(String providerName) {
+        if (livePlayer == null) {
+            livePlayer = new Player(0, 0);
+        }
+        List<DevConsoleProvider> providers = List.of(fakeProvider, new PlayerSandboxProvider(() -> livePlayer));
+        model = new DevConsoleModel(providers);
+        panel = new DevConsolePanel(model);
+    }
+
+    @Then("the transcript reports {int} results for {string}")
+    public void theTranscriptReportsResultsFor(int expectedCount, String searchTerm) {
+        var entries = panel.getTranscript().entries();
+        boolean found = entries.stream().anyMatch(entry ->
+            entry.level() == TranscriptWidget.Level.INFO &&
+            entry.text().contains(String.valueOf(expectedCount)) &&
+            entry.text().contains(searchTerm)
+        );
+        assertTrue(found, "Expected transcript to report " + expectedCount + " results for: " + searchTerm);
+    }
+
+    @Then("the running player is the same player instance as before the reload")
+    public void theRunningPlayerIsSamePlayerInstanceAsBeforeTheReload() {
+        assertSame(playerBeforeReload, livePlayer, "Player should be the same instance");
+    }
+
     private DevConsoleProvider providerFor(String name) {
         if (CLASSES_PROVIDER_NAME.equals(name)) {
             return new ClassSandboxProvider();
@@ -640,5 +772,59 @@ public class DevConsoleSteps {
             return new PlayerSandboxProvider(() -> livePlayer);
         }
         throw new IllegalArgumentException("Unknown provider: " + name);
+    }
+
+    private DevConsoleEntry createEntry(String id) {
+        String namespace = "core";
+        String category = "Classes";
+        String name = id.replace("core:", "");
+        return new DevConsoleEntry(namespace, id, category, name);
+    }
+
+    static class FakeDevConsoleProvider implements DevConsoleProvider {
+        private final String category;
+        private final java.util.List<DevConsoleEntry> entries = new java.util.ArrayList<>();
+        private int reloadCount = 0;
+        private String nextReloadError = null;
+
+        FakeDevConsoleProvider(String category) {
+            this.category = category;
+        }
+
+        @Override
+        public List<DevConsoleEntry> entries() {
+            return new java.util.ArrayList<>(entries);
+        }
+
+        @Override
+        public javax.swing.JComponent createPanel(String id) {
+            return new javax.swing.JPanel();
+        }
+
+        @Override
+        public void reload() {
+            if (nextReloadError != null) {
+                String error = nextReloadError;
+                nextReloadError = null;
+                throw new com.swiftfaze.veil.exceptions.ModLoadException(error);
+            }
+            reloadCount++;
+        }
+
+        void addEntry(DevConsoleEntry entry) {
+            entries.add(entry);
+        }
+
+        void clearEntries() {
+            entries.clear();
+        }
+
+        void setNextReloadFails(String errorMessage) {
+            this.nextReloadError = errorMessage;
+        }
+
+        int reloadCallCount() {
+            return reloadCount;
+        }
     }
 }

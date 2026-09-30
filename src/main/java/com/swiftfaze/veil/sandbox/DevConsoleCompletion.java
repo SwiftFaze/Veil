@@ -15,6 +15,7 @@ public class DevConsoleCompletion {
     private static final String SET_VERB = "set";
     private static final String ADD_VERB = "add";
     private static final String SUBTRACT_VERB = "subtract";
+    private static final String RELOAD_VERB = "reload";
     private static final String DEFAULT_VALUE = "default";
 
     private final DevConsoleModel model;
@@ -112,7 +113,7 @@ public class DevConsoleCompletion {
      * Position 0: verb candidates from the fixed verb set.
      */
     private List<String> verbCandidates(String prefix) {
-        List<String> verbs = List.of(SEARCH_VERB, EDIT_VERB, SET_VERB, ADD_VERB, SUBTRACT_VERB);
+        List<String> verbs = List.of(SEARCH_VERB, EDIT_VERB, SET_VERB, ADD_VERB, SUBTRACT_VERB, RELOAD_VERB);
         return verbs.stream()
                 .filter(v -> v.startsWith(prefix.toLowerCase(Locale.ROOT)))
                 .toList();

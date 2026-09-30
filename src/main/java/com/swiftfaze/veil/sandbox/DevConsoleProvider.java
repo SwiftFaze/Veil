@@ -34,4 +34,13 @@ public interface DevConsoleProvider {
     default Optional<DevConsoleFieldMutator> fieldMutator(String id) {
         return Optional.empty();
     }
+
+    /**
+     * Opt-in hook for providers that cache mod-loaded data and need to refresh from disk
+     * when {@link DevConsoleModel#reload()} is called. No-op by default. Providers that
+     * already re-read mods/ on every {@link #entries()} call need not override this.
+     * May throw {@link com.swiftfaze.veil.exceptions.ModLoadException} if the reload fails.
+     */
+    default void reload() {
+    }
 }
