@@ -9,8 +9,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-import com.swiftfaze.veil.steps.DevConsoleSteps;
-
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.nio.file.Paths;
@@ -25,20 +23,17 @@ public class KitchenSinkSandboxSteps {
     private KitchenSinkPreviewPanel previewPanel;
     private int markerXBeforeMove;
     private int markerYBeforeMove;
-    private final UiComponentFrameworkSteps uiSteps;
-    private final DevConsoleSteps consoleSteps;
 
-    public KitchenSinkSandboxSteps(UiComponentFrameworkSteps uiSteps, DevConsoleSteps consoleSteps) {
-        this.uiSteps = uiSteps;
-        this.consoleSteps = consoleSteps;
+    public KitchenSinkSandboxSteps() {
+        // Cucumber instantiates with no-arg constructor. Dependencies accessed via SharedScenarioContext.
     }
 
     @Given("the kitchen-sink entry is opened")
     public void theKitchenSinkEntryIsOpened() {
         // This step assumes the dev console is already running with Kitchen Sink provider
         // Find the kitchen sink entry and open it
-        var model = consoleSteps.getModel();
-        var panel = consoleSteps.getPanel();
+        var model = SharedScenarioContext.getDevConsoleSteps().getModel();
+        var panel = SharedScenarioContext.getDevConsoleSteps().getPanel();
 
         var result = model.filteredResults().stream()
                 .filter(r -> "sandbox:kitchen-sink".equals(r.entry().id()))
@@ -50,20 +45,20 @@ public class KitchenSinkSandboxSteps {
 
         if (panel.isProviderPanelShowing() && panel.getOpenedProviderPanel() instanceof KitchenSinkPreviewPanel) {
             previewPanel = (KitchenSinkPreviewPanel) panel.getOpenedProviderPanel();
-            uiSteps.setKitchenSinkPreviewPanel(previewPanel);
+            SharedScenarioContext.setKitchenSinkPreviewPanel(previewPanel);
         }
     }
 
     @Then("the results include exactly one entry from the {string} provider")
     public void theResultsIncludeExactlyOneEntryFromTheProvider(String providerName) {
-        var model = consoleSteps.getModel();
+        var model = SharedScenarioContext.getDevConsoleSteps().getModel();
         assertEquals(1, model.filteredResults().size(),
                 "Expected exactly one entry from " + providerName + " provider");
     }
 
     @Then("that entry has namespace {string}, id {string}, category {string} and name {string}")
     public void thatEntryHasNamespaceIdCategoryAndName(String namespace, String id, String category, String name) {
-        var model = consoleSteps.getModel();
+        var model = SharedScenarioContext.getDevConsoleSteps().getModel();
         assertTrue(model.filteredResults().size() > 0, "No results found");
         var result = model.filteredResults().get(0);
         assertEquals(namespace, result.entry().namespace());
@@ -271,7 +266,7 @@ public class KitchenSinkSandboxSteps {
 
     @Then("the opened detail panel shows {string}")
     public void theOpenedDetailPanelShows(String text) {
-        var panel = consoleSteps.getPanel();
+        var panel = SharedScenarioContext.getDevConsoleSteps().getPanel();
         assertTrue(panel.isProviderPanelShowing(), "Provider panel not shown");
     }
 

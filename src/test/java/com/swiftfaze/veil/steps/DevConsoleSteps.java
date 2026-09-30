@@ -57,6 +57,7 @@ public class DevConsoleSteps {
         List<DevConsoleProvider> providers = List.of(providerFor(providerName));
         model = new DevConsoleModel(providers);
         panel = new DevConsolePanel(model);
+        SharedScenarioContext.setDevConsoleSteps(this);
     }
 
     @Given("the dev console is running with the {string} and {string} providers registered")
@@ -65,6 +66,7 @@ public class DevConsoleSteps {
         List<DevConsoleProvider> providers = List.of(providerFor(provider1), providerFor(provider2));
         model = new DevConsoleModel(providers);
         panel = new DevConsolePanel(model);
+        SharedScenarioContext.setDevConsoleSteps(this);
     }
 
     @Given("the dev console is running with the {string} provider attached to the running player")
@@ -73,6 +75,7 @@ public class DevConsoleSteps {
         List<DevConsoleProvider> providers = List.of(new PlayerSandboxProvider(() -> livePlayer));
         model = new DevConsoleModel(providers);
         panel = new DevConsolePanel(model);
+        SharedScenarioContext.setDevConsoleSteps(this);
     }
 
     @When("the search text is set to {string}")

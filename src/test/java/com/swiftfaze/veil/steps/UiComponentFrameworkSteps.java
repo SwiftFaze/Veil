@@ -52,6 +52,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class UiComponentFrameworkSteps {
 
+    public UiComponentFrameworkSteps() {
+        SharedScenarioContext.setUiSteps(this);
+    }
+
     private ListWidget<String> listWidget;
     private ButtonWidget buttonWidget;
     private String selectedItem;
@@ -71,7 +75,6 @@ public class UiComponentFrameworkSteps {
     private ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
     private InventoryPanel inventoryPanel;
     private CodexPanel codexPanel;
-    private KitchenSinkPreviewPanel kitchenSinkPreviewPanel;
 
     private static final List<ControlsHintBarWidget.Hint> GAME_HINTS = List.of(
             new ControlsHintBarWidget.Hint("i", "Inventory"),
@@ -129,7 +132,7 @@ public class UiComponentFrameworkSteps {
             case "Q" -> fireLeftKey();
             case "D" -> fireRightKey();
             case "W" -> {
-                if (kitchenSinkPreviewPanel != null) {
+                if (SharedScenarioContext.getKitchenSinkPreviewPanel() != null) {
                     firePreviewPanelKey("toggle-walkability");
                 } else {
                     throw new IllegalArgumentException("W key only works with kitchen-sink preview");
@@ -144,7 +147,7 @@ public class UiComponentFrameworkSteps {
     }
 
     private void fireUpKey() {
-        if (kitchenSinkPreviewPanel != null) {
+        if (SharedScenarioContext.getKitchenSinkPreviewPanel() != null) {
             firePreviewPanelKey("move-up");
         } else if (keybindsPanel != null) {
             keybindsPanel.moveUp();
@@ -166,7 +169,7 @@ public class UiComponentFrameworkSteps {
     }
 
     private void fireDownKey() {
-        if (kitchenSinkPreviewPanel != null) {
+        if (SharedScenarioContext.getKitchenSinkPreviewPanel() != null) {
             firePreviewPanelKey("move-down");
         } else if (keybindsPanel != null) {
             keybindsPanel.moveDown();
@@ -188,7 +191,7 @@ public class UiComponentFrameworkSteps {
     }
 
     private void fireLeftKey() {
-        if (kitchenSinkPreviewPanel != null) {
+        if (SharedScenarioContext.getKitchenSinkPreviewPanel() != null) {
             firePreviewPanelKey("move-left");
         } else if (confirmationPopupIsOpen()) {
             fireResetChoiceAction("radio-left");
@@ -208,7 +211,7 @@ public class UiComponentFrameworkSteps {
     }
 
     private void fireRightKey() {
-        if (kitchenSinkPreviewPanel != null) {
+        if (SharedScenarioContext.getKitchenSinkPreviewPanel() != null) {
             firePreviewPanelKey("move-right");
         } else if (confirmationPopupIsOpen()) {
             fireResetChoiceAction("radio-right");
@@ -277,12 +280,13 @@ public class UiComponentFrameworkSteps {
     }
 
     private void firePreviewPanelKey(String actionName) {
-        if (kitchenSinkPreviewPanel == null) {
+        KitchenSinkPreviewPanel panel = SharedScenarioContext.getKitchenSinkPreviewPanel();
+        if (panel == null) {
             return;
         }
-        Action action = kitchenSinkPreviewPanel.getActionMap().get(actionName);
+        Action action = panel.getActionMap().get(actionName);
         if (action != null) {
-            action.actionPerformed(new ActionEvent(kitchenSinkPreviewPanel, ActionEvent.ACTION_PERFORMED, actionName));
+            action.actionPerformed(new ActionEvent(panel, ActionEvent.ACTION_PERFORMED, actionName));
         }
     }
 
@@ -1130,10 +1134,6 @@ public class UiComponentFrameworkSteps {
             guard++;
         }
         assertEquals(option, choice.getHighlightedOption());
-    }
-
-    public void setKitchenSinkPreviewPanel(KitchenSinkPreviewPanel panel) {
-        this.kitchenSinkPreviewPanel = panel;
     }
 
 }
