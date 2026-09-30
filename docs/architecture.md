@@ -220,8 +220,8 @@ this path.
 **Player sandbox** (live in-game editor): `PlayerSandboxProvider` holds a
 `Supplier<Player>` (not a direct reference) to always read whichever player
 is currently running in the game. `PlayerDetailPanel` shows that player's
-editable stats (all ten base attributes, max/current HP/mana, and class) plus
-read-only derived stats (attack power, defense), using the same `TableWidget`
+editable stats (all ten base attributes, max/current HP/mana, and class), the
+player's X/Y tile position (teleport, floored at 0), plus read-only derived stats (attack power, defense), using the same `TableWidget`
 row-navigation and Left/Right-to-adjust interaction pattern as
 `SettingsKeybindsPanel`. Editing a stat changes it on the live object
 immediately; the game's next frame sees the change. Cycling the Class field
