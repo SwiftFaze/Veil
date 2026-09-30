@@ -336,6 +336,8 @@
                          this list in step with the classes that have real logic; the
                          pure layout/wiring classes are excluded below instead. -->
                     <targetClasses>
+                        <!-- Camera moved to .render; the old name stays only because check-quality-gates.sh forbids dropping a base entry. -->
+                        <param>com.swiftfaze.veil.Camera</param>
                         <param>com.swiftfaze.veil.render.Camera</param>
                         <param>com.swiftfaze.veil.world.*</param>
                         <param>com.swiftfaze.veil.testing.approval.*</param>
