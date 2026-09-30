@@ -4,6 +4,7 @@ import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.sandbox.ClassDetailPanel;
 import com.swiftfaze.veil.sandbox.ClassSandboxModel;
+import com.swiftfaze.veil.ui.widget.TableWidget;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -12,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -21,7 +23,7 @@ public class ClassStatsLevelRangeSteps {
     private ClassSandboxModel model;
     private ClassDetailPanel detailPanel;
     private List<PlayerClass> classesForModel;
-    private Exception lastException;
+    private Optional<Exception> openFailure = Optional.empty();
 
     @Given("a class {string} with base strength {int} growing by {string} and base max HP {int}")
     public void aClassWithBaseStrengthGrowingByAndBaseMaxHp(String className, int baseStrength, String growthCalc, int baseMaxHp) {
@@ -52,66 +54,34 @@ public class ClassStatsLevelRangeSteps {
     @When("the detail view for {string} is opened")
     public void theDetailViewForIsOpened(String className) {
         try {
-            lastException = null;
+            openFailure = Optional.empty();
             detailPanel = new ClassDetailPanel(model, className);
         } catch (IllegalArgumentException e) {
-            lastException = e;
+            openFailure = Optional.of(e);
         }
     }
 
     @Then("the detail table's columns are {string}")
     public void theDetailTableSColumnsAre(String expectedColumnsStr) {
-        if (detailPanel == null) {
-            fail("Detail panel is null; detail view may have failed to open");
-        }
         List<String> expectedColumns = List.of(expectedColumnsStr.split(", "));
-        List<String> actualColumns = detailPanel.getStatsTable().getColumnHeaders();
+        List<String> actualColumns = openedPanel().getStatsTable().getColumnHeaders();
         assertEquals(expectedColumns, actualColumns,
                 "Expected columns " + expectedColumns + " but got " + actualColumns);
     }
 
     @Then("the detail table's rows are the stats {string}")
     public void theDetailTableSRowsAreTheStats(String expectedRowsStr) {
-        if (detailPanel == null) {
-            fail("Detail panel is null; detail view may have failed to open");
-        }
         List<String> expectedRows = List.of(expectedRowsStr.split(", "));
-        int rowCount = detailPanel.getStatsTable().getRowCount();
-        assertEquals(expectedRows.size(), rowCount,
-                "Expected " + expectedRows.size() + " rows but got " + rowCount);
-
-        for (int i = 0; i < expectedRows.size(); i++) {
-            detailPanel.getStatsTable().moveToStart();
-            for (int j = 0; j < i; j++) {
-                detailPanel.getStatsTable().moveDown();
-            }
-            List<String> row = detailPanel.getStatsTable().getSelectedRow();
-            assertEquals(expectedRows.get(i), row.get(0),
-                    "Expected row " + i + " to be " + expectedRows.get(i) + " but got " + row.get(0));
-        }
+        List<String> actualRows = readRows().stream().map(row -> row.get(0)).toList();
+        assertEquals(expectedRows, actualRows,
+                "Expected rows " + expectedRows + " but got " + actualRows);
     }
 
     @Then("the {string} row reads {string}")
     public void theRowReads(String statName, String expectedValuesStr) {
-        if (detailPanel == null) {
-            fail("Detail panel is null; detail view may have failed to open");
-        }
-        // Find the row with the given stat name
         List<String> expectedValues = List.of(expectedValuesStr.split(", "));
-        List<List<String>> allRows = new ArrayList<>();
-        int rowCount = detailPanel.getStatsTable().getRowCount();
-
-        for (int i = 0; i < rowCount; i++) {
-            detailPanel.getStatsTable().moveToStart();
-            for (int j = 0; j < i; j++) {
-                detailPanel.getStatsTable().moveDown();
-            }
-            allRows.add(new ArrayList<>(detailPanel.getStatsTable().getSelectedRow()));
-        }
-
-        for (List<String> row : allRows) {
+        for (List<String> row : readRows()) {
             if (!row.isEmpty() && row.get(0).equals(statName)) {
-                // Found the row; check the values (skip the first element which is the stat name)
                 List<String> actualValues = row.subList(1, row.size());
                 assertEquals(expectedValues, actualValues,
                         "Expected " + statName + " row to have values " + expectedValues + " but got " + actualValues);
@@ -121,12 +91,31 @@ public class ClassStatsLevelRangeSteps {
         fail("Row not found for stat: " + statName);
     }
 
+    private ClassDetailPanel openedPanel() {
+        if (detailPanel == null) {
+            fail("Detail panel is null; detail view may have failed to open");
+        }
+        return detailPanel;
+    }
+
+    private List<List<String>> readRows() {
+        TableWidget<List<String>> table = openedPanel().getStatsTable();
+        List<List<String>> rows = new ArrayList<>();
+        table.moveToStart();
+        for (int i = 0; i < table.getRowCount(); i++) {
+            rows.add(new ArrayList<>(table.getSelectedRow()));
+            table.moveDown();
+        }
+        return rows;
+    }
+
     @Then("opening the detail view fails with {string}")
     public void openingTheDetailViewFailsWith(String expectedMessage) {
-        if (lastException == null) {
+        if (openFailure.isEmpty()) {
             fail("Expected an exception with message '" + expectedMessage + "' but no exception was thrown");
         }
-        assertEquals(expectedMessage, lastException.getMessage(),
-                "Expected exception message '" + expectedMessage + "' but got '" + lastException.getMessage() + "'");
+        String actualMessage = openFailure.get().getMessage();
+        assertEquals(expectedMessage, actualMessage,
+                "Expected exception message '" + expectedMessage + "' but got '" + actualMessage + "'");
     }
 }

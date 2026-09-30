@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * A single class's full computed stats, pre-selected to exactly the class a
@@ -73,7 +74,7 @@ public class ClassDetailPanel extends JPanel {
     }
 
     private static List<String> buildColumnHeaders() {
-        List<String> headers = new ArrayList<>();
+        List<String> headers = new ArrayList<>(SAMPLED_LEVELS.size() + 1);
         headers.add("Stat");
         for (int level : SAMPLED_LEVELS) {
             headers.add("Lv " + level);
@@ -82,26 +83,29 @@ public class ClassDetailPanel extends JPanel {
     }
 
     private static List<List<String>> detailRows(ClassSandboxModel model, String className) {
+        List<Stats> statsPerLevel = new ArrayList<>(SAMPLED_LEVELS.size());
+        for (int level : SAMPLED_LEVELS) {
+            statsPerLevel.add(model.computedStats(className, level));
+        }
         return List.of(
-                buildRow(model, className, "Attack Power", stats -> stats.getAttackPower()),
-                buildRow(model, className, "Defense", stats -> stats.getDefense()),
-                buildRow(model, className, "Max HP", stats -> stats.getMaxHp()),
-                buildRow(model, className, "Max Mana", stats -> stats.getMaxMana()),
-                buildRow(model, className, "Strength", stats -> stats.getStrength()),
-                buildRow(model, className, "Dexterity", stats -> stats.getDexterity()),
-                buildRow(model, className, "Constitution", stats -> stats.getConstitution()),
-                buildRow(model, className, "Intelligence", stats -> stats.getIntelligence()),
-                buildRow(model, className, "Wisdom", stats -> stats.getWisdom()),
-                buildRow(model, className, "Luck", stats -> stats.getLuck())
+                buildRow(statsPerLevel, "Attack Power", Stats::getAttackPower),
+                buildRow(statsPerLevel, "Defense", Stats::getDefense),
+                buildRow(statsPerLevel, "Max HP", Stats::getMaxHp),
+                buildRow(statsPerLevel, "Max Mana", Stats::getMaxMana),
+                buildRow(statsPerLevel, "Strength", Stats::getStrength),
+                buildRow(statsPerLevel, "Dexterity", Stats::getDexterity),
+                buildRow(statsPerLevel, "Constitution", Stats::getConstitution),
+                buildRow(statsPerLevel, "Intelligence", Stats::getIntelligence),
+                buildRow(statsPerLevel, "Wisdom", Stats::getWisdom),
+                buildRow(statsPerLevel, "Luck", Stats::getLuck)
         );
     }
 
-    private static List<String> buildRow(ClassSandboxModel model, String className, String statName,
-                                          java.util.function.Function<Stats, Integer> statGetter) {
-        List<String> row = new ArrayList<>();
+    private static List<String> buildRow(Iterable<Stats> statsPerLevel, String statName,
+                                         Function<Stats, Integer> statGetter) {
+        List<String> row = new ArrayList<>(SAMPLED_LEVELS.size() + 1);
         row.add(statName);
-        for (int level : SAMPLED_LEVELS) {
-            Stats stats = model.computedStats(className, level);
+        for (Stats stats : statsPerLevel) {
             row.add(String.valueOf(statGetter.apply(stats)));
         }
         return row;

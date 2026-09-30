@@ -2,6 +2,8 @@ package com.swiftfaze.veil.sandbox;
 
 import com.swiftfaze.veil.entities.player.Stats;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 
@@ -9,6 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ClassSandboxModelTest {
+
+    private static final int WARRIOR_ATTACK_POWER = 35;
+    private static final int WARRIOR_DEFENSE = 17;
+    private static final int WARRIOR_MAX_HP = 120;
+    private static final int WARRIOR_MAX_MANA = 20;
 
     @Test
     void listsAllKnownClasses() {
@@ -58,21 +65,18 @@ class ClassSandboxModelTest {
 
         Stats stats = model.computedStats("Warrior", 0);
 
-        assertEquals(35, stats.getAttackPower());
-        assertEquals(17, stats.getDefense());
-        assertEquals(120, stats.getMaxHp());
-        assertEquals(20, stats.getMaxMana());
+        assertEquals(List.of(WARRIOR_ATTACK_POWER, WARRIOR_DEFENSE, WARRIOR_MAX_HP, WARRIOR_MAX_MANA),
+                List.of(stats.getAttackPower(), stats.getDefense(), stats.getMaxHp(), stats.getMaxMana()));
     }
 
-    @Test
-    void computesStatsAtMultipleLevels() {
+    @ParameterizedTest
+    @ValueSource(ints = {0, 5, 10, 15, 20})
+    void warriorStatsAreTheSameAtEveryLevelBecauseItHasNoGrowthCurves(int level) {
         ClassSandboxModel model = new ClassSandboxModel();
 
-        // Warrior has no growth curves, so stats are the same at all levels
-        for (int level : List.of(0, 5, 10, 15, 20)) {
-            Stats stats = model.computedStats("Warrior", level);
-            assertEquals(35, stats.getAttackPower(), "Attack Power should be 35 at level " + level);
-            assertEquals(120, stats.getMaxHp(), "Max HP should be 120 at level " + level);
-        }
+        Stats stats = model.computedStats("Warrior", level);
+
+        assertEquals(WARRIOR_ATTACK_POWER, stats.getAttackPower(), "Attack Power should be unchanged at level " + level);
+        assertEquals(WARRIOR_MAX_HP, stats.getMaxHp(), "Max HP should be unchanged at level " + level);
     }
 }

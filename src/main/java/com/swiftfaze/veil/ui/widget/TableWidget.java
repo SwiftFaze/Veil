@@ -155,7 +155,7 @@ public class TableWidget<T> extends Widget {
     }
 
     public List<String> getColumnHeaders() {
-        return columnHeaders;
+        return List.copyOf(columnHeaders);
     }
 
     public void moveToStart() {
