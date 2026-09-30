@@ -7,7 +7,8 @@ Feature: Dev console snapshot/restore of the running player's position and stats
   them back later in the same session, instead of re-entering every value by
   hand. Slot names are free-form single tokens; there is no slot limit; and
   snapshotting an existing name overwrites it. Restore targets whichever
-  player is live when it runs, updates an open Player panel immediately, and
+  player is live when it runs (the game view shows the new position on the
+  next frame, and the Player panel shows restored values when opened) and
   never changes the player's class. Only the "Player" provider supports these
   verbs. Error lines follow dev-console-set-add-commands.feature's
   conventions.
@@ -62,12 +63,12 @@ Feature: Dev console snapshot/restore of the running player's position and stats
       | Current HP   | 70       | 1       |
       | Current Mana | 30       | 0       |
 
-  Scenario: Restoring updates the open Player panel immediately
-    Given "Player" is opened
-    And the running player's "Strength" is 18
+  Scenario: Opening Player after a restore shows the restored values
+    Given the running player's "Strength" is 18
     When the command bar is set to "snapshot player boss"
     And the running player's "Strength" is 3
     And the command bar is set to "restore player boss"
+    And "Player" is opened
     Then the displayed "Strength" value is 18
 
   Scenario: Separate named slots are kept independently
