@@ -17,7 +17,7 @@ public class ClassSandbox {
     }
 
     private static void launch() {
-        List<DevConsoleProvider> providers = List.of(new ClassSandboxProvider());
+        List<DevConsoleProvider> providers = providers();
         DevConsolePanel panel = new DevConsolePanel(new DevConsoleModel(providers));
 
         JFrame frame = new JFrame("Veil - Dev Console");
@@ -28,5 +28,9 @@ public class ClassSandbox {
         frame.setVisible(true);
 
         panel.requestFocusInWindow();
+    }
+
+    public static List<DevConsoleProvider> providers() {
+        return List.of(new ClassSandboxProvider(), new QuestSandboxProvider());
     }
 }

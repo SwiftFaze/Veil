@@ -26,8 +26,10 @@ import com.swiftfaze.veil.ui.widget.FocusManager;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
+import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
+import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
 import com.swiftfaze.veil.game.GameListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -236,9 +238,7 @@ public class Main {
             return;
         }
 
-        DevConsoleModel model = new DevConsoleModel(
-            List.of(new ClassSandboxProvider(), new PlayerSandboxProvider(gamePanel::getPlayer))
-        );
+        DevConsoleModel model = new DevConsoleModel(buildDevConsoleProviders(gamePanel::getPlayer));
         DevConsolePanel console = new DevConsolePanel(model);
 
         JFrame consoleFrame = new JFrame("Veil - Dev Console");
@@ -266,6 +266,14 @@ public class Main {
             public void updatePlayer(Player player) {
             }
         });
+    }
+
+    static List<DevConsoleProvider> buildDevConsoleProviders(java.util.function.Supplier<Player> playerSupplier) {
+        return List.of(
+            new ClassSandboxProvider(),
+            new QuestSandboxProvider(),
+            new PlayerSandboxProvider(playerSupplier)
+        );
     }
 
     private static void configureAndShowFrame(JFrame frame, ScreenDeck deck, ControlsHintBarWidget hintBar,
