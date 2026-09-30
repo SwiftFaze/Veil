@@ -184,8 +184,11 @@ writes a specific error line (unknown command, missing argument, or an id that
 resolves to nothing) instead of running anything; a bare word alone is not a
 search. Multiple providers can register
 entries together — `ClassSandboxProvider` exposes every player class as a
-searchable entry opening `ClassDetailPanel`, and `PlayerSandboxProvider` (see
-below) exposes the running player as a single entry. The framework is wired
+searchable entry opening `ClassDetailPanel`, `ItemSandboxProvider` exposes
+every mod-loaded item as a read-only entry opening `ItemDetailPanel` (the
+item's own `Inspectable` tables via `DetailsPaneWidget`), and
+`PlayerSandboxProvider` (see below) exposes the running player as a single
+entry. The framework is wired
 into `Main.java` behind a dev-only system property gate: `mvn compile
 exec:java -Dveil.devConsole=true` enables the F1 keybind to toggle a floating
 dev console frame alongside the running game. The packaged/installer build
