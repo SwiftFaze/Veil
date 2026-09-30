@@ -93,7 +93,7 @@ Feature: Dev console snapshot/restore of the running player's position and stats
     And the command bar is set to "snapshot player boss"
     And the running player's class is "Mage"
     When the command bar is set to "restore player boss"
-    Then the running player's class remains "Mage"
+    Then the running player's class value is "Mage"
 
   Scenario: Restoring an unknown snapshot name is an error and changes nothing
     Given the running player's "Strength" is 18
