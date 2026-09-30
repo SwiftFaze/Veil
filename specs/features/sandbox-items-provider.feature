@@ -15,6 +15,8 @@ Feature: Sandbox Items provider
   Out of scope: spawning items into the world or a player's inventory,
   editing item fields, and any interaction with a live Player's inventory.
 
+  QA: none - no keyboard input of its own; reached through the existing dev-console shell
+
   Background:
     Given the dev console is running with the "Items" provider registered
 
