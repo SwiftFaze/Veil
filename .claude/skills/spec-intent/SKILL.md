@@ -13,6 +13,12 @@ implementation code in this skill.
 Takes one input: a GitHub issue number (or URL). If not given, ask for it
 — don't guess which issue.
 
+Optional suffix **`parallel`** (`/spec-intent 140 parallel`): start the work
+in its own git worktree instead of switching this checkout's branch. Use it
+when other sessions or agents are already working in the current checkout —
+a plain run would `--checkout` the new branch out from under them. Only
+Steps 3, 5 and 6 differ; each marks its parallel variant.
+
 ## Step 1 — Read the issue
 
 ```
@@ -64,6 +70,21 @@ This both creates and checks out the branch, and associates it with the
 issue (visible in the issue's "Development" section on GitHub) — no
 separate linking step needed.
 
+**Parallel variant.** Skip the `git status` check on the current checkout —
+it belongs to other work and may legitimately be dirty. Never check anything
+out, stash, or commit in it. Instead:
+
+```
+gh issue develop <n> --name <branch> --base develop
+git fetch origin <branch>
+git worktree add .claude/worktrees/<slug> <branch>
+```
+
+If `.claude/worktrees/<slug>` already exists, stop and ask — same reasoning
+as a branch collision. Confirm `git -C .claude/worktrees/<slug> log
+--oneline -1` matches `origin/develop`'s tip before going on (harness-made
+worktrees have been seen starting at a stale `master`).
+
 ## Step 4 — Move the tracker item to In progress
 
 Set the issue's `Status` to `In progress` (`FIELD="Status"`,
@@ -100,9 +121,21 @@ structure:
 Do not commit this file — leave it for the user to review/commit, same as
 any other intent doc.
 
+**Parallel variant:** write it inside the worktree —
+`.claude/worktrees/<slug>/specs/intent/<slug>.md`. `specs/intent/` is
+gitignored, so each checkout has its own and the doc must live where the
+rest of the pipeline will run.
+
 ## Step 6 — Report back
 
 One short summary: branch name (created + checked out), issue linked and
 moved to In progress, and the intent doc's path. Tell the user the next
 step is `/spec-feature <slug>` once they're happy with the intent doc —
 don't start that step yourself.
+
+**Parallel variant:** report the worktree path instead of "checked out", and
+tell the user to run the rest of the pipeline from a session started in that
+directory (`cd .claude/worktrees/<slug>` then `claude`), so every later step
+and every dispatched agent operates on the worktree, not the shared
+checkout. Once the PR merges, clean up with
+`git worktree remove .claude/worktrees/<slug>`.
