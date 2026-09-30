@@ -2,14 +2,14 @@ package com.swiftfaze.veil.steps;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.sandbox.ClassSandbox;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
-import com.swiftfaze.veil.component.DetailTable;
+import com.swiftfaze.veil.ui.DetailsPaneWidget;
+import com.swiftfaze.veil.ui.widget.TableWidget;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -34,7 +35,6 @@ public class QuestSandboxSteps {
 
     private Path modsRoot;
     private DevConsoleModel model;
-    private List<Quest> loadedQuests;
 
     @Before
     public void createModsRoot() throws IOException {
@@ -76,26 +76,30 @@ public class QuestSandboxSteps {
 
     @Then("the quest detail shows these fields:")
     public void theQuestDetailShowsTheseFields(io.cucumber.datatable.DataTable dataTable) {
-        String questId = SharedScenarioContext.getCurrentQuestId();
-        assertNotNull(questId, "Expected a quest to be opened: quest ID is null");
-        Quest quest = findQuestById(questId);
-        assertNotNull(quest, "Expected to find quest with id: " + questId);
+        DevConsolePanel panel = SharedScenarioContext.getDevConsolePanel();
+        assertNotNull(panel, "Expected a dev console panel");
+
+        DetailsPaneWidget detailsPane = assertInstanceOf(DetailsPaneWidget.class,
+                panel.getOpenedProviderPanel(),
+                "Expected the opened panel to be a DetailsPaneWidget");
+
+        assertFalse(detailsPane.isShowingPlaceholder(), "Expected quest details to be shown, not a placeholder");
 
         List<Map<String, String>> expectedRows = dataTable.asMaps(String.class, String.class);
-        List<DetailTable> tables = quest.getDetailTables();
-        assertFalse(tables.isEmpty(), "Expected at least one detail table");
 
-        DetailTable mainTable = tables.get(0);
-        assertTrue(mainTable.rows().size() >= expectedRows.size(),
-                "Expected at least " + expectedRows.size() + " rows but got " + mainTable.rows().size());
+        // Get the first table (the main fields table)
+        TableWidget<List<String>> table = detailsPane.getTable(0);
+        assertNotNull(table, "Expected at least one table in the quest detail");
 
-        // Find each expected row in the table and verify its value
+        List<List<String>> rows = table.getRows();
+
+        // Find each expected row and verify its value
         for (Map<String, String> expectedRow : expectedRows) {
             String expectedField = expectedRow.get("Field");
             String expectedValue = expectedRow.get("Value");
 
             boolean found = false;
-            for (List<String> row : mainTable.rows()) {
+            for (List<String> row : rows) {
                 if (expectedField.equals(row.get(0))) {
                     assertEquals(expectedValue, row.get(1), "Value mismatch for field '" + expectedField + "'");
                     found = true;
@@ -108,30 +112,28 @@ public class QuestSandboxSteps {
 
     @Then("the quest detail has a {string} table with these rows:")
     public void theQuestDetailHasATableWithTheseRows(String tableLabel, io.cucumber.datatable.DataTable dataTable) {
-        String questId = SharedScenarioContext.getCurrentQuestId();
-        assertNotNull(questId, "Expected a quest to be opened");
-        Quest quest = findQuestById(questId);
-        assertNotNull(quest, "Expected to find quest with id: " + questId);
+        DevConsolePanel panel = SharedScenarioContext.getDevConsolePanel();
+        assertNotNull(panel, "Expected a dev console panel");
 
-        List<DetailTable> tables = quest.getDetailTables();
+        DetailsPaneWidget detailsPane = assertInstanceOf(DetailsPaneWidget.class,
+                panel.getOpenedProviderPanel(),
+                "Expected the opened panel to be a DetailsPaneWidget");
 
-        // Find the table with the matching label
-        DetailTable targetTable = null;
-        for (DetailTable table : tables) {
-            if (tableLabel.equals(table.label())) {
-                targetTable = table;
-                break;
-            }
-        }
+        // The "Rewards:" table is the second table (index 1)
+        assertEquals("Rewards:", tableLabel, "Currently only supporting Rewards table verification");
+        assertTrue(detailsPane.getTableCount() > 1, "Expected at least 2 tables for rewards");
 
-        assertNotNull(targetTable, "Expected to find a '" + tableLabel + "' table");
+        TableWidget<List<String>> table = detailsPane.getTable(1);
+        assertNotNull(table, "Expected a Rewards table at index 1");
 
         List<Map<String, String>> expectedRows = dataTable.asMaps(String.class, String.class);
-        assertEquals(expectedRows.size(), targetTable.rows().size(), "Row count mismatch");
+        List<List<String>> rows = table.getRows();
+
+        assertEquals(expectedRows.size(), rows.size(), "Row count mismatch in Rewards table");
 
         for (int i = 0; i < expectedRows.size(); i++) {
             Map<String, String> expectedRow = expectedRows.get(i);
-            List<String> row = targetTable.rows().get(i);
+            List<String> row = rows.get(i);
 
             assertEquals(expectedRow.get("Type"), row.get(0), "Type mismatch at row " + i);
             assertEquals(expectedRow.get("ID"), row.get(1), "ID mismatch at row " + i);
@@ -142,26 +144,22 @@ public class QuestSandboxSteps {
 
     @Then("the quest detail has no {string} table")
     public void theQuestDetailHasNoTable(String tableLabel) {
-        String questId = SharedScenarioContext.getCurrentQuestId();
-        assertNotNull(questId, "Expected a quest to be opened");
-        Quest quest = findQuestById(questId);
-        assertNotNull(quest, "Expected to find quest with id: " + questId);
+        DevConsolePanel panel = SharedScenarioContext.getDevConsolePanel();
+        assertNotNull(panel, "Expected a dev console panel");
 
-        List<DetailTable> tables = quest.getDetailTables();
+        DetailsPaneWidget detailsPane = assertInstanceOf(DetailsPaneWidget.class,
+                panel.getOpenedProviderPanel(),
+                "Expected the opened panel to be a DetailsPaneWidget");
 
-        // Verify that no table has the specified label
-        boolean hasTable = tables.stream().anyMatch(t -> tableLabel.equals(t.label()));
-        assertFalse(hasTable, "Expected no '" + tableLabel + "' table");
+        // For a quest with no rewards, there should only be 1 table (the main fields table)
+        assertEquals(1, detailsPane.getTableCount(), "Expected only the main fields table when there are no rewards");
     }
 
     @Given("the F1 in-game dev console is built")
     public void theF1InGameDevConsoleIsBuilt() {
-        // Use the static method from Main to build the providers, but we can't easily access it from tests.
-        // Instead, create the providers directly matching what Main does.
-        List<DevConsoleProvider> providers = List.of(
-            new com.swiftfaze.veil.sandbox.ClassSandboxProvider(),
-            new QuestSandboxProvider(),
-            new com.swiftfaze.veil.sandbox.PlayerSandboxProvider(() -> new com.swiftfaze.veil.entities.player.Player(0, 0))
+        // Use Main.buildDevConsoleProviders to get the correct provider list
+        List<DevConsoleProvider> providers = com.swiftfaze.veil.Main.buildDevConsoleProviders(
+                () -> new com.swiftfaze.veil.entities.player.Player(0, 0)
         );
         model = new DevConsoleModel(providers);
     }
@@ -177,12 +175,10 @@ public class QuestSandboxSteps {
     public void itsProvidersIncludeTheProvider(String providerName) {
         assertNotNull(model, "Expected a dev console model to be built");
 
-        // Check if any entry belongs to the Quests provider by category
-        if ("Quests".equals(providerName)) {
-            boolean found = model.allResults().stream()
-                    .anyMatch(result -> "Quests".equals(result.entry().category()));
-            assertTrue(found, "Expected to find the Quests provider (no entries in Quests category)");
-        }
+        // Check if any entry belongs to the specified provider by category
+        boolean found = model.allResults().stream()
+                .anyMatch(result -> providerName.equals(result.entry().category()));
+        assertTrue(found, "Expected to find the " + providerName + " provider (no entries in " + providerName + " category)");
     }
 
     private void writeFixtureQuest(String questName, String objectiveType, String objectiveTarget,
@@ -228,35 +224,13 @@ public class QuestSandboxSteps {
         Files.writeString(coreDir.resolve("mod.json"), manifest.toString());
     }
 
-    private void reloadConsoleWithTempQuests() {
-        loadedQuests = ModLoader.load(modsRoot).getAllQuests();
-        List<DevConsoleProvider> providers = List.of(new QuestSandboxProvider(loadedQuests));
-        model = new DevConsoleModel(providers);
-        // Store the loaded quests in shared context so verification steps can access them
-        SharedScenarioContext.setLoadedQuests(loadedQuests);
-    }
-
     private void reloadConsoleWithTempQuestsAndUpdatePanel() {
-        reloadConsoleWithTempQuests();
-        // Update the shared context model so that DevConsoleSteps can access the new model
+        List<com.swiftfaze.veil.entities.quests.Quest> quests = ModLoader.load(modsRoot).getAllQuests();
+        List<DevConsoleProvider> providers = List.of(new QuestSandboxProvider(quests));
+        model = new DevConsoleModel(providers);
+        DevConsolePanel panel = new DevConsolePanel(model);
+        // Update the shared context panel so that DevConsoleSteps and verification steps can access it
+        SharedScenarioContext.setDevConsolePanel(panel);
         SharedScenarioContext.setDevConsoleModel(model);
-    }
-
-    private Quest findQuestById(String questId) {
-        if (questId == null) {
-            return null;
-        }
-
-        // Get the loaded quests from shared context
-        List<Quest> quests = SharedScenarioContext.getLoadedQuests();
-        if (quests != null) {
-            for (Quest q : quests) {
-                if (questId.equals(q.getId())) {
-                    return q;
-                }
-            }
-        }
-
-        return null;
     }
 }

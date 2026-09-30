@@ -20,7 +20,9 @@ import io.cucumber.java.en.When;
 
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,13 +60,22 @@ public class DevConsoleSteps {
         model = new DevConsoleModel(providers);
         panel = new DevConsolePanel(model);
         SharedScenarioContext.setDevConsoleModel(model);
+        SharedScenarioContext.setDevConsolePanel(panel);
 
-        // If it's the Quests provider, also load and store the quests for verification steps
+        // If it's the Quests provider, create a live player and snapshot the quest log
         if ("Quests".equals(providerName)) {
-            java.nio.file.Path modsPath = java.nio.file.Paths.get("mods");
-            List<com.swiftfaze.veil.entities.quests.Quest> quests =
-                    ModLoader.load(modsPath).getAllQuests();
-            SharedScenarioContext.setLoadedQuests(quests);
+            if (livePlayer == null) {
+                livePlayer = new Player(0, 0);
+            }
+            // Snapshot all quest states for later verification
+            com.swiftfaze.veil.entities.player.QuestLog questLog = livePlayer.getPlayerInfo().getQuestLog();
+            Map<String, String> snapshot = new HashMap<>();
+            for (DevConsoleModel.SearchResult result : model.allResults()) {
+                String questId = result.entry().id();
+                String state = String.valueOf(questLog.getState(questId));
+                snapshot.put(questId, state);
+            }
+            SharedScenarioContext.setQuestLogSnapshot(snapshot);
         }
     }
 
@@ -265,9 +276,8 @@ public class DevConsoleSteps {
     public void isOpened(String entryName) {
         DevConsoleModel.SearchResult result = findResult(entryName);
         String id = result.entry().id();
-        SharedScenarioContext.setCurrentQuestId(id);
-        panel.getSearchField().setText("edit " + id);
-        panel.runCommand();
+        getCurrentPanel().getSearchField().setText("edit " + id);
+        getCurrentPanel().runCommand();
     }
 
     @Then("the opened detail panel is shown")
@@ -277,18 +287,24 @@ public class DevConsoleSteps {
 
     @When("the back action is triggered")
     public void theBackActionIsTriggered() {
-        panel.showSearchView();
+        getCurrentPanel().showSearchView();
         playerDetailPanel = null;
     }
 
     @Then("no player's quest log has changed")
     public void noPlayerQuestLogHasChanged() {
-        // If there's no live player, there's nothing to change, so the assertion passes.
-        // If there is a live player, verify its quest log hasn't been modified.
-        if (livePlayer != null) {
-            // Since the provider is read-only, it shouldn't modify the quest log.
-            // This step just acts as a safeguard to verify the read-only behavior.
-            assertTrue(true, "Player quest log should remain unchanged by read-only quest browsing");
+        assertNotNull(livePlayer, "Expected a live player for quest log verification");
+        Map<String, String> snapshot = SharedScenarioContext.getQuestLogSnapshot();
+        assertNotNull(snapshot, "Expected a quest log snapshot to be taken");
+
+        // Verify all quest states match the snapshot
+        com.swiftfaze.veil.entities.player.QuestLog questLog = livePlayer.getPlayerInfo().getQuestLog();
+        for (Map.Entry<String, String> entry : snapshot.entrySet()) {
+            String questId = entry.getKey();
+            String expectedState = entry.getValue();
+            String actualState = String.valueOf(questLog.getState(questId));
+            assertEquals(expectedState, actualState,
+                    "Quest log state changed for quest " + questId + " after opening in console");
         }
     }
 
@@ -659,6 +675,15 @@ public class DevConsoleSteps {
             model = sharedModel;
         }
         return model;
+    }
+
+    private DevConsolePanel getCurrentPanel() {
+        // Check if there's an updated panel in the shared context (e.g., from loading fixture quests)
+        DevConsolePanel sharedPanel = SharedScenarioContext.getDevConsolePanel();
+        if (sharedPanel != null) {
+            panel = sharedPanel;
+        }
+        return panel;
     }
 
     private List<String> resultNames() {

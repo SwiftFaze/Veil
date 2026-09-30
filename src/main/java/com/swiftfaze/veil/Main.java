@@ -268,7 +268,7 @@ public class Main {
         });
     }
 
-    static List<DevConsoleProvider> buildDevConsoleProviders(java.util.function.Supplier<Player> playerSupplier) {
+    public static List<DevConsoleProvider> buildDevConsoleProviders(java.util.function.Supplier<Player> playerSupplier) {
         return List.of(
             new ClassSandboxProvider(),
             new QuestSandboxProvider(),
