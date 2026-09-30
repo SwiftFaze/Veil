@@ -4,6 +4,7 @@ import com.swiftfaze.veil.ui.widget.TranscriptWidget;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -34,12 +35,21 @@ public class DevConsoleCommandRunner {
     private final DevConsoleModel model;
     private final TranscriptWidget transcript;
     private final Consumer<DevConsoleModel.SearchResult> onEditResolved;
+    private final Map<String, Consumer<String>> verbHandlers;
 
     public DevConsoleCommandRunner(DevConsoleModel model, TranscriptWidget transcript,
                                     Consumer<DevConsoleModel.SearchResult> onEditResolved) {
         this.model = model;
         this.transcript = transcript;
         this.onEditResolved = onEditResolved;
+        this.verbHandlers = Map.of(
+                SEARCH_VERB, this::runSearch,
+                EDIT_VERB, this::runEdit,
+                SET_VERB, argument -> runMutation(DevConsoleMutationVerb.SET, argument),
+                ADD_VERB, argument -> runMutation(DevConsoleMutationVerb.ADD, argument),
+                SUBTRACT_VERB, argument -> runMutation(DevConsoleMutationVerb.SUBTRACT, argument),
+                SNAPSHOT_VERB, this::runSnapshot,
+                RESTORE_VERB, this::runRestore);
     }
 
     public void run(String commandLine) {
@@ -47,16 +57,12 @@ public class DevConsoleCommandRunner {
         String verb = verbOf(trimmed);
         String argument = argumentOf(trimmed);
 
-        switch (verb) {
-            case SEARCH_VERB -> runSearch(argument);
-            case EDIT_VERB -> runEdit(argument);
-            case SET_VERB -> runMutation(DevConsoleMutationVerb.SET, argument);
-            case ADD_VERB -> runMutation(DevConsoleMutationVerb.ADD, argument);
-            case SUBTRACT_VERB -> runMutation(DevConsoleMutationVerb.SUBTRACT, argument);
-            case SNAPSHOT_VERB -> runSnapshot(argument);
-            case RESTORE_VERB -> runRestore(argument);
-            default -> transcript.appendError("Unknown command: " + trimmed);
+        Consumer<String> handler = verbHandlers.get(verb);
+        if (handler == null) {
+            transcript.appendError("Unknown command: " + trimmed);
+            return;
         }
+        handler.accept(argument);
     }
 
     private void runSearch(String term) {
