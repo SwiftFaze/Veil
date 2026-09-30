@@ -9,13 +9,22 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
+import com.swiftfaze.veil.GameConst;
+import com.swiftfaze.veil.sandbox.KitchenSinkProvider;
+import com.swiftfaze.veil.ui.widget.WidgetTheme;
+import com.swiftfaze.veil.world.KitchenSinkScene;
+
 import javax.swing.Action;
+import javax.swing.JLabel;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
 import java.nio.file.Paths;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class KitchenSinkSandboxSteps {
@@ -224,14 +233,34 @@ public class KitchenSinkSandboxSteps {
 
     @Then("every cell is marked walkable or unwalkable as WorldScene.isWalkable reports it")
     public void everyCellIsMarkedWalkableOrUnwalkable() {
-        assertTrue(previewPanel != null, "Preview panel not shown");
-        assertTrue(previewPanel.getModel().isOverlayOn(), "Overlay is not on");
+        var scene = previewPanel.getModel().getScene();
+        BufferedImage off = renderWithOverlay(false);
+        BufferedImage on = renderWithOverlay(true);
+        java.util.Map<Boolean, java.util.Set<Integer>> tintsByWalkability = new java.util.HashMap<>();
+        for (int y = 0; y < scene.getHeight(); y++) {
+            for (int x = 0; x < scene.getWidth(); x++) {
+                java.awt.Point p = backgroundPixelIn(off, x, y);
+                if (p == null) {
+                    continue; // glyph fills the whole cell, so the tint behind it can't show
+                }
+                assertNotEquals(off.getRGB(p.x, p.y), on.getRGB(p.x, p.y), "Cell " + x + "," + y + " not tinted");
+                tintsByWalkability.computeIfAbsent(scene.isWalkable(x, y), k -> new java.util.HashSet<>())
+                        .add(on.getRGB(p.x, p.y));
+            }
+        }
+        assertEquals(java.util.Set.of(true, false), tintsByWalkability.keySet(), "Scene needs both kinds of cell");
+        assertEquals(1, tintsByWalkability.get(true).size(), "Walkable cells don't share one tint");
+        assertEquals(1, tintsByWalkability.get(false).size(), "Unwalkable cells don't share one tint");
+        assertNotEquals(tintsByWalkability.get(true), tintsByWalkability.get(false), "Both kinds share a tint");
     }
 
     @Then("no walkability marking is drawn")
     public void noWalkabilityMarkingIsDrawn() {
-        assertTrue(previewPanel != null, "Preview panel not shown");
         assertFalse(previewPanel.getModel().isOverlayOn(), "Overlay is still on");
+        BufferedImage now = render();
+        BufferedImage off = renderWithOverlay(false);
+        assertEquals(WidgetTheme.BACKGROUND.getRGB(), now.getRGB(1, 1), "A cell is still tinted");
+        assertEquals(off.getRGB(1, 1), now.getRGB(1, 1));
     }
 
     @Given("the marker has moved away from its start position")
@@ -272,11 +301,14 @@ public class KitchenSinkSandboxSteps {
     public void theOpenedDetailPanelShows(String text) {
         var panel = SharedScenarioContext.getDevConsoleSteps().getPanel();
         assertTrue(panel.isProviderPanelShowing(), "Provider panel not shown");
+        boolean found = java.util.Arrays.stream(previewPanel.getComponents())
+                .anyMatch(c -> c instanceof JLabel label && text.equals(label.getText()));
+        assertTrue(found, "No label reading \"" + text + "\" in the opened panel");
     }
 
     @Then("no preview is drawn")
     public void noPreviewIsDrawn() {
-        assertTrue(previewPanel != null, "Preview panel should still exist");
+        assertFalse(previewPanel.isPreviewShown(), "Preview drawn for an empty registry");
     }
 
     @When("the W key is pressed")
@@ -344,16 +376,63 @@ public class KitchenSinkSandboxSteps {
 
     @Given("the mod registry contains no tiles")
     public void theModRegistryContainsNoTiles() {
-        // This step would require mocking ModRegistry to return empty tiles
-        // For now, this is a setup step that cannot be easily implemented in the current test architecture
-        // The feature expects this to be handled at the test level, but we don't have a way to mock ModRegistry
-        // This step will be skipped as it's a test-level configuration issue
+        KitchenSinkScene empty = KitchenSinkScene.of(java.util.List.of());
+        SharedScenarioContext.getDevConsoleSteps().runWith(new KitchenSinkProvider(() -> empty));
     }
 
     @Then("the marking is a background tint, so each tile's glyph is still drawn")
     public void theMarkingIsABackgroundTint() {
-        // This is verified by checking that the overlay is on (visual check)
-        assertTrue(previewPanel != null, "Preview panel not shown");
-        assertTrue(previewPanel.getModel().isOverlayOn(), "Walkability overlay is not on");
+        BufferedImage off = renderWithOverlay(false);
+        BufferedImage on = renderWithOverlay(true);
+        var scene = previewPanel.getModel().getScene();
+        int glyphPixels = 0;
+        for (int y = 0; y < scene.getHeight() * GameConst.TILE_HEIGHT; y++) {
+            for (int x = 0; x < scene.getWidth() * GameConst.TILE_WIDTH; x++) {
+                var tile = scene.getTile(x / GameConst.TILE_WIDTH, y / GameConst.TILE_HEIGHT);
+                if (tile != null && off.getRGB(x, y) == tile.getColor().getRGB()) {
+                    glyphPixels++;
+                    assertEquals(off.getRGB(x, y), on.getRGB(x, y), "Tint covers a glyph pixel at " + x + "," + y);
+                }
+            }
+        }
+        assertTrue(glyphPixels > 0, "No glyph pixels found to compare");
+    }
+
+    private static java.awt.Point backgroundPixelIn(BufferedImage image, int cellX, int cellY) {
+        for (int dy = 0; dy < GameConst.TILE_HEIGHT; dy++) {
+            for (int dx = 0; dx < GameConst.TILE_WIDTH; dx++) {
+                int px = cellX * GameConst.TILE_WIDTH + dx;
+                int py = cellY * GameConst.TILE_HEIGHT + dy;
+                if (image.getRGB(px, py) == WidgetTheme.BACKGROUND.getRGB()) {
+                    return new java.awt.Point(px, py);
+                }
+            }
+        }
+        return null;
+    }
+
+    private BufferedImage renderWithOverlay(boolean on) {
+        var model = previewPanel.getModel();
+        boolean original = model.isOverlayOn();
+        if (model.isOverlayOn() != on) {
+            model.toggleOverlay();
+        }
+        BufferedImage image = render();
+        if (model.isOverlayOn() != original) {
+            model.toggleOverlay();
+        }
+        return image;
+    }
+
+    private BufferedImage render() {
+        var scene = previewPanel.getModel().getScene();
+        int width = scene.getWidth() * GameConst.TILE_WIDTH;
+        int height = scene.getHeight() * GameConst.TILE_HEIGHT;
+        previewPanel.setSize(width, height);
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = image.createGraphics();
+        previewPanel.paint(g);
+        g.dispose();
+        return image;
     }
 }

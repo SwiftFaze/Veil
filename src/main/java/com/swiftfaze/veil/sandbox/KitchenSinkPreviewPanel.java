@@ -6,6 +6,7 @@ import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import com.swiftfaze.veil.world.WorldScene;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.*;
 
@@ -18,13 +19,17 @@ public class KitchenSinkPreviewPanel extends JPanel {
     private final KitchenSinkModel model;
     private final Camera camera;
     private final boolean hasAnyTiles;
+    public static final String EMPTY_MESSAGE = "No tiles registered";
 
     public KitchenSinkPreviewPanel(WorldScene scene) {
         this.model = new KitchenSinkModel(scene);
         this.camera = new Camera(20, 15);
-        this.hasAnyTiles = scene.getWidth() > 0 && scene.getHeight() > 0;
+        this.hasAnyTiles = model.hasTiles();
         setFocusable(true);
         setBackground(WidgetTheme.BACKGROUND);
+        if (!hasAnyTiles) {
+            add(buildEmptyLabel());
+        }
         bindKeys();
     }
 
@@ -92,21 +97,26 @@ public class KitchenSinkPreviewPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
 
         if (!hasAnyTiles) {
-            drawEmptyMessage(g2d);
             return;
         }
 
-        drawScene(g2d);
+        // Tint first so it sits behind the glyphs, leaving every glyph fully drawn.
         if (model.isOverlayOn()) {
             drawWalkabilityOverlay(g2d);
         }
+        drawScene(g2d);
         drawMarker(g2d);
     }
 
-    private void drawEmptyMessage(Graphics2D g2d) {
-        g2d.setColor(WidgetTheme.NORMAL_TEXT);
-        g2d.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
-        g2d.drawString("No tiles registered", 10, 30);
+    public boolean isPreviewShown() {
+        return hasAnyTiles;
+    }
+
+    private static JLabel buildEmptyLabel() {
+        JLabel label = new JLabel(EMPTY_MESSAGE);
+        label.setForeground(WidgetTheme.NORMAL_TEXT);
+        label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
+        return label;
     }
 
     private void drawScene(Graphics2D g2d) {
@@ -114,21 +124,20 @@ public class KitchenSinkPreviewPanel extends JPanel {
     }
 
     private void drawWalkabilityOverlay(Graphics2D g2d) {
-        int tileW = GameConst.TILE_WIDTH;
-        int tileH = GameConst.TILE_HEIGHT;
-
         for (int x = 0; x < model.getScene().getWidth(); x++) {
             for (int y = 0; y < model.getScene().getHeight(); y++) {
-                boolean walkable = model.getScene().isWalkable(x, y);
-                drawOverlayCell(g2d, x, y, walkable, tileW, tileH);
+                drawOverlayCell(g2d, x, y);
             }
         }
     }
 
-    private void drawOverlayCell(Graphics2D g2d, int x, int y, boolean walkable, int tileW, int tileH) {
+    private void drawOverlayCell(Graphics2D g2d, int x, int y) {
+        int tileW = GameConst.TILE_WIDTH;
+        int tileH = GameConst.TILE_HEIGHT;
         int screenX = (x - camera.getX()) * tileW;
         int screenY = (y - camera.getY()) * tileH;
 
+        boolean walkable = model.getScene().isWalkable(x, y);
         Color overlayColor = walkable ? WidgetTheme.VALID_HIGHLIGHT : WidgetTheme.INVALID_HIGHLIGHT;
         g2d.setColor(new Color(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), 80));
         g2d.fillRect(screenX, screenY, tileW, tileH);

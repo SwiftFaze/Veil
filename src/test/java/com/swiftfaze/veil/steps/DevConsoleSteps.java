@@ -654,6 +654,13 @@ public class DevConsoleSteps {
         throw new IllegalArgumentException("Unknown provider: " + name);
     }
 
+    /** Restarts the console with just the given provider, for scenarios that need a custom one. */
+    public void runWith(DevConsoleProvider provider) {
+        model = new DevConsoleModel(List.of(provider));
+        panel = new DevConsolePanel(model);
+        SharedScenarioContext.setDevConsoleSteps(this);
+    }
+
     public DevConsoleModel getModel() {
         return model;
     }

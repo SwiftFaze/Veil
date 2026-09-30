@@ -44,6 +44,21 @@ public class KitchenSinkModel {
         }
     }
 
+    /**
+     * Whether the scene holds at least one tile. An empty registry still yields a 1x1 scene
+     * (WorldScene can't be 0x0), so size alone can't tell.
+     */
+    public boolean hasTiles() {
+        for (int y = 0; y < scene.getHeight(); y++) {
+            for (int x = 0; x < scene.getWidth(); x++) {
+                if (scene.getTile(x, y) != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public void toggleOverlay() {
         overlayOn = !overlayOn;
     }
