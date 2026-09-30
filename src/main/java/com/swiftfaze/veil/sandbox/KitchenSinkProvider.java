@@ -17,13 +17,13 @@ import java.util.function.Supplier;
 public class KitchenSinkProvider implements DevConsoleProvider {
 
     private static final String NAMESPACE = "sandbox";
-    private static final String ID = "sandbox:kitchen-sink";
+    private static final String ENTRY_ID = "sandbox:kitchen-sink";
     private static final String CATEGORY = "Scenes";
     private static final String NAME = "Kitchen Sink";
     private final Supplier<WorldScene> sceneSupplier;
 
     public KitchenSinkProvider() {
-        this(() -> KitchenSinkScene.of(ModLoader.load(Paths.get("mods")).getAllTiles()));
+        this(() -> KitchenSinkScene.holding(ModLoader.load(Paths.get("mods")).getAllTiles()));
     }
 
     public KitchenSinkProvider(Supplier<WorldScene> sceneSupplier) {
@@ -32,7 +32,7 @@ public class KitchenSinkProvider implements DevConsoleProvider {
 
     @Override
     public List<DevConsoleEntry> entries() {
-        return List.of(new DevConsoleEntry(NAMESPACE, ID, CATEGORY, NAME));
+        return List.of(new DevConsoleEntry(NAMESPACE, ENTRY_ID, CATEGORY, NAME));
     }
 
     @Override

@@ -16,11 +16,10 @@ public class KitchenSinkModel {
     public KitchenSinkModel(WorldScene scene) {
         this.scene = scene;
         initializeMarkerPosition();
-        this.overlayOn = false;
     }
 
     private void initializeMarkerPosition() {
-        // Find the first walkable tile to start on
+        // Start on the first walkable tile; with none (empty registry) the marker rests at the origin.
         for (int y = 0; y < scene.getHeight(); y++) {
             for (int x = 0; x < scene.getWidth(); x++) {
                 if (scene.isWalkable(x, y)) {
@@ -30,9 +29,6 @@ public class KitchenSinkModel {
                 }
             }
         }
-        // Fallback if no walkable tile found (shouldn't happen)
-        this.markerX = 0;
-        this.markerY = 0;
     }
 
     public void moveMarker(int dx, int dy) {
@@ -63,7 +59,7 @@ public class KitchenSinkModel {
         overlayOn = !overlayOn;
     }
 
-    public WorldScene getScene() {
+    public WorldScene scene() {
         return scene;
     }
 

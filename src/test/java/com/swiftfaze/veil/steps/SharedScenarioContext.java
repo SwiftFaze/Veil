@@ -9,9 +9,10 @@ import com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel;
  */
 public class SharedScenarioContext {
     private static final ThreadLocal<Camera> cameraHolder = new ThreadLocal<>();
-    private static final ThreadLocal<DevConsoleSteps> devConsoleStepsHolder = new ThreadLocal<>();
-    private static final ThreadLocal<UiComponentFrameworkSteps> uiStepsHolder = new ThreadLocal<>();
-    private static final ThreadLocal<KitchenSinkPreviewPanel> kitchenSinkPreviewPanelHolder = new ThreadLocal<>();
+    private static final ThreadLocal<DevConsoleSteps> DEV_CONSOLE_STEPS_HOLDER = new ThreadLocal<>();
+    private static final ThreadLocal<UiComponentFrameworkSteps> UI_STEPS_HOLDER =
+            ThreadLocal.withInitial(UiComponentFrameworkSteps::new); // lazily built: Cucumber only instantiates step classes whose steps run
+    private static final ThreadLocal<KitchenSinkPreviewPanel> PREVIEW_PANEL_HOLDER = new ThreadLocal<>();
 
     public static Camera getCamera() {
         return cameraHolder.get();
@@ -22,33 +23,33 @@ public class SharedScenarioContext {
     }
 
     public static DevConsoleSteps getDevConsoleSteps() {
-        return devConsoleStepsHolder.get();
+        return DEV_CONSOLE_STEPS_HOLDER.get();
     }
 
     public static void setDevConsoleSteps(DevConsoleSteps steps) {
-        devConsoleStepsHolder.set(steps);
+        DEV_CONSOLE_STEPS_HOLDER.set(steps);
     }
 
     public static UiComponentFrameworkSteps getUiSteps() {
-        return uiStepsHolder.get();
+        return UI_STEPS_HOLDER.get();
     }
 
     public static void setUiSteps(UiComponentFrameworkSteps steps) {
-        uiStepsHolder.set(steps);
+        UI_STEPS_HOLDER.set(steps);
     }
 
     public static KitchenSinkPreviewPanel getKitchenSinkPreviewPanel() {
-        return kitchenSinkPreviewPanelHolder.get();
+        return PREVIEW_PANEL_HOLDER.get();
     }
 
     public static void setKitchenSinkPreviewPanel(KitchenSinkPreviewPanel panel) {
-        kitchenSinkPreviewPanelHolder.set(panel);
+        PREVIEW_PANEL_HOLDER.set(panel);
     }
 
     public static void cleanup() {
         cameraHolder.remove();
-        devConsoleStepsHolder.remove();
-        uiStepsHolder.remove();
-        kitchenSinkPreviewPanelHolder.remove();
+        DEV_CONSOLE_STEPS_HOLDER.remove();
+        UI_STEPS_HOLDER.remove();
+        PREVIEW_PANEL_HOLDER.remove();
     }
 }

@@ -20,6 +20,8 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import javax.swing.Action;
+import javax.swing.JTextField;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.nio.file.Paths;
 import java.util.List;
@@ -648,7 +650,7 @@ public class DevConsoleSteps {
         }
         if (KITCHEN_SINK_PROVIDER_NAME.equals(name)) {
             ModRegistry mods = ModLoader.load(Paths.get("mods"));
-            KitchenSinkScene scene = KitchenSinkScene.of(mods.getAllTiles());
+            KitchenSinkScene scene = KitchenSinkScene.holding(mods.getAllTiles());
             return new KitchenSinkProvider(() -> scene);
         }
         throw new IllegalArgumentException("Unknown provider: " + name);
@@ -661,11 +663,19 @@ public class DevConsoleSteps {
         SharedScenarioContext.setDevConsoleSteps(this);
     }
 
-    public DevConsoleModel getModel() {
-        return model;
+    public List<DevConsoleModel.SearchResult> currentResults() {
+        return model.filteredResults();
     }
 
-    public DevConsolePanel getPanel() {
-        return panel;
+    public boolean isDetailPanelShowing() {
+        return panel.isProviderPanelShowing();
+    }
+
+    /** Runs {@code edit <entryId>}; returns the detail panel it opened, or null. */
+    public Component openEntry(String entryId) {
+        JTextField searchField = panel.getSearchField();
+        searchField.setText("edit " + entryId);
+        panel.runCommand();
+        return panel.isProviderPanelShowing() ? panel.getOpenedProviderPanel() : null;
     }
 }

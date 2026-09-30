@@ -24,6 +24,12 @@ public final class WidgetTheme {
     public static Color WINDOW_BORDER = Color.WHITE;
     public static Color TABLE_HEADER_TEXT = Color.decode("#00c2c2");
 
+    // Sandbox kitchen-sink preview colors. Constant (not part of the mod-loadable theme), so
+    // applyTheme() leaves them alone; the tints are the valid/invalid highlights at alpha 80.
+    public static final Color WALKABLE_TINT = new Color(111, 207, 125, 80);
+    public static final Color UNWALKABLE_TINT = new Color(224, 90, 78, 80);
+    public static final Color PREVIEW_MARKER = Color.decode("#ef481f");
+
     /**
      * Overwrites all 13 widget colors from a mod-loaded theme. Called once at startup
      * (see {@code Main.loadGame}) with whichever theme owns ID "core:default" — see
