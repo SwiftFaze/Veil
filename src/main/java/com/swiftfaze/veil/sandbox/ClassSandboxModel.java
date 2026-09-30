@@ -24,9 +24,13 @@ public class ClassSandboxModel {
     }
 
     public Stats computedStats(String className) {
+        return computedStats(className, 0);
+    }
+
+    public Stats computedStats(String className, int level) {
         PlayerClass playerClass = findByName(className);
         Stats stats = new Stats();
-        playerClass.applyStatsAtLevel(stats, 0);
+        playerClass.applyStatsAtLevel(stats, level);
         return stats;
     }
 

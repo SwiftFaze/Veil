@@ -51,4 +51,28 @@ class ClassSandboxModelTest {
         assertEquals("core:warrior", model.idFor("Warrior"));
         assertEquals("core:mage", model.idFor("Mage"));
     }
+
+    @Test
+    void computesStatsAtSpecificLevel() {
+        ClassSandboxModel model = new ClassSandboxModel();
+
+        Stats stats = model.computedStats("Warrior", 0);
+
+        assertEquals(35, stats.getAttackPower());
+        assertEquals(17, stats.getDefense());
+        assertEquals(120, stats.getMaxHp());
+        assertEquals(20, stats.getMaxMana());
+    }
+
+    @Test
+    void computesStatsAtMultipleLevels() {
+        ClassSandboxModel model = new ClassSandboxModel();
+
+        // Warrior has no growth curves, so stats are the same at all levels
+        for (int level : List.of(0, 5, 10, 15, 20)) {
+            Stats stats = model.computedStats("Warrior", level);
+            assertEquals(35, stats.getAttackPower(), "Attack Power should be 35 at level " + level);
+            assertEquals(120, stats.getMaxHp(), "Max HP should be 120 at level " + level);
+        }
+    }
 }

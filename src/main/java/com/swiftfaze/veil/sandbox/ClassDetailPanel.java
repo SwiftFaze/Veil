@@ -12,6 +12,7 @@ import javax.swing.BoxLayout;
 import javax.swing.InputMap;
 import javax.swing.JPanel;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,12 +24,13 @@ import java.util.List;
  */
 public class ClassDetailPanel extends JPanel {
 
+    private static final List<Integer> SAMPLED_LEVELS = List.of(0, 5, 10, 15, 20);
     private final HeaderWidget header;
     private final TableWidget<List<String>> statsTable;
 
     public ClassDetailPanel(ClassSandboxModel model, String className) {
         this.header = new HeaderWidget(className);
-        this.statsTable = TableWidget.ofRows(List.of("Field", "Value"), detailRows(model, className));
+        this.statsTable = TableWidget.ofRows(buildColumnHeaders(), detailRows(model, className));
 
         setBackground(WidgetTheme.BACKGROUND);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -70,19 +72,38 @@ public class ClassDetailPanel extends JPanel {
         });
     }
 
+    private static List<String> buildColumnHeaders() {
+        List<String> headers = new ArrayList<>();
+        headers.add("Stat");
+        for (int level : SAMPLED_LEVELS) {
+            headers.add("Lv " + level);
+        }
+        return headers;
+    }
+
     private static List<List<String>> detailRows(ClassSandboxModel model, String className) {
-        Stats stats = model.computedStats(className);
         return List.of(
-                List.of("Attack Power", String.valueOf(stats.getAttackPower())),
-                List.of("Defense", String.valueOf(stats.getDefense())),
-                List.of("Max HP", String.valueOf(stats.getMaxHp())),
-                List.of("Max Mana", String.valueOf(stats.getMaxMana())),
-                List.of("Strength", String.valueOf(stats.getStrength())),
-                List.of("Dexterity", String.valueOf(stats.getDexterity())),
-                List.of("Constitution", String.valueOf(stats.getConstitution())),
-                List.of("Intelligence", String.valueOf(stats.getIntelligence())),
-                List.of("Wisdom", String.valueOf(stats.getWisdom())),
-                List.of("Luck", String.valueOf(stats.getLuck()))
+                buildRow(model, className, "Attack Power", stats -> stats.getAttackPower()),
+                buildRow(model, className, "Defense", stats -> stats.getDefense()),
+                buildRow(model, className, "Max HP", stats -> stats.getMaxHp()),
+                buildRow(model, className, "Max Mana", stats -> stats.getMaxMana()),
+                buildRow(model, className, "Strength", stats -> stats.getStrength()),
+                buildRow(model, className, "Dexterity", stats -> stats.getDexterity()),
+                buildRow(model, className, "Constitution", stats -> stats.getConstitution()),
+                buildRow(model, className, "Intelligence", stats -> stats.getIntelligence()),
+                buildRow(model, className, "Wisdom", stats -> stats.getWisdom()),
+                buildRow(model, className, "Luck", stats -> stats.getLuck())
         );
+    }
+
+    private static List<String> buildRow(ClassSandboxModel model, String className, String statName,
+                                          java.util.function.Function<Stats, Integer> statGetter) {
+        List<String> row = new ArrayList<>();
+        row.add(statName);
+        for (int level : SAMPLED_LEVELS) {
+            Stats stats = model.computedStats(className, level);
+            row.add(String.valueOf(statGetter.apply(stats)));
+        }
+        return row;
     }
 }
