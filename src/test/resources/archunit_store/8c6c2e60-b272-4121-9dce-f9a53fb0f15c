@@ -1727,8 +1727,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.PauseToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PauseToggleListener.java:0)\
@@ -1761,8 +1762,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.PauseToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PauseToggleListener.java:0)\
@@ -1816,8 +1818,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.PauseToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PauseToggleListener.java:0)\
@@ -1872,8 +1875,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.PauseToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PauseToggleListener.java:0)\
@@ -1921,8 +1925,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.PauseToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PauseToggleListener.java:0)\
@@ -1970,8 +1975,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.PauseToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PauseToggleListener.java:0)\
@@ -2009,8 +2015,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (CodexPanel.java:0)\
@@ -2055,8 +2062,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (CodexPanel.java:0)\
@@ -2117,8 +2125,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (CodexPanel.java:0)\
@@ -2179,8 +2188,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (CodexPanel.java:0)\
@@ -2232,8 +2242,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (CodexPanel.java:0)\
@@ -2279,8 +2290,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (CodexPanel.java:0)\
@@ -2325,8 +2337,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
@@ -2364,8 +2377,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
@@ -2420,8 +2434,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
@@ -2497,8 +2512,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
@@ -2575,8 +2591,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
@@ -2646,8 +2663,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
@@ -2717,8 +2735,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
@@ -2777,8 +2796,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
@@ -2824,8 +2844,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
@@ -2898,8 +2919,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.CodexPanel> extends class <com.swiftfaze.veil.ui.widget.PopupWidget> in (CodexPanel.java:0)\
@@ -2979,8 +3001,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.CodexPanel> extends class <com.swiftfaze.veil.ui.widget.PopupWidget> in (CodexPanel.java:0)\
@@ -3072,8 +3095,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.CodexPanel> extends class <com.swiftfaze.veil.ui.widget.PopupWidget> in (CodexPanel.java:0)\
@@ -3171,8 +3195,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.CodexPanel> extends class <com.swiftfaze.veil.ui.widget.PopupWidget> in (CodexPanel.java:0)\
@@ -3250,8 +3275,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showTiles(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.world.Tile>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (CodexPanel.java:0)\
@@ -3283,8 +3309,9 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel.getDetailsPane()> has return type <com.swiftfaze.veil.ui.DetailsPaneWidget> in (ItemDetailPanel.java:0)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls constructor <com.swiftfaze.veil.ui.DetailsPaneWidget.<init>()> in (ItemDetailPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.showEntry(com.swiftfaze.veil.component.Inspectable)> in (ItemDetailPanel.java:29)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:59)\
-    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:66)\
+    - Constructor <com.swiftfaze.veil.sandbox.ItemDetailPanel.<init>(com.swiftfaze.veil.entities.items.Item)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.focusFirstTable()> in (ItemDetailPanel.java:30)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$1.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveUp()> in (ItemDetailPanel.java:60)\
+    - Method <com.swiftfaze.veil.sandbox.ItemDetailPanel$2.actionPerformed(java.awt.event.ActionEvent)> calls method <com.swiftfaze.veil.ui.DetailsPaneWidget.moveDown()> in (ItemDetailPanel.java:67)\
     - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showTiles(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.world.Tile>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (CodexPanel.java:0)\
