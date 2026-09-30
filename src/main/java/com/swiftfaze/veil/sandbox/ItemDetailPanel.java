@@ -27,6 +27,7 @@ public class ItemDetailPanel extends JPanel {
         this.header = new HeaderWidget(item.getName());
         this.detailsPane = new DetailsPaneWidget();
         this.detailsPane.showEntry(item);
+        this.detailsPane.focusFirstTable();
 
         setBackground(WidgetTheme.BACKGROUND);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
