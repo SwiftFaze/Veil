@@ -19,7 +19,9 @@ generalize it back into `.claude/workflow.md` or the other pipeline
 skills. It only applies within a run of this skill.
 
 **Only for the standard path.** Takes one input: a GitHub issue number (or
-URL), same as `spec-intent`. If not given, ask for it.
+URL), same as `spec-intent`. If not given, ask for it. Accepts the same
+optional `parallel` suffix; pass it through to Step 1, and run every later
+step from inside the resulting worktree.
 
 ## Step 0 — Classify risk before doing anything else
 

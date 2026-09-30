@@ -37,6 +37,11 @@ gh pr list --repo SwiftFaze/Veil --state all --search "<n>" --json number,state,
 
 Run `git status --short` and `git branch --show-current`.
 
+First check `git worktree list`: if the branch is already checked out in a
+worktree (a `/spec-intent … parallel` start), `git checkout` will refuse it.
+Work from that worktree's path instead — tell the user to restart the session
+there if this one isn't — and apply the rules below to it.
+
 - **Uncommitted changes on the right branch** are the normal shape of a session
   that died mid-implementation — that's work in progress, not garbage. Keep it,
   and treat it as evidence in Step 3. Never stash, reset, or clean it.
