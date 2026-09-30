@@ -9,13 +9,17 @@ import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
+import com.swiftfaze.veil.sandbox.ItemDetailPanel;
+import com.swiftfaze.veil.sandbox.ItemSandboxProvider;
 import com.swiftfaze.veil.sandbox.PlayerDetailPanel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
+import com.swiftfaze.veil.ui.DetailsPaneWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.TranscriptWidget;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.cucumber.datatable.DataTable;
 
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
@@ -26,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DevConsoleSteps {
@@ -38,11 +43,13 @@ public class DevConsoleSteps {
     private static final String TRANSCRIPT_SHOULD_HAVE_ENTRIES = "Transcript should have entries";
     private static final String CLASSES_PROVIDER_NAME = "Classes";
     private static final String PLAYER_PROVIDER_NAME = "Player";
+    private static final String ITEMS_PROVIDER_NAME = "Items";
 
     private DevConsoleModel model;
     private DevConsolePanel panel;
     private Player livePlayer;
     private PlayerDetailPanel playerDetailPanel;
+    private ItemDetailPanel itemDetailPanel;
     private Player identityBeforeEdit;
     private int maxHpBeforeEdit;
     private String lastEditedFieldName;
@@ -259,6 +266,127 @@ public class DevConsoleSteps {
     public void theBackActionIsTriggered() {
         panel.showSearchView();
         playerDetailPanel = null;
+        itemDetailPanel = null;
+    }
+
+    @Then("there is one result per mod-loaded item")
+    public void thereIsOneResultPerModLoadedItem() {
+        ModRegistry mods = ModLoader.load(java.nio.file.Paths.get("mods"));
+        int expectedCount = mods.getAllItems().size();
+        assertEquals(expectedCount, model.filteredResults().size(),
+                "Expected one result per mod-loaded item");
+    }
+
+    @Then("the item detail shows field rows:")
+    public void theItemDetailShowsFieldRows(DataTable dataTable) {
+        captureItemDetailPanel();
+        List<List<String>> expectedRows = dataTable.asLists();
+        DetailsPaneWidget detailsPane = itemDetailPanel.getDetailsPane();
+
+        assertTrue(detailsPane.getTableCount() >= 1, "Expected at least one table for field rows");
+        TableWidget<List<String>> table = detailsPane.getTable(0);
+        assertNotNull(table, "First table should not be null");
+
+        List<String> headers = expectedRows.get(0);
+        List<List<String>> expectedData = expectedRows.subList(1, expectedRows.size());
+
+        int rowIndex = 0;
+        table.moveToStart();
+        for (List<String> expectedRow : expectedData) {
+            List<String> actualRow = table.getSelectedRow();
+            assertEquals(expectedRow, actualRow,
+                    "Row " + rowIndex + " should match");
+            if (rowIndex < expectedData.size() - 1) {
+                table.moveDown();
+            }
+            rowIndex++;
+        }
+    }
+
+    @Then("the item detail shows an {string} table with row {string}, {string}, {string}")
+    public void theItemDetailShowsTableWithRow(String tableLabel, String col1, String col2, String col3) {
+        captureItemDetailPanel();
+        DetailsPaneWidget detailsPane = itemDetailPanel.getDetailsPane();
+
+        boolean found = false;
+        for (int i = 0; i < detailsPane.getTableCount(); i++) {
+            TableWidget<List<String>> table = detailsPane.getTable(i);
+            table.moveToStart();
+            for (int row = 0; row < table.getRowCount(); row++) {
+                List<String> rowData = table.getSelectedRow();
+                if (rowData.size() >= 3 && col1.equals(rowData.get(0))
+                        && col2.equals(rowData.get(1)) && col3.equals(rowData.get(2))) {
+                    found = true;
+                    break;
+                }
+                if (row < table.getRowCount() - 1) {
+                    table.moveDown();
+                }
+            }
+            if (found) break;
+        }
+        assertTrue(found, "Expected to find row with " + col1 + ", " + col2 + ", " + col3
+                + " in table " + tableLabel);
+    }
+
+    @Then("the item detail has no {string} row")
+    public void theItemDetailHasNoRow(String fieldName) {
+        captureItemDetailPanel();
+        DetailsPaneWidget detailsPane = itemDetailPanel.getDetailsPane();
+
+        for (int i = 0; i < detailsPane.getTableCount(); i++) {
+            TableWidget<List<String>> table = detailsPane.getTable(i);
+            table.moveToStart();
+            for (int row = 0; row < table.getRowCount(); row++) {
+                List<String> rowData = table.getSelectedRow();
+                if (!rowData.isEmpty() && fieldName.equals(rowData.get(0))) {
+                    fail("Field row should not be present: " + fieldName);
+                }
+                if (row < table.getRowCount() - 1) {
+                    table.moveDown();
+                }
+            }
+        }
+    }
+
+    @Then("the item detail has no {string} table")
+    public void theItemDetailHasNoTable(String tableLabel) {
+        captureItemDetailPanel();
+        DetailsPaneWidget detailsPane = itemDetailPanel.getDetailsPane();
+
+        for (int i = 0; i < detailsPane.getTableCount(); i++) {
+            TableWidget<List<String>> table = detailsPane.getTable(i);
+            table.moveToStart();
+            List<String> firstRow = table.getSelectedRow();
+            if (!firstRow.isEmpty()) {
+                if (tableLabel.equals(firstRow.get(0) + " table") ||
+                        tableLabel.equals("Effects:" + " table") && firstRow.get(0).contains("Type")) {
+                    fail("Table should not be present: " + tableLabel);
+                }
+            }
+        }
+    }
+
+    @When("the Items provider is asked for the panel of {string}")
+    public void theItemsProviderIsAskedForThePanelOf(String itemId) {
+        // This step sets up for the failure test below
+        try {
+            new ItemSandboxProvider().createPanel(itemId);
+            fail("Expected createPanel to throw for unknown id: " + itemId);
+        } catch (IllegalArgumentException e) {
+            // Expected - captured in the next step
+        }
+    }
+
+    @Then("it fails with an unknown item id error for {string}")
+    public void itFailsWithUnknownItemIdError(String itemId) {
+        ItemSandboxProvider provider = new ItemSandboxProvider();
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> provider.createPanel(itemId));
+        assertTrue(ex.getMessage().contains("Unknown item id"),
+                "Error message should mention 'Unknown item id'");
+        assertTrue(ex.getMessage().contains(itemId),
+                "Error message should include the item id: " + itemId);
     }
 
     @Then("the table includes editable rows {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}")
@@ -553,6 +681,13 @@ public class DevConsoleSteps {
         }
     }
 
+    private void captureItemDetailPanel() {
+        if (itemDetailPanel == null && panel.isProviderPanelShowing()
+                && panel.getOpenedProviderPanel() instanceof ItemDetailPanel opened) {
+            itemDetailPanel = opened;
+        }
+    }
+
     private String getRowFieldName(int rowIndex) {
         List<String> row = getRow(rowIndex);
         return row != null && !row.isEmpty() ? row.get(0) : "";
@@ -638,6 +773,9 @@ public class DevConsoleSteps {
         }
         if (PLAYER_PROVIDER_NAME.equals(name)) {
             return new PlayerSandboxProvider(() -> livePlayer);
+        }
+        if (ITEMS_PROVIDER_NAME.equals(name)) {
+            return new ItemSandboxProvider();
         }
         throw new IllegalArgumentException("Unknown provider: " + name);
     }

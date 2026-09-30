@@ -356,6 +356,8 @@
                         <param>com.swiftfaze.veil.sandbox.PlayerDetailPanel</param>
                         <param>com.swiftfaze.veil.sandbox.PlayerField</param>
                         <param>com.swiftfaze.veil.sandbox.PlayerFieldMutator</param>
+                        <param>com.swiftfaze.veil.sandbox.ItemSandboxProvider</param>
+                        <param>com.swiftfaze.veil.sandbox.ItemDetailPanel</param>
                         <param>com.swiftfaze.veil.sandbox.DevConsoleCompletion</param>
                         <param>com.swiftfaze.veil.sandbox.DevConsoleCommandHistory</param>
                         <param>com.swiftfaze.veil.ui.widget.SuggestionOverlayWidget</param>
