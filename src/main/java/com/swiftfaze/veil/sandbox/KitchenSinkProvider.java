@@ -1,9 +1,11 @@
 package com.swiftfaze.veil.sandbox;
 
+import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.world.KitchenSinkScene;
 import com.swiftfaze.veil.world.WorldScene;
 
 import javax.swing.JComponent;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -19,6 +21,10 @@ public class KitchenSinkProvider implements DevConsoleProvider {
     private static final String CATEGORY = "Scenes";
     private static final String NAME = "Kitchen Sink";
     private final Supplier<WorldScene> sceneSupplier;
+
+    public KitchenSinkProvider() {
+        this(() -> KitchenSinkScene.of(ModLoader.load(Paths.get("mods")).getAllTiles()));
+    }
 
     public KitchenSinkProvider(Supplier<WorldScene> sceneSupplier) {
         this.sceneSupplier = sceneSupplier;

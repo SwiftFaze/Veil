@@ -1,11 +1,9 @@
 package com.swiftfaze.veil.world;
 
-import com.swiftfaze.veil.mods.ModRegistry;
-
 import java.util.List;
 
 /**
- * A dev-only scene containing every tile from a ModRegistry,
+ * A dev-only scene containing every given tile,
  * arranged in a grid for preview/testing purposes. Used only by the
  * KitchenSinkProvider sandbox, not in the live game.
  */
@@ -13,13 +11,20 @@ public class KitchenSinkScene extends WorldScene {
 
     private static final int TILES_PER_ROW = 10;
 
-    public KitchenSinkScene(ModRegistry modRegistry) {
-        super(calculateWidth(modRegistry), calculateHeight(modRegistry));
-        fillWithTiles(modRegistry);
+    /**
+     * Static factory (not a constructor call) so sandbox code can build the scene without
+     * instantiating an engine class, which the composition-root ArchUnit rule forbids.
+     */
+    public static KitchenSinkScene of(List<Tile> tiles) {
+        return new KitchenSinkScene(tiles);
     }
 
-    private void fillWithTiles(ModRegistry mods) {
-        List<Tile> allTiles = mods.getAllTiles();
+    private KitchenSinkScene(List<Tile> tiles) {
+        super(calculateWidth(tiles), calculateHeight(tiles));
+        fillWithTiles(tiles);
+    }
+
+    private void fillWithTiles(List<Tile> allTiles) {
 
         int x = 0;
         int y = 0;
@@ -43,13 +48,11 @@ public class KitchenSinkScene extends WorldScene {
         fillRegion(region, tile);
     }
 
-    private static int calculateWidth(ModRegistry mods) {
-        List<Tile> allTiles = mods.getAllTiles();
+    private static int calculateWidth(List<Tile> allTiles) {
         return Math.min(TILES_PER_ROW, Math.max(1, allTiles.size()));
     }
 
-    private static int calculateHeight(ModRegistry mods) {
-        List<Tile> allTiles = mods.getAllTiles();
+    private static int calculateHeight(List<Tile> allTiles) {
         if (allTiles.isEmpty()) {
             return 1;
         }

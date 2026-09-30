@@ -73,18 +73,18 @@ public class KitchenSinkSandboxSteps {
         ModRegistry mods = ModLoader.load(Paths.get("mods"));
         java.util.List<com.swiftfaze.veil.world.Tile> allTiles = mods.getAllTiles();
 
-        int tilesFound = 0;
-        for (com.swiftfaze.veil.world.Tile tile : allTiles) {
-            for (int x = 0; x < previewPanel.getModel().getScene().getWidth(); x++) {
-                for (int y = 0; y < previewPanel.getModel().getScene().getHeight(); y++) {
-                    if (previewPanel.getModel().getScene().getTile(x, y) == tile) {
-                        tilesFound++;
-                        break;
-                    }
+        var scene = previewPanel.getModel().getScene();
+        java.util.Set<String> present = new java.util.HashSet<>();
+        for (int x = 0; x < scene.getWidth(); x++) {
+            for (int y = 0; y < scene.getHeight(); y++) {
+                var tile = scene.getTile(x, y);
+                if (tile != null) {
+                    present.add(tile.getId());
                 }
             }
         }
-        assertEquals(allTiles.size(), tilesFound,
+        long tilesFound = allTiles.stream().filter(t -> present.contains(t.getId())).count();
+        assertEquals((long) allTiles.size(), tilesFound,
                 "Not all tiles from registry are in the scene");
     }
 
@@ -96,7 +96,7 @@ public class KitchenSinkSandboxSteps {
         assertTrue(walkable, "Marker does not start on a walkable tile");
     }
 
-    @Given("the marker stands on a walkable tile whose {string} neighbour is walkable")
+    @Given("the marker stands on a walkable tile whose {word} neighbour is walkable")
     public void theMarkerStandsOnAWalkableTileWhoseNeighbourIsWalkable(String direction) {
         assertTrue(previewPanel != null, "Preview panel not shown");
 
@@ -136,7 +136,7 @@ public class KitchenSinkSandboxSteps {
         }
     }
 
-    @Then("the marker has moved one tile {string}")
+    @Then("the marker has moved one tile {word}")
     public void theMarkerHasMovedOneDirection(String direction) {
         assertTrue(previewPanel != null, "Preview panel not shown");
         int currentX = previewPanel.getModel().getMarkerX();
@@ -150,23 +150,37 @@ public class KitchenSinkSandboxSteps {
         }
     }
 
-    @Given("the marker's {string} neighbour is unwalkable")
+    @Given("the marker's {word} neighbour is unwalkable")
     public void theMarkerSNeighbourIsUnwalkable(String direction) {
         assertTrue(previewPanel != null, "Preview panel not shown");
-
-        int x = previewPanel.getModel().getMarkerX();
-        int y = previewPanel.getModel().getMarkerY();
-
-        int dx = 0, dy = 0;
-        switch (direction.toLowerCase(Locale.ROOT)) {
-            case "up" -> dy = -1;
-            case "down" -> dy = 1;
-            case "left" -> dx = -1;
-            case "right" -> dx = 1;
+        int[] d = delta(direction);
+        var scene = previewPanel.getModel().getScene();
+        for (int y = 0; y < scene.getHeight(); y++) {
+            for (int x = 0; x < scene.getWidth(); x++) {
+                if (scene.isWalkable(x, y) && !scene.isWalkable(x + d[0], y + d[1])) {
+                    teleportTo(x, y);
+                    return;
+                }
+            }
         }
+        throw new AssertionError("No walkable tile with an unwalkable " + direction + " neighbour");
+    }
 
-        boolean neighborIsWalkable = previewPanel.getModel().getScene().isWalkable(x + dx, y + dy);
-        assertFalse(neighborIsWalkable, "Neighbor in " + direction + " direction is walkable, expected unwalkable");
+    private static int[] delta(String direction) {
+        return switch (direction.toLowerCase(Locale.ROOT)) {
+            case "up" -> new int[]{0, -1};
+            case "down" -> new int[]{0, 1};
+            case "left" -> new int[]{-1, 0};
+            case "right" -> new int[]{1, 0};
+            default -> throw new IllegalArgumentException("Unknown direction: " + direction);
+        };
+    }
+
+    private void teleportTo(int x, int y) {
+        var model = previewPanel.getModel();
+        model.moveMarker(x - model.getMarkerX(), y - model.getMarkerY());
+        markerXBeforeMove = model.getMarkerX();
+        markerYBeforeMove = model.getMarkerY();
     }
 
     @Then("the marker has not moved")
@@ -176,45 +190,35 @@ public class KitchenSinkSandboxSteps {
         assertEquals(markerYBeforeMove, previewPanel.getModel().getMarkerY(), "Marker Y position changed");
     }
 
-    @Given("the marker stands on the scene's {string} edge")
+    @Given("the marker stands on the scene's {word} edge")
     public void theMarkerStandsOnTheScenesEdge(String edge) {
         assertTrue(previewPanel != null, "Preview panel not shown");
-
-        int x = previewPanel.getModel().getMarkerX();
-        int y = previewPanel.getModel().getMarkerY();
-
-        switch (edge.toLowerCase(Locale.ROOT)) {
-            case "left" -> {
-                for (int testX = 0; testX < previewPanel.getModel().getScene().getWidth(); testX++) {
-                    if (previewPanel.getModel().getScene().isWalkable(testX, y)) {
-                        previewPanel.getModel().moveMarker(testX - x, 0);
-                        break;
-                    }
-                }
-                assertEquals(0, previewPanel.getModel().getMarkerX(), "Marker not on left edge");
-            }
-            case "right" -> {
-                int rightX = previewPanel.getModel().getScene().getWidth() - 1;
-                for (int testX = rightX; testX >= 0; testX--) {
-                    if (previewPanel.getModel().getScene().isWalkable(testX, y)) {
-                        previewPanel.getModel().moveMarker(testX - x, 0);
-                        break;
-                    }
-                }
-                assertEquals(rightX, previewPanel.getModel().getMarkerX(), "Marker not on right edge");
+        var scene = previewPanel.getModel().getScene();
+        int edgeX = "right".equalsIgnoreCase(edge) ? scene.getWidth() - 1 : 0;
+        for (int y = 0; y < scene.getHeight(); y++) {
+            if (scene.isWalkable(edgeX, y)) {
+                teleportTo(edgeX, y);
+                return;
             }
         }
+        throw new AssertionError("No walkable tile on the " + edge + " edge");
     }
 
     @Given("the walkability overlay is off")
     public void theWalkabilityOverlayIsOff() {
         assertTrue(previewPanel != null, "Preview panel not shown");
+        if (previewPanel.getModel().isOverlayOn()) {
+            previewPanel.getModel().toggleOverlay();
+        }
         assertFalse(previewPanel.getModel().isOverlayOn(), "Walkability overlay is on, expected off");
     }
 
     @Given("the walkability overlay is on")
     public void theWalkabilityOverlayIsOn() {
         assertTrue(previewPanel != null, "Preview panel not shown");
+        if (!previewPanel.getModel().isOverlayOn()) {
+            previewPanel.getModel().toggleOverlay();
+        }
         assertTrue(previewPanel.getModel().isOverlayOn(), "Walkability overlay is off, expected on");
     }
 

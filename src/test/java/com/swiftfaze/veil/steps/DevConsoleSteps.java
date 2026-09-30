@@ -648,7 +648,7 @@ public class DevConsoleSteps {
         }
         if (KITCHEN_SINK_PROVIDER_NAME.equals(name)) {
             ModRegistry mods = ModLoader.load(Paths.get("mods"));
-            KitchenSinkScene scene = new KitchenSinkScene(mods);
+            KitchenSinkScene scene = KitchenSinkScene.of(mods.getAllTiles());
             return new KitchenSinkProvider(() -> scene);
         }
         throw new IllegalArgumentException("Unknown provider: " + name);

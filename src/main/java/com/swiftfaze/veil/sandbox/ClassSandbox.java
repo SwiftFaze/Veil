@@ -1,12 +1,7 @@
 package com.swiftfaze.veil.sandbox;
 
-import com.swiftfaze.veil.mods.ModLoader;
-import com.swiftfaze.veil.mods.ModRegistry;
-import com.swiftfaze.veil.world.KitchenSinkScene;
-
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -22,9 +17,7 @@ public class ClassSandbox {
     }
 
     private static void launch() {
-        ModRegistry mods = ModLoader.load(Paths.get("mods"));
-        KitchenSinkScene kitchenSinkScene = new KitchenSinkScene(mods);
-        List<DevConsoleProvider> providers = List.of(new ClassSandboxProvider(), new KitchenSinkProvider(() -> kitchenSinkScene));
+        List<DevConsoleProvider> providers = List.of(new ClassSandboxProvider(), new KitchenSinkProvider());
         DevConsolePanel panel = new DevConsolePanel(new DevConsoleModel(providers));
 
         JFrame frame = new JFrame("Veil - Dev Console");

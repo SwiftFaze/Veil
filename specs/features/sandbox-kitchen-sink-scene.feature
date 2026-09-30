@@ -13,6 +13,8 @@ Feature: Sandbox kitchen-sink tile scene with walkability overlay
   Out of scope: a scene picker, or loading arbitrary WorldScenes; any link
   to the Player provider or to a running game's Player.
 
+  QA: none - dev-console sandbox panel, not a game screen QaRunner can drive; covered by the human playtest
+
   Background:
     Given the dev console is running with the "Kitchen Sink" provider registered
 
