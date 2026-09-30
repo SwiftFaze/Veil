@@ -9,6 +9,7 @@ Feature: Dev console reload verb for mod hot-reload
   Out of scope: hot-reloading Java code, file watching/auto-reload on save,
   refreshing game-side mod data outside the dev console, and a dedicated
   reload keybinding.
+  QA: none - a typed dev-console verb with no new keybinding; the command bar's key handling is covered by the dev-console procedures
 
   Background:
     Given the dev console is running with a provider whose entries can change
