@@ -187,7 +187,14 @@ resolves to nothing) instead of running anything; a bare word alone is not a
 search. Multiple providers can register
 entries together — `ClassSandboxProvider` exposes every player class as a
 searchable entry opening `ClassDetailPanel`, and `PlayerSandboxProvider` (see
-below) exposes the running player as a single entry. The framework is wired
+below) exposes the running player as a single entry, and `KitchenSinkProvider`
+exposes one "Kitchen Sink" entry opening `KitchenSinkPreviewPanel`: a live
+preview of a `KitchenSinkScene` (`world/`, every tile in `ModRegistry.getAllTiles()`
+in a 10-wide grid, built through `KitchenSinkScene.holding(...)`) drawn through
+`WorldScene.renderWorld`, a marker moved by the movement keys via
+`KitchenSinkModel` (walkability from `WorldScene.isWalkable`), and a `W`-toggled
+walkability tint overlay. The preview's Camera is fixed and does not follow the
+marker. The framework is wired
 into `Main.java` behind a dev-only system property gate: `mvn compile
 exec:java -Dveil.devConsole=true` enables the F1 keybind to toggle a floating
 dev console frame alongside the running game. The packaged/installer build
