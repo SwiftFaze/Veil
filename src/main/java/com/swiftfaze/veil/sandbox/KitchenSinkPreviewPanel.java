@@ -3,15 +3,11 @@ package com.swiftfaze.veil.sandbox;
 import com.swiftfaze.veil.Camera;
 import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.input.Keybindings;
-import com.swiftfaze.veil.mods.ModLoader;
-import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
+import com.swiftfaze.veil.world.WorldScene;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 import java.awt.*;
-import java.nio.file.Paths;
 
 /**
  * Live preview panel for the kitchen-sink scene with a marker, movement
@@ -23,18 +19,13 @@ public class KitchenSinkPreviewPanel extends JPanel {
     private final Camera camera;
     private final boolean hasAnyTiles;
 
-    public KitchenSinkPreviewPanel() {
-        this.model = new KitchenSinkModel();
+    public KitchenSinkPreviewPanel(WorldScene scene) {
+        this.model = new KitchenSinkModel(scene);
         this.camera = new Camera(20, 15);
-        this.hasAnyTiles = checkHasAnyTiles();
+        this.hasAnyTiles = scene.getWidth() > 0 && scene.getHeight() > 0;
         setFocusable(true);
         setBackground(WidgetTheme.BACKGROUND);
         bindKeys();
-    }
-
-    private boolean checkHasAnyTiles() {
-        ModRegistry mods = ModLoader.load(Paths.get("mods"));
-        return !mods.getAllTiles().isEmpty();
     }
 
     private void bindKeys() {

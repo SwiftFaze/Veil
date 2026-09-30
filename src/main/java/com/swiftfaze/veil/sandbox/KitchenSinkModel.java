@@ -13,8 +13,8 @@ public class KitchenSinkModel {
     private int markerY;
     private boolean overlayOn;
 
-    public KitchenSinkModel() {
-        this.scene = new KitchenSinkScene();
+    public KitchenSinkModel(WorldScene scene) {
+        this.scene = scene;
         initializeMarkerPosition();
         this.overlayOn = false;
     }

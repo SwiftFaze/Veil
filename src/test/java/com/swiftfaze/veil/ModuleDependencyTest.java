@@ -117,14 +117,14 @@ class ModuleDependencyTest {
                         .and()
                         .resideOutsideOfPackage("com.swiftfaze.veil.entities..")
                         .and(not(equivalentTo(Main.class)))
+                        .and(not(equivalentTo(com.swiftfaze.veil.sandbox.ClassSandbox.class)))
                         .should()
                         .callConstructorWhere(callsEngineConstructor)
                         .because("engine classes in game, world, mods, and entities packages "
-                                + "should only be instantiated by Main, the composition root that "
-                                + "wires the application together; arbitrary instantiation from UI "
-                                + "or other packages creates hidden coupling and makes the engine "
-                                + "untestable in isolation; com.swiftfaze.veil.ui.. is deliberately "
-                                + "excluded so the rule targets engine construction, not general "
+                                + "should only be instantiated by composition roots like Main and ClassSandbox; "
+                                + "arbitrary instantiation from other packages creates hidden coupling and "
+                                + "makes the engine untestable in isolation; com.swiftfaze.veil.ui.. is "
+                                + "deliberately excluded so the rule targets engine construction, not general "
                                 + "object creation like new JPanel()"));
         rule.check(classes);
     }

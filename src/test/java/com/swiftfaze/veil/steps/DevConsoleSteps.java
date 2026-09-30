@@ -12,6 +12,7 @@ import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.KitchenSinkProvider;
 import com.swiftfaze.veil.sandbox.PlayerDetailPanel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
+import com.swiftfaze.veil.world.KitchenSinkScene;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.TranscriptWidget;
 import io.cucumber.java.en.Given;
@@ -20,6 +21,7 @@ import io.cucumber.java.en.When;
 
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 
@@ -645,7 +647,9 @@ public class DevConsoleSteps {
             return new PlayerSandboxProvider(() -> livePlayer);
         }
         if (KITCHEN_SINK_PROVIDER_NAME.equals(name)) {
-            return new KitchenSinkProvider();
+            ModRegistry mods = ModLoader.load(Paths.get("mods"));
+            KitchenSinkScene scene = new KitchenSinkScene(mods);
+            return new KitchenSinkProvider(() -> scene);
         }
         throw new IllegalArgumentException("Unknown provider: " + name);
     }

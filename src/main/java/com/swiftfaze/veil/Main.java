@@ -29,6 +29,7 @@ import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
 import com.swiftfaze.veil.sandbox.KitchenSinkProvider;
+import com.swiftfaze.veil.world.KitchenSinkScene;
 import com.swiftfaze.veil.game.GameListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,8 +238,10 @@ public class Main {
             return;
         }
 
+        ModRegistry mods = ModLoader.load(Paths.get("mods"));
+        KitchenSinkScene kitchenSinkScene = new KitchenSinkScene(mods);
         DevConsoleModel model = new DevConsoleModel(
-            List.of(new ClassSandboxProvider(), new PlayerSandboxProvider(gamePanel::getPlayer), new KitchenSinkProvider())
+            List.of(new ClassSandboxProvider(), new PlayerSandboxProvider(gamePanel::getPlayer), new KitchenSinkProvider(() -> kitchenSinkScene))
         );
         DevConsolePanel console = new DevConsolePanel(model);
 
