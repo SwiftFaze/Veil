@@ -277,46 +277,64 @@ public class KitchenSinkSandboxSteps {
 
     @When("the W key is pressed")
     public void theWKeyIsPressed() {
+        // Ensure UiComponentFrameworkSteps is initialized for this test
+        if (SharedScenarioContext.getUiSteps() == null) {
+            new UiComponentFrameworkSteps();
+        }
         SharedScenarioContext.getUiSteps().theKeyIsPressed("W");
+    }
+
+    private void ensureUiStepsInitialized() {
+        if (SharedScenarioContext.getUiSteps() == null) {
+            new UiComponentFrameworkSteps();
+        }
     }
 
     @When("the Up key is pressed")
     public void theUpKeyIsPressed() {
+        ensureUiStepsInitialized();
         SharedScenarioContext.getUiSteps().theKeyIsPressed("Up");
     }
 
     @When("the Down key is pressed")
     public void theDownKeyIsPressed() {
+        ensureUiStepsInitialized();
         SharedScenarioContext.getUiSteps().theKeyIsPressed("Down");
     }
 
     @When("the Left key is pressed")
     public void theLeftKeyIsPressed() {
+        ensureUiStepsInitialized();
         SharedScenarioContext.getUiSteps().theKeyIsPressed("Left");
     }
 
     @When("the Right key is pressed")
     public void theRightKeyIsPressed() {
+        ensureUiStepsInitialized();
         SharedScenarioContext.getUiSteps().theKeyIsPressed("Right");
     }
 
     @When("the Z key is pressed")
     public void theZKeyIsPressed() {
+        ensureUiStepsInitialized();
         SharedScenarioContext.getUiSteps().theKeyIsPressed("Z");
     }
 
     @When("the S key is pressed")
     public void theSKeyIsPressed() {
+        ensureUiStepsInitialized();
         SharedScenarioContext.getUiSteps().theKeyIsPressed("S");
     }
 
     @When("the Q key is pressed")
     public void theQKeyIsPressed() {
+        ensureUiStepsInitialized();
         SharedScenarioContext.getUiSteps().theKeyIsPressed("Q");
     }
 
     @When("the D key is pressed")
     public void theDKeyIsPressed() {
+        ensureUiStepsInitialized();
         SharedScenarioContext.getUiSteps().theKeyIsPressed("D");
     }
 
