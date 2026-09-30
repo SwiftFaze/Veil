@@ -5,6 +5,7 @@ import com.swiftfaze.veil.mods.ModLoader;
 
 import javax.swing.JComponent;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,8 +23,8 @@ public class ItemSandboxProvider implements DevConsoleProvider {
         this(ModLoader.load(Paths.get("mods")).getAllItems());
     }
 
-    public ItemSandboxProvider(List<Item> items) {
-        this.items = items;
+    public ItemSandboxProvider(Collection<Item> items) {
+        this.items = List.copyOf(items);
     }
 
     @Override

@@ -13,7 +13,6 @@ import com.swiftfaze.veil.sandbox.ItemDetailPanel;
 import com.swiftfaze.veil.sandbox.ItemSandboxProvider;
 import com.swiftfaze.veil.sandbox.PlayerDetailPanel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
-import com.swiftfaze.veil.ui.DetailsPaneWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.TranscriptWidget;
 import io.cucumber.java.en.Given;
@@ -49,7 +48,6 @@ public class DevConsoleSteps {
     private DevConsolePanel panel;
     private Player livePlayer;
     private PlayerDetailPanel playerDetailPanel;
-    private ItemDetailPanel itemDetailPanel;
     private Player identityBeforeEdit;
     private int maxHpBeforeEdit;
     private String lastEditedFieldName;
@@ -266,7 +264,6 @@ public class DevConsoleSteps {
     public void theBackActionIsTriggered() {
         panel.showSearchView();
         playerDetailPanel = null;
-        itemDetailPanel = null;
     }
 
     @Then("there is one result per mod-loaded item")
@@ -279,15 +276,13 @@ public class DevConsoleSteps {
 
     @Then("the item detail shows field rows:")
     public void theItemDetailShowsFieldRows(DataTable dataTable) {
-        captureItemDetailPanel();
+        ItemDetailPanel itemDetailPanel = openedItemDetailPanel();
         List<List<String>> expectedRows = dataTable.asLists();
-        DetailsPaneWidget detailsPane = itemDetailPanel.getDetailsPane();
 
-        assertTrue(detailsPane.getTableCount() >= 1, "Expected at least one table for field rows");
-        TableWidget<List<String>> table = detailsPane.getTable(0);
+        assertTrue(itemDetailPanel.tableCount() >= 1, "Expected at least one table for field rows");
+        TableWidget<List<String>> table = itemDetailPanel.table(0);
         assertNotNull(table, "First table should not be null");
 
-        List<String> headers = expectedRows.get(0);
         List<List<String>> expectedData = expectedRows.subList(1, expectedRows.size());
 
         int rowIndex = 0;
@@ -305,17 +300,16 @@ public class DevConsoleSteps {
 
     @Then("the item detail shows an {string} table with row {string}, {string}, {string}")
     public void theItemDetailShowsTableWithRow(String tableLabel, String col1, String col2, String col3) {
-        captureItemDetailPanel();
-        DetailsPaneWidget detailsPane = itemDetailPanel.getDetailsPane();
+        ItemDetailPanel itemDetailPanel = openedItemDetailPanel();
 
+        List<String> expectedRow = List.of(col1, col2, col3);
         boolean found = false;
-        for (int i = 0; i < detailsPane.getTableCount(); i++) {
-            TableWidget<List<String>> table = detailsPane.getTable(i);
+        for (int i = 0; i < itemDetailPanel.tableCount(); i++) {
+            TableWidget<List<String>> table = itemDetailPanel.table(i);
             table.moveToStart();
             for (int row = 0; row < table.getRowCount(); row++) {
                 List<String> rowData = table.getSelectedRow();
-                if (rowData.size() >= 3 && col1.equals(rowData.get(0))
-                        && col2.equals(rowData.get(1)) && col3.equals(rowData.get(2))) {
+                if (rowData.equals(expectedRow)) {
                     found = true;
                     break;
                 }
@@ -323,7 +317,9 @@ public class DevConsoleSteps {
                     table.moveDown();
                 }
             }
-            if (found) break;
+            if (found) {
+                break;
+            }
         }
         assertTrue(found, "Expected to find row with " + col1 + ", " + col2 + ", " + col3
                 + " in table " + tableLabel);
@@ -331,11 +327,10 @@ public class DevConsoleSteps {
 
     @Then("the item detail has no {string} row")
     public void theItemDetailHasNoRow(String fieldName) {
-        captureItemDetailPanel();
-        DetailsPaneWidget detailsPane = itemDetailPanel.getDetailsPane();
+        ItemDetailPanel itemDetailPanel = openedItemDetailPanel();
 
-        for (int i = 0; i < detailsPane.getTableCount(); i++) {
-            TableWidget<List<String>> table = detailsPane.getTable(i);
+        for (int i = 0; i < itemDetailPanel.tableCount(); i++) {
+            TableWidget<List<String>> table = itemDetailPanel.table(i);
             table.moveToStart();
             for (int row = 0; row < table.getRowCount(); row++) {
                 List<String> rowData = table.getSelectedRow();
@@ -351,41 +346,37 @@ public class DevConsoleSteps {
 
     @Then("the item detail has no {string} table")
     public void theItemDetailHasNoTable(String tableLabel) {
-        captureItemDetailPanel();
-        DetailsPaneWidget detailsPane = itemDetailPanel.getDetailsPane();
+        ItemDetailPanel itemDetailPanel = openedItemDetailPanel();
 
-        for (int i = 0; i < detailsPane.getTableCount(); i++) {
-            TableWidget<List<String>> table = detailsPane.getTable(i);
+        for (int i = 0; i < itemDetailPanel.tableCount(); i++) {
+            TableWidget<List<String>> table = itemDetailPanel.table(i);
             table.moveToStart();
             List<String> firstRow = table.getSelectedRow();
-            if (!firstRow.isEmpty()) {
-                if (tableLabel.equals(firstRow.get(0) + " table") ||
-                        tableLabel.equals("Effects:" + " table") && firstRow.get(0).contains("Type")) {
-                    fail("Table should not be present: " + tableLabel);
-                }
+            boolean matchesLabel = !firstRow.isEmpty()
+                    && (tableLabel.equals(firstRow.get(0) + " table")
+                    || "Effects: table".equals(tableLabel) && firstRow.get(0).contains("Type"));
+            if (matchesLabel) {
+                fail("Table should not be present: " + tableLabel);
             }
         }
     }
 
     @When("the Items provider is asked for the panel of {string}")
     public void theItemsProviderIsAskedForThePanelOf(String itemId) {
-        // This step sets up for the failure test below
-        try {
-            new ItemSandboxProvider().createPanel(itemId);
-            fail("Expected createPanel to throw for unknown id: " + itemId);
-        } catch (IllegalArgumentException e) {
-            // Expected - captured in the next step
-        }
+        // The failure itself is asserted in the next step; here we only confirm the id is not registered.
+        boolean registered = new ItemSandboxProvider().entries().stream()
+                .anyMatch(entry -> entry.id().equals(itemId));
+        assertFalse(registered, "Expected no item registered under id: " + itemId);
     }
 
     @Then("it fails with an unknown item id error for {string}")
     public void itFailsWithUnknownItemIdError(String itemId) {
         ItemSandboxProvider provider = new ItemSandboxProvider();
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException failure = assertThrows(IllegalArgumentException.class,
                 () -> provider.createPanel(itemId));
-        assertTrue(ex.getMessage().contains("Unknown item id"),
+        assertTrue(failure.getMessage().contains("Unknown item id"),
                 "Error message should mention 'Unknown item id'");
-        assertTrue(ex.getMessage().contains(itemId),
+        assertTrue(failure.getMessage().contains(itemId),
                 "Error message should include the item id: " + itemId);
     }
 
@@ -681,11 +672,11 @@ public class DevConsoleSteps {
         }
     }
 
-    private void captureItemDetailPanel() {
-        if (itemDetailPanel == null && panel.isProviderPanelShowing()
-                && panel.getOpenedProviderPanel() instanceof ItemDetailPanel opened) {
-            itemDetailPanel = opened;
-        }
+    private ItemDetailPanel openedItemDetailPanel() {
+        assertTrue(panel.isProviderPanelShowing(), "An item detail panel should be open");
+        assertTrue(panel.getOpenedProviderPanel() instanceof ItemDetailPanel,
+                "The opened provider panel should be an item detail panel");
+        return (ItemDetailPanel) panel.getOpenedProviderPanel();
     }
 
     private String getRowFieldName(int rowIndex) {

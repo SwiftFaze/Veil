@@ -4,6 +4,7 @@ import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.DetailsPaneWidget;
 import com.swiftfaze.veil.ui.widget.HeaderWidget;
+import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 
 import javax.swing.AbstractAction;
@@ -12,19 +13,20 @@ import javax.swing.BoxLayout;
 import javax.swing.InputMap;
 import javax.swing.JPanel;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 /**
  * An item's full detail panel via Inspectable, showing field table plus effects
  * when present. Reuses DetailsPaneWidget (shared with InventoryPanel and CodexPanel)
  * and follows ClassDetailPanel's layout shape.
  */
-public class ItemDetailPanel extends JPanel {
+public final class ItemDetailPanel extends JPanel {
 
-    private final HeaderWidget header;
+    private final String title;
     private final DetailsPaneWidget detailsPane;
 
     public ItemDetailPanel(Item item) {
-        this.header = new HeaderWidget(item.getName());
+        this.title = item.getName();
         this.detailsPane = new DetailsPaneWidget();
         this.detailsPane.showEntry(item);
         this.detailsPane.focusFirstTable();
@@ -33,18 +35,22 @@ public class ItemDetailPanel extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setFocusable(true);
 
-        add(header);
+        add(new HeaderWidget(title));
         add(detailsPane);
 
         bindKeys();
     }
 
-    public HeaderWidget getHeader() {
-        return header;
+    public String title() {
+        return title;
     }
 
-    public DetailsPaneWidget getDetailsPane() {
-        return detailsPane;
+    public int tableCount() {
+        return detailsPane.getTableCount();
+    }
+
+    public TableWidget<List<String>> table(int index) {
+        return detailsPane.getTable(index);
     }
 
     private void bindKeys() {
