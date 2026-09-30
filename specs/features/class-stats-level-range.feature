@@ -12,6 +12,8 @@ Feature: Class stats across a level range
   keep showing level 0 unchanged; editing the curve itself (mod JSON); and
   a live player's level (sandbox-spawn-edit.feature).
 
+  QA: none - no new keyboard input; the view only gains level columns
+
   Background:
     Given a class "Grower" with base strength 10 growing by "level * 2" and base max HP 100
 
