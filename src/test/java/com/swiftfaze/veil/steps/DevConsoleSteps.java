@@ -1,10 +1,12 @@
 package com.swiftfaze.veil.steps;
 
+import com.swiftfaze.veil.Main;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.entities.player.Stats;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.mods.ModRegistry;
+import com.swiftfaze.veil.sandbox.ClassSandbox;
 import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
@@ -12,14 +14,17 @@ import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.PlayerDetailPanel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.sandbox.TileSandboxProvider;
+import com.swiftfaze.veil.ui.DetailsPaneWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.TranscriptWidget;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -425,22 +430,21 @@ public class DevConsoleSteps {
 
     @Then("the Tiles provider contributes one result per loaded tile")
     public void theTilesProviderContributesOneResultPerLoadedTile() {
-        int tileCount = model.filteredResults().size();
-        // Core mod has 21 tiles (from ModLoader log)
-        assertEquals(21, tileCount, "Expected 21 tiles to be loaded");
+        int loadedTiles = ModLoader.load(Paths.get("mods")).getAllTiles().size();
+        assertEquals(loadedTiles, model.filteredResults().size());
     }
 
     @Then("the tile detail shows these fields:")
-    public void theTileDetailShowsTheseFields(io.cucumber.datatable.DataTable dataTable) {
+    public void theTileDetailShowsTheseFields(DataTable dataTable) {
         assertTrue(panel.isProviderPanelShowing(), "Provider panel should be showing");
 
-        com.swiftfaze.veil.ui.DetailsPaneWidget detailsPane =
-            (com.swiftfaze.veil.ui.DetailsPaneWidget) panel.getOpenedProviderPanel();
+        DetailsPaneWidget detailsPane = (DetailsPaneWidget) panel.getOpenedProviderPanel();
         assertNotNull(detailsPane, "Details pane should be opened");
 
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
         TableWidget<List<String>> table = detailsPane.getTable(0);
         assertNotNull(table, "Table should exist");
+        assertEquals(rows.size(), table.getRowCount(), "Detail row count mismatch");
 
         table.moveToStart();
         for (int i = 0; i < rows.size(); i++) {
@@ -466,13 +470,7 @@ public class DevConsoleSteps {
 
     @Then("the F1 in-game dev console's results include an entry named {string}")
     public void theF1InGameDevConsoleResultsIncludeAnEntryNamed(String entryName) {
-        // Simulate Main.buildDevConsoleProviders(() -> null)
-        List<DevConsoleProvider> mainProviders = List.of(
-            new ClassSandboxProvider(),
-            new TileSandboxProvider(),
-            new PlayerSandboxProvider(() -> null)
-        );
-        DevConsoleModel mainModel = new DevConsoleModel(mainProviders);
+        DevConsoleModel mainModel = new DevConsoleModel(Main.buildDevConsoleProviders(() -> null));
         assertTrue(mainModel.filteredResults().stream()
                 .anyMatch(r -> r.entry().name().equals(entryName)),
             "F1 in-game dev console should include entry: " + entryName);
@@ -480,12 +478,7 @@ public class DevConsoleSteps {
 
     @Then("the standalone sandbox dev console's results include an entry named {string}")
     public void theStandaloneSandboxDevConsoleResultsIncludeAnEntryNamed(String entryName) {
-        // Simulate ClassSandbox.providers()
-        List<DevConsoleProvider> sandboxProviders = List.of(
-            new ClassSandboxProvider(),
-            new TileSandboxProvider()
-        );
-        DevConsoleModel sandboxModel = new DevConsoleModel(sandboxProviders);
+        DevConsoleModel sandboxModel = new DevConsoleModel(ClassSandbox.providers());
         assertTrue(sandboxModel.filteredResults().stream()
                 .anyMatch(r -> r.entry().name().equals(entryName)),
             "Standalone sandbox dev console should include entry: " + entryName);
