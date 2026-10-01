@@ -40,7 +40,7 @@ public class WorldSingleFloorRenderingSteps {
     }
 
     @Then("looking up a tile takes only an \\(x, y) position, not a floor")
-    public void lookingUpATileTakesOnlyAnXYPositionNotAFloor() {
+    public void lookingUpATileTakesOnlyAnXyPositionNotAFloor() {
         assertNotNull(scene.getTile(0, 0));
     }
 

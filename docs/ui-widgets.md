@@ -115,7 +115,7 @@ return false to be centered at their preferred size instead of stretched);
 (a `LayoutManager` stretching every child to the parent's full bounds by
 default, for `JLayeredPane` overlays; now respects `PopupWidget.isFullScreen()`
 to center non-full-screen popups at their preferred size instead),
-`TerminalScrollBarUI` (a flat black-track/solid-thumb `BasicScrollBarUI`
+`TerminalScrollBarUi` (a flat black-track/solid-thumb `BasicScrollBarUI`
 replacing the platform look-and-feel's default scrollbar chrome), and
 `ControlsHintBarWidget` (a single persistent bar, one shared instance built
 once in `Main.loadGame()` and docked at `BorderLayout.SOUTH` of the game

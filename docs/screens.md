@@ -155,7 +155,7 @@ apply a persisted Fullscreen setting at launch.
 
 `InventoryPanel` extends `PopupWidget`: its body is a 50/50 split
 (`GridLayout`) between an item `ListWidget<Item>` on the left (scrollable
-via a `JScrollPane` styled with `TerminalScrollBarUI`, non-wrapping) and a
+via a `JScrollPane` styled with `TerminalScrollBarUi`, non-wrapping) and a
 details pane on the right (name/type/slot/damage range/effects table,
 refreshed live off the list's `onSelectionChange` hook), divided by a 2px
 light-gray line matching the rest of the UI's border style. The effects are

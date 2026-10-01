@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * files must also be updated to match, or this test will fail.
  */
 @DisplayName("Shipped mods/core/** must validate against schema definitions")
-class ModSchemaValidationIT {
+class ModSchemaValidationIt {
 
     @Test
     void allCoreModFilesValidateAgainstSchemas() throws IOException {

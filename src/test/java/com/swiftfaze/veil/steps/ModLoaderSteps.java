@@ -467,13 +467,13 @@ public class ModLoaderSteps {
     }
 
     @Then("a building with ID {string} is available")
-    public void aBuildingWithIDIsAvailable(String id) {
+    public void aBuildingWithIdIsAvailable(String id) {
         assertNotNull(registry, "loading did not complete: " + (thrown == null ? "unknown" : thrown.getMessage()));
         assertNotNull(registry.getBuilding(id), "expected building '" + id + "' to be loaded");
     }
 
     @Then("a tile with ID {string} is available")
-    public void aTileWithIDIsAvailable(String id) {
+    public void aTileWithIdIsAvailable(String id) {
         assertNotNull(registry, "loading did not complete: " + (thrown == null ? "unknown" : thrown.getMessage()));
         assertNotNull(registry.getTile(id), "expected tile '" + id + "' to be loaded");
         lastCheckedTileId = id;
@@ -506,7 +506,7 @@ public class ModLoaderSteps {
     }
 
     @Then("loading fails with a ModLoadException naming the colliding ID {string} and both mods {string} and {string}")
-    public void loadingFailsWithAModLoadExceptionNamingTheCollidingIDAndBothMods(String id, String modA, String modB) {
+    public void loadingFailsWithAModLoadExceptionNamingTheCollidingIdAndBothMods(String id, String modA, String modB) {
         assertNotNull(thrown, "expected a ModLoadException to be thrown");
         assertTrue(thrown.getMessage().contains(id), "expected message to name id: " + thrown.getMessage());
         assertTrue(thrown.getMessage().contains(modA), "expected message to name mod: " + modA);
@@ -532,7 +532,7 @@ public class ModLoaderSteps {
     }
 
     @Then("a theme with ID {string} is available")
-    public void aThemeWithIDIsAvailable(String id) {
+    public void aThemeWithIdIsAvailable(String id) {
         assertNotNull(registry, "loading did not complete: " + (thrown == null ? "unknown" : thrown.getMessage()));
         assertNotNull(registry.getTheme(id), "expected theme '" + id + "' to be loaded");
         lastCheckedThemeId = id;
@@ -751,7 +751,7 @@ public class ModLoaderSteps {
     }
 
     @Then("a class with ID {string} is available")
-    public void aClassWithIDIsAvailable(String id) {
+    public void aClassWithIdIsAvailable(String id) {
         assertNotNull(registry, "loading did not complete: " + (thrown == null ? "unknown" : thrown.getMessage()));
         assertNotNull(registry.getPlayerClass(id), "expected class '" + id + "' to be loaded");
         lastCheckedClassId = id;
@@ -799,7 +799,7 @@ public class ModLoaderSteps {
     }
 
     @Then("an item with ID {string} is available")
-    public void anItemWithIDIsAvailable(String id) {
+    public void anItemWithIdIsAvailable(String id) {
         assertNotNull(registry, "loading did not complete: " + (thrown == null ? "unknown" : thrown.getMessage()));
         assertNotNull(registry.getItem(id), "expected item '" + id + "' to be loaded");
         lastCheckedItemId = id;
@@ -846,7 +846,7 @@ public class ModLoaderSteps {
     }
 
     @Then("a quest with ID {string} is available")
-    public void aQuestWithIDIsAvailable(String id) {
+    public void aQuestWithIdIsAvailable(String id) {
         assertNotNull(registry, "loading did not complete: " + (thrown == null ? "unknown" : thrown.getMessage()));
         assertNotNull(registry.getQuest(id), "expected quest '" + id + "' to be loaded");
         lastCheckedQuestId = id;

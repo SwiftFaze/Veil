@@ -21,13 +21,13 @@ tests — see [`testing-acceptance.md`](testing-acceptance.md).
 
 ## Integration tests
 
-- Location: `src/test/java/**/*IT.java`
+- Location: `src/test/java/**/*It.java` (`It`, not `IT`: Error Prone `IdentifierName` treats acronyms as words; `pom.xml` points Failsafe at this suffix)
 - Runner: Failsafe, bound to `integration-test`/`verify` — **not** run by
   plain `mvn test`. Run them with `mvn verify`.
 - Reserved for tests that need real I/O or cross-class wiring that unit
-  tests shouldn't pay for on every run (e.g. `ModLoaderIT`, which loads
+  tests shouldn't pay for on every run (e.g. `ModLoaderIt`, which loads
   actual mod content off disk instead of mocking the file read).
-- Run a single integration test: `mvn verify -Dit.test=ModLoaderIT`
+- Run a single integration test: `mvn verify -Dit.test=ModLoaderIt`
 
 ## QA runs
 

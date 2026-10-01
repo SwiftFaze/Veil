@@ -49,7 +49,7 @@ Re-audit monthly — checklist in `docs/instruction-files.md`.
   everything, including integration tests.
 - Single test: `mvn test -Dtest=PlayerTest#movingRightIncreasesX` /
   `mvn test -Dcucumber.filter.name="A newly created player starts as a Warrior"` /
-  `mvn verify -Dit.test=ModLoaderIT`.
+  `mvn verify -Dit.test=ModLoaderIt`.
 - Run the game: `mvn compile exec:java`. Add `-Dveil.devConsole=true` for the
   F1 dev console (live player-stat editing).
 - Run the class/stats sandbox: `mvn compile exec:java -Dexec.mainClass=com.swiftfaze.veil.sandbox.ClassSandbox`.

@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * repo's real mods/ directory, unlike the unit tests.
  * Runs only via {@code mvn verify} (Failsafe), not {@code mvn test}.
  */
-class ModLoaderIT {
+class ModLoaderIt {
 
     @Test
     void loadsCoreSmallHouseBlueprintFromDisk() {

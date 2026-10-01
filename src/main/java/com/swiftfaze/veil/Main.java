@@ -125,7 +125,7 @@ public final class Main {
         GamePanel gamePanel = buildGameCard(cardPanel, cards, hintBar, eventLog);
         ScreenNavigator navigator = new ScreenNavigator(cardLayout, cardPanel, cards, eventLog);
         ScreenDeck deck = new ScreenDeck(cardPanel, cards, navigator::navigateTo);
-        buildUIScreens(deck, gamePanel, hintBar, eventLog);
+        buildUiScreens(deck, gamePanel, hintBar, eventLog);
         wirePauseMenuNavigation(deck, gamePanel);
         wireDevConsole(gamePanel);
         configureAndShowFrame(frame, deck, hintBar, navigator);
@@ -186,7 +186,7 @@ public final class Main {
         hintBar.setHints(GAME_HINTS);
     }
 
-    private static void buildUIScreens(ScreenDeck deck, GamePanel gamePanel, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
+    private static void buildUiScreens(ScreenDeck deck, GamePanel gamePanel, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
         TitleScreenPanel titleScreen = new TitleScreenPanel(menuItem -> {
             handleMenuSelection(menuItem, deck, gamePanel);
             if ("New".equals(menuItem)) {
@@ -310,7 +310,7 @@ public final class Main {
         frame.setVisible(true);
         navigator.showInitial("title");
         // cardPanel.getComponent(0) is whichever card was added to the container FIRST
-        // (the "game" card, added in buildGameCard() before buildUIScreens() adds "title") -
+        // (the "game" card, added in buildGameCard() before buildUiScreens() adds "title") -
         // not whichever card CardLayout is currently showing. Requesting focus on that
         // hidden, non-showing component silently fails, so no component ever holds
         // keyboard focus. Look the actually-visible card up by name instead.

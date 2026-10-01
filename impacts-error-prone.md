@@ -13,7 +13,7 @@ Paths are relative to `src/main/java/com/swiftfaze/veil/` (M) or
 
 ## Not yet enabled
 
-Measured but not fixed yet: `BooleanParameter` (38), `ConstantField` (13), `IdentifierName` (12), `MethodCanBeStatic` (40), `MissingBraces` (33), `NonFinalStaticField` (13), `ParameterMissingNullable` (82), `ReturnMissingNullable` (18), `SystemOut` (12), `UnnecessarilyFullyQualified` (81), `WildcardImport` (26).
+Measured but not fixed yet: `BooleanParameter` (38), `ConstantField` (13), `MethodCanBeStatic` (40), `MissingBraces` (33), `NonFinalStaticField` (13), `ParameterMissingNullable` (82), `ReturnMissingNullable` (18), `SystemOut` (12), `UnnecessarilyFullyQualified` (81), `WildcardImport` (26).
 
 ## Fixed
 
@@ -44,6 +44,7 @@ Measured but not fixed yet: `BooleanParameter` (38), `ConstantField` (13), `Iden
 | `TooManyParameters` | 7 | `T:steps/DevConsoleSteps.java`, `T:steps/ModLoaderSteps.java`, `T:steps/UiComponentFrameworkSteps.java` | Cucumber steps with 6-11 captures now take fixture objects built by `@ParameterType`s (`{tileLook}`, `{baseStats}`, `{itemLook}`, `{itemEffect}`, `{questObjective}`, `{itemAndXpRewards}`, `{quotedList}`); the .feature wording is unchanged. | No (test glue only) |
 | `PrivateConstructorForUtilityClass` | 8 | `M:Main.java`, `M:sandbox/ClassSandbox.java`, `M:testing/approval/ApprovalCheck.java`, `M:testing/approval/ApprovalReapprove.java`, `M:ui/GameWindow.java`, `M:ui/SettingsKeybindsWindow.java`, +2 more | Added a private constructor (and `final`, per PMD `ClassWithOnlyPrivateConstructorsShouldBeFinal`) to the static-only classes. | No |
 | `RemoveUnusedImports` | 8 | `M:sandbox/PlayerDetailPanel.java`, `M:ui/ListDetailLayoutUtility.java`, `T:ModuleDependencyTest.java`, `T:steps/ClassStatsSandboxSteps.java`, `T:steps/ModLoaderSteps.java`, `T:steps/UiComponentFrameworkSteps.java`, +2 more | Removed unused imports. | No |
+| `IdentifierName` | 12 | `M:Main.java`, `M:ui/widget/TerminalScrollBarUI.java`, `T:mods/ModLoaderIT.java`, `T:mods/ModSchemaValidationIT.java`, `T:steps/ModLoaderSteps.java`, `T:steps/WorldSingleFloorRenderingSteps.java` | Renamed `TerminalScrollBarUI` -> `TerminalScrollBarUi`, `buildUIScreens` -> `buildUiScreens`, step methods with `ID`/`XY` -> `Id`/`Xy`, and the integration tests `ModLoaderIT`/`ModSchemaValidationIT` -> `...It`, with Failsafe's `<includes>` set to `**/*It.java` (its default is `*IT`) and `CLAUDE.md`/`docs/testing.md` updated to match. | No |
 | `MissingDefault` | 13 | `M:sandbox/PlayerDetailPanel.java`, `M:ui/SettingsKeybindsPanel.java`, `M:ui/SettingsScreenPanel.java`, `T:steps/DevConsoleSteps.java`, `T:steps/ModLoaderSteps.java`, `T:steps/UiComponentFrameworkSteps.java` | Main: explicit no-op `default` (with the reason) in the attribute-row, keybinds footer/navigation and settings-confirm switches - same behaviour. Test steps: `default` now throws `IllegalArgumentException` naming the unhandled key, so a typo in a step argument fails instead of silently doing nothing. | No |
 
-Fixed so far: 89 violations across 26 checks.
+Fixed so far: 101 violations across 27 checks.

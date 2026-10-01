@@ -1,7 +1,7 @@
 package com.swiftfaze.veil.ui;
 
 import com.swiftfaze.veil.ui.widget.TableWidget;
-import com.swiftfaze.veil.ui.widget.TerminalScrollBarUI;
+import com.swiftfaze.veil.ui.widget.TerminalScrollBarUi;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 
 import javax.swing.*;
@@ -25,7 +25,7 @@ public final class ListDetailLayoutUtility {
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        scrollPane.getVerticalScrollBar().setUI(new TerminalScrollBarUI());
+        scrollPane.getVerticalScrollBar().setUI(new TerminalScrollBarUi());
         scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
         return scrollPane;
     }

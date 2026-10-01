@@ -11,7 +11,7 @@ import java.awt.Rectangle;
  * A flat, black-track/solid-thumb scrollbar with no arrow buttons, matching
  * the terminal aesthetic instead of the platform look-and-feel's default.
  */
-public class TerminalScrollBarUI extends BasicScrollBarUI {
+public class TerminalScrollBarUi extends BasicScrollBarUI {
 
     @Override
     protected void configureScrollBarColors() {
