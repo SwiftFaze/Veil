@@ -18,9 +18,9 @@ import java.util.function.Consumer;
  * entities whose provider returns one from {@link DevConsoleProvider#fieldMutator} support this.
  * `reload` asks every provider to refresh from mods/ and rebuilds the entry list.
  * `snapshot`/`restore <entry> <name>` capture or restore entity state via
- * {@link DevConsoleSnapshotter}. Anything else writes a specific error line instead of running anything - an unrecognized verb
- * ("Unknown command: ..."), a verb missing its required argument ("Usage: ..."), or an `edit` id
- * that resolves to no entry ("No entry found for id: ...").
+ * {@link DevConsoleSnapshotter}. Anything else writes a specific error line instead of running
+ * anything - an unrecognized verb ("Unknown command: ..."), a verb missing its required argument
+ * ("Usage: ..."), or an `edit` id that resolves to no entry ("No entry found for id: ...").
  */
 public class DevConsoleCommandRunner {
 
