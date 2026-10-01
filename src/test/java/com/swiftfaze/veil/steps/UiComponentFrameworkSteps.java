@@ -920,6 +920,7 @@ public class UiComponentFrameworkSteps {
             case "Volume" -> config.setVolume(value);
             case "WindowWidth" -> config.setWindowWidth(value);
             case "WindowHeight" -> config.setWindowHeight(value);
+            default -> throw new IllegalArgumentException("Unhandled key: " + key);
         }
         settingsStore.persist();
     }
@@ -935,6 +936,7 @@ public class UiComponentFrameworkSteps {
         switch (key) {
             case "WindowWidth" -> assertEquals(expected, loadedConfig.getWindowWidth());
             case "WindowHeight" -> assertEquals(expected, loadedConfig.getWindowHeight());
+            default -> throw new IllegalArgumentException("Unhandled key: " + key);
         }
     }
 
@@ -952,6 +954,7 @@ public class UiComponentFrameworkSteps {
             case "Fullscreen" -> config.setFullscreen(value);
             case "Font" -> config.setFont(value);
             case "Theme" -> config.setTheme(value);
+            default -> throw new IllegalArgumentException("Unhandled key: " + key);
         }
         settingsStore.persist();
     }
@@ -964,6 +967,7 @@ public class UiComponentFrameworkSteps {
         switch (key) {
             case "Brightness" -> assertEquals(value, config.getBrightness());
             case "Volume" -> assertEquals(value, config.getVolume());
+            default -> throw new IllegalArgumentException("Unhandled key: " + key);
         }
     }
 
@@ -976,6 +980,7 @@ public class UiComponentFrameworkSteps {
             case "Fullscreen" -> assertEquals(value, config.getFullscreen());
             case "Font" -> assertEquals(value, config.getFont());
             case "Theme" -> assertEquals(value, config.getTheme());
+            default -> throw new IllegalArgumentException("Unhandled key: " + key);
         }
     }
 

@@ -246,6 +246,9 @@ public class SettingsScreenPanel extends JPanel implements HintAware {
                 // Placeholder action
             }
             case "Reset to Defaults" -> resetConfirmationPopup.open();
+            default -> {
+                // Slider and radio rows act on Left/Right, not confirm
+            }
         }
     }
 

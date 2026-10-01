@@ -356,6 +356,7 @@ public class ModLoaderSteps {
                 Files.createDirectories(questsDir);
                 Files.writeString(questsDir.resolve("quest.json"), fileJson.toString());
             }
+            default -> throw new IllegalArgumentException("Unhandled fileType: " + fileType);
         }
     }
 

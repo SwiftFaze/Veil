@@ -186,6 +186,9 @@ public class SettingsKeybindsPanel extends JPanel implements HintAware {
                 case "Cancel" -> handleCancel();
                 case "Go back" -> handleGoBack();
                 case "Reset to Defaults" -> handleResetToDefaults();
+                default -> {
+                    // No footer action highlighted
+                }
             }
         }
         refreshHints();
@@ -330,6 +333,9 @@ public class SettingsKeybindsPanel extends JPanel implements HintAware {
                 case KeyEvent.VK_RIGHT -> moveFooterRight();
                 case KeyEvent.VK_ENTER -> confirm();
                 case KeyEvent.VK_ESCAPE -> back();
+                default -> {
+                    // Not a navigation key
+                }
             }
         }
     }

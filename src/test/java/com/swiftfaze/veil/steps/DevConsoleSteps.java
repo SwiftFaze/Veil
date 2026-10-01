@@ -578,6 +578,7 @@ public class DevConsoleSteps {
             case "Max Mana" -> stats.setMaxMana(value);
             case "Current HP" -> stats.setCurrentHp(value);
             case "Current Mana" -> stats.setCurrentMana(value);
+            default -> throw new IllegalArgumentException("Unhandled fieldName: " + fieldName);
         }
         refreshDisplayedRows();
     }
@@ -640,6 +641,7 @@ public class DevConsoleSteps {
         switch (fieldName) {
             case "Strength" -> stats.setStrength(stats.getStrength() + 1);
             case "Max HP" -> stats.setMaxHp(stats.getMaxHp() + 1);
+            default -> throw new IllegalArgumentException("Unhandled fieldName: " + fieldName);
         }
         refreshDisplayedRows();
     }
@@ -649,6 +651,7 @@ public class DevConsoleSteps {
         Stats stats = livePlayer.getPlayerInfo().getStats();
         switch (fieldName) {
             case "Strength" -> stats.setStrength(Math.max(0, stats.getStrength() - 1));
+            default -> throw new IllegalArgumentException("Unhandled fieldName: " + fieldName);
         }
         lastEditedFieldName = fieldName;
         lastEditedFieldValue = getStatValue(stats, fieldName);

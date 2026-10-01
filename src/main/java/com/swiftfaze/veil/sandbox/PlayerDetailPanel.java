@@ -310,6 +310,9 @@ public class PlayerDetailPanel extends JPanel {
             case EDITABLE_INTELLIGENCE -> stats.setIntelligence(value);
             case EDITABLE_WISDOM -> stats.setWisdom(value);
             case EDITABLE_LUCK -> stats.setLuck(value);
+            default -> {
+                // Not an attribute row (class, HP and mana rows are adjusted elsewhere)
+            }
         }
     }
 
