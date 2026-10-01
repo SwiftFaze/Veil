@@ -72,10 +72,7 @@ public class DevConsoleSteps {
     @Given("the dev console is running with the {string} provider registered")
     public void theDevConsoleIsRunningWithTheProviderRegistered(String providerName) {
         List<DevConsoleProvider> providers = List.of(providerFor(providerName));
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
-        SharedScenarioContext.setDevConsoleModel(model);
-        SharedScenarioContext.setDevConsolePanel(panel);
+        startConsole(new DevConsoleModel(providers));
 
         // If it's the Quests provider, create a live player and snapshot the quest log
         if (QUESTS_PROVIDER_NAME.equals(providerName)) {
@@ -98,16 +95,14 @@ public class DevConsoleSteps {
     public void theDevConsoleIsRunningWithTheProvidersRegistered(String provider1, String provider2) {
         livePlayer = new Player(0, 0);
         List<DevConsoleProvider> providers = List.of(providerFor(provider1), providerFor(provider2));
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
     }
 
     @Given("the dev console is running with the {string} provider attached to the running player")
     public void theDevConsoleIsRunningWithThePlayerProviderAttached(String providerName) {
         livePlayer = new Player(0, 0);
         List<DevConsoleProvider> providers = List.of(new PlayerSandboxProvider(() -> livePlayer));
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
     }
 
     @When("the search text is set to {string}")
@@ -479,8 +474,7 @@ public class DevConsoleSteps {
     @Given("the dev console is running with a Tiles provider that has no tiles")
     public void theDevConsoleIsRunningWithATilesProviderThatHasNoTiles() {
         List<DevConsoleProvider> providers = List.of(new TileSandboxProvider(List.of()));
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
     }
 
     @Then("the Tiles provider contributes one result per loaded tile")
@@ -732,6 +726,17 @@ public class DevConsoleSteps {
         throw new AssertionError(message);
     }
 
+    /**
+     * Starts the console on {@code newModel} and publishes it to {@link SharedScenarioContext},
+     * so a later step in the same scenario can't be shadowed by a model an earlier step shared.
+     */
+    private void startConsole(DevConsoleModel newModel) {
+        model = newModel;
+        panel = new DevConsolePanel(newModel);
+        SharedScenarioContext.setDevConsoleModel(model);
+        SharedScenarioContext.setDevConsolePanel(panel);
+    }
+
     private DevConsoleModel getCurrentModel() {
         // Check if there's an updated model in the shared context (e.g., from loading fixture quests)
         DevConsoleModel sharedModel = SharedScenarioContext.getDevConsoleModel();
@@ -772,24 +777,21 @@ public class DevConsoleSteps {
     public void theDevConsoleIsRunningWithAProviderWhoseEntriesCanChange() {
         fakeProvider = new ReloadableFakeProvider("Classes");
         List<DevConsoleProvider> providers = List.of(fakeProvider);
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
     }
 
     @Given("the provider starts with the entry {string}")
     public void theProviderStartsWithTheEntry(String entryId) {
         // Entries must be set before model construction, so recreate
         fakeProvider.addEntry(createEntry(entryId));
-        model = new DevConsoleModel(List.of(fakeProvider));
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(List.of(fakeProvider)));
     }
 
     @Given("the provider starts with the entries {string} and {string}")
     public void theProviderStartsWithTheEntries(String entry1, String entry2) {
         fakeProvider.addEntry(createEntry(entry1));
         fakeProvider.addEntry(createEntry(entry2));
-        model = new DevConsoleModel(List.of(fakeProvider));
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(List.of(fakeProvider)));
     }
 
     @Given("the provider's data now also contains the entry {string}")
@@ -862,8 +864,7 @@ public class DevConsoleSteps {
     public void aSecondProviderIsAlsoRegistered() {
         secondProvider = new ReloadableFakeProvider("Quests");
         List<DevConsoleProvider> providers = List.of(fakeProvider, secondProvider);
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
     }
 
     @Given("the dev console also has the {string} provider attached to the running player")
@@ -872,8 +873,7 @@ public class DevConsoleSteps {
             livePlayer = new Player(0, 0);
         }
         List<DevConsoleProvider> providers = List.of(fakeProvider, new PlayerSandboxProvider(() -> livePlayer));
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
     }
 
     @Then("the transcript reports {int} results for {string}")
