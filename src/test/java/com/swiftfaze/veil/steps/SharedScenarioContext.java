@@ -1,8 +1,9 @@
 package com.swiftfaze.veil.steps;
 
-import com.swiftfaze.veil.Camera;
+import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
+import com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel;
 import java.util.Map;
 
 /**
@@ -14,6 +15,10 @@ public class SharedScenarioContext {
     private static final ThreadLocal<DevConsoleModel> DEV_CONSOLE_MODEL = new ThreadLocal<>();
     private static final ThreadLocal<DevConsolePanel> DEV_CONSOLE_PANEL = new ThreadLocal<>();
     private static final ThreadLocal<Map<String, String>> QUEST_LOG_SNAPSHOT = new ThreadLocal<>();
+    private static final ThreadLocal<DevConsoleSteps> DEV_CONSOLE_STEPS_HOLDER = new ThreadLocal<>();
+    private static final ThreadLocal<UiComponentFrameworkSteps> UI_STEPS_HOLDER =
+            ThreadLocal.withInitial(UiComponentFrameworkSteps::new); // lazily built: Cucumber only instantiates step classes whose steps run
+    private static final ThreadLocal<KitchenSinkPreviewPanel> PREVIEW_PANEL_HOLDER = new ThreadLocal<>();
 
     public static Camera getCamera() {
         return CAMERA.get();
@@ -47,10 +52,37 @@ public class SharedScenarioContext {
         QUEST_LOG_SNAPSHOT.set(snapshot);
     }
 
+    public static DevConsoleSteps getDevConsoleSteps() {
+        return DEV_CONSOLE_STEPS_HOLDER.get();
+    }
+
+    public static void setDevConsoleSteps(DevConsoleSteps steps) {
+        DEV_CONSOLE_STEPS_HOLDER.set(steps);
+    }
+
+    public static UiComponentFrameworkSteps getUiSteps() {
+        return UI_STEPS_HOLDER.get();
+    }
+
+    public static void setUiSteps(UiComponentFrameworkSteps steps) {
+        UI_STEPS_HOLDER.set(steps);
+    }
+
+    public static KitchenSinkPreviewPanel getKitchenSinkPreviewPanel() {
+        return PREVIEW_PANEL_HOLDER.get();
+    }
+
+    public static void setKitchenSinkPreviewPanel(KitchenSinkPreviewPanel panel) {
+        PREVIEW_PANEL_HOLDER.set(panel);
+    }
+
     public static void cleanup() {
         CAMERA.remove();
         DEV_CONSOLE_MODEL.remove();
         DEV_CONSOLE_PANEL.remove();
         QUEST_LOG_SNAPSHOT.remove();
+        DEV_CONSOLE_STEPS_HOLDER.remove();
+        UI_STEPS_HOLDER.remove();
+        PREVIEW_PANEL_HOLDER.remove();
     }
 }

@@ -1,6 +1,6 @@
 package com.swiftfaze.veil.steps;
 
-import com.swiftfaze.veil.Camera;
+import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.testing.approval.ApprovalCheck;
 import com.swiftfaze.veil.world.PositionedGlyph;
 import com.swiftfaze.veil.world.Tile;

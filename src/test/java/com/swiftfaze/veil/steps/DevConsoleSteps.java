@@ -15,8 +15,10 @@ import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.ItemDetailPanel;
 import com.swiftfaze.veil.sandbox.ItemSandboxProvider;
+import com.swiftfaze.veil.sandbox.KitchenSinkProvider;
 import com.swiftfaze.veil.sandbox.PlayerDetailPanel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
+import com.swiftfaze.veil.world.KitchenSinkScene;
 import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
 import com.swiftfaze.veil.sandbox.TileSandboxProvider;
 import com.swiftfaze.veil.ui.DetailsPaneWidget;
@@ -29,6 +31,8 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import javax.swing.Action;
+import javax.swing.JTextField;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.nio.file.Paths;
@@ -56,6 +60,7 @@ public class DevConsoleSteps {
     private static final String CLASSES_PROVIDER_NAME = "Classes";
     private static final String PLAYER_PROVIDER_NAME = "Player";
     private static final String ITEMS_PROVIDER_NAME = "Items";
+    private static final String KITCHEN_SINK_PROVIDER_NAME = "Kitchen Sink";
     private static final String QUESTS_PROVIDER_NAME = "Quests";
     private static final String TILES_PROVIDER_NAME = "Tiles";
 
@@ -952,6 +957,7 @@ public class DevConsoleSteps {
         panel = new DevConsolePanel(newModel);
         SharedScenarioContext.setDevConsoleModel(model);
         SharedScenarioContext.setDevConsolePanel(panel);
+        SharedScenarioContext.setDevConsoleSteps(this);
     }
 
     private DevConsoleModel getCurrentModel() {
@@ -1119,6 +1125,11 @@ public class DevConsoleSteps {
         if (ITEMS_PROVIDER_NAME.equals(name)) {
             return new ItemSandboxProvider();
         }
+        if (KITCHEN_SINK_PROVIDER_NAME.equals(name)) {
+            ModRegistry mods = ModLoader.load(Paths.get("mods"));
+            KitchenSinkScene scene = KitchenSinkScene.holding(mods.getAllTiles());
+            return new KitchenSinkProvider(() -> scene);
+        }
         if (QUESTS_PROVIDER_NAME.equals(name)) {
             return new QuestSandboxProvider();
         }
@@ -1126,6 +1137,27 @@ public class DevConsoleSteps {
             return new TileSandboxProvider();
         }
         throw new IllegalArgumentException("Unknown provider: " + name);
+    }
+
+    /** Restarts the console with just the given provider, for scenarios that need a custom one. */
+    public void runWith(DevConsoleProvider provider) {
+        startConsole(new DevConsoleModel(List.of(provider)));
+    }
+
+    public List<DevConsoleModel.SearchResult> currentResults() {
+        return model.filteredResults();
+    }
+
+    public boolean isDetailPanelShowing() {
+        return panel.isProviderPanelShowing();
+    }
+
+    /** Runs {@code edit <entryId>}; returns the detail panel it opened, or null. */
+    public Component openEntry(String entryId) {
+        JTextField searchField = panel.getSearchField();
+        searchField.setText("edit " + entryId);
+        panel.runCommand();
+        return panel.isProviderPanelShowing() ? panel.getOpenedProviderPanel() : null;
     }
 
     private DevConsoleEntry createEntry(String id) {

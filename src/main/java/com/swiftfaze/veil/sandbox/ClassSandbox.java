@@ -34,7 +34,8 @@ public class ClassSandbox {
             new ClassSandboxProvider(),
             new ItemSandboxProvider(),
             new TileSandboxProvider(),
-            new QuestSandboxProvider()
+            new QuestSandboxProvider(),
+            new KitchenSinkProvider()
         );
     }
 }

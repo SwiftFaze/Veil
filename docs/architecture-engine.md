@@ -18,7 +18,7 @@ active `WorldScene`, and a `Camera`, wires keyboard input directly to player
 movement, and drives all rendering from `paintComponent`. The world is a
 single flat layer — `paintComponent` centers the camera on the player and
 makes one `scene.renderWorld(...)` call; there is no floor/depth dimension,
-brightness falloff, or fog overlay. `Camera` (`Camera.java`) is a plain
+brightness falloff, or fog overlay. `Camera` (`render/Camera.java`) is a plain
 offset holder — `centerOn(x, y)` sets its top-left offset to the target
 position minus half the viewport, with no smoothing between calls and no
 clamping to the map's bounds, so the viewport can extend past the map edge
@@ -33,7 +33,9 @@ checks whether the target tile is walkable and, if so, moves onto it —
 there is no floor to step up onto or fall through, so a blocked move simply
 does nothing.
 
-**Rendering contracts**: `Positionable` (x/y) → `DrawableAsciiEntity` (adds
+**Rendering contracts** (package `com.swiftfaze.veil.render`, which depends on
+nothing else in the project so any package can use it without closing a
+cycle through `Main`'s root package): `Positionable` (x/y) → `DrawableAsciiEntity` (adds
 glyph/color/`render(Graphics2D, int tileWidth, int tileHeight, Camera)`) is
 what `GamePanel` iterates over in `entitiesToDraw` to draw non-scene entities
 (currently just `Player`); `WorldScene` itself also implements

@@ -1,6 +1,6 @@
 package com.swiftfaze.veil.world;
 
-import com.swiftfaze.veil.Camera;
+import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.entities.buildings.Building;
 import com.swiftfaze.veil.testing.property.VeilArbitraries;
 import net.jqwik.api.Arbitrary;
