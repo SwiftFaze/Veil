@@ -1698,7 +1698,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.PauseToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PauseToggleListener.java:0)\
     - Method <com.swiftfaze.veil.ui.PopupToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PopupToggleListener.java:0)\
@@ -1725,7 +1725,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.PauseToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PauseToggleListener.java:0)\
     - Method <com.swiftfaze.veil.ui.PopupToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PopupToggleListener.java:0)\
@@ -1773,7 +1773,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.PauseToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PauseToggleListener.java:0)\
     - Method <com.swiftfaze.veil.ui.PopupToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PopupToggleListener.java:0)\
@@ -1822,7 +1822,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.PauseToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PauseToggleListener.java:0)\
     - Method <com.swiftfaze.veil.ui.PopupToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PopupToggleListener.java:0)\
@@ -1864,7 +1864,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.PauseToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PauseToggleListener.java:0)\
     - Method <com.swiftfaze.veil.ui.PopupToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PopupToggleListener.java:0)\
@@ -1906,7 +1906,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.PauseToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PauseToggleListener.java:0)\
     - Method <com.swiftfaze.veil.ui.PopupToggleListener.updatePlayer(com.swiftfaze.veil.entities.player.Player)> has parameter of type <com.swiftfaze.veil.entities.player.Player> in (PopupToggleListener.java:0)\
@@ -1938,7 +1938,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (CodexPanel.java:0)\
   4. Dependencies of Slice veil.entities.player.classes\
@@ -1977,7 +1977,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (CodexPanel.java:0)\
   4. Dependencies of Slice veil.entities.player.classes\
@@ -2032,7 +2032,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (CodexPanel.java:0)\
   4. Dependencies of Slice veil.entities.player.classes\
@@ -2087,7 +2087,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (CodexPanel.java:0)\
   4. Dependencies of Slice veil.entities.player.classes\
@@ -2133,7 +2133,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (CodexPanel.java:0)\
   4. Dependencies of Slice veil.entities.player.classes\
@@ -2173,7 +2173,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showClasses(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (CodexPanel.java:0)\
   4. Dependencies of Slice veil.entities.player.classes\
@@ -2212,7 +2212,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
     - Class <com.swiftfaze.veil.ui.PopupToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PopupToggleListener.java:0)\
@@ -2244,7 +2244,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
     - Class <com.swiftfaze.veil.ui.PopupToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PopupToggleListener.java:0)\
@@ -2293,7 +2293,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
     - Class <com.swiftfaze.veil.ui.PopupToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PopupToggleListener.java:0)\
@@ -2363,7 +2363,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
     - Class <com.swiftfaze.veil.ui.PopupToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PopupToggleListener.java:0)\
@@ -2434,7 +2434,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
     - Class <com.swiftfaze.veil.ui.PopupToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PopupToggleListener.java:0)\
@@ -2498,7 +2498,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
     - Class <com.swiftfaze.veil.ui.PopupToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PopupToggleListener.java:0)\
@@ -2562,7 +2562,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
     - Class <com.swiftfaze.veil.ui.PopupToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PopupToggleListener.java:0)\
@@ -2615,7 +2615,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
     - Class <com.swiftfaze.veil.ui.PopupToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PopupToggleListener.java:0)\
@@ -2655,7 +2655,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.PauseToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PauseToggleListener.java:0)\
     - Class <com.swiftfaze.veil.ui.PopupToggleListener> implements interface <com.swiftfaze.veil.game.GameListener> in (PopupToggleListener.java:0)\
@@ -2722,7 +2722,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.CodexPanel> extends class <com.swiftfaze.veil.ui.widget.PopupWidget> in (CodexPanel.java:0)\
     - Class <com.swiftfaze.veil.ui.DropConfirmationPopup> extends class <com.swiftfaze.veil.ui.widget.CompactPopupWidget> in (DropConfirmationPopup.java:0)\
@@ -2796,7 +2796,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.CodexPanel> extends class <com.swiftfaze.veil.ui.widget.PopupWidget> in (CodexPanel.java:0)\
     - Class <com.swiftfaze.veil.ui.DropConfirmationPopup> extends class <com.swiftfaze.veil.ui.widget.CompactPopupWidget> in (DropConfirmationPopup.java:0)\
@@ -2882,7 +2882,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.CodexPanel> extends class <com.swiftfaze.veil.ui.widget.PopupWidget> in (CodexPanel.java:0)\
     - Class <com.swiftfaze.veil.ui.DropConfirmationPopup> extends class <com.swiftfaze.veil.ui.widget.CompactPopupWidget> in (DropConfirmationPopup.java:0)\
@@ -2974,7 +2974,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Class <com.swiftfaze.veil.ui.CodexPanel> extends class <com.swiftfaze.veil.ui.widget.PopupWidget> in (CodexPanel.java:0)\
     - Class <com.swiftfaze.veil.ui.DropConfirmationPopup> extends class <com.swiftfaze.veil.ui.widget.CompactPopupWidget> in (DropConfirmationPopup.java:0)\
@@ -3046,7 +3046,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showTiles(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.world.Tile>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (CodexPanel.java:0)\
   4. Dependencies of Slice veil.world\
@@ -3072,7 +3072,7 @@ Cycle detected: Slice veil -> \
     - Method <com.swiftfaze.veil.Main.wireDevConsole(com.swiftfaze.veil.game.GamePanel)> calls constructor <com.swiftfaze.veil.sandbox.DevConsolePanel.<init>(com.swiftfaze.veil.sandbox.DevConsoleModel)> in (Main.java:242)\
     - Method <com.swiftfaze.veil.Main$1.toggleDevConsole()> calls method <com.swiftfaze.veil.sandbox.DevConsolePanel.requestFocusInWindow()> in (Main.java:261)\
   2. Dependencies of Slice veil.sandbox\
-    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:149)\
+    - Method <com.swiftfaze.veil.sandbox.DevConsolePanel.buildTranscriptScrollPane()> calls method <com.swiftfaze.veil.ui.ListDetailLayoutUtility.buildScrollPane(javax.swing.JComponent)> in (DevConsolePanel.java:150)\
   3. Dependencies of Slice veil.ui\
     - Method <com.swiftfaze.veil.ui.CodexPanel.showTiles(java.util.List)> has generic parameter type <java.util.List<com.swiftfaze.veil.world.Tile>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (CodexPanel.java:0)\
   4. Dependencies of Slice veil.world\
@@ -3145,7 +3145,7 @@ Cycle detected: Slice veil -> \
     - Constructor <com.swiftfaze.veil.sandbox.ClassSandboxPanel.<init>(com.swiftfaze.veil.sandbox.ClassSandboxModel)> gets field <com.swiftfaze.veil.ui.widget.WidgetTheme.BACKGROUND> in (ClassSandboxPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ClassDetailPanel.<init>(com.swiftfaze.veil.sandbox.ClassSandboxModel, java.lang.String)> calls constructor <com.swiftfaze.veil.ui.widget.HeaderWidget.<init>(java.lang.String)> in (ClassDetailPanel.java:30)\
     - Constructor <com.swiftfaze.veil.sandbox.ClassDetailPanel.<init>(com.swiftfaze.veil.sandbox.ClassSandboxModel, java.lang.String)> calls method <com.swiftfaze.veil.ui.widget.TableWidget.ofRows(java.util.List, java.util.List)> in (ClassDetailPanel.java:31)\
-    (68 further dependencies have been omitted...)\
+    (71 further dependencies have been omitted...)\
   3. Dependencies of Slice veil.ui.widget\
     - Method <com.swiftfaze.veil.ui.widget.WidgetTheme.applyTheme(com.swiftfaze.veil.mods.WidgetColorTheme)> has parameter of type <com.swiftfaze.veil.mods.WidgetColorTheme> in (WidgetTheme.java:0)\
     - Method <com.swiftfaze.veil.ui.widget.WidgetTheme.applyTheme(com.swiftfaze.veil.mods.WidgetColorTheme)> calls method <com.swiftfaze.veil.mods.WidgetColorTheme.color(java.lang.String)> in (WidgetTheme.java:33)\
@@ -3216,7 +3216,7 @@ Cycle detected: Slice veil -> \
     - Constructor <com.swiftfaze.veil.sandbox.ClassSandboxPanel.<init>(com.swiftfaze.veil.sandbox.ClassSandboxModel)> gets field <com.swiftfaze.veil.ui.widget.WidgetTheme.BACKGROUND> in (ClassSandboxPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ClassDetailPanel.<init>(com.swiftfaze.veil.sandbox.ClassSandboxModel, java.lang.String)> calls constructor <com.swiftfaze.veil.ui.widget.HeaderWidget.<init>(java.lang.String)> in (ClassDetailPanel.java:30)\
     - Constructor <com.swiftfaze.veil.sandbox.ClassDetailPanel.<init>(com.swiftfaze.veil.sandbox.ClassSandboxModel, java.lang.String)> calls method <com.swiftfaze.veil.ui.widget.TableWidget.ofRows(java.util.List, java.util.List)> in (ClassDetailPanel.java:31)\
-    (68 further dependencies have been omitted...)\
+    (71 further dependencies have been omitted...)\
   3. Dependencies of Slice veil.ui.widget\
     - Method <com.swiftfaze.veil.ui.widget.WidgetTheme.applyTheme(com.swiftfaze.veil.mods.WidgetColorTheme)> has parameter of type <com.swiftfaze.veil.mods.WidgetColorTheme> in (WidgetTheme.java:0)\
     - Method <com.swiftfaze.veil.ui.widget.WidgetTheme.applyTheme(com.swiftfaze.veil.mods.WidgetColorTheme)> calls method <com.swiftfaze.veil.mods.WidgetColorTheme.color(java.lang.String)> in (WidgetTheme.java:33)\
@@ -3299,7 +3299,7 @@ Cycle detected: Slice veil -> \
     - Constructor <com.swiftfaze.veil.sandbox.ClassSandboxPanel.<init>(com.swiftfaze.veil.sandbox.ClassSandboxModel)> gets field <com.swiftfaze.veil.ui.widget.WidgetTheme.BACKGROUND> in (ClassSandboxPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ClassDetailPanel.<init>(com.swiftfaze.veil.sandbox.ClassSandboxModel, java.lang.String)> calls constructor <com.swiftfaze.veil.ui.widget.HeaderWidget.<init>(java.lang.String)> in (ClassDetailPanel.java:30)\
     - Constructor <com.swiftfaze.veil.sandbox.ClassDetailPanel.<init>(com.swiftfaze.veil.sandbox.ClassSandboxModel, java.lang.String)> calls method <com.swiftfaze.veil.ui.widget.TableWidget.ofRows(java.util.List, java.util.List)> in (ClassDetailPanel.java:31)\
-    (68 further dependencies have been omitted...)\
+    (71 further dependencies have been omitted...)\
   3. Dependencies of Slice veil.ui.widget\
     - Method <com.swiftfaze.veil.ui.widget.WidgetTheme.applyTheme(com.swiftfaze.veil.mods.WidgetColorTheme)> has parameter of type <com.swiftfaze.veil.mods.WidgetColorTheme> in (WidgetTheme.java:0)\
     - Method <com.swiftfaze.veil.ui.widget.WidgetTheme.applyTheme(com.swiftfaze.veil.mods.WidgetColorTheme)> calls method <com.swiftfaze.veil.mods.WidgetColorTheme.color(java.lang.String)> in (WidgetTheme.java:33)\
@@ -3388,7 +3388,7 @@ Cycle detected: Slice veil -> \
     - Constructor <com.swiftfaze.veil.sandbox.ClassSandboxPanel.<init>(com.swiftfaze.veil.sandbox.ClassSandboxModel)> gets field <com.swiftfaze.veil.ui.widget.WidgetTheme.BACKGROUND> in (ClassSandboxPanel.java:28)\
     - Constructor <com.swiftfaze.veil.sandbox.ClassDetailPanel.<init>(com.swiftfaze.veil.sandbox.ClassSandboxModel, java.lang.String)> calls constructor <com.swiftfaze.veil.ui.widget.HeaderWidget.<init>(java.lang.String)> in (ClassDetailPanel.java:30)\
     - Constructor <com.swiftfaze.veil.sandbox.ClassDetailPanel.<init>(com.swiftfaze.veil.sandbox.ClassSandboxModel, java.lang.String)> calls method <com.swiftfaze.veil.ui.widget.TableWidget.ofRows(java.util.List, java.util.List)> in (ClassDetailPanel.java:31)\
-    (68 further dependencies have been omitted...)\
+    (71 further dependencies have been omitted...)\
   3. Dependencies of Slice veil.ui.widget\
     - Method <com.swiftfaze.veil.ui.widget.WidgetTheme.applyTheme(com.swiftfaze.veil.mods.WidgetColorTheme)> has parameter of type <com.swiftfaze.veil.mods.WidgetColorTheme> in (WidgetTheme.java:0)\
     - Method <com.swiftfaze.veil.ui.widget.WidgetTheme.applyTheme(com.swiftfaze.veil.mods.WidgetColorTheme)> calls method <com.swiftfaze.veil.mods.WidgetColorTheme.color(java.lang.String)> in (WidgetTheme.java:33)\
