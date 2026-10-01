@@ -82,10 +82,19 @@ gates. See [`testing.md`](testing.md) for the test layers themselves.
   an agent already runs. JDK17 flags and a Windows fork/batch-file gotcha
   (`google/error-prone#4256`) are documented in that plugin's own `pom.xml`
   comment, not repeated here.
-- Error Prone runs repo-wide; demoted checks (`EnumOrdinal`,
-  `StringCaseLocaleUsage`, `MissingSummary`, `ImmutableEnumChecker`) each
-  carry a one-line reason next to the `<arg>` in `pom.xml` - demote further
-  noisy checks the same way, never silently.
+- Error Prone runs repo-wide: its default ERROR tier, plus every other check
+  [`error-prone-checks.md`](error-prone-checks.md) marks **ADD**, each raised
+  with its own `-Xep:<Check>:ERROR` flag in `pom.xml` (#219). That file has a
+  row for every check not already at ERROR by default, with the reason for
+  ADD or EXCLUDE. EXCLUDE takes one of four reasons only: no surface here,
+  contradicts another enabled check or PMD rule, needs a new dependency, or
+  deprecated/no-op. Noisy or style-only is not one: fix the code, never demote
+  a check or add `@SuppressWarnings` for it.
+- **A check added by a future Error Prone version** stays at its default
+  (opt-in, so nothing turns on silently). On a version bump, list the new
+  checks (`BuiltInCheckerSuppliers` in the new jar), give each a row in
+  `error-prone-checks.md` by the same four reasons, add a flag for each ADD,
+  and fix what it finds in the same change.
 - NullAway runs in JSpecify mode (`-XepOpt:NullAway:JSpecifyMode=true` with
   `-XepOpt:NullAway:OnlyNullMarked=true`, not `AnnotatedPackages`).
   Coverage starts at `com.swiftfaze.veil.world` and `com.swiftfaze.veil.entities`
