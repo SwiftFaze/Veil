@@ -182,17 +182,14 @@ field floors/clamping rules as `PlayerDetailPanel`'s arm+Left/Right editing.
 Every mutation writes a SUCCESS or ERROR line to the transcript. Anything else
 writes a specific error line (unknown command, missing argument, or an id that
 resolves to nothing) instead of running anything; a bare word alone is not a
-search. Multiple providers can register
-entries together — `ClassSandboxProvider` exposes every player class as a
-searchable entry opening `ClassDetailPanel`, and `PlayerSandboxProvider` (see
-below) exposes the running player as a single entry, and
-`QuestSandboxProvider` exposes every mod-loaded quest as a read-only entry whose
-objective and reward tables come from `Quest.getDetailTables()` rendered by
-`DetailsPaneWidget`. The framework is wired
-into `Main.java` behind a dev-only system property gate: `mvn compile
+search. Multiple providers can register entries together: `ClassSandboxProvider`
+(each player class, opening `ClassDetailPanel`), `PlayerSandboxProvider` (the
+running player, see below) and `QuestSandboxProvider` (each mod-loaded quest,
+read-only: `Quest.getDetailTables()` in a `DetailsPaneWidget`). The framework is
+wired into `Main.java` behind a dev-only system property gate: `mvn compile
 exec:java -Dveil.devConsole=true` enables the F1 keybind to toggle a floating
-dev console frame alongside the running game. The packaged/installer build
-does not include the property, so players never see it.
+dev console frame alongside the running game. The packaged/installer build does
+not include the property, so players never see it.
 
 **Completion and history**: the command field supports live-filtering Tab
 completion, context-sensitive by argument position — position 0 completes
