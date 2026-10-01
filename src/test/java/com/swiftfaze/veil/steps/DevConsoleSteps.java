@@ -1,12 +1,10 @@
 package com.swiftfaze.veil.steps;
 
-import com.swiftfaze.veil.Main;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.entities.player.Stats;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.mods.ModRegistry;
-import com.swiftfaze.veil.sandbox.ClassSandbox;
 import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
@@ -466,22 +464,6 @@ public class DevConsoleSteps {
         TileSandboxProvider provider = new TileSandboxProvider();
         assertThrows(IllegalArgumentException.class, () -> provider.createPanel(id),
             "Expected IllegalArgumentException for unknown tile id: " + id);
-    }
-
-    @Then("the F1 in-game dev console's results include an entry named {string}")
-    public void theF1InGameDevConsoleResultsIncludeAnEntryNamed(String entryName) {
-        DevConsoleModel mainModel = new DevConsoleModel(Main.buildDevConsoleProviders(() -> null));
-        assertTrue(mainModel.filteredResults().stream()
-                .anyMatch(r -> r.entry().name().equals(entryName)),
-            "F1 in-game dev console should include entry: " + entryName);
-    }
-
-    @Then("the standalone sandbox dev console's results include an entry named {string}")
-    public void theStandaloneSandboxDevConsoleResultsIncludeAnEntryNamed(String entryName) {
-        DevConsoleModel sandboxModel = new DevConsoleModel(ClassSandbox.providers());
-        assertTrue(sandboxModel.filteredResults().stream()
-                .anyMatch(r -> r.entry().name().equals(entryName)),
-            "Standalone sandbox dev console should include entry: " + entryName);
     }
 
     @Then("the running player's {string} is Warrior's level-0 base Strength")

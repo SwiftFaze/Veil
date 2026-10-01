@@ -233,6 +233,16 @@ one, the supplier returns the new object immediately, so edits stay attached
 to the live game player even across a "New Game" restart without restarting
 the dev console.
 
+**Tiles provider**: `TileSandboxProvider` exposes every mod-loaded tile as
+its own top-level entry (namespace from the id before `:`, category "Tiles")
+opening a `DetailsPaneWidget` over the tile's `Inspectable` detail tables
+(ID, symbol, color, walkable). It holds the tiles as `Inspectable`s and
+deliberately does not import `com.swiftfaze.veil.world.Tile`: a `sandbox` ->
+`world` edge would add a new path to the frozen ArchUnit cycle store. The
+provider list is built in `Main.buildDevConsoleProviders` (F1 console) and
+`ClassSandbox.providers()` (standalone sandbox); register new providers in
+both.
+
 **Game event log** (`game/event/`): sealed `GameEvent` records (`ScreenChanged`,
 `MenuSelectionChanged`, `PlayerMoved`, `PopupToggled`) recorded into a
 `GameEventLog` for QA replays. It lives in the engine so the UI may depend on

@@ -2,16 +2,16 @@ package com.swiftfaze.veil.sandbox;
 
 import com.swiftfaze.veil.component.Inspectable;
 import com.swiftfaze.veil.mods.ModLoader;
-import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.ui.DetailsPaneWidget;
 
 import javax.swing.JComponent;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * Exposes every mod-loaded tile as its own searchable dev-console entry -
- * held as {@code List<? extends Inspectable>} rather than directly importing
+ * held as {@code Inspectable}s rather than directly importing
  * {@code com.swiftfaze.veil.world.Tile} to avoid a sandbox → world import
  * edge that would add a new frozen ArchUnit cycle path.
  */
@@ -21,12 +21,11 @@ public class TileSandboxProvider implements DevConsoleProvider {
     private final List<? extends Inspectable> tiles;
 
     public TileSandboxProvider() {
-        ModRegistry registry = ModLoader.load(Paths.get("mods"));
-        this.tiles = List.copyOf(registry.getAllTiles());
+        this(ModLoader.load(Paths.get("mods")).getAllTiles());
     }
 
-    public TileSandboxProvider(List<? extends Inspectable> tiles) {
-        this.tiles = tiles;
+    public TileSandboxProvider(Collection<? extends Inspectable> tiles) {
+        this.tiles = List.copyOf(tiles);
     }
 
     @Override
