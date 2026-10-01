@@ -3,19 +3,25 @@ package com.swiftfaze.veil.steps;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.entities.player.PlayerInfo;
 import com.swiftfaze.veil.entities.player.QuestLog;
+import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.entities.player.Stats;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
+import com.swiftfaze.veil.sandbox.DevConsoleEntry;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.PlayerDetailPanel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
+import com.swiftfaze.veil.sandbox.TileSandboxProvider;
+import com.swiftfaze.veil.ui.DetailsPaneWidget;
+import com.swiftfaze.veil.sandbox.ReloadableFakeProvider;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.TranscriptWidget;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -23,6 +29,7 @@ import io.cucumber.java.en.When;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DevConsoleSteps {
@@ -45,10 +53,12 @@ public class DevConsoleSteps {
     private static final String CLASSES_PROVIDER_NAME = "Classes";
     private static final String PLAYER_PROVIDER_NAME = "Player";
     private static final String QUESTS_PROVIDER_NAME = "Quests";
+    private static final String TILES_PROVIDER_NAME = "Tiles";
 
     private DevConsoleModel model;
     private DevConsolePanel panel;
     private Player livePlayer;
+    private Player playerBeforeReload;
     private PlayerDetailPanel playerDetailPanel;
     private Player identityBeforeEdit;
     private int maxHpBeforeEdit;
@@ -56,6 +66,8 @@ public class DevConsoleSteps {
     private int lastEditedFieldValue;
     private Stats statsSnapshot;
     private String classSnapshot;
+    private ReloadableFakeProvider fakeProvider;
+    private ReloadableFakeProvider secondProvider;
 
     @Given("the dev console is running with the {string} provider registered")
     public void theDevConsoleIsRunningWithTheProviderRegistered(String providerName) {
@@ -178,7 +190,7 @@ public class DevConsoleSteps {
     @Then("the transcript's last entry is an info line reporting {int} results for {string}")
     public void theTranscriptsLastEntryIsAnInfoLineReporting(int count, String term) {
         assertFalse(panel.getTranscript().entries().isEmpty(), TRANSCRIPT_SHOULD_HAVE_ENTRIES);
-        var lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
+        TranscriptWidget.TranscriptEntry lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
         assertEquals(TranscriptWidget.Level.INFO, lastEntry.level());
         assertTrue(lastEntry.text().contains(String.valueOf(count)));
         assertTrue(lastEntry.text().contains(term));
@@ -195,7 +207,7 @@ public class DevConsoleSteps {
     @Then("the transcript's last entry is an error line for {string}")
     public void theTranscriptsLastEntryIsAnErrorLineFor(String input) {
         assertFalse(panel.getTranscript().entries().isEmpty(), "Transcript should have entries after: " + input);
-        var lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
+        TranscriptWidget.TranscriptEntry lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
         assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level(), "Expected an error line after: " + input);
     }
 
@@ -429,15 +441,17 @@ public class DevConsoleSteps {
 
     @When("the command bar is set to {string}")
     public void theCommandBarIsSetTo(String command) {
-        statsSnapshot = snapshot(livePlayer.getPlayerInfo().getStats());
-        classSnapshot = livePlayer.getPlayerInfo().getPlayerClass().getName();
+        Optional<PlayerInfo> playerInfo = Optional.ofNullable(livePlayer).map(Player::getPlayerInfo);
+        playerInfo.map(PlayerInfo::getStats).ifPresent(stats -> statsSnapshot = snapshot(stats));
+        playerInfo.map(PlayerInfo::getPlayerClass).map(PlayerClass::getName).ifPresent(name -> classSnapshot = name);
+        playerBeforeReload = livePlayer;
         panel.getSearchField().setText(command);
         panel.runCommand();
     }
 
     @Then("the transcript's last line is a SUCCESS line for {string} set to {int}")
     public void transcriptsLastLineIsSuccessForFieldSetTo(String fieldName, int value) {
-        var lastEntry = lastTranscriptEntry();
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
         assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level());
         assertTrue(lastEntry.text().contains(fieldName));
         assertTrue(lastEntry.text().contains(String.valueOf(value)));
@@ -445,7 +459,7 @@ public class DevConsoleSteps {
 
     @Then("the transcript's last line is an ERROR line for {word} {string}")
     public void transcriptsLastLineIsErrorFor(String category, String token) {
-        var lastEntry = lastTranscriptEntry();
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
         assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level());
         assertTrue(lastEntry.text().contains(token), "Expected error text to mention: " + token);
     }
@@ -460,6 +474,53 @@ public class DevConsoleSteps {
     @Then("the running player's class value is unchanged")
     public void theRunningPlayerSClassValueIsUnchanged() {
         assertEquals(classSnapshot, livePlayer.getPlayerInfo().getPlayerClass().getName());
+    }
+
+    @Given("the dev console is running with a Tiles provider that has no tiles")
+    public void theDevConsoleIsRunningWithATilesProviderThatHasNoTiles() {
+        List<DevConsoleProvider> providers = List.of(new TileSandboxProvider(List.of()));
+        model = new DevConsoleModel(providers);
+        panel = new DevConsolePanel(model);
+    }
+
+    @Then("the Tiles provider contributes one result per loaded tile")
+    public void theTilesProviderContributesOneResultPerLoadedTile() {
+        int loadedTiles = ModLoader.load(Paths.get("mods")).getAllTiles().size();
+        assertEquals(loadedTiles, model.filteredResults().size());
+    }
+
+    @Then("the tile detail shows these fields:")
+    public void theTileDetailShowsTheseFields(DataTable dataTable) {
+        assertTrue(panel.isProviderPanelShowing(), "Provider panel should be showing");
+
+        DetailsPaneWidget detailsPane = (DetailsPaneWidget) panel.getOpenedProviderPanel();
+        assertNotNull(detailsPane, "Details pane should be opened");
+
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+        TableWidget<List<String>> table = detailsPane.getTable(0);
+        assertNotNull(table, "Table should exist");
+        assertEquals(rows.size(), table.getRowCount(), "Detail row count mismatch");
+
+        table.moveToStart();
+        for (int i = 0; i < rows.size(); i++) {
+            if (i > 0) {
+                table.moveDown();
+            }
+            Map<String, String> expectedRow = rows.get(i);
+            List<String> actualRow = table.getSelectedRow();
+
+            assertEquals(expectedRow.get("Field"), actualRow.get(0),
+                "Row " + i + " field name mismatch");
+            assertEquals(expectedRow.get("Value"), actualRow.get(1),
+                "Row " + i + " value mismatch");
+        }
+    }
+
+    @Then("the Tiles provider rejects opening {string}")
+    public void theTilesProviderRejectsOpening(String id) {
+        TileSandboxProvider provider = new TileSandboxProvider();
+        assertThrows(IllegalArgumentException.class, () -> provider.createPanel(id),
+            "Expected IllegalArgumentException for unknown tile id: " + id);
     }
 
     @Then("the running player's {string} is Warrior's level-0 base Strength")
@@ -707,6 +768,130 @@ public class DevConsoleSteps {
                 .orElseThrow();
     }
 
+    @Given("the dev console is running with a provider whose entries can change")
+    public void theDevConsoleIsRunningWithAProviderWhoseEntriesCanChange() {
+        fakeProvider = new ReloadableFakeProvider("Classes");
+        List<DevConsoleProvider> providers = List.of(fakeProvider);
+        model = new DevConsoleModel(providers);
+        panel = new DevConsolePanel(model);
+    }
+
+    @Given("the provider starts with the entry {string}")
+    public void theProviderStartsWithTheEntry(String entryId) {
+        // Entries must be set before model construction, so recreate
+        fakeProvider.addEntry(createEntry(entryId));
+        model = new DevConsoleModel(List.of(fakeProvider));
+        panel = new DevConsolePanel(model);
+    }
+
+    @Given("the provider starts with the entries {string} and {string}")
+    public void theProviderStartsWithTheEntries(String entry1, String entry2) {
+        fakeProvider.addEntry(createEntry(entry1));
+        fakeProvider.addEntry(createEntry(entry2));
+        model = new DevConsoleModel(List.of(fakeProvider));
+        panel = new DevConsolePanel(model);
+    }
+
+    @Given("the provider's data now also contains the entry {string}")
+    public void theProviderSDataNowAlsoContainsTheEntry(String entryId) {
+        fakeProvider.addEntry(createEntry(entryId));
+    }
+
+    @Given("the provider's data now only contains the entry {string}")
+    public void theProviderSDataNowOnlyContainsTheEntry(String entryId) {
+        fakeProvider.clearEntries();
+        fakeProvider.addEntry(createEntry(entryId));
+    }
+
+    @Given("the provider's next refresh fails with {string}")
+    public void theProviderSNextRefreshFailsWith(String errorMessage) {
+        fakeProvider.setNextReloadFails(errorMessage);
+    }
+
+    @Then("searching for {string} finds the entry {string}")
+    public void searchingForFindsTheEntry(String searchTerm, String expectedEntryId) {
+        model.setSearchText(searchTerm);
+        List<DevConsoleModel.SearchResult> results = model.filteredResults();
+        boolean found = results.stream()
+                .anyMatch(r -> r.entry().id().equals(expectedEntryId));
+        assertTrue(found, "Entry " + expectedEntryId + " not found in search results for: " + searchTerm);
+    }
+
+    @Then("searching for {string} finds no entries")
+    public void searchingForFindsNoEntries(String searchTerm) {
+        model.setSearchText(searchTerm);
+        List<DevConsoleModel.SearchResult> results = model.filteredResults();
+        assertTrue(results.isEmpty(), "Expected no results for search: " + searchTerm);
+    }
+
+    @Then("the transcript's last line is a SUCCESS line {string}")
+    public void theTranscriptSLastLineIsASuccessLine(String expectedText) {
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level(),
+            "Expected SUCCESS line but got: " + lastEntry.level());
+        assertTrue(lastEntry.text().contains(expectedText),
+            "Expected SUCCESS line to contain: " + expectedText + ", but got: " + lastEntry.text());
+    }
+
+    @Then("the transcript's last line is an ERROR line {string}")
+    public void theTranscriptSLastLineIsAnErrorLine(String expectedText) {
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level(),
+            "Expected ERROR line but got: " + lastEntry.level());
+        assertTrue(lastEntry.text().contains(expectedText),
+            "Expected ERROR line to contain: " + expectedText + ", but got: " + lastEntry.text());
+    }
+
+    @Then("every registered provider was asked to refresh exactly once")
+    public void everyRegisteredProviderWasAskedToRefreshExactlyOnce() {
+        assertEquals(1, fakeProvider.reloadCallCount(), "First provider should be reloaded once");
+        if (secondProvider != null) {
+            assertEquals(1, secondProvider.reloadCallCount(), "Second provider should be reloaded once");
+        }
+    }
+
+    @Then("no provider was asked to refresh")
+    public void noProviderWasAskedToRefresh() {
+        assertEquals(0, fakeProvider.reloadCallCount(), "Provider should not be reloaded");
+        if (secondProvider != null) {
+            assertEquals(0, secondProvider.reloadCallCount(), "Second provider should not be reloaded");
+        }
+    }
+
+    @Given("a second provider is also registered")
+    public void aSecondProviderIsAlsoRegistered() {
+        secondProvider = new ReloadableFakeProvider("Quests");
+        List<DevConsoleProvider> providers = List.of(fakeProvider, secondProvider);
+        model = new DevConsoleModel(providers);
+        panel = new DevConsolePanel(model);
+    }
+
+    @Given("the dev console also has the {string} provider attached to the running player")
+    public void theDevConsoleAlsoHasTheProviderAttachedToTheRunningPlayer(String providerName) {
+        if (livePlayer == null) {
+            livePlayer = new Player(0, 0);
+        }
+        List<DevConsoleProvider> providers = List.of(fakeProvider, new PlayerSandboxProvider(() -> livePlayer));
+        model = new DevConsoleModel(providers);
+        panel = new DevConsolePanel(model);
+    }
+
+    @Then("the transcript reports {int} results for {string}")
+    public void theTranscriptReportsResultsFor(int expectedCount, String searchTerm) {
+        List<TranscriptWidget.TranscriptEntry> entries = panel.getTranscript().entries();
+        boolean found = entries.stream().anyMatch(entry ->
+            entry.level() == TranscriptWidget.Level.INFO &&
+            entry.text().contains(String.valueOf(expectedCount)) &&
+            entry.text().contains(searchTerm)
+        );
+        assertTrue(found, "Expected transcript to report " + expectedCount + " results for: " + searchTerm);
+    }
+
+    @Then("the running player is the same player instance as before the reload")
+    public void theRunningPlayerIsSamePlayerInstanceAsBeforeTheReload() {
+        assertSame(playerBeforeReload, livePlayer, "Player should be the same instance");
+    }
+
     private DevConsoleProvider providerFor(String name) {
         if (CLASSES_PROVIDER_NAME.equals(name)) {
             return new ClassSandboxProvider();
@@ -717,6 +902,16 @@ public class DevConsoleSteps {
         if (QUESTS_PROVIDER_NAME.equals(name)) {
             return new QuestSandboxProvider();
         }
+        if (TILES_PROVIDER_NAME.equals(name)) {
+            return new TileSandboxProvider();
+        }
         throw new IllegalArgumentException("Unknown provider: " + name);
+    }
+
+    private DevConsoleEntry createEntry(String id) {
+        String namespace = "core";
+        String category = "Classes";
+        String name = id.replace("core:", "");
+        return new DevConsoleEntry(namespace, id, category, name);
     }
 }

@@ -30,6 +30,7 @@ import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
 import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
+import com.swiftfaze.veil.sandbox.TileSandboxProvider;
 import com.swiftfaze.veil.game.GameListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -239,7 +240,8 @@ public class Main {
             return;
         }
 
-        DevConsoleModel model = new DevConsoleModel(buildDevConsoleProviders(gamePanel::getPlayer));
+        List<DevConsoleProvider> providers = buildDevConsoleProviders(gamePanel::getPlayer);
+        DevConsoleModel model = new DevConsoleModel(providers);
         DevConsolePanel console = new DevConsolePanel(model);
 
         JFrame consoleFrame = new JFrame("Veil - Dev Console");
@@ -273,6 +275,7 @@ public class Main {
         return List.of(
             new ClassSandboxProvider(),
             new QuestSandboxProvider(),
+            new TileSandboxProvider(),
             new PlayerSandboxProvider(playerSupplier)
         );
     }
