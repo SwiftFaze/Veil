@@ -352,6 +352,8 @@
                         <param>com.swiftfaze.veil.sandbox.ClassSandboxProvider</param>
                         <param>com.swiftfaze.veil.sandbox.ClassDetailPanel</param>
                         <param>com.swiftfaze.veil.sandbox.DevConsoleCommandRunner</param>
+                        <param>com.swiftfaze.veil.sandbox.QuestSandboxModel</param>
+                        <param>com.swiftfaze.veil.sandbox.QuestSandboxProvider</param>
                         <param>com.swiftfaze.veil.sandbox.PlayerSandboxProvider</param>
                         <param>com.swiftfaze.veil.sandbox.PlayerDetailPanel</param>
                         <param>com.swiftfaze.veil.sandbox.PlayerField</param>

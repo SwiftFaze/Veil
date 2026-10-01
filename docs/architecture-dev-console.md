@@ -32,10 +32,11 @@ The new list replaces the old only if every provider succeeds, so a
 ERROR line. Anything else
 writes a specific error line (unknown command, missing argument, or an id that
 resolves to nothing) instead of running anything; a bare word alone is not a
-search. Multiple providers can register
-entries together — `ClassSandboxProvider` exposes every player class as a
-searchable entry opening `ClassDetailPanel`, and `PlayerSandboxProvider` (see
-below) exposes the running player as a single entry. The framework is wired
+search. Multiple providers can register entries together: `ClassSandboxProvider`
+(each player class, opening `ClassDetailPanel`), `PlayerSandboxProvider` (the
+running player, see below), `TileSandboxProvider` (see "Tiles provider" below)
+and `QuestSandboxProvider` (each mod-loaded quest, read-only:
+`Quest.getDetailTables()` in a `DetailsPaneWidget`). The framework is wired
 into `Main.java` behind a dev-only system property gate: `mvn compile
 exec:java -Dveil.devConsole=true` enables the F1 keybind to toggle a floating
 dev console frame alongside the running game. The packaged/installer build

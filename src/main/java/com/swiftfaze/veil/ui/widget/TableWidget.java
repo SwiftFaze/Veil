@@ -154,6 +154,10 @@ public class TableWidget<T> extends Widget {
         return rows.size();
     }
 
+    public List<T> getRows() {
+        return List.copyOf(rows);
+    }
+
     public List<String> getColumnHeaders() {
         return List.copyOf(columnHeaders);
     }

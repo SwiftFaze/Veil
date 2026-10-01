@@ -2,6 +2,7 @@ package com.swiftfaze.veil.steps;
 
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.entities.player.PlayerInfo;
+import com.swiftfaze.veil.entities.player.QuestLog;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.entities.player.Stats;
 import com.swiftfaze.veil.input.Keybindings;
@@ -14,6 +15,7 @@ import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.PlayerDetailPanel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
+import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
 import com.swiftfaze.veil.sandbox.TileSandboxProvider;
 import com.swiftfaze.veil.ui.DetailsPaneWidget;
 import com.swiftfaze.veil.sandbox.ReloadableFakeProvider;
@@ -26,6 +28,7 @@ import io.cucumber.java.en.When;
 
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
+import java.util.HashMap;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +52,7 @@ public class DevConsoleSteps {
     private static final String TRANSCRIPT_SHOULD_HAVE_ENTRIES = "Transcript should have entries";
     private static final String CLASSES_PROVIDER_NAME = "Classes";
     private static final String PLAYER_PROVIDER_NAME = "Player";
+    private static final String QUESTS_PROVIDER_NAME = "Quests";
     private static final String TILES_PROVIDER_NAME = "Tiles";
 
     private DevConsoleModel model;
@@ -68,29 +72,42 @@ public class DevConsoleSteps {
     @Given("the dev console is running with the {string} provider registered")
     public void theDevConsoleIsRunningWithTheProviderRegistered(String providerName) {
         List<DevConsoleProvider> providers = List.of(providerFor(providerName));
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
+
+        // If it's the Quests provider, create a live player and snapshot the quest log
+        if (QUESTS_PROVIDER_NAME.equals(providerName)) {
+            if (livePlayer == null) {
+                livePlayer = new Player(0, 0);
+            }
+            // Snapshot all quest states for later verification
+            QuestLog questLog = liveQuestLog();
+            Map<String, String> snapshot = new HashMap<>();
+            for (DevConsoleModel.SearchResult result : model.allResults()) {
+                String questId = result.entry().id();
+                String state = String.valueOf(questLog.getState(questId));
+                snapshot.put(questId, state);
+            }
+            SharedScenarioContext.setQuestLogSnapshot(snapshot);
+        }
     }
 
     @Given("the dev console is running with the {string} and {string} providers registered")
     public void theDevConsoleIsRunningWithTheProvidersRegistered(String provider1, String provider2) {
         livePlayer = new Player(0, 0);
         List<DevConsoleProvider> providers = List.of(providerFor(provider1), providerFor(provider2));
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
     }
 
     @Given("the dev console is running with the {string} provider attached to the running player")
     public void theDevConsoleIsRunningWithThePlayerProviderAttached(String providerName) {
         livePlayer = new Player(0, 0);
         List<DevConsoleProvider> providers = List.of(new PlayerSandboxProvider(() -> livePlayer));
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
     }
 
     @When("the search text is set to {string}")
     public void theSearchTextIsSetTo(String text) {
-        model.setSearchText(text);
+        getCurrentModel().setSearchText(text);
     }
 
     @When("the command {string} is entered")
@@ -246,9 +263,16 @@ public class DevConsoleSteps {
         assertFalse(resultNames().contains(name));
     }
 
+    @Then("the results do not include any entry in category {string}")
+    public void theResultsDoNotIncludeAnyEntryInCategory(String category) {
+        boolean found = getCurrentModel().filteredResults().stream()
+                .anyMatch(result -> category.equals(result.entry().category()));
+        assertFalse(found, "Expected no entries in category '" + category + "'");
+    }
+
     @Then("the results are empty")
     public void theResultsAreEmpty() {
-        assertTrue(model.filteredResults().isEmpty());
+        assertTrue(getCurrentModel().filteredResults().isEmpty());
     }
 
     @Then("the {string} result has namespace {string} and category {string}")
@@ -261,8 +285,9 @@ public class DevConsoleSteps {
     @When("{string} is opened")
     public void isOpened(String entryName) {
         DevConsoleModel.SearchResult result = findResult(entryName);
-        panel.getSearchField().setText("edit " + result.entry().id());
-        panel.runCommand();
+        String id = result.entry().id();
+        getCurrentPanel().getSearchField().setText("edit " + id);
+        getCurrentPanel().runCommand();
     }
 
     @Then("the opened detail panel is shown")
@@ -272,8 +297,25 @@ public class DevConsoleSteps {
 
     @When("the back action is triggered")
     public void theBackActionIsTriggered() {
-        panel.showSearchView();
+        getCurrentPanel().showSearchView();
         playerDetailPanel = null;
+    }
+
+    @Then("no player's quest log has changed")
+    public void noPlayerQuestLogHasChanged() {
+        assertNotNull(livePlayer, "Expected a live player for quest log verification");
+        Map<String, String> snapshot = SharedScenarioContext.getQuestLogSnapshot();
+        assertNotNull(snapshot, "Expected a quest log snapshot to be taken");
+
+        // Verify all quest states match the snapshot
+        QuestLog questLog = liveQuestLog();
+        for (Map.Entry<String, String> entry : snapshot.entrySet()) {
+            String questId = entry.getKey();
+            String expectedState = entry.getValue();
+            String actualState = String.valueOf(questLog.getState(questId));
+            assertEquals(expectedState, actualState,
+                    "Quest log state changed for quest " + questId + " after opening in console");
+        }
     }
 
     @Then("the table includes editable rows {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}")
@@ -432,8 +474,7 @@ public class DevConsoleSteps {
     @Given("the dev console is running with a Tiles provider that has no tiles")
     public void theDevConsoleIsRunningWithATilesProviderThatHasNoTiles() {
         List<DevConsoleProvider> providers = List.of(new TileSandboxProvider(List.of()));
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
     }
 
     @Then("the Tiles provider contributes one result per loaded tile")
@@ -685,39 +726,72 @@ public class DevConsoleSteps {
         throw new AssertionError(message);
     }
 
+    /**
+     * Starts the console on {@code newModel} and publishes it to {@link SharedScenarioContext},
+     * so a later step in the same scenario can't be shadowed by a model an earlier step shared.
+     */
+    private void startConsole(DevConsoleModel newModel) {
+        model = newModel;
+        panel = new DevConsolePanel(newModel);
+        SharedScenarioContext.setDevConsoleModel(model);
+        SharedScenarioContext.setDevConsolePanel(panel);
+    }
+
+    private DevConsoleModel getCurrentModel() {
+        // Check if there's an updated model in the shared context (e.g., from loading fixture quests)
+        DevConsoleModel sharedModel = SharedScenarioContext.getDevConsoleModel();
+        if (sharedModel != null) {
+            model = sharedModel;
+        }
+        return model;
+    }
+
+    private DevConsolePanel getCurrentPanel() {
+        // Check if there's an updated panel in the shared context (e.g., from loading fixture quests)
+        DevConsolePanel sharedPanel = SharedScenarioContext.getDevConsolePanel();
+        if (sharedPanel != null) {
+            panel = sharedPanel;
+        }
+        return panel;
+    }
+
     private List<String> resultNames() {
-        return model.filteredResults().stream().map(result -> result.entry().name()).toList();
+        return getCurrentModel().filteredResults().stream().map(result -> result.entry().name()).toList();
     }
 
     private DevConsoleModel.SearchResult findResult(String name) {
-        return model.filteredResults().stream()
+        return getCurrentModel().filteredResults().stream()
                 .filter(result -> result.entry().name().equals(name))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No result named: " + name));
+    }
+
+    private QuestLog liveQuestLog() {
+        return Optional.of(livePlayer)
+                .map(Player::getPlayerInfo)
+                .map(PlayerInfo::getQuestLog)
+                .orElseThrow();
     }
 
     @Given("the dev console is running with a provider whose entries can change")
     public void theDevConsoleIsRunningWithAProviderWhoseEntriesCanChange() {
         fakeProvider = new ReloadableFakeProvider("Classes");
         List<DevConsoleProvider> providers = List.of(fakeProvider);
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
     }
 
     @Given("the provider starts with the entry {string}")
     public void theProviderStartsWithTheEntry(String entryId) {
         // Entries must be set before model construction, so recreate
         fakeProvider.addEntry(createEntry(entryId));
-        model = new DevConsoleModel(List.of(fakeProvider));
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(List.of(fakeProvider)));
     }
 
     @Given("the provider starts with the entries {string} and {string}")
     public void theProviderStartsWithTheEntries(String entry1, String entry2) {
         fakeProvider.addEntry(createEntry(entry1));
         fakeProvider.addEntry(createEntry(entry2));
-        model = new DevConsoleModel(List.of(fakeProvider));
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(List.of(fakeProvider)));
     }
 
     @Given("the provider's data now also contains the entry {string}")
@@ -790,8 +864,7 @@ public class DevConsoleSteps {
     public void aSecondProviderIsAlsoRegistered() {
         secondProvider = new ReloadableFakeProvider("Quests");
         List<DevConsoleProvider> providers = List.of(fakeProvider, secondProvider);
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
     }
 
     @Given("the dev console also has the {string} provider attached to the running player")
@@ -800,8 +873,7 @@ public class DevConsoleSteps {
             livePlayer = new Player(0, 0);
         }
         List<DevConsoleProvider> providers = List.of(fakeProvider, new PlayerSandboxProvider(() -> livePlayer));
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
     }
 
     @Then("the transcript reports {int} results for {string}")
@@ -826,6 +898,9 @@ public class DevConsoleSteps {
         }
         if (PLAYER_PROVIDER_NAME.equals(name)) {
             return new PlayerSandboxProvider(() -> livePlayer);
+        }
+        if (QUESTS_PROVIDER_NAME.equals(name)) {
+            return new QuestSandboxProvider();
         }
         if (TILES_PROVIDER_NAME.equals(name)) {
             return new TileSandboxProvider();
