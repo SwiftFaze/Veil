@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.sandbox;
 
+import com.swiftfaze.veil.exceptions.ModLoadException;
 import com.swiftfaze.veil.ui.widget.TranscriptWidget;
 
 import java.util.ArrayList;
@@ -13,7 +14,8 @@ import java.util.function.Consumer;
  * it to the caller to open. `set`/`add`/`subtract <entry> <field> <value>` mutate a live entity's
  * field via {@link DevConsoleFieldMutator} and write a SUCCESS/ERROR transcript line - only
  * entities whose provider returns one from {@link DevConsoleProvider#fieldMutator} support this.
- * Anything else writes a specific error line instead of running anything - an unrecognized verb
+ * `reload` asks every provider to refresh from mods/ and rebuilds the entry list. Anything else
+ * writes a specific error line instead of running anything - an unrecognized verb
  * ("Unknown command: ..."), a verb missing its required argument ("Usage: ..."), or an `edit` id
  * that resolves to no entry ("No entry found for id: ...").
  */
@@ -24,6 +26,7 @@ public class DevConsoleCommandRunner {
     private static final String SET_VERB = "set";
     private static final String ADD_VERB = "add";
     private static final String SUBTRACT_VERB = "subtract";
+    private static final String RELOAD_VERB = "reload";
     private static final int MUTATION_MIN_PARTS = 3;
     private static final List<String> RESULT_HEADERS = List.of("#", "ID", "Name", "Category", "Mod");
 
@@ -49,6 +52,7 @@ public class DevConsoleCommandRunner {
             case SET_VERB -> runMutation(DevConsoleMutationVerb.SET, argument);
             case ADD_VERB -> runMutation(DevConsoleMutationVerb.ADD, argument);
             case SUBTRACT_VERB -> runMutation(DevConsoleMutationVerb.SUBTRACT, argument);
+            case RELOAD_VERB -> runReload(argument);
             default -> transcript.appendError("Unknown command: " + trimmed);
         }
     }
@@ -76,6 +80,19 @@ public class DevConsoleCommandRunner {
             onEditResolved.accept(found.get());
         } else {
             transcript.appendError("No entry found for id: " + id);
+        }
+    }
+
+    private void runReload(String argument) {
+        if (!argument.isBlank()) {
+            transcript.appendError("Usage: reload");
+            return;
+        }
+        try {
+            int count = model.reload();
+            transcript.appendSuccess("Reloaded mods: " + count + " entries");
+        } catch (ModLoadException e) {
+            transcript.appendError("Reload failed: " + e.getMessage());
         }
     }
 

@@ -154,6 +154,10 @@ public class TableWidget<T> extends Widget {
         return rows.size();
     }
 
+    public List<String> getColumnHeaders() {
+        return List.copyOf(columnHeaders);
+    }
+
     public void moveToStart() {
         if (rows.isEmpty()) return;
         selectedRowIndex = 0;
