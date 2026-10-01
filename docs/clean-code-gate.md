@@ -96,6 +96,7 @@ Other flags: `--all` (whole repo, for baselining — not the gate), `--files`
 | 10 | Collection/loop/inheritance misuse (exception softening, literal string comparison, overridable calls in constructors, etc.) | **Partial** — heuristic proxies, not proofs | fb-contrib detectors (advisory) |
 | 11 | Full PMD 7 catalogue (#215) — 196 native rules the ad hoc set above never covered: reassignment, redundant constructs, exception/clone/finalize misuse, thread-safety, string/collection performance, `MutableStaticState`, `DataClass`, `LawOfDemeter` | Full | `.pmd-clean-code.xml` §9 |
 | 12 | Vendored jPinpoint rules (#215) — equals/hashCode consistency, regex recompilation, per-call allocation, suppression hygiene | Full | `.pmd-clean-code.xml` §10 (Apache 2.0, `PMD-jPinpoint-rules`) |
+| 13 | Default-charset and default-locale JDK calls (`String.format`, `toLowerCase`, `getBytes`, `FileReader`, etc.) and deprecated JDK API use | Full | forbiddenapis `jdk-unsafe` + `jdk-deprecated`, repo-wide (main + test) at `mvn verify` |
 
 Test-quality rules run only against `src/test`; SRP rules only against
 `src/main`. `AvoidInstantiatingObjectsInLoops` (row 10, performance) is scoped

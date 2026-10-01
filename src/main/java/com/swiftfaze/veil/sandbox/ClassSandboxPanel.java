@@ -10,6 +10,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.Locale;
 
 public class ClassSandboxPanel extends JPanel {
 
@@ -94,6 +95,7 @@ public class ClassSandboxPanel extends JPanel {
         }
         Stats stats = model.computedStats(names.get(selectedIndex));
         statsLabel.setText(String.format(
+                Locale.ROOT,
                 "ATK %d  DEF %d  HP %d  MP %d",
                 stats.getAttackPower(), stats.getDefense(), stats.getMaxHp(), stats.getMaxMana()
         ));

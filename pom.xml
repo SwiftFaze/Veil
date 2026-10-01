@@ -210,7 +210,7 @@
                              the flag list (confirmed bug: google/error-prone#4256). This machine is
                              Windows, so this is not theoretical - keep this whole string as one <arg>
                              with no embedded newlines.
-                             Demoted checks: EnumOrdinal (fixed tab indices), StringCaseLocaleUsage (ASCII content types), MissingSummary (style-only), ImmutableEnumChecker (function field records) -->
+                             Restored to ERROR by #215: EnumOrdinal (fixed tab indices), StringCaseLocaleUsage (ASCII content types), MissingSummary (style-only), ImmutableEnumChecker (function field records). -->
                         <arg>-Xplugin:ErrorProne -XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:JSpecifyMode=true -Xep:NullAway:ERROR -Xep:EnumOrdinal:ERROR -Xep:StringCaseLocaleUsage:ERROR -Xep:MissingSummary:ERROR -Xep:ImmutableEnumChecker:ERROR</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
@@ -492,6 +492,34 @@
                         <exclude>**/sandbox/ClassSandbox.java</exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+            <!-- Step 4 signature gate: forbiddenapis checks compiled bytecode against
+                 curated JDK signatures (jdk-unsafe, jdk-deprecated) for default-charset
+                 and default-locale calls. Windows does not default to UTF-8, so this
+                 catches a live bug class (mod JSON loading, case-folded lookups).
+                 Bound to verify, repo-wide (main + test). Ref #218. -->
+            <plugin>
+                <groupId>de.thetaphi</groupId>
+                <artifactId>forbiddenapis</artifactId>
+                <version>3.11</version>
+                <configuration>
+                    <targetVersion>17</targetVersion>
+                    <bundledSignatures>
+                        <bundledSignature>jdk-unsafe</bundledSignature>
+                        <bundledSignature>jdk-deprecated</bundledSignature>
+                    </bundledSignatures>
+                    <failOnUnsupportedJava>false</failOnUnsupportedJava>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check-forbidden-apis</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                            <goal>testCheck</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <!-- Step 4 bytecode-dataflow gate: SpotBugs + fb-contrib for defects that
                  require dataflow analysis (EI_EXPOSE_REP, equals/hashCode contract,
