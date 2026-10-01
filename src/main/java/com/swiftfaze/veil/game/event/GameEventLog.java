@@ -41,17 +41,17 @@ public final class GameEventLog {
 
     /** A log that records nothing and writes nothing: the default in normal play. */
     public static GameEventLog noOp() {
-        return new GameEventLog(false, null);
+        return new GameEventLog(/* recording= */ false, null);
     }
 
     /** A log that keeps events in memory only. */
     public static GameEventLog inMemory() {
-        return new GameEventLog(true, null);
+        return new GameEventLog(/* recording= */ true, null);
     }
 
     /** A log that keeps events in memory and appends each one to {@code path}. */
     public static GameEventLog toFile(Path path) {
-        return new GameEventLog(true, path);
+        return new GameEventLog(/* recording= */ true, path);
     }
 
     /** {@link #toFile} when {@code -Dveil.qaLog} is set, otherwise {@link #noOp}. */

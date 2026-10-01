@@ -246,7 +246,7 @@ public class ModLoaderSteps {
 
     @Given("the mods directory also contains mod {string} with a tile declaring id {string} and no {string} field")
     public void theModsDirectoryAlsoContainsModWithATileDeclaringIdAndNoField(String modId, String tileId, String fieldName) {
-        addTile(modId, tileId, '?', 0, 0, 0, true, null);
+        addTile(modId, tileId, '?', 0, 0, 0, /* walkable= */ true, null);
     }
 
     @Given("the mods directory also contains mod {string} with a tile declaring {tileLook}, whose {string} field names {string}")
@@ -1062,8 +1062,8 @@ public class ModLoaderSteps {
 
         Path tilesDir = markerDir.resolve("tiles");
         Files.createDirectories(tilesDir);
-        Files.writeString(tilesDir.resolve("test_grass.json"), tileJson("test:grass", ',', 0, 200, 0, true, null));
-        Files.writeString(tilesDir.resolve("test_stone.json"), tileJson("test:stone", '#', 100, 100, 100, false, null));
+        Files.writeString(tilesDir.resolve("test_grass.json"), tileJson("test:grass", ',', 0, 200, 0, /* walkable= */ true, null));
+        Files.writeString(tilesDir.resolve("test_stone.json"), tileJson("test:stone", '#', 100, 100, 100, /* walkable= */ false, null));
     }
 
     private void writeManifest(Path modDir, String modId) throws IOException {

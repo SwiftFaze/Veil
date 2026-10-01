@@ -127,9 +127,9 @@ public class SuggestionOverlayWidget {
     }
 
     private void setHighlightedIndex(int newIndex) {
-        restyleRow(highlightedIndex, false);
+        restyleRow(highlightedIndex, /* isHighlighted= */ false);
         highlightedIndex = newIndex;
-        restyleRow(highlightedIndex, true);
+        restyleRow(highlightedIndex, /* isHighlighted= */ true);
     }
 
     private void restyleRow(int index, boolean isHighlighted) {

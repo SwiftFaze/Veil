@@ -31,8 +31,8 @@ public class RadioGroupWidget<T> extends Widget {
     // label and squeezed its text down to an ellipsis whenever it flipped between them. A custom
     // Border fixes the insets at the line border's full thickness always, painting only the
     // bottom edge for the unconfirmed state and leaving the rest of that reserved space blank.
-    private static final Border CONFIRMED_BORDER = new RadioOptionBorder(true);
-    private static final Border UNCONFIRMED_BORDER = new RadioOptionBorder(false);
+    private static final Border CONFIRMED_BORDER = new RadioOptionBorder(/* confirmed= */ true);
+    private static final Border UNCONFIRMED_BORDER = new RadioOptionBorder(/* confirmed= */ false);
 
     private final Function<T, String> optionRenderer;
     private final boolean horizontal;

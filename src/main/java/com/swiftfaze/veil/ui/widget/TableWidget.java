@@ -267,7 +267,7 @@ public class TableWidget<T> extends Widget {
         if (columnHeaders.isEmpty()) {
             return;
         }
-        headerPanel = buildRowPanel(columnHeaders, true);
+        headerPanel = buildRowPanel(columnHeaders, /* isHeader= */ true);
         add(headerPanel);
     }
 
@@ -282,7 +282,7 @@ public class TableWidget<T> extends Widget {
             for (Function<T, String> renderer : columnRenderers) {
                 cellText.add(renderer.apply(row));
             }
-            JPanel rowPanel = buildRowPanel(cellText, false);
+            JPanel rowPanel = buildRowPanel(cellText, /* isHeader= */ false);
             List<JLabel> cells = new ArrayList<>();
             for (var component : rowPanel.getComponents()) {
                 cells.add((JLabel) component);

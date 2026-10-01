@@ -100,13 +100,13 @@ public class KitchenSinkSandboxSteps {
     @Given("the marker stands on a walkable tile whose {word} neighbour is walkable")
     public void theMarkerStandsOnAWalkableTileWhoseNeighbourIsWalkable(String direction) {
         assertPreviewShown();
-        teleportToWalkableTileWithNeighbour(direction, true);
+        teleportToWalkableTileWithNeighbour(direction, /* neighbourWalkable= */ true);
     }
 
     @Given("the marker's {word} neighbour is unwalkable")
     public void theMarkerSNeighbourIsUnwalkable(String direction) {
         assertPreviewShown();
-        teleportToWalkableTileWithNeighbour(direction, false);
+        teleportToWalkableTileWithNeighbour(direction, /* neighbourWalkable= */ false);
     }
 
     @Then("the marker has moved one tile {word}")

@@ -16,16 +16,16 @@ import java.util.function.ToIntFunction;
  * other token as an unknown field.
  */
 enum PlayerField {
-    STRENGTH("str", "Strength", 0, true),
-    DEXTERITY("dex", "Dexterity", 0, true),
-    CONSTITUTION("con", "Constitution", 0, true),
-    INTELLIGENCE("int", "Intelligence", 0, true),
-    WISDOM("wis", "Wisdom", 0, true),
-    LUCK("luck", "Luck", 0, true),
-    MAX_HP("maxhp", "Max HP", 1, true),
-    MAX_MANA("maxmana", "Max Mana", 1, true),
-    CURRENT_HP("hp", "Current HP", 0, false),
-    CURRENT_MANA("mana", "Current Mana", 0, false);
+    STRENGTH("str", "Strength", 0, /* hasClassDefault= */ true),
+    DEXTERITY("dex", "Dexterity", 0, /* hasClassDefault= */ true),
+    CONSTITUTION("con", "Constitution", 0, /* hasClassDefault= */ true),
+    INTELLIGENCE("int", "Intelligence", 0, /* hasClassDefault= */ true),
+    WISDOM("wis", "Wisdom", 0, /* hasClassDefault= */ true),
+    LUCK("luck", "Luck", 0, /* hasClassDefault= */ true),
+    MAX_HP("maxhp", "Max HP", 1, /* hasClassDefault= */ true),
+    MAX_MANA("maxmana", "Max Mana", 1, /* hasClassDefault= */ true),
+    CURRENT_HP("hp", "Current HP", 0, /* hasClassDefault= */ false),
+    CURRENT_MANA("mana", "Current Mana", 0, /* hasClassDefault= */ false);
 
     // Shared across all constants (not per-instance state), so ImmutableEnumChecker's
     // per-constant immutability check doesn't apply - only the enum's own instance

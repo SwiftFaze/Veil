@@ -161,17 +161,17 @@ public class SettingsScreenPanel extends JPanel implements HintAware {
 
         rows.add(new SettingsRow("Brightness", new SliderWidget(0, 10, 1, config.getBrightness())));
 
-        RadioGroupWidget<String> fullscreenRadio = new RadioGroupWidget<>(s -> s, true);
+        RadioGroupWidget<String> fullscreenRadio = new RadioGroupWidget<>(s -> s, /* horizontal= */ true);
         fullscreenRadio.setOptions(List.of("Windowed", "Fullscreen"));
         fullscreenRadio.selectAndHighlightOption(List.of("Windowed", "Fullscreen").indexOf(config.getFullscreen()));
         rows.add(new SettingsRow("Fullscreen", fullscreenRadio));
 
-        RadioGroupWidget<String> fontRadio = new RadioGroupWidget<>(s -> s, true);
+        RadioGroupWidget<String> fontRadio = new RadioGroupWidget<>(s -> s, /* horizontal= */ true);
         fontRadio.setOptions(List.of("Monospaced", "Serif", "SansSerif"));
         fontRadio.selectAndHighlightOption(List.of("Monospaced", "Serif", "SansSerif").indexOf(config.getFont()));
         rows.add(new SettingsRow("Font", fontRadio));
 
-        RadioGroupWidget<String> themeRadio = new RadioGroupWidget<>(s -> s, true);
+        RadioGroupWidget<String> themeRadio = new RadioGroupWidget<>(s -> s, /* horizontal= */ true);
         themeRadio.setOptions(List.of("Default", "Midnight", "Sunrise"));
         themeRadio.selectAndHighlightOption(List.of("Default", "Midnight", "Sunrise").indexOf(config.getTheme()));
         rows.add(new SettingsRow("Theme", themeRadio));

@@ -39,7 +39,7 @@ public class ResetConfirmationPopup extends CompactPopupWidget {
 
         addContent((JComponent) Box.createVerticalGlue());
 
-        choice = new RadioGroupWidget<>(s -> s, true);
+        choice = new RadioGroupWidget<>(s -> s, /* horizontal= */ true);
         choice.setFillWidth(true);
         choice.setOptions(List.of("No", "Yes"));
         choice.setOnConfirm(selected -> {
