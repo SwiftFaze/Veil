@@ -40,6 +40,7 @@ Under `com.swiftfaze.veil`:
 - `Main`, `ui/`, `component/` — window assembly, Swing screens/widgets, and the
   list/detail data contract (UI layer).
 - `world/`, `entities/`, `mods/`, `input/`, `game/`, `config/`, `exceptions/`,
-  and the root types (`Camera`, `DrawableAsciiEntity`, `GameConst`) — the
-  engine; never depends on the UI layer.
+  `render/` (`Camera`, `DrawableAsciiEntity`, `Positionable`; depends on
+  nothing else in the project) and the root `GameConst` — the engine; never
+  depends on the UI layer.
 - `sandbox/` — dev-only tooling, excluded from the layering rule.
