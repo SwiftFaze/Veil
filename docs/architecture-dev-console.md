@@ -29,7 +29,13 @@ provider's `DevConsoleProvider.reload()` (default no-op; mod-backed providers
 override it), then rebuilds the entry list from every provider's `entries()`.
 The new list replaces the old only if every provider succeeds, so a
 `ModLoadException` leaves the previous entries in place and is reported as an
-ERROR line. Anything else
+ERROR line. `snapshot <entry> <name>` and `restore <entry> <name>` save and
+reload a named in-memory copy of an entity's state for the dev-console session;
+a provider opts in by returning a `DevConsoleSnapshotter` from
+`DevConsoleProvider.snapshotter(id)` (`PlayerSandboxProvider` does, via
+`PlayerSnapshotter`, capturing the player's position and the ten editable
+`Stats` fields). Re-snapshotting a name overwrites it; restoring an unknown
+name writes an ERROR line. Anything else
 writes a specific error line (unknown command, missing argument, or an id that
 resolves to nothing) instead of running anything; a bare word alone is not a
 search. Multiple providers can register entries together: `ClassSandboxProvider`

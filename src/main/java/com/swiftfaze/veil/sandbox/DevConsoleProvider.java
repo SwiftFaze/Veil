@@ -36,6 +36,17 @@ public interface DevConsoleProvider {
     }
 
     /**
+     * Opt-in hook for a provider whose entries support snapshot/restore of position and stats
+     * via the command bar's snapshot/restore verbs. Empty by default - only
+     * {@link PlayerSandboxProvider} overrides it for v1.
+     *
+     * @param id the {@link DevConsoleEntry#id()} the snapshots target
+     */
+    default Optional<DevConsoleSnapshotter> snapshotter(String id) {
+        return Optional.empty();
+    }
+
+    /**
      * Opt-in hook for providers that cache mod-loaded data and need to refresh from disk
      * when {@link DevConsoleModel#reload()} is called. No-op by default. Providers that
      * already re-read mods/ on every {@link #entries()} call need not override this.

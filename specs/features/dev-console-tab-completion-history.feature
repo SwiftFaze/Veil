@@ -1,7 +1,7 @@
 Feature: Dev console positional Tab completion and command history
   The dev-console command bar (#186's parser/transcript) gains positional,
   context-sensitive Tab completion and Up/Down command history. Position 0
-  always completes verbs (search/edit/set/add/subtract). Later positions
+  always completes verbs (search/edit/set/add/subtract/snapshot/restore). Later positions
   complete against whatever that verb declares for that argument: `search`
   completes against the deduplicated set of matching entry names,
   namespaces, and categories (the same three fields it filters against);
@@ -65,7 +65,7 @@ Feature: Dev console positional Tab completion and command history
     Examples:
       | typed             | candidates                            |
       | sea                | search                                |
-      | s                  | search, set, subtract                 |
+      | s                  | search, set, snapshot, subtract       |
       | search c           | Classes, core                         |
       | edit core:         | core:mage, core:warrior, core:player  |
       | set player m       | maxhp, maxmana, mana                  |
@@ -125,6 +125,7 @@ Feature: Dev console positional Tab completion and command history
   Scenario: The overlay's highlight wraps from the last candidate back to the first
     Given the command field contains "s"
     When Down is pressed
+    And Down is pressed
     And Down is pressed
     And Down is pressed
     And Tab is pressed
@@ -192,9 +193,9 @@ Feature: Dev console positional Tab completion and command history
     Then the command field text is "search classes"
 
   # Non-goals:
-  #   - The search/edit/set/add/subtract verbs' own behavior - #186,
-  #     #170, #189. This file only covers the completion/history contract
-  #     those verbs register into.
+  #   - The search/edit/set/add/subtract/snapshot/restore verbs' own behavior -
+  #     #186, #170, #189, #144. This file only covers the completion/history
+  #     contract those verbs register into.
   #   - Persisting history across process restarts.
   #   - Mouse/click interaction with the overlay - keyboard only (Up/Down/
   #     Tab/Enter/Escape), matching every other dev-console interaction.

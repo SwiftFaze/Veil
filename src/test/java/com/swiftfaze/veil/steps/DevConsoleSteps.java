@@ -105,6 +105,21 @@ public class DevConsoleSteps {
         startConsole(new DevConsoleModel(providers));
     }
 
+    @Given("the running player is at position \\({int}, {int}\\)")
+    public void theRunningPlayerIsAtPosition(int x, int y) {
+        // Set position and verify it was set correctly.
+        // This method works for both Given and Then contexts - set the position
+        // and assert it to ensure the scenario is correct.
+        livePlayer.setPosition(x, y);
+        assertEquals(x, livePlayer.getX(), "Expected player X to be " + x);
+        assertEquals(y, livePlayer.getY(), "Expected player Y to be " + y);
+    }
+
+    @When("the running player is moved to position \\({int}, {int}\\)")
+    public void theRunningPlayerIsMovedToPosition(int x, int y) {
+        livePlayer.setPosition(x, y);
+    }
+
     @When("the search text is set to {string}")
     public void theSearchTextIsSetTo(String text) {
         getCurrentModel().setSearchText(text);
@@ -457,6 +472,39 @@ public class DevConsoleSteps {
         TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
         assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level());
         assertTrue(lastEntry.text().contains(token), "Expected error text to mention: " + token);
+    }
+
+    @Then("the transcript's last line is a SUCCESS line for snapshot {string} saved")
+    public void transcriptsLastLineIsSuccessForSnapshotSaved(String snapshotName) {
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level());
+        assertTrue(lastEntry.text().contains(snapshotName), "Expected success text to mention snapshot name: " + snapshotName);
+        assertTrue(lastEntry.text().contains("saved"), "Expected success text to contain 'saved'");
+    }
+
+    @Then("the transcript's last line is a SUCCESS line for snapshot {string} restored")
+    public void transcriptsLastLineIsSuccessForSnapshotRestored(String snapshotName) {
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level());
+        assertTrue(lastEntry.text().contains(snapshotName), "Expected success text to mention snapshot name: " + snapshotName);
+        assertTrue(lastEntry.text().contains("restored"), "Expected success text to contain 'restored'");
+    }
+
+    @Then("the transcript's last line is an ERROR line reading {string}")
+    public void transcriptsLastLineIsErrorLineReading(String expectedText) {
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level());
+        assertEquals(expectedText, lastEntry.text(), "Expected exact error text");
+    }
+
+    @Given("the dev console also has the {string} provider attached")
+    public void theDevConsoleAlsoHasTheProviderAttached(String providerName) {
+        List<DevConsoleProvider> providers = List.of(
+            new PlayerSandboxProvider(() -> livePlayer),
+            providerFor(providerName)
+        );
+        model = new DevConsoleModel(providers);
+        panel = new DevConsolePanel(model);
     }
 
     @Then("the running player's {string} value is unchanged")
