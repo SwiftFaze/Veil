@@ -37,6 +37,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -347,8 +348,8 @@ public class DevConsoleSteps {
     @Then("the table includes read-only rows {string}, {string}")
     public void theTableIncludesReadOnlyRows(String r1, String r2) {
         capturePlayerDetailPanel();
-        assertEquals(r1, getRowFieldName(11));
-        assertEquals(r2, getRowFieldName(12));
+        assertEquals(r1, getRowFieldName(13));
+        assertEquals(r2, getRowFieldName(14));
     }
 
     @Given("the running player's {string} is {int}")
@@ -650,6 +651,37 @@ public class DevConsoleSteps {
         assertEquals(before, after, fieldName + " should not be editable");
     }
 
+    @Then("{string} can be armed")
+    public void fieldCanBeArmed(String fieldName) {
+        // Mirror fieldCannotBeArmed: disarm any prior armed row, select the row,
+        // arm it with Enter, step it with Right, and verify the coordinate changed.
+        fireAction(Keybindings.ACTION_MENU_CANCEL);
+        int before = getPositionValue(fieldName);
+        selectRow(fieldName);
+        fireAction(Keybindings.ACTION_MENU_CONFIRM);
+        fireAction(Keybindings.ACTION_MENU_RIGHT);
+        int after = getPositionValue(fieldName);
+        assertNotEquals(before, after, fieldName + " should be editable");
+        // Restore to original value for subsequent scenarios
+        fireAction(Keybindings.ACTION_MENU_CANCEL);
+        selectRow(fieldName);
+        fireAction(Keybindings.ACTION_MENU_CONFIRM);
+        fireAction(Keybindings.ACTION_MENU_LEFT);
+        fireAction(Keybindings.ACTION_MENU_CANCEL);
+    }
+
+    @Given("the running player is at position {int}, {int}")
+    public void theRunningPlayerIsPlacedAt(int x, int y) {
+        livePlayer.setPosition(x, y);
+        refreshDisplayedRows();
+    }
+
+    @Then("the running player's position is {int}, {int}")
+    public void theRunningPlayerPositionIs(int expectedX, int expectedY) {
+        assertEquals(expectedX, livePlayer.getX(), "Expected X coordinate to be " + expectedX);
+        assertEquals(expectedY, livePlayer.getY(), "Expected Y coordinate to be " + expectedY);
+    }
+
     private void refreshDisplayedRows() {
         capturePlayerDetailPanel();
         if (playerDetailPanel != null) {
@@ -667,9 +699,12 @@ public class DevConsoleSteps {
     }
 
     private void fireAction(String actionName) {
-        Action action = playerDetailPanel.getActionMap().get(actionName);
-        if (action != null) {
-            action.actionPerformed(new ActionEvent(playerDetailPanel, ActionEvent.ACTION_PERFORMED, ""));
+        capturePlayerDetailPanel();
+        if (playerDetailPanel != null) {
+            Action action = playerDetailPanel.getActionMap().get(actionName);
+            if (action != null) {
+                action.actionPerformed(new ActionEvent(playerDetailPanel, ActionEvent.ACTION_PERFORMED, ""));
+            }
         }
     }
 
@@ -693,8 +728,10 @@ public class DevConsoleSteps {
             case "Max Mana" -> 8;
             case "Current HP" -> 9;
             case "Current Mana" -> 10;
-            case "Attack Power" -> 11;
-            case "Defense" -> 12;
+            case "X" -> 11;
+            case "Y" -> 12;
+            case "Attack Power" -> 13;
+            case "Defense" -> 14;
             default -> throw new IllegalArgumentException("Unknown field: " + fieldName);
         };
     }
@@ -737,6 +774,14 @@ public class DevConsoleSteps {
             case "Current Mana" -> stats.getCurrentMana();
             case "Attack Power" -> stats.getAttackPower();
             case "Defense" -> stats.getDefense();
+            default -> 0;
+        };
+    }
+
+    private int getPositionValue(String fieldName) {
+        return switch (fieldName) {
+            case "X" -> livePlayer.getX();
+            case "Y" -> livePlayer.getY();
             default -> 0;
         };
     }

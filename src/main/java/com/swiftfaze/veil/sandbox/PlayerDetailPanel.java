@@ -19,12 +19,15 @@ import javax.swing.JPanel;
 import java.awt.event.ActionEvent;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 /**
  * Live editable stats for the running player. Supports arming a row and
  * adjusting it with Left/Right, cycling Class with Left/Right, and live
  * recomputation of Attack Power/Defense as their underlying attributes change.
+ * Also supports editing the running player's X and Y position rows.
  */
 public class PlayerDetailPanel extends JPanel {
 
@@ -39,11 +42,16 @@ public class PlayerDetailPanel extends JPanel {
     private static final int EDITABLE_MAX_MANA = 8;
     private static final int EDITABLE_CURRENT_HP = 9;
     private static final int EDITABLE_CURRENT_MANA = 10;
-    private static final int READONLY_ATTACK_POWER = 11;
-    private static final int READONLY_DEFENSE = 12;
+    private static final int EDITABLE_X = 11;
+    private static final int EDITABLE_Y = 12;
+    private static final int READONLY_ATTACK_POWER = 13;
+    private static final int READONLY_DEFENSE = 14;
 
     private final Stats stats;
     private final PlayerInfo playerInfo;
+    private final IntSupplier playerX;
+    private final IntSupplier playerY;
+    private final BiConsumer<Integer, Integer> positionSetter;
     private final List<PlayerClass> playerClasses;
     private final List<Supplier<String[]>> rowDataSuppliers;
     private final HeaderWidget header;
@@ -53,6 +61,9 @@ public class PlayerDetailPanel extends JPanel {
     private int classListIndex = 0;
 
     public PlayerDetailPanel(Player player) {
+        this.playerX = player::getX;
+        this.playerY = player::getY;
+        this.positionSetter = player::setPosition;
         this.stats = player.getPlayerInfo().getStats();
         this.playerInfo = player.getPlayerInfo();
         this.playerClasses = ModLoader.load(Paths.get("mods")).getAllPlayerClasses();
@@ -112,6 +123,8 @@ public class PlayerDetailPanel extends JPanel {
             () -> rowData("Max Mana", stats.getMaxMana()),
             () -> rowData("Current HP", stats.getCurrentHp()),
             () -> rowData("Current Mana", stats.getCurrentMana()),
+            () -> rowData("X", playerX.getAsInt()),
+            () -> rowData("Y", playerY.getAsInt()),
             () -> rowData("Attack Power", stats.getAttackPower()),
             () -> rowData("Defense", stats.getDefense())
         );
@@ -253,14 +266,22 @@ public class PlayerDetailPanel extends JPanel {
     private void applyAdjustment(int rowIndex, int delta) {
         if (rowIndex >= EDITABLE_STRENGTH && rowIndex <= EDITABLE_LUCK) {
             adjustAttribute(rowIndex, delta);
-        } else if (rowIndex == EDITABLE_MAX_HP) {
-            adjustMaxHp(delta);
-        } else if (rowIndex == EDITABLE_MAX_MANA) {
-            adjustMaxMana(delta);
-        } else if (rowIndex == EDITABLE_CURRENT_HP) {
-            adjustCurrentHp(delta);
-        } else if (rowIndex == EDITABLE_CURRENT_MANA) {
-            adjustCurrentMana(delta);
+        } else if (rowIndex == EDITABLE_X) {
+            adjustPositionX(delta);
+        } else if (rowIndex == EDITABLE_Y) {
+            adjustPositionY(delta);
+        } else {
+            adjustVital(rowIndex, delta);
+        }
+    }
+
+    private void adjustVital(int rowIndex, int delta) {
+        switch (rowIndex) {
+            case EDITABLE_MAX_HP -> adjustMaxHp(delta);
+            case EDITABLE_MAX_MANA -> adjustMaxMana(delta);
+            case EDITABLE_CURRENT_HP -> adjustCurrentHp(delta);
+            case EDITABLE_CURRENT_MANA -> adjustCurrentMana(delta);
+            default -> { }
         }
     }
 
@@ -319,6 +340,16 @@ public class PlayerDetailPanel extends JPanel {
     private void adjustCurrentMana(int delta) {
         int newValue = Math.max(0, stats.getCurrentMana() + delta);
         stats.setCurrentMana(newValue);
+    }
+
+    private void adjustPositionX(int delta) {
+        int newX = Math.max(0, playerX.getAsInt() + delta);
+        positionSetter.accept(newX, playerY.getAsInt());
+    }
+
+    private void adjustPositionY(int delta) {
+        int newY = Math.max(0, playerY.getAsInt() + delta);
+        positionSetter.accept(playerX.getAsInt(), newY);
     }
 
     private void updateDerivedStats() {
