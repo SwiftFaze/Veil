@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.41](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.40...v0.5.0-beta.41) (2026-10-01)
+
+
+### Features
+
+* edit item base damage from the sandbox dev console ([#258](https://github.com/SwiftFaze/Veil/issues/258)) ([c86db33](https://github.com/SwiftFaze/Veil/commit/c86db33f34e8168dda015e3fbba478d85dc18412))
+
 ## [0.5.0-beta.40](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.39...v0.5.0-beta.40) (2026-10-01)
 
 
