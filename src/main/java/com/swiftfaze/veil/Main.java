@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class Main {
     /**
@@ -268,7 +269,7 @@ public class Main {
         });
     }
 
-    public static List<DevConsoleProvider> buildDevConsoleProviders(java.util.function.Supplier<Player> playerSupplier) {
+    public static List<DevConsoleProvider> buildDevConsoleProviders(Supplier<Player> playerSupplier) {
         return List.of(
             new ClassSandboxProvider(),
             new QuestSandboxProvider(),

@@ -4,16 +4,11 @@ import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.mods.ModLoader;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 public class QuestSandboxModel {
 
     private final List<Quest> quests;
-
-    public QuestSandboxModel() {
-        this(ModLoader.load(Paths.get("mods")).getAllQuests());
-    }
 
     public QuestSandboxModel(List<Quest> quests) {
         this.quests = List.copyOf(quests);

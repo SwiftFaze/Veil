@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.sandbox;
 
+import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.ui.DetailsPaneWidget;
 import javax.swing.JComponent;
 import java.nio.file.Path;
@@ -24,7 +25,7 @@ public class QuestSandboxProvider implements DevConsoleProvider {
         this(new QuestSandboxModel(modsRoot));
     }
 
-    public QuestSandboxProvider(List<com.swiftfaze.veil.entities.quests.Quest> quests) {
+    public QuestSandboxProvider(List<Quest> quests) {
         this(new QuestSandboxModel(quests));
     }
 
@@ -46,7 +47,7 @@ public class QuestSandboxProvider implements DevConsoleProvider {
 
     @Override
     public JComponent createPanel(String id) {
-        com.swiftfaze.veil.entities.quests.Quest quest = model.findById(id);
+        Quest quest = model.findById(id);
         DetailsPaneWidget pane = new DetailsPaneWidget();
         pane.showEntry(quest);
         pane.focusFirstTable();
