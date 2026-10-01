@@ -31,6 +31,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JTextField;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -77,6 +78,7 @@ public class DevConsoleSteps {
     private String classSnapshot;
     private ReloadableFakeProvider fakeProvider;
     private ReloadableFakeProvider secondProvider;
+    private int transcriptSizeWhenItemRowArmed;
 
     @Given("the dev console is running with the {string} provider registered")
     public void theDevConsoleIsRunningWithTheProviderRegistered(String providerName) {
@@ -446,6 +448,66 @@ public class DevConsoleSteps {
             if (matchesLabel) {
                 fail("Table should not be present: " + tableLabel);
             }
+        }
+    }
+
+    @When("the item row {string} is armed")
+    public void theItemRowIsArmed(String fieldName) {
+        TableWidget<List<String>> table = openedItemDetailPanel().table(0);
+        table.moveToStart();
+        while (!fieldName.equals(table.getSelectedRow().get(0)) && !table.isAtLastRow()) {
+            table.moveDown();
+        }
+        assertEquals(fieldName, table.getSelectedRow().get(0), "No item row named " + fieldName);
+        transcriptSizeWhenItemRowArmed = panel.getTranscript().entries().size();
+        fireItemPanelAction(Keybindings.ACTION_MENU_CONFIRM);
+    }
+
+    @Then("no transcript line was written since the item row was armed")
+    public void noTranscriptLineWasWrittenSinceTheItemRowWasArmed() {
+        assertEquals(transcriptSizeWhenItemRowArmed, panel.getTranscript().entries().size(),
+                "Keyboard edits in the item panel should not write transcript lines");
+    }
+
+    @When("{word} is pressed in the item panel")
+    public void keyIsPressedInTheItemPanel(String key) {
+        keyIsPressedInTheItemPanelTimes(key, 1);
+    }
+
+    @When("{word} is pressed in the item panel {int} times")
+    public void keyIsPressedInTheItemPanelTimes(String key, int times) {
+        String actionName = switch (key) {
+            case "left" -> Keybindings.ACTION_MENU_LEFT;
+            case "right" -> Keybindings.ACTION_MENU_RIGHT;
+            case "down" -> Keybindings.ACTION_MENU_DOWN;
+            case "escape" -> Keybindings.ACTION_MENU_CANCEL;
+            default -> throw new IllegalArgumentException("Unknown item panel key: " + key);
+        };
+        for (int i = 0; i < times; i++) {
+            fireItemPanelAction(actionName);
+        }
+    }
+
+    @Then("the open item detail shows {string} as {string}")
+    public void theOpenItemDetailShows(String fieldName, String expectedValue) {
+        List<String> row = openedItemDetailPanel().table(0).getRows().stream()
+                .filter(candidate -> fieldName.equals(candidate.get(0)))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Field " + fieldName + " not found in item detail"));
+        assertEquals(expectedValue, row.get(1), "Unexpected value for " + fieldName);
+    }
+
+    private void fireItemPanelAction(String actionName) {
+        ItemDetailPanel itemDetailPanel = openedItemDetailPanel();
+        // Escape is only bound while a row is armed, so look it up through the
+        // input map's current binding rather than firing an always-present action.
+        if (Keybindings.ACTION_MENU_CANCEL.equals(actionName)
+                && itemDetailPanel.getInputMap(JComponent.WHEN_FOCUSED).get(Keybindings.MENU_CANCEL) == null) {
+            return;
+        }
+        Action action = itemDetailPanel.getActionMap().get(actionName);
+        if (action != null) {
+            action.actionPerformed(new ActionEvent(itemDetailPanel, ActionEvent.ACTION_PERFORMED, ""));
         }
     }
 

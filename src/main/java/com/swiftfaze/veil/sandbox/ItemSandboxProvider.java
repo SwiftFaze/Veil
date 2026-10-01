@@ -52,17 +52,20 @@ public class ItemSandboxProvider implements DevConsoleProvider {
 
     @Override
     public JComponent createPanel(String id) {
-        Item item = findItemById(id);
-        return new ItemDetailPanel(item);
+        return new ItemDetailPanel(findItemById(id), itemFieldMutator(id));
     }
 
     @Override
     public Optional<DevConsoleFieldMutator> fieldMutator(String id) {
         findItemById(id);
-        return Optional.of(new ItemFieldMutator(
+        return Optional.of(itemFieldMutator(id));
+    }
+
+    private ItemFieldMutator itemFieldMutator(String id) {
+        return new ItemFieldMutator(
                 originalBaseDamageById.get(id),
                 () -> findItemById(id),
-                updated -> itemsById.put(id, updated)));
+                updated -> itemsById.put(id, updated));
     }
 
     private Item findItemById(String id) {

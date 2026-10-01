@@ -43,7 +43,9 @@ resolves to nothing) instead of running anything; a bare word alone is not a
 search. Multiple providers can register entries together: `ClassSandboxProvider`
 (each player class, opening `ClassDetailPanel`), `PlayerSandboxProvider` (the
 running player, see below), `ItemSandboxProvider` (each mod-loaded item,
-`Item.getDetailTables()` in `ItemDetailPanel`'s `DetailsPaneWidget`; base damage is editable),
+`Item.getDetailTables()` in `ItemDetailPanel`'s `DetailsPaneWidget`; base damage is editable
+by command or by arming a Base Damage row with Enter and stepping it with Left/Right, each step
+going through the same `ItemFieldMutator`),
 `TileSandboxProvider` (see "Tiles provider" below)
 and `QuestSandboxProvider` (each mod-loaded quest, read-only:
 `Quest.getDetailTables()` in a `DetailsPaneWidget`), and `KitchenSinkProvider`

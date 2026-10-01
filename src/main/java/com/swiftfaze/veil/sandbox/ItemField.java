@@ -26,6 +26,11 @@ enum ItemField {
         return Arrays.stream(values()).filter(field -> field.token.equals(token)).findFirst();
     }
 
+    /** The field whose detail-panel row is labelled {@code displayName}, e.g. "Base Damage (Max)". */
+    static Optional<ItemField> fromDisplayName(String displayName) {
+        return Arrays.stream(values()).filter(field -> field.displayName.equals(displayName)).findFirst();
+    }
+
     String displayName() {
         return displayName;
     }
