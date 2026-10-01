@@ -67,7 +67,7 @@ class ModSchemaValidationIT {
         }
     }
 
-    private void validateFile(Path file, String schemaType, List<String> errors) throws IOException {
+    private void validateFile(Path file, String schemaType, List<String> errors) {
         if (!Files.exists(file)) {
             return;
         }
@@ -85,13 +85,7 @@ class ModSchemaValidationIT {
         }
         try (Stream<Path> files = Files.list(dir)) {
             files.filter(f -> Files.isRegularFile(f) && f.toString().endsWith(".json"))
-                    .forEach(f -> {
-                        try {
-                            validateFile(f, schemaType, errors);
-                        } catch (IOException e) {
-                            errors.add("  " + f + ": IO error: " + e.getMessage());
-                        }
-                    });
+                    .forEach(f -> validateFile(f, schemaType, errors));
         }
     }
 }

@@ -31,8 +31,8 @@ public class SettingsScreenPanel extends JPanel implements HintAware {
     private String backTarget = "title";
 
     private static class SettingsRow {
-        String name;
-        Object widget; // SliderWidget, RadioGroupWidget<String>, or null for actions
+        final String name;
+        final Object widget; // SliderWidget, RadioGroupWidget<String>, or null for actions
 
         SettingsRow(String name, Object widget) {
             this.name = name;

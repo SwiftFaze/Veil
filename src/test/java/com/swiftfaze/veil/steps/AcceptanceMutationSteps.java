@@ -62,7 +62,7 @@ public class AcceptanceMutationSteps {
     private void runCommandLine(String... args) {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         AcceptanceMutator.Outcome outcome =
-                AcceptanceMutator.execute(args, new PrintStream(buffer, true, StandardCharsets.UTF_8));
+                AcceptanceMutator.execute(List.of(args), new PrintStream(buffer, true, StandardCharsets.UTF_8));
         output = buffer.toString(StandardCharsets.UTF_8);
         report = outcome.report();
         exitCode = outcome.exitCode();

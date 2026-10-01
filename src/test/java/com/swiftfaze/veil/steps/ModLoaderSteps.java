@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.entities.player.Stats;
-import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.exceptions.ModLoadException;
 import com.swiftfaze.veil.mods.ModLoader;
@@ -14,6 +13,7 @@ import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import com.swiftfaze.veil.world.Tile;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
+import io.cucumber.java.ParameterType;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -44,16 +44,16 @@ public class ModLoaderSteps {
     private record BuildingFixture(String id, String overrides, String explicitTileId) {
     }
 
-    private record TileFixture(String id, char symbol, int r, int g, int b, boolean walkable, String overrides) {
+    record TileFixture(String id, char symbol, int r, int g, int b, boolean walkable, String overrides) {
     }
 
-    private record StatEntry(Integer base, String growthCalc) {
+    record StatEntry(Integer base, String growthCalc) {
     }
 
     private record ClassFixture(String id, String name, Map<String, StatEntry> stats, String overrides) {
     }
 
-    private record ItemEffectFixture(String type, String stat, String calc) {
+    record ItemEffectFixture(String type, String stat, String calc) {
     }
 
     private record ItemFixture(String id, String name, Character glyph, String type, String slot,
@@ -61,11 +61,64 @@ public class ModLoaderSteps {
                                 List<ItemEffectFixture> effects, String overrides) {
     }
 
-    private record QuestRewardFixture(String type, String itemId, Integer count, String calc) {
+    record QuestRewardFixture(String type, String itemId, Integer count, String calc) {
     }
 
     private record QuestFixture(String id, String name, String objectiveType, String target, Integer count,
                                  List<QuestRewardFixture> rewards, String overrides) {
+    }
+
+    record BaseStatsFixture(Map<String, StatEntry> stats) {
+    }
+
+    record ObjectiveFixture(String type, String target, int count) {
+    }
+
+    record RewardsFixture(List<QuestRewardFixture> rewards) {
+    }
+
+    record ItemLookFixture(char glyph, String type, String slot, int baseDamageMin, int baseDamageMax) {
+    }
+
+    @ParameterType("id \"([^\"]*)\", symbol \"([^\"]*)\", color \\((-?\\d+), (-?\\d+), (-?\\d+)\\), and walkable (\\w+)")
+    public TileFixture tileLook(String... groups) {
+        return new TileFixture(groups[0], groups[1].charAt(0), Integer.parseInt(groups[2]), Integer.parseInt(groups[3]),
+                Integer.parseInt(groups[4]), Boolean.parseBoolean(groups[5]), null);
+    }
+
+    @ParameterType("base strength (-?\\d+), dexterity (-?\\d+), constitution (-?\\d+), intelligence (-?\\d+), "
+            + "wisdom (-?\\d+), luck (-?\\d+), max HP (-?\\d+), and max mana (-?\\d+)")
+    public BaseStatsFixture baseStats(String... groups) {
+        List<String> names = List.of("strength", "dexterity", "constitution", "intelligence", "wisdom", "luck",
+                "maxHp", "maxMana");
+        Map<String, StatEntry> stats = new LinkedHashMap<>();
+        for (int i = 0; i < names.size(); i++) {
+            stats.put(names.get(i), new StatEntry(Integer.parseInt(groups[i]), null));
+        }
+        return new BaseStatsFixture(stats);
+    }
+
+    @ParameterType("glyph \"([^\"]*)\", type \"([^\"]*)\", slot \"([^\"]*)\", base damage min (-?\\d+) and max (-?\\d+)")
+    public ItemLookFixture itemLook(String... groups) {
+        return new ItemLookFixture(groups[0].charAt(0), groups[1], groups[2], Integer.parseInt(groups[3]),
+                Integer.parseInt(groups[4]));
+    }
+
+    @ParameterType("\"([^\"]*)\" effect on stat \"([^\"]*)\" with calc \"([^\"]*)\"")
+    public ItemEffectFixture itemEffect(String type, String stat, String calc) {
+        return new ItemEffectFixture(type, stat, calc);
+    }
+
+    @ParameterType("objective type \"([^\"]*)\" on target \"([^\"]*)\" with count (-?\\d+)")
+    public ObjectiveFixture questObjective(String type, String target, String count) {
+        return new ObjectiveFixture(type, target, Integer.parseInt(count));
+    }
+
+    @ParameterType("an item reward of \"([^\"]*)\" count (-?\\d+), and an xp reward with calc \"([^\"]*)\"")
+    public RewardsFixture itemAndXpRewards(String itemId, String itemCount, String xpCalc) {
+        return new RewardsFixture(List.of(
+                new QuestRewardFixture("item", itemId, Integer.parseInt(itemCount), null),
+                new QuestRewardFixture("xp", null, null, xpCalc)));
     }
 
     private record ThemeColorFixture(int r, int g, int b) {
@@ -196,16 +249,15 @@ public class ModLoaderSteps {
         addTile(modId, tileId, '?', 0, 0, 0, true, null);
     }
 
-    @Given("the mods directory also contains mod {string} with a tile declaring id {string}, symbol {string}, color \\({int}, {int}, {int}), and walkable {word}, whose {string} field names {string}")
-    public void theModsDirectoryAlsoContainsModWithATileDeclaringIdOverriding(String modId, String tileId, String symbol,
-                                                                               int r, int g, int b, String walkable,
+    @Given("the mods directory also contains mod {string} with a tile declaring {tileLook}, whose {string} field names {string}")
+    public void theModsDirectoryAlsoContainsModWithATileDeclaringIdOverriding(String modId, TileFixture tile,
                                                                                String fieldName, String overriddenId) {
-        addTile(modId, tileId, symbol.charAt(0), r, g, b, Boolean.parseBoolean(walkable), overriddenId);
+        addTile(modId, tile.id(), tile.symbol(), tile.r(), tile.g(), tile.b(), tile.walkable(), overriddenId);
     }
 
     @Given("the mods directory also contains a building declaring id {string} whose blueprint is a single tile {string}")
     public void theModsDirectoryAlsoContainsABuildingDeclaringIdWhoseBlueprintIsASingleTile(String buildingId, String tileId) {
-        String modId = buildingId.split(":")[0];
+        String modId = buildingId.split(":", -1)[0];
         addBuilding(modId, buildingId, null, tileId);
     }
 
@@ -448,8 +500,8 @@ public class ModLoaderSteps {
 
     @Then("the building {string}'s blueprint at \\({int}, {int}) references tile {string}")
     public void theBuildingsBlueprintAtReferencesTile(String buildingId, int x, int y, String expectedTileId) {
-        Tile[][] blueprint = registry.getBuilding(buildingId).getBlueprint();
-        assertEquals(registry.getTile(expectedTileId), blueprint[y][x]);
+        List<List<Tile>> blueprint = registry.getBuilding(buildingId).getBlueprint();
+        assertEquals(registry.getTile(expectedTileId), blueprint.get(y).get(x));
     }
 
     @Then("loading fails with a ModLoadException naming the colliding ID {string} and both mods {string} and {string}")
@@ -462,8 +514,8 @@ public class ModLoaderSteps {
 
     @Then("its blueprint matches the one from mod {string}, not {string}")
     public void itsBlueprintMatchesTheOneFromModNot(String overridingMod, String originalMod) {
-        Tile[][] blueprint = registry.getBuilding(overriddenBuildingId).getBlueprint();
-        assertEquals(registry.getTile("test:stone"), blueprint[0][0]);
+        List<List<Tile>> blueprint = registry.getBuilding(overriddenBuildingId).getBlueprint();
+        assertEquals(registry.getTile("test:stone"), blueprint.get(0).get(0));
     }
 
     @Then("mod {string} finishes loading before mod {string} starts loading")
@@ -538,22 +590,10 @@ public class ModLoaderSteps {
         };
     }
 
-    @Given("a mods directory containing the {string} mod with a class declaring id {string}, name {string}, base strength {int}, dexterity {int}, constitution {int}, intelligence {int}, wisdom {int}, luck {int}, max HP {int}, and max mana {int}")
+    @Given("a mods directory containing the {string} mod with a class declaring id {string}, name {string}, {baseStats}")
     public void aModsDirectoryContainingTheModWithAClassDeclaringId(String modId, String classId, String name,
-                                                                   int strength, int dexterity, int constitution,
-                                                                   int intelligence, int wisdom, int luck,
-                                                                   int maxHp, int maxMana) {
-        Map<String, StatEntry> stats = Map.of(
-                "strength", new StatEntry(strength, null),
-                "dexterity", new StatEntry(dexterity, null),
-                "constitution", new StatEntry(constitution, null),
-                "intelligence", new StatEntry(intelligence, null),
-                "wisdom", new StatEntry(wisdom, null),
-                "luck", new StatEntry(luck, null),
-                "maxHp", new StatEntry(maxHp, null),
-                "maxMana", new StatEntry(maxMana, null)
-        );
-        addClass(modId, classId, name, stats, null);
+                                                                   BaseStatsFixture baseStats) {
+        addClass(modId, classId, name, baseStats.stats(), null);
     }
 
     @Given("a mods directory containing the {string} mod with a class declaring id {string} with base {word} {int} and a {word} growth calc of {string}")
@@ -608,12 +648,11 @@ public class ModLoaderSteps {
         Files.writeString(modDir.resolve("classes").resolve("broken.json"), "{ not valid json");
     }
 
-    @Given("a mods directory containing the {string} mod with an item declaring id {string}, name {string}, glyph {string}, type {string}, slot {string}, base damage min {int} and max {int}, and a {string} effect on stat {string} with calc {string}")
-    public void aModsDirectoryContainingTheModWithAnItemDeclaringId(String modId, String itemId, String name, String glyph,
-                                                                      String type, String slot, int baseDamageMin, int baseDamageMax,
-                                                                      String effectType, String stat, String calc) {
-        List<ItemEffectFixture> effects = List.of(new ItemEffectFixture(effectType, stat, calc));
-        addItem(modId, itemId, name, glyph.charAt(0), type, slot, baseDamageMin, baseDamageMax, effects, null);
+    @Given("a mods directory containing the {string} mod with an item declaring id {string}, name {string}, {itemLook}, and a {itemEffect}")
+    public void aModsDirectoryContainingTheModWithAnItemDeclaringId(String modId, String itemId, String name,
+                                                                      ItemLookFixture look, ItemEffectFixture effect) {
+        addItem(modId, itemId, name, look.glyph(), look.type(), look.slot(), look.baseDamageMin(), look.baseDamageMax(),
+                List.of(effect), null);
     }
 
     @Given("a mods directory containing the {string} mod with an item declaring id {string}, name {string}, glyph {string}, type {string}, slot {string}, base damage min {int} and max {int}, and no effects")
@@ -647,15 +686,10 @@ public class ModLoaderSteps {
         Files.writeString(modDir.resolve("items").resolve("broken.json"), "{ not valid json");
     }
 
-    @Given("a mods directory containing the {string} mod with a quest declaring id {string}, name {string}, objective type {string} on target {string} with count {int}, an item reward of {string} count {int}, and an xp reward with calc {string}")
+    @Given("a mods directory containing the {string} mod with a quest declaring id {string}, name {string}, {questObjective}, {itemAndXpRewards}")
     public void aModsDirectoryContainingTheModWithAQuestWithRewards(String modId, String questId, String name,
-                                                                     String objectiveType, String target, int count,
-                                                                     String itemId, int itemCount, String xpCalc) {
-        List<QuestRewardFixture> rewards = List.of(
-                new QuestRewardFixture("item", itemId, itemCount, null),
-                new QuestRewardFixture("xp", null, null, xpCalc)
-        );
-        addQuest(modId, questId, name, objectiveType, target, count, rewards, null);
+                                                                     ObjectiveFixture objective, RewardsFixture rewards) {
+        addQuest(modId, questId, name, objective.type(), objective.target(), objective.count(), rewards.rewards(), null);
     }
 
     @Given("a mods directory containing the {string} mod with a quest declaring id {string}, name {string}, objective type {string} on target {string} with count {int}, and no rewards")
@@ -690,15 +724,10 @@ public class ModLoaderSteps {
         addQuest(modId, questId, null, objectiveType, target, count, List.of(), null);
     }
 
-    @Given("the mods directory also contains the {string} mod with a quest declaring id {string}, name {string}, objective type {string} on target {string} with count {int}, an item reward of {string} count {int}, and an xp reward with calc {string}")
+    @Given("the mods directory also contains the {string} mod with a quest declaring id {string}, name {string}, {questObjective}, {itemAndXpRewards}")
     public void theModsDirectoryAlsoContainsTheModWithAQuestWithRewards(String modId, String questId, String name,
-                                                                         String objectiveType, String target, int count,
-                                                                         String itemId, int itemCount, String xpCalc) {
-        List<QuestRewardFixture> rewards = List.of(
-                new QuestRewardFixture("item", itemId, itemCount, null),
-                new QuestRewardFixture("xp", null, null, xpCalc)
-        );
-        addQuest(modId, questId, name, objectiveType, target, count, rewards, null);
+                                                                         ObjectiveFixture objective, RewardsFixture rewards) {
+        addQuest(modId, questId, name, objective.type(), objective.target(), objective.count(), rewards.rewards(), null);
     }
 
     @Given("the mods directory also contains mod {string} with a quest declaring id {string} and no {string} field")
@@ -1056,7 +1085,7 @@ public class ModLoaderSteps {
         for (TileFixture fixture : fixtures) {
             String json = tileJson(fixture.id(), fixture.symbol(), fixture.r(), fixture.g(), fixture.b(),
                     fixture.walkable(), fixture.overrides());
-            Files.writeString(tilesDir.resolve("tile_" + (i++) + ".json"), json);
+            Files.writeString(tilesDir.resolve("tile_" + i++ + ".json"), json);
         }
     }
 
@@ -1105,7 +1134,7 @@ public class ModLoaderSteps {
                 building.addProperty("overrides", fixture.overrides());
             }
 
-            Files.writeString(buildingsDir.resolve("building_" + (i++) + ".json"), building.toString());
+            Files.writeString(buildingsDir.resolve("building_" + i++ + ".json"), building.toString());
         }
     }
 
@@ -1119,7 +1148,7 @@ public class ModLoaderSteps {
         int i = 0;
         for (ClassFixture fixture : fixtures) {
             String json = classJson(fixture);
-            Files.writeString(classesDir.resolve("class_" + (i++) + ".json"), json);
+            Files.writeString(classesDir.resolve("class_" + i++ + ".json"), json);
         }
     }
 
@@ -1157,7 +1186,7 @@ public class ModLoaderSteps {
 
         int i = 0;
         for (ItemFixture fixture : fixtures) {
-            Files.writeString(itemsDir.resolve("item_" + (i++) + ".json"), itemJson(fixture));
+            Files.writeString(itemsDir.resolve("item_" + i++ + ".json"), itemJson(fixture));
         }
     }
 
@@ -1202,7 +1231,7 @@ public class ModLoaderSteps {
 
         int i = 0;
         for (QuestFixture fixture : fixtures) {
-            Files.writeString(questsDir.resolve("quest_" + (i++) + ".json"), questJson(fixture));
+            Files.writeString(questsDir.resolve("quest_" + i++ + ".json"), questJson(fixture));
         }
     }
 
@@ -1256,7 +1285,7 @@ public class ModLoaderSteps {
 
         int i = 0;
         for (ThemeFixture fixture : fixtures) {
-            Files.writeString(themesDir.resolve("theme_" + (i++) + ".json"), themeJson(fixture));
+            Files.writeString(themesDir.resolve("theme_" + i++ + ".json"), themeJson(fixture));
         }
     }
 

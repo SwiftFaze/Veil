@@ -29,6 +29,7 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -69,7 +70,7 @@ public class DevConsoleSteps {
     private DevConsolePanel panel;
     private Player livePlayer;
     private Player playerBeforeReload;
-    private PlayerDetailPanel playerDetailPanel;
+    private @Nullable PlayerDetailPanel playerDetailPanel;
     private Player identityBeforeEdit;
     private int maxHpBeforeEdit;
     private String lastEditedFieldName;
@@ -444,7 +445,7 @@ public class DevConsoleSteps {
             List<String> firstRow = table.getSelectedRow();
             boolean matchesLabel = !firstRow.isEmpty()
                     && (tableLabel.equals(firstRow.get(0) + " table")
-                    || "Effects: table".equals(tableLabel) && firstRow.get(0).contains("Type"));
+                    || ("Effects: table".equals(tableLabel) && firstRow.get(0).contains("Type")));
             if (matchesLabel) {
                 fail("Table should not be present: " + tableLabel);
             }
@@ -547,11 +548,9 @@ public class DevConsoleSteps {
         }
     }
 
-    @Then("the table includes editable rows {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}")
-    public void theTableIncludesEditableRows(String r1, String r2, String r3, String r4, String r5,
-                                             String r6, String r7, String r8, String r9, String r10, String r11) {
+    @Then("the table includes editable rows {quotedList}")
+    public void theTableIncludesEditableRows(List<String> rowNames) {
         capturePlayerDetailPanel();
-        List<String> rowNames = List.of(r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11);
         for (int i = 0; i < rowNames.size(); i++) {
             assertEquals(rowNames.get(i), playerDetailPanel.getStatsTable().getRowCount() > i ?
                 getRowFieldName(i) : "missing row " + i);
@@ -596,7 +595,7 @@ public class DevConsoleSteps {
         for (int i = 0; i < playerDetailPanel.getStatsTable().getRowCount(); i++) {
             if (getRowFieldName(i).equals(fieldName)) {
                 List<String> row = getRow(i);
-                if (row != null && row.size() > 1) {
+                if (row.size() > 1) {
                     assertEquals(String.valueOf(expectedValue), row.get(1));
                 }
                 return;
@@ -965,13 +964,13 @@ public class DevConsoleSteps {
 
     private String getRowFieldName(int rowIndex) {
         List<String> row = getRow(rowIndex);
-        return row != null && !row.isEmpty() ? row.get(0) : "";
+        return row.isEmpty() ? "" : row.get(0);
     }
 
     private List<String> getRow(int rowIndex) {
         TableWidget<List<String>> table = playerDetailPanel.getStatsTable();
         if (rowIndex >= table.getRowCount()) {
-            return null;
+            return List.of();
         }
         table.moveToStart();
         for (int i = 0; i < rowIndex; i++) {
@@ -1089,7 +1088,7 @@ public class DevConsoleSteps {
 
     @Given("the dev console is running with a provider whose entries can change")
     public void theDevConsoleIsRunningWithAProviderWhoseEntriesCanChange() {
-        fakeProvider = new ReloadableFakeProvider("Classes");
+        fakeProvider = new ReloadableFakeProvider(CLASSES_PROVIDER_NAME);
         List<DevConsoleProvider> providers = List.of(fakeProvider);
         startConsole(new DevConsoleModel(providers));
     }
@@ -1253,7 +1252,7 @@ public class DevConsoleSteps {
 
     private DevConsoleEntry createEntry(String id) {
         String namespace = "core";
-        String category = "Classes";
+        String category = CLASSES_PROVIDER_NAME;
         String name = id.replace("core:", "");
         return new DevConsoleEntry(namespace, id, category, name);
     }

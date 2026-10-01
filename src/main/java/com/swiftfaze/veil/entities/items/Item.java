@@ -34,10 +34,12 @@ public class Item implements Inspectable {
         this.effects = attributes.effects();
     }
 
+    @Override
     public String getId() {
         return id;
     }
 
+    @Override
     public String getName() {
         return name;
     }

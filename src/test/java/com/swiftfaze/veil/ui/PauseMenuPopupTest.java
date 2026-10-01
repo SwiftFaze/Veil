@@ -1,6 +1,5 @@
 package com.swiftfaze.veil.ui;
 
-import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.Action;

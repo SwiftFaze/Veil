@@ -29,11 +29,6 @@ public class DetailsPaneWidget extends JPanel {
         this(ListDetailLayoutUtility.buildDetailsPanel());
     }
 
-    /** A details pane shown on its own, with no list beside it and so no divider. */
-    public static DetailsPaneWidget standalone() {
-        return new DetailsPaneWidget(ListDetailLayoutUtility.buildStandaloneDetailsPanel());
-    }
-
     private DetailsPaneWidget(JPanel detailsPanel) {
         this.detailsPanel = detailsPanel;
         detailsScrollPane = ListDetailLayoutUtility.buildScrollPane(detailsPanel);
@@ -41,6 +36,11 @@ public class DetailsPaneWidget extends JPanel {
         setLayout(new java.awt.BorderLayout());
         add(detailsScrollPane, java.awt.BorderLayout.CENTER);
         setFocusTraversalKeysEnabled(false);
+    }
+
+    /** A details pane shown on its own, with no list beside it and so no divider. */
+    public static DetailsPaneWidget standalone() {
+        return new DetailsPaneWidget(ListDetailLayoutUtility.buildStandaloneDetailsPanel());
     }
 
     public void showEntry(Inspectable entry) {

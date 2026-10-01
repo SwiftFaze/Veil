@@ -9,7 +9,10 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-public class ApprovalReapprove {
+public final class ApprovalReapprove {
+
+    private ApprovalReapprove() {
+    }
 
     private static final Path APPROVED_DIR = Paths.get("src/test/resources/approved");
 

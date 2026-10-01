@@ -17,10 +17,11 @@ import java.awt.Rectangle;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WorldSingleFloorRenderingSteps {
 
@@ -88,7 +89,7 @@ public class WorldSingleFloorRenderingSteps {
 
     @Then("the building has a single 2D tile layer")
     public void theBuildingHasASingle2DTileLayer() {
-        assertTrue(building.getBlueprint().length > 0);
+        assertFalse(building.getBlueprint().isEmpty());
     }
 
     @Then("the building's width and height match the JSON's {string} and {string} fields")
@@ -101,8 +102,8 @@ public class WorldSingleFloorRenderingSteps {
         int declaredWidth = json.get(widthField).getAsInt();
         int declaredHeight = json.get(heightField).getAsInt();
 
-        Tile[][] blueprint = building.getBlueprint();
-        assertEquals(declaredHeight, blueprint.length);
-        assertEquals(declaredWidth, blueprint[0].length);
+        List<List<Tile>> blueprint = building.getBlueprint();
+        assertEquals(declaredHeight, blueprint.size());
+        assertEquals(declaredWidth, blueprint.get(0).size());
     }
 }

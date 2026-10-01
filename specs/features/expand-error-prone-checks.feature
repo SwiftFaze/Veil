@@ -130,12 +130,6 @@ Feature: Error Prone expanded beyond its default check set
   #     need one are listed for a follow-up issue instead.
   #   - Asserting a specific check or violation count — counts live in the
   #     impacts file.
-
-  EXCLUDE is allowed only for an objective reason (intent Clarifications):
-  the check has no surface here (Android/Dagger/Guice/Flogger/AutoValue/GWT
-  etc.), it contradicts another enabled Error Prone check or PMD rule, it
-  needs a new dependency, or it is deprecated or a no-op in the pinned
-  version. A noisy or style-only check is ADD.
   #
   # Risks:
   #   - Every fix happens in this change, so the diff may be large and touch

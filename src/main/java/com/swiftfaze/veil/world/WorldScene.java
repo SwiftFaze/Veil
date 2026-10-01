@@ -5,7 +5,12 @@ import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.render.DrawableAsciiEntity;
 import com.swiftfaze.veil.entities.buildings.Building;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class WorldScene implements DrawableAsciiEntity {
     private final Tile[][] tiles;
@@ -38,11 +43,12 @@ public abstract class WorldScene implements DrawableAsciiEntity {
     }
 
     public void placeBuilding(Building building) {
-        Tile[][] blueprint = building.getBlueprint();
+        List<List<Tile>> blueprint = building.getBlueprint();
 
-        for (int y = 0; y < blueprint.length; y++) {
-            for (int x = 0; x < blueprint[y].length; x++) {
-                tiles[building.getWorldX() + x][building.getWorldY() + y] = blueprint[y][x];
+        for (int y = 0; y < blueprint.size(); y++) {
+            List<Tile> row = blueprint.get(y);
+            for (int x = 0; x < row.size(); x++) {
+                tiles[building.getWorldX() + x][building.getWorldY() + y] = row.get(x);
             }
         }
     }
@@ -125,11 +131,12 @@ public abstract class WorldScene implements DrawableAsciiEntity {
         }
     }
 
-    public char[][] renderToGrid(Viewport viewport, java.util.List<? extends PositionedGlyph> entities) {
+    /** The visible glyphs as one string per viewport row, top row first. */
+    public List<String> renderToGrid(Viewport viewport, List<? extends PositionedGlyph> entities) {
         char[][] grid = new char[viewport.height()][viewport.width()];
         fillTileLayer(grid, viewport);
         overlayEntities(grid, viewport, entities);
-        return grid;
+        return Arrays.stream(grid).map(String::new).toList();
     }
 
     private void fillTileLayer(char[][] grid, Viewport viewport) {
@@ -141,7 +148,7 @@ public abstract class WorldScene implements DrawableAsciiEntity {
         }
     }
 
-    private void overlayEntities(char[][] grid, Viewport viewport, java.util.List<? extends PositionedGlyph> entities) {
+    private void overlayEntities(char[][] grid, Viewport viewport, List<? extends PositionedGlyph> entities) {
         for (PositionedGlyph entity : entities) {
             int col = entity.getX() - viewport.cameraX();
             int row = entity.getY() - viewport.cameraY();

@@ -43,12 +43,14 @@ public class AppIconAndVersionSteps {
     private static final String VERSION_OPEN_TAG = "<version>";
     private static final int HINT_BAR_WIDTH = 800;
     private static final int HINT_BAR_HEIGHT = 60;
-    private static final Supplier<InputStream> BUNDLED_ICON =
-            () -> AppIcon.class.getResourceAsStream("/icons/veil.png");
 
     private AppVersion loadedAppVersion;
     private Image capturedIcon;
-    private Supplier<InputStream> iconResourceSupplier = BUNDLED_ICON;
+    private Supplier<InputStream> iconResourceSupplier = AppIconAndVersionSteps::bundledIcon;
+
+    private static InputStream bundledIcon() {
+        return AppIcon.class.getResourceAsStream("/icons/veil.png");
+    }
 
     // The hint bar belongs to UiComponentFrameworkSteps so the settings/in-game steps and these
     // steps drive the same widget.

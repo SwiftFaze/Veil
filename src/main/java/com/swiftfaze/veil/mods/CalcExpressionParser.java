@@ -127,7 +127,7 @@ public class CalcExpressionParser {
                 currentToken = tokenizer.nextToken();
                 return result;
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Unexpected token: " + currentToken);
+                throw new IllegalArgumentException("Unexpected token: " + currentToken, e);
             }
         }
     }

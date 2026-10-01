@@ -14,8 +14,13 @@ import io.cucumber.java.en.And;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -26,12 +31,12 @@ public class ApprovalTestsGlyphGridSteps {
     private static final Tile WATER = new Tile("test:water", '~', Color.BLUE, false);
 
     private WorldScene scene;
-    private char[][] renderedGrid;
+    private List<String> renderedGrid;
     private List<PositionedGlyph> entities;
     private String scenarioName;
     private boolean shouldFail;
 
-    private char[][] renderScene() {
+    private List<String> renderScene() {
         Camera camera = SharedScenarioContext.getCamera();
         Viewport viewport = new Viewport(camera.getX(), camera.getY(),
                 camera.getViewportWidth(), camera.getViewportHeight());
@@ -143,8 +148,8 @@ public class ApprovalTestsGlyphGridSteps {
                 java.nio.file.Files.deleteIfExists(
                     java.nio.file.Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt")
                 );
-            } catch (java.io.IOException ioe) {
-                throw new RuntimeException("Failed to clean up test fixture", ioe);
+            } catch (IOException ioe) {
+                throw new UncheckedIOException("Failed to clean up test fixture", ioe);
             }
         }
     }
@@ -209,15 +214,16 @@ public class ApprovalTestsGlyphGridSteps {
         }
 
         // Clean up
-        java.nio.file.Files.walk(scenario3TempDir)
-            .sorted(java.util.Comparator.reverseOrder())
-            .forEach(path -> {
-                try {
-                    java.nio.file.Files.delete(path);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+        try (Stream<Path> paths = Files.walk(scenario3TempDir)) {
+            paths.sorted(Comparator.reverseOrder())
+                .forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
+        }
     }
 
     @And("a normal `mvn test` run never performs this replacement on its own")
@@ -252,10 +258,10 @@ public class ApprovalTestsGlyphGridSteps {
         scene = new WorldScene(20, 20) {};
         scene.fillAll(GRASS);
 
-        Tile[][] blueprint = {
-            {WALL, WALL},
-            {WALL, WALL}
-        };
+        List<List<Tile>> blueprint = List.of(
+            List.of(WALL, WALL),
+            List.of(WALL, WALL)
+        );
         Building building = new Building(blueprint);
         building.setWorldX(5);
         building.setWorldY(5);
@@ -295,7 +301,7 @@ public class ApprovalTestsGlyphGridSteps {
         ApprovalCheck.verify(scenarioName, gridAsText);
 
         // Verify the entity glyph is at the expected position
-        assertEquals('@', renderedGrid[5][5], "Entity glyph should be at position (5, 5)");
+        assertEquals('@', renderedGrid.get(5).charAt(5), "Entity glyph should be at position (5, 5)");
     }
 
     // Scenario 7: Viewport size boundaries render the correct number of columns and rows
@@ -317,18 +323,18 @@ public class ApprovalTestsGlyphGridSteps {
 
     @Then("the rendered grid is exactly {int} columns by {int} rows, matching an approved fixture")
     public void theGridIsExactlyTheViewportSize(int width, int height) {
-        assertEquals(height, renderedGrid.length, "Grid should have " + height + " rows");
-        assertEquals(width, renderedGrid[0].length, "Grid should have " + width + " columns");
+        assertEquals(height, renderedGrid.size(), "Grid should have " + height + " rows");
+        assertEquals(width, renderedGrid.get(0).length(), "Grid should have " + width + " columns");
 
         String gridAsText = gridToString(renderedGrid);
         ApprovalCheck.verify(scenarioName, gridAsText);
     }
 
     // Utility methods
-    private String gridToString(char[][] grid) {
+    private String gridToString(List<String> grid) {
         StringBuilder sb = new StringBuilder();
-        for (char[] row : grid) {
-            sb.append(new String(row)).append("\n");
+        for (String row : grid) {
+            sb.append(row).append("\n");
         }
         return sb.toString();
     }

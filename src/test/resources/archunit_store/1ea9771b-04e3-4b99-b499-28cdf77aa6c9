@@ -2,24 +2,24 @@ Cycle detected: Slice veil.entities.buildings -> \
                 Slice veil.world -> \
                 Slice veil.entities.buildings\
   1. Dependencies of Slice veil.entities.buildings\
-    - Constructor <com.swiftfaze.veil.entities.buildings.Building.<init>([[Lcom.swiftfaze.veil.world.Tile;)> depends on component type <com.swiftfaze.veil.world.Tile> in (Building.java:0)\
-    - Field <com.swiftfaze.veil.entities.buildings.Building.blueprint> depends on component type <com.swiftfaze.veil.world.Tile> in (Building.java:0)\
-    - Method <com.swiftfaze.veil.entities.buildings.Building.getBlueprint()> depends on component type <com.swiftfaze.veil.world.Tile> in (Building.java:0)\
+    - Constructor <com.swiftfaze.veil.entities.buildings.Building.<init>(java.util.List)> has generic parameter type <java.util.List<java.util.List<com.swiftfaze.veil.world.Tile>>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (Building.java:0)\
+    - Field <com.swiftfaze.veil.entities.buildings.Building.blueprint> has generic type <java.util.List<java.util.List<com.swiftfaze.veil.world.Tile>>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (Building.java:0)\
+    - Method <com.swiftfaze.veil.entities.buildings.Building.getBlueprint()> has generic return type <java.util.List<java.util.List<com.swiftfaze.veil.world.Tile>>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (Building.java:0)\
   2. Dependencies of Slice veil.world\
     - Method <com.swiftfaze.veil.world.WorldScene.placeBuilding(com.swiftfaze.veil.entities.buildings.Building)> has parameter of type <com.swiftfaze.veil.entities.buildings.Building> in (WorldScene.java:0)\
     - Constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> calls method <com.swiftfaze.veil.entities.buildings.Building.setWorldX(int)> in (TileTestScene2.java:19)\
     - Constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> calls method <com.swiftfaze.veil.entities.buildings.Building.setWorldY(int)> in (TileTestScene2.java:20)\
-    - Method <com.swiftfaze.veil.world.WorldScene.placeBuilding(com.swiftfaze.veil.entities.buildings.Building)> calls method <com.swiftfaze.veil.entities.buildings.Building.getBlueprint()> in (WorldScene.java:41)\
-    - Method <com.swiftfaze.veil.world.WorldScene.placeBuilding(com.swiftfaze.veil.entities.buildings.Building)> calls method <com.swiftfaze.veil.entities.buildings.Building.getWorldX()> in (WorldScene.java:45)\
-    - Method <com.swiftfaze.veil.world.WorldScene.placeBuilding(com.swiftfaze.veil.entities.buildings.Building)> calls method <com.swiftfaze.veil.entities.buildings.Building.getWorldY()> in (WorldScene.java:45)
+    - Method <com.swiftfaze.veil.world.WorldScene.placeBuilding(com.swiftfaze.veil.entities.buildings.Building)> calls method <com.swiftfaze.veil.entities.buildings.Building.getBlueprint()> in (WorldScene.java:46)\
+    - Method <com.swiftfaze.veil.world.WorldScene.placeBuilding(com.swiftfaze.veil.entities.buildings.Building)> calls method <com.swiftfaze.veil.entities.buildings.Building.getWorldX()> in (WorldScene.java:51)\
+    - Method <com.swiftfaze.veil.world.WorldScene.placeBuilding(com.swiftfaze.veil.entities.buildings.Building)> calls method <com.swiftfaze.veil.entities.buildings.Building.getWorldY()> in (WorldScene.java:51)
 Cycle detected: Slice veil.entities.buildings -> \
                 Slice veil.world -> \
                 Slice veil.mods -> \
                 Slice veil.entities.buildings\
   1. Dependencies of Slice veil.entities.buildings\
-    - Constructor <com.swiftfaze.veil.entities.buildings.Building.<init>([[Lcom.swiftfaze.veil.world.Tile;)> depends on component type <com.swiftfaze.veil.world.Tile> in (Building.java:0)\
-    - Field <com.swiftfaze.veil.entities.buildings.Building.blueprint> depends on component type <com.swiftfaze.veil.world.Tile> in (Building.java:0)\
-    - Method <com.swiftfaze.veil.entities.buildings.Building.getBlueprint()> depends on component type <com.swiftfaze.veil.world.Tile> in (Building.java:0)\
+    - Constructor <com.swiftfaze.veil.entities.buildings.Building.<init>(java.util.List)> has generic parameter type <java.util.List<java.util.List<com.swiftfaze.veil.world.Tile>>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (Building.java:0)\
+    - Field <com.swiftfaze.veil.entities.buildings.Building.blueprint> has generic type <java.util.List<java.util.List<com.swiftfaze.veil.world.Tile>>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (Building.java:0)\
+    - Method <com.swiftfaze.veil.entities.buildings.Building.getBlueprint()> has generic return type <java.util.List<java.util.List<com.swiftfaze.veil.world.Tile>>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (Building.java:0)\
   2. Dependencies of Slice veil.world\
     - Constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> calls method <com.swiftfaze.veil.mods.ModLoader.load(java.nio.file.Path)> in (TileTestScene2.java:14)\
     - Constructor <com.swiftfaze.veil.world.TileTestScene2.<init>(int, int)> calls method <com.swiftfaze.veil.mods.ModRegistry.getTile(java.lang.String)> in (TileTestScene2.java:15)\
@@ -32,7 +32,7 @@ Cycle detected: Slice veil.entities.buildings -> \
     - Method <com.swiftfaze.veil.mods.ModLoader.loadBuildings(java.nio.file.Path, com.swiftfaze.veil.mods.ModLoader$ModManifest, java.util.Map, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> has generic parameter type <com.swiftfaze.veil.mods.ModLoader$RegistryTarget<com.swiftfaze.veil.entities.buildings.Building>> with type argument depending on <com.swiftfaze.veil.entities.buildings.Building> in (ModLoader.java:0)\
     - Method <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.buildingsById()> has generic return type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.buildings.Building>> with type argument depending on <com.swiftfaze.veil.entities.buildings.Building> in (ModRegistry.java:0)\
     - Method <com.swiftfaze.veil.mods.ModRegistry.getBuilding(java.lang.String)> has return type <com.swiftfaze.veil.entities.buildings.Building> in (ModRegistry.java:0)\
-    - Method <com.swiftfaze.veil.mods.ModLoader.loadBuilding(java.nio.file.Path, java.lang.String, java.util.Map, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> calls constructor <com.swiftfaze.veil.entities.buildings.Building.<init>([[Lcom.swiftfaze.veil.world.Tile;)> in (ModLoader.java:229)
+    - Method <com.swiftfaze.veil.mods.ModLoader.loadBuilding(java.nio.file.Path, java.lang.String, java.util.Map, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> calls constructor <com.swiftfaze.veil.entities.buildings.Building.<init>(java.util.List)> in (ModLoader.java:229)
 Cycle detected: Slice veil.entities.player -> \
                 Slice veil.entities.player.classes -> \
                 Slice veil.entities.player\
@@ -72,8 +72,8 @@ Cycle detected: Slice veil.entities.player -> \
     - Method <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.classesById()> has generic return type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
     - Method <com.swiftfaze.veil.mods.ModRegistry.getAllPlayerClasses()> has generic return type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
     - Method <com.swiftfaze.veil.mods.ModRegistry.getPlayerClass(java.lang.String)> has return type <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
-    - Method <com.swiftfaze.veil.mods.ModLoader.loadClass(java.nio.file.Path, java.lang.String, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass.<init>(java.lang.String, java.lang.String, java.util.Map)> in (ModLoader.java:331)\
-    - Method <com.swiftfaze.veil.mods.ModLoader.parseClassStats(com.google.gson.JsonObject, java.lang.String, java.util.Set, java.nio.file.Path)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve.<init>(int, java.lang.String)> in (ModLoader.java:350)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.loadClass(java.nio.file.Path, java.lang.String, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass.<init>(java.lang.String, java.lang.String, java.util.Map)> in (ModLoader.java:333)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.parseClassStats(com.google.gson.JsonObject, java.lang.String, java.util.Set, java.nio.file.Path)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve.<init>(int, java.lang.String)> in (ModLoader.java:352)\
   3. Dependencies of Slice veil.entities.player.classes\
     - Field <com.swiftfaze.veil.entities.player.classes.PlayerClass.ATTRIBUTE_SETTERS> has generic type <java.util.Map<java.lang.String, java.util.function.BiConsumer<com.swiftfaze.veil.entities.player.Stats, java.lang.Integer>>> with type argument depending on <com.swiftfaze.veil.entities.player.Stats> in (PlayerClass.java:0)\
     - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> has parameter of type <com.swiftfaze.veil.entities.player.Stats> in (PlayerClass.java:0)\
@@ -113,8 +113,8 @@ Cycle detected: Slice veil.entities.player -> \
     - Method <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.classesById()> has generic return type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
     - Method <com.swiftfaze.veil.mods.ModRegistry.getAllPlayerClasses()> has generic return type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
     - Method <com.swiftfaze.veil.mods.ModRegistry.getPlayerClass(java.lang.String)> has return type <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
-    - Method <com.swiftfaze.veil.mods.ModLoader.loadClass(java.nio.file.Path, java.lang.String, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass.<init>(java.lang.String, java.lang.String, java.util.Map)> in (ModLoader.java:331)\
-    - Method <com.swiftfaze.veil.mods.ModLoader.parseClassStats(com.google.gson.JsonObject, java.lang.String, java.util.Set, java.nio.file.Path)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve.<init>(int, java.lang.String)> in (ModLoader.java:350)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.loadClass(java.nio.file.Path, java.lang.String, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass.<init>(java.lang.String, java.lang.String, java.util.Map)> in (ModLoader.java:333)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.parseClassStats(com.google.gson.JsonObject, java.lang.String, java.util.Set, java.nio.file.Path)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve.<init>(int, java.lang.String)> in (ModLoader.java:352)\
   4. Dependencies of Slice veil.entities.player.classes\
     - Field <com.swiftfaze.veil.entities.player.classes.PlayerClass.ATTRIBUTE_SETTERS> has generic type <java.util.Map<java.lang.String, java.util.function.BiConsumer<com.swiftfaze.veil.entities.player.Stats, java.lang.Integer>>> with type argument depending on <com.swiftfaze.veil.entities.player.Stats> in (PlayerClass.java:0)\
     - Method <com.swiftfaze.veil.entities.player.classes.PlayerClass.applyStatsAtLevel(com.swiftfaze.veil.entities.player.Stats, int)> has parameter of type <com.swiftfaze.veil.entities.player.Stats> in (PlayerClass.java:0)\
@@ -143,8 +143,8 @@ Cycle detected: Slice veil.entities.player.classes -> \
     - Method <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.classesById()> has generic return type <java.util.Map<java.lang.String, com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
     - Method <com.swiftfaze.veil.mods.ModRegistry.getAllPlayerClasses()> has generic return type <java.util.List<com.swiftfaze.veil.entities.player.classes.PlayerClass>> with type argument depending on <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
     - Method <com.swiftfaze.veil.mods.ModRegistry.getPlayerClass(java.lang.String)> has return type <com.swiftfaze.veil.entities.player.classes.PlayerClass> in (ModRegistry.java:0)\
-    - Method <com.swiftfaze.veil.mods.ModLoader.loadClass(java.nio.file.Path, java.lang.String, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass.<init>(java.lang.String, java.lang.String, java.util.Map)> in (ModLoader.java:331)\
-    - Method <com.swiftfaze.veil.mods.ModLoader.parseClassStats(com.google.gson.JsonObject, java.lang.String, java.util.Set, java.nio.file.Path)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve.<init>(int, java.lang.String)> in (ModLoader.java:350)
+    - Method <com.swiftfaze.veil.mods.ModLoader.loadClass(java.nio.file.Path, java.lang.String, java.util.Set, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass.<init>(java.lang.String, java.lang.String, java.util.Map)> in (ModLoader.java:333)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.parseClassStats(com.google.gson.JsonObject, java.lang.String, java.util.Set, java.nio.file.Path)> calls constructor <com.swiftfaze.veil.entities.player.classes.PlayerClass$StatCurve.<init>(int, java.lang.String)> in (ModLoader.java:352)
 Cycle detected: Slice veil.mods -> \
                 Slice veil.world -> \
                 Slice veil.mods\
@@ -156,8 +156,8 @@ Cycle detected: Slice veil.mods -> \
     - Method <com.swiftfaze.veil.mods.ModLoader.loadBuildings(java.nio.file.Path, com.swiftfaze.veil.mods.ModLoader$ModManifest, java.util.Map, com.swiftfaze.veil.mods.ModLoader$RegistryTarget)> has generic parameter type <java.util.Map<java.lang.String, com.swiftfaze.veil.world.Tile>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (ModLoader.java:0)\
     - Method <com.swiftfaze.veil.mods.ModLoader.loadTile(java.nio.file.Path, java.lang.String, java.util.Map, java.util.Map)> has generic parameter type <java.util.Map<java.lang.String, com.swiftfaze.veil.world.Tile>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (ModLoader.java:0)\
     - Method <com.swiftfaze.veil.mods.ModLoader.loadTiles(java.nio.file.Path, com.swiftfaze.veil.mods.ModLoader$ModManifest, java.util.Map, java.util.Map)> has generic parameter type <java.util.Map<java.lang.String, com.swiftfaze.veil.world.Tile>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (ModLoader.java:0)\
-    - Method <com.swiftfaze.veil.mods.ModLoader.readBlueprint(com.google.gson.JsonArray, java.util.Map, java.lang.String, java.nio.file.Path)> depends on component type <com.swiftfaze.veil.world.Tile> in (ModLoader.java:0)\
     - Method <com.swiftfaze.veil.mods.ModLoader.readBlueprint(com.google.gson.JsonArray, java.util.Map, java.lang.String, java.nio.file.Path)> has generic parameter type <java.util.Map<java.lang.String, com.swiftfaze.veil.world.Tile>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (ModLoader.java:0)\
+    - Method <com.swiftfaze.veil.mods.ModLoader.readBlueprint(com.google.gson.JsonArray, java.util.Map, java.lang.String, java.nio.file.Path)> has generic return type <java.util.List<java.util.List<com.swiftfaze.veil.world.Tile>>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (ModLoader.java:0)\
     - Method <com.swiftfaze.veil.mods.ModRegistry$RegistryMaps.tilesById()> has generic return type <java.util.Map<java.lang.String, com.swiftfaze.veil.world.Tile>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (ModRegistry.java:0)\
     - Method <com.swiftfaze.veil.mods.ModRegistry.getAllTiles()> has generic return type <java.util.List<com.swiftfaze.veil.world.Tile>> with type argument depending on <com.swiftfaze.veil.world.Tile> in (ModRegistry.java:0)\
     - Method <com.swiftfaze.veil.mods.ModRegistry.getTile(java.lang.String)> has return type <com.swiftfaze.veil.world.Tile> in (ModRegistry.java:0)\

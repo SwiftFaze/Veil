@@ -42,11 +42,11 @@ public final class AcceptanceMutator {
     }
 
     public static void main(String[] args) {
-        System.exit(execute(args, System.out).exitCode());
+        System.exit(execute(List.of(args), System.out).exitCode());
     }
 
     /** Parses the arguments, runs, prints the report, and returns the exit code. */
-    public static Outcome execute(String[] args, PrintStream out) {
+    public static Outcome execute(List<String> args, PrintStream out) {
         Map<String, String> options = parse(args);
         Path specDir = Path.of(options.getOrDefault("--spec-dir", DEFAULT_SPEC_DIR));
         AcceptanceMutator mutator = new AcceptanceMutator(options.getOrDefault("--glue", DEFAULT_GLUE));
@@ -63,13 +63,13 @@ public final class AcceptanceMutator {
         return new Outcome(report.exitCode(), report);
     }
 
-    private static Map<String, String> parse(String[] args) {
+    private static Map<String, String> parse(List<String> args) {
         Map<String, String> options = new HashMap<>();
-        for (int i = 0; i < args.length; i += 2) {
-            if (!args[i].startsWith("--") || i + 1 >= args.length) {
+        for (int i = 0; i < args.size(); i += 2) {
+            if (!args.get(i).startsWith("--") || i + 1 >= args.size()) {
                 throw new IllegalArgumentException("Expected --option value pairs, got: " + String.join(" ", args));
             }
-            options.put(args[i], args[i + 1]);
+            options.put(args.get(i), args.get(i + 1));
         }
         return options;
     }

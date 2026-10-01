@@ -3,7 +3,6 @@ package com.swiftfaze.veil.steps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.swiftfaze.veil.entities.player.Stats;
-import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.sandbox.ClassSandboxModel;
@@ -87,7 +86,7 @@ public class ClassStatsSandboxSteps {
 
     @Given("the {string} class JSON has been edited to set max HP to {int}")
     public void theClassJsonHasBeenEditedToSetMaxHpTo(String className, int newMaxHp) throws IOException {
-        writeFixtures(className, newMaxHp);
+        writeFixtures(newMaxHp);
     }
 
     @When("the class sandbox is started fresh and {string} is selected")
@@ -97,7 +96,7 @@ public class ClassStatsSandboxSteps {
         selectedStats = model.computedStats(className);
     }
 
-    private void writeFixtures(String className, int newMaxHp) throws IOException {
+    private void writeFixtures(int newMaxHp) throws IOException {
         Path coreDir = modsRoot.resolve("core");
         Files.createDirectories(coreDir.resolve("classes"));
 

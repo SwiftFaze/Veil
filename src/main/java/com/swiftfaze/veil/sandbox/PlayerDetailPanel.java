@@ -6,7 +6,6 @@ import com.swiftfaze.veil.entities.player.Stats;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.mods.ModLoader;
-import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.ui.widget.HeaderWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;

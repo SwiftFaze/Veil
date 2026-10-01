@@ -172,7 +172,7 @@ public class CrapGateSteps {
     public void crapTxtListsEveryMethodWorstFirst() throws IOException {
         List<String> rows = crapTxt().stream().filter(l -> l.contains("com.example.Sample#")).toList();
         assertEquals(methods.size(), rows.size(), () -> "Rows: " + rows);
-        List<Double> scores = rows.stream().map(r -> Double.parseDouble(WHITESPACE.split(r.trim())[0])).toList();
+        List<Double> scores = rows.stream().map(r -> Double.parseDouble(WHITESPACE.split(r.trim(), -1)[0])).toList();
         List<Double> sorted = new ArrayList<>(scores);
         sorted.sort(Comparator.reverseOrder());
         assertEquals(sorted, scores, "crap.txt is not worst first");

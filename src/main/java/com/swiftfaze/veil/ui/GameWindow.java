@@ -12,7 +12,10 @@ import java.awt.BorderLayout;
  * layer (e.g. a reimplemented inventory/codex shell) can be layered above
  * {@link JLayeredPane#DEFAULT_LAYER} without changing this method's shape.
  */
-public class GameWindow {
+public final class GameWindow {
+
+    private GameWindow() {
+    }
 
     public static JLayeredPane buildContentArea(GamePanel gamePanel) {
         JPanel mainArea = new JPanel(new BorderLayout());

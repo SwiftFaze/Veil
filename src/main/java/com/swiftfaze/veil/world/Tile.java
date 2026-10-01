@@ -18,6 +18,7 @@ public final class Tile implements Inspectable {
         this.walkable = walkable;
     }
 
+    @Override
     public String getId() {
         return id;
     }

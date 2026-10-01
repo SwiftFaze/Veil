@@ -28,6 +28,10 @@ public final class MutationReport {
         skipped.add(reason);
     }
 
+    public List<String> skipped() {
+        return List.copyOf(skipped);
+    }
+
     void failingOriginal(String scenario) {
         failingOriginals.add(scenario);
     }
@@ -42,10 +46,6 @@ public final class MutationReport {
 
     public List<Mutant> survivors() {
         return List.copyOf(survivors);
-    }
-
-    public List<String> skipped() {
-        return List.copyOf(skipped);
     }
 
     public List<String> failingOriginals() {

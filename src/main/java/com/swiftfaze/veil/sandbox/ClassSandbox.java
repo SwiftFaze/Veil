@@ -10,7 +10,10 @@ import java.util.List;
  * run it explicitly:
  * {@code mvn compile exec:java -Dexec.mainClass=com.swiftfaze.veil.sandbox.ClassSandbox}
  */
-public class ClassSandbox {
+public final class ClassSandbox {
+
+    private ClassSandbox() {
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ClassSandbox::launch);

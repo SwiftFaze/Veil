@@ -31,12 +31,12 @@ final class CrapBaseline {
             if (line.isEmpty() || line.startsWith("#")) {
                 continue;
             }
-            String[] parts = WHITESPACE.split(line);
+            String[] parts = WHITESPACE.split(line, -1);
             if (parts.length != KEY_AND_SCORE) {
                 throw new IllegalArgumentException("Malformed crap-baseline.txt line: " + raw);
             }
             entries.merge(parts[0], Double.parseDouble(parts[1]), Math::max);
         }
-        return entries;
+        return Collections.unmodifiableMap(entries);
     }
 }

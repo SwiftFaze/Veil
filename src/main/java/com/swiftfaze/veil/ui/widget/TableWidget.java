@@ -36,10 +36,10 @@ public class TableWidget<T> extends Widget {
     private boolean otherRowsDimmed = false;
 
     public TableWidget(List<Function<T, String>> columnRenderers) {
-        this(List.of(), columnRenderers);
+        this(columnRenderers, List.of());
     }
 
-    public TableWidget(List<String> columnHeaders, List<Function<T, String>> columnRenderers) {
+    public TableWidget(List<Function<T, String>> columnRenderers, List<String> columnHeaders) {
         this.columnHeaders = columnHeaders;
         this.columnRenderers = columnRenderers;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -58,7 +58,7 @@ public class TableWidget<T> extends Widget {
             int column = i;
             renderers.add(row -> row.get(column));
         }
-        TableWidget<List<String>> table = new TableWidget<>(columnHeaders, renderers);
+        TableWidget<List<String>> table = new TableWidget<>(renderers, columnHeaders);
         table.setRows(rows);
         return table;
     }

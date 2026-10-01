@@ -30,7 +30,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -55,21 +54,20 @@ public class UiComponentFrameworkSteps {
 
     private ListWidget<String> listWidget;
     private ButtonWidget buttonWidget;
-    private String selectedItem;
     private String confirmedItem;
     private boolean actionInvoked;
     private List<String> listItems;
     private List<String> dataSourceItems;
 
     private TableWidget<String> tableWidget;
-    private List<String> confirmedTableRows = new ArrayList<>();
+    private final List<String> confirmedTableRows = new ArrayList<>();
     private RadioGroupWidget<String> radioGroupWidget;
     private SliderWidget sliderWidget;
     private TitleScreenPanel titleScreenPanel;
     private String lastMenuSelection;
     private SettingsScreenPanel settingsScreenPanel;
     private SettingsKeybindsPanel keybindsPanel;
-    private ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
+    private final ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
     private InventoryPanel inventoryPanel;
     private CodexPanel codexPanel;
 
@@ -83,7 +81,6 @@ public class UiComponentFrameworkSteps {
             new Item.ItemAttributes('/', "weapon", "hand", new Item.BaseDamage(5, 10), List.of())
     );
 
-    private int lastKeyCode; // Track which key was pressed for scenarios
 
     // Settings persistence test support
     private Path tempDir;
@@ -604,11 +601,8 @@ public class UiComponentFrameworkSteps {
         settingsScreenPanel.setOnWindowModeChanged(mode -> lastWindowMode = mode);
     }
 
-    @Then("the settings items are {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}")
-    public void theSettingsItemsAre(String item1, String item2, String item3, String item4, String item5,
-                                    String item6, String item7, String item8, String item9, String item10,
-                                    String item11) {
-        List<String> expected = List.of(item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11);
+    @Then("the settings items are {quotedList}")
+    public void theSettingsItemsAre(List<String> expected) {
         List<String> actual = settingsScreenPanel.getAllItemNames();
         assertEquals(expected, actual);
     }

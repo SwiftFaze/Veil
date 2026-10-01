@@ -13,6 +13,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -126,10 +127,10 @@ class WorldSceneTest {
     @Test
     void placeBuildingStampsBlueprintAtWorldOffsetWithoutTransposingAxes() {
         WorldScene scene = sceneOf(10, 10);
-        Tile[][] blueprint = {
-                {WALL, WOOD},
-                {STONE, DOOR}
-        };
+        List<List<Tile>> blueprint = List.of(
+                List.of(WALL, WOOD),
+                List.of(STONE, DOOR)
+        );
         Building building = new Building(blueprint);
         building.setWorldX(3);
         building.setWorldY(4);
@@ -146,7 +147,7 @@ class WorldSceneTest {
     void placeBuildingOverwritesTilesAlreadyInTheScene() {
         WorldScene scene = sceneOf(10, 10);
         scene.fillRegion(new Rectangle(6, 6, 1, 1), WATER);
-        Building building = new Building(new Tile[][]{{WALL}});
+        Building building = new Building(List.of(List.of(WALL)));
         building.setWorldX(6);
         building.setWorldY(6);
 
@@ -159,7 +160,7 @@ class WorldSceneTest {
     void placeBuildingWithEmptyBlueprintLeavesTheSceneUnchanged() {
         WorldScene scene = sceneOf(10, 10);
         scene.fillAll(GRASS);
-        Building building = new Building(new Tile[0][0]);
+        Building building = new Building(List.of());
         building.setWorldX(2);
         building.setWorldY(2);
 

@@ -12,6 +12,7 @@ import javax.swing.Action;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -76,7 +77,7 @@ public class ClassSandboxSteps {
 
     private void assertStatsLabelShows(int index) {
         Stats stats = classModel.computedStats(classNames.get(index));
-        String expected = String.format(
+        String expected = String.format(Locale.ROOT,
                 "ATK %d  DEF %d  HP %d  MP %d",
                 stats.getAttackPower(), stats.getDefense(), stats.getMaxHp(), stats.getMaxMana()
         );

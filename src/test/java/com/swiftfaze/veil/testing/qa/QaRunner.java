@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
@@ -190,7 +191,7 @@ public final class QaRunner {
 
     private static void sleep(int millis) {
         try {
-            Thread.sleep(millis);
+            TimeUnit.MILLISECONDS.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new QaException("Interrupted", e);

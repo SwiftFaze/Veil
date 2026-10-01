@@ -69,7 +69,7 @@ public class SettingsKeybindsPanel extends JPanel implements HintAware {
         header.setFont(new Font(Font.MONOSPACED, Font.BOLD, 24));
         header.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        actionsTable = new TableWidget<>(List.of("Action", "Key"), List.of(ActionRow::action, ActionRow::key));
+        actionsTable = new TableWidget<>(List.of(ActionRow::action, ActionRow::key), List.of("Action", "Key"));
         actionsTable.setWrapAround(false);
         actionsTable.setAlignmentX(Component.CENTER_ALIGNMENT);
 

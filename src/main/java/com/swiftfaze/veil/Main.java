@@ -52,7 +52,10 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class Main {
+public final class Main {
+
+    private Main() {
+    }
     /**
      * The card deck the screens live in: what to do with it (add a screen, register a
      * card for lookup, navigate, read the registry) without handing out the Swing

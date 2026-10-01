@@ -7,7 +7,6 @@ import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.util.List;
 
 /**
  * Shared utilities for list/detail split-pane layouts (Codex, Inventory).
@@ -66,6 +65,14 @@ public final class ListDetailLayoutUtility {
         return buildDetailsPanel(BorderFactory.createCompoundBorder(detailsDivider, detailsPadding));
     }
 
+    private static JPanel buildDetailsPanel(Border border) {
+        JPanel detailsPanel = new JPanel();
+        detailsPanel.setBackground(WidgetTheme.BACKGROUND);
+        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
+        detailsPanel.setBorder(border);
+        return detailsPanel;
+    }
+
     /**
      * Builds a details panel with no list divider and no padding, for a details pane shown on
      * its own under a header (the dev-console sandbox panels): the padding exists only to space
@@ -73,14 +80,6 @@ public final class ListDetailLayoutUtility {
      */
     public static JPanel buildStandaloneDetailsPanel() {
         return buildDetailsPanel(BorderFactory.createEmptyBorder());
-    }
-
-    private static JPanel buildDetailsPanel(Border border) {
-        JPanel detailsPanel = new JPanel();
-        detailsPanel.setBackground(WidgetTheme.BACKGROUND);
-        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
-        detailsPanel.setBorder(border);
-        return detailsPanel;
     }
 
     /**

@@ -12,7 +12,10 @@ import javax.swing.JLayeredPane;
  * view instead of living inside its own layout. Mirrors {@link SettingsWindow}'s
  * pattern for the settings card.
  */
-public class SettingsKeybindsWindow {
+public final class SettingsKeybindsWindow {
+
+    private SettingsKeybindsWindow() {
+    }
 
     public static JLayeredPane buildContentArea(SettingsKeybindsPanel keybindsScreen) {
         JLayeredPane layeredPane = new JLayeredPane();

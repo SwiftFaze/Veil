@@ -223,7 +223,7 @@ public final class ModLoader {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             ModSchemaValidator.validate("building", json, file);
             String id = json.get("id").getAsString();
-            Tile[][] blueprint = readBlueprint(json.getAsJsonArray("tiles"), tilesById, id, file);
+            List<List<Tile>> blueprint = readBlueprint(json.getAsJsonArray("tiles"), tilesById, id, file);
 
             RegistrationContext<Building> buildingContext = new RegistrationContext<>(buildings.registry(), buildings.owningModById(), json.has("overrides"), "Building");
             registerWithCollisionCheck(id, new Building(blueprint), modId, buildingContext);
@@ -234,13 +234,14 @@ public final class ModLoader {
         }
     }
 
-    private static Tile[][] readBlueprint(JsonArray rows, Map<String, Tile> tilesById, String buildingId, Path file) {
+    private static List<List<Tile>> readBlueprint(JsonArray rows, Map<String, Tile> tilesById, String buildingId, Path file) {
         int height = rows.size();
         int width = rows.get(0).getAsJsonArray().size();
-        Tile[][] blueprint = new Tile[height][width];
+        List<List<Tile>> blueprint = new ArrayList<>(height);
 
         for (int y = 0; y < height; y++) {
             JsonArray row = rows.get(y).getAsJsonArray();
+            List<Tile> tileRow = new ArrayList<>(width);
             for (int x = 0; x < width; x++) {
                 String tileId = row.get(x).getAsString();
                 Tile tile = tilesById.get(tileId);
@@ -248,8 +249,9 @@ public final class ModLoader {
                     throw new ModLoadException("Building '" + buildingId
                             + "' references unknown tile ID: " + tileId + " in file: " + file);
                 }
-                blueprint[y][x] = tile;
+                tileRow.add(tile);
             }
+            blueprint.add(tileRow);
         }
 
         return blueprint;

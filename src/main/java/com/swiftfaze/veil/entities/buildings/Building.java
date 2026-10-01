@@ -1,19 +1,22 @@
 package com.swiftfaze.veil.entities.buildings;
 
 import com.swiftfaze.veil.world.Tile;
+import java.util.List;
 
 public class Building {
 
     private int worldX;
     private int worldY;
 
-    private final Tile[][] blueprint;
+    private final List<List<Tile>> blueprint;
 
-    public Building(Tile[][] blueprint) {
-        this.blueprint = blueprint;
+    /** @param blueprint rows of tiles, top row first; copied, so later changes to the argument don't leak in */
+    public Building(List<List<Tile>> blueprint) {
+        this.blueprint = blueprint.stream().map(List::copyOf).toList();
     }
 
-    public Tile[][] getBlueprint() {
+    /** Rows of tiles, top row first: {@code getBlueprint().get(y).get(x)}. Unmodifiable. */
+    public List<List<Tile>> getBlueprint() {
         return blueprint;
     }
 
