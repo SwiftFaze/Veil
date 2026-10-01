@@ -29,13 +29,22 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.JLabel;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -46,6 +55,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -870,12 +880,6 @@ public class UiComponentFrameworkSteps {
         assertFalse(settingsScreenPanel.getResetConfirmationPopup().isVisible());
     }
 
-    @Given("the game window is shown")
-    public void theGameWindowIsShown() {
-        // Modeled at the panel level; a live JFrame isn't constructed in headless tests -
-        // same convention as "the settings screen is shown" etc.
-    }
-
     @Given("the in-game view is shown")
     public void theInGameViewIsShown() {
         inventoryPanel = new InventoryPanel(hintBar);
@@ -1146,6 +1150,7 @@ public class UiComponentFrameworkSteps {
 
     // App Version Display steps
     private String bundledVersionOverride;
+    private AppVersion loadedAppVersion;
 
     @Given("the bundled version is {string}")
     public void theBundledVersionIs(String version) {
@@ -1163,13 +1168,16 @@ public class UiComponentFrameworkSteps {
     @Then("the version label sits at the hint bar's right edge")
     public void theVersionLabelSitsAtTheHintBarRightEdge() {
         JLabel versionLabel = hintBar.getVersionLabel();
-        assertNotNull(versionLabel);
-        assertFalse(versionLabel.getText().isEmpty());
+        assertSame(versionLabel, ((BorderLayout) hintBar.getLayout()).getLayoutComponent(BorderLayout.EAST));
     }
 
     @Then("the hint bar still shows the settings screen's hints")
     public void theHintBarStillShowsTheSettingsScreensHints() {
-        assertFalse(hintBar.getHints().isEmpty());
+        List<ControlsHintBarWidget.Hint> hints = hintBar.getHints();
+        assertFalse(hints.isEmpty(), "Hint bar should have hints");
+        // Settings screen should show an escape/back hint
+        boolean hasEscapeHint = hints.stream().anyMatch(h -> "escape".equals(h.key()));
+        assertTrue(hasEscapeHint, "Settings screen should show escape/back hint");
     }
 
     @Then("the version label's color is the theme's dimmed text color")
@@ -1179,12 +1187,14 @@ public class UiComponentFrameworkSteps {
 
     @When("version.properties is read from the classpath")
     public void versionPropertiesIsReadFromTheClasspath() {
-        // This is handled by AppVersion at load time; the test just
-        // verifies it can be read from the filtered resource.
+        // Load version.properties from classpath (filtered resource)
+        loadedAppVersion = new AppVersion();
     }
 
     @Then("its version equals the project's pom.xml version")
     public void itsVersionEqualsTheProjectsPomXmlVersion() throws Exception {
+        assertNotNull(loadedAppVersion, "AppVersion should have been loaded in When step");
+
         // Read the pom.xml to get the project version
         Path pomPath = Path.of(System.getProperty("user.dir")).resolve("pom.xml");
         String pomContent = Files.readString(pomPath);
@@ -1202,11 +1212,8 @@ public class UiComponentFrameworkSteps {
 
         assertNotNull(projectVersion, "Could not extract version from pom.xml");
 
-        // Load version.properties from classpath (filtered resource)
-        AppVersion appVersion = new AppVersion();
-        String displayVersion = appVersion.getDisplayVersion();
-
         // Verify the version matches (displayVersion is "v" + version)
+        String displayVersion = loadedAppVersion.getDisplayVersion();
         assertEquals("v" + projectVersion, displayVersion,
                 "Classpath version.properties version does not match pom.xml");
     }
@@ -1241,72 +1248,118 @@ public class UiComponentFrameworkSteps {
         assertEquals("", hintBar.getVersionLabel().getText());
     }
 
+    private ListAppender<ILoggingEvent> versionLogAppender;
+
+    private void setupVersionLogging() {
+        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger)
+            LoggerFactory.getLogger(AppVersion.class);
+        versionLogAppender = new ListAppender<>();
+        versionLogAppender.start();
+        logger.addAppender(versionLogAppender);
+    }
+
+    private void teardownVersionLogging() {
+        if (versionLogAppender != null) {
+            ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger)
+                LoggerFactory.getLogger(AppVersion.class);
+            logger.detachAppender(versionLogAppender);
+            versionLogAppender = null;
+        }
+    }
+
     @Then("a warning about the missing version is logged")
     public void aWarningAboutTheMissingVersionIsLogged() {
-        // In a real test environment, you'd capture logs via ListAppender.
-        // For now, we verify the behavior by checking that the label is empty,
-        // which is what happens when the version cannot be read.
-        assertEquals("", hintBar.getVersionLabel().getText());
+        setupVersionLogging();
+
+        // Create AppVersion to trigger the warning
+        String props = bundledVersionPropertiesState != null ? "" : "absent";
+        AppVersion appVersion = new AppVersion(() -> null);
+
+        assertTrue(versionLogAppender.list.stream().anyMatch(event ->
+            event.getLevel() == Level.WARN),
+            "Should have logged a WARN event");
+
+        teardownVersionLogging();
     }
 
     // App Icon steps
-    private boolean devConsoleEnabled;
-    private javax.swing.JFrame devConsoleFrame;
+    private Image capturedIcon;
+    private Supplier<InputStream> iconResourceSupplier;
 
-    @Given("the dev console is enabled")
-    public void theDevConsoleIsEnabled() {
-        devConsoleEnabled = true;
+    @Given("the bundled icon resource is absent")
+    public void theBundledIconResourceIsAbsent() {
+        iconResourceSupplier = () -> null;
     }
 
-    @When("the dev console window is built")
-    public void theDevConsoleWindowIsBuilt() {
-        if (devConsoleEnabled) {
-            devConsoleFrame = new javax.swing.JFrame("Veil - Dev Console");
-            var icon = AppIcon.load();
-            if (icon != null) {
-                devConsoleFrame.setIconImage(icon);
-            }
-            devConsoleFrame.setDefaultCloseOperation(javax.swing.JFrame.HIDE_ON_CLOSE);
+    @When("the game window is shown")
+    public void theGameWindowIsShown() {
+        if (iconResourceSupplier == null) {
+            iconResourceSupplier = () -> AppIcon.class.getResourceAsStream("/icons/veil.png");
         }
+        capturedIcon = null;
+        AppIcon.applyTo(icon -> capturedIcon = icon, iconResourceSupplier);
     }
 
     @Then("the game window's icon is the bundled Veil icon")
     public void theGameWindowsIconIsTheBundledVeilIcon() {
-        // In a headless test, we can't instantiate a real JFrame.
-        // Instead, we verify that AppIcon.load() returns a non-null image.
-        var icon = AppIcon.load();
-        assertNotNull(icon, "Icon should be loaded from classpath");
+        assertNotNull(capturedIcon, "Icon should be loaded from classpath");
+    }
+
+    @Given("the dev console is enabled")
+    public void theDevConsoleIsEnabled() {
+        // Marker for the When step
+    }
+
+    @When("the dev console window is built")
+    public void theDevConsoleWindowIsBuilt() {
+        if (iconResourceSupplier == null) {
+            iconResourceSupplier = () -> AppIcon.class.getResourceAsStream("/icons/veil.png");
+        }
+        capturedIcon = null;
+        AppIcon.applyTo(icon -> capturedIcon = icon, iconResourceSupplier);
     }
 
     @Then("the dev console window's icon is the bundled Veil icon")
     public void theDevConsoleWindowsIconIsTheBundledVeilIcon() {
-        if (devConsoleEnabled && devConsoleFrame != null) {
-            var icon = AppIcon.load();
-            assertNotNull(icon, "Icon should be loaded from classpath");
-            assertFalse(devConsoleFrame.getIconImages().isEmpty(),
-                    "Dev console frame should have an icon set");
-        }
-    }
-
-    private boolean iconResourceAbsent;
-
-    @Given("the bundled icon resource is absent")
-    public void theBundledIconResourceIsAbsent() {
-        iconResourceAbsent = true;
+        assertNotNull(capturedIcon, "Icon should be loaded and applied to console window");
     }
 
     @Then("the game window has no custom icon")
     public void theGameWindowHasNoCustomIcon() {
-        var icon = AppIcon.load(() -> null);
-        assertNull(icon, "Icon should be null when resource is absent");
+        assertNull(capturedIcon, "Icon should be null when resource is absent");
+    }
+
+    private ListAppender<ILoggingEvent> iconLogAppender;
+
+    private void setupIconLogging() {
+        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger)
+            LoggerFactory.getLogger(AppIcon.class);
+        iconLogAppender = new ListAppender<>();
+        iconLogAppender.start();
+        logger.addAppender(iconLogAppender);
+    }
+
+    private void teardownIconLogging() {
+        if (iconLogAppender != null) {
+            ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger)
+                LoggerFactory.getLogger(AppIcon.class);
+            logger.detachAppender(iconLogAppender);
+            iconLogAppender = null;
+        }
     }
 
     @Then("a warning about the missing icon is logged")
     public void aWarningAboutTheMissingIconIsLogged() {
-        // Similar to the version warning, we verify by checking that
-        // AppIcon.load() returns null when resource is absent
-        var icon = AppIcon.load(() -> null);
-        assertNull(icon);
+        setupIconLogging();
+
+        // Load with null supplier to trigger warning
+        AppIcon.load(() -> null);
+
+        assertTrue(iconLogAppender.list.stream().anyMatch(event ->
+            event.getLevel() == Level.WARN),
+            "Should have logged a WARN event for missing icon");
+
+        teardownIconLogging();
     }
 
 }

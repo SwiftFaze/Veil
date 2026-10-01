@@ -7,17 +7,38 @@ import javax.imageio.ImageIO;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
  * Loads and manages the application icon from a classpath resource.
  * The icon is loaded from /icons/veil.png, a 512x512 RGBA PNG image.
  *
- * If the resource is absent or cannot be read, returns null and logs a warning.
+ * If the resource is absent or cannot be read, logs a warning and does not
+ * call the consumer.
  */
 public class AppIcon {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppIcon.class);
     private static final String RESOURCE_PATH = "/icons/veil.png";
+
+    /**
+     * Loads the icon from the classpath resource and applies it via the
+     * provided consumer if successfully loaded.
+     */
+    public static void applyTo(Consumer<Image> consumer) {
+        applyTo(consumer, () -> AppIcon.class.getResourceAsStream(RESOURCE_PATH));
+    }
+
+    /**
+     * Loads the icon with a custom resource supplier and applies it via the
+     * provided consumer if successfully loaded. For testing.
+     */
+    public static void applyTo(Consumer<Image> consumer, Supplier<InputStream> resourceSupplier) {
+        Image icon = load(resourceSupplier);
+        if (icon != null) {
+            consumer.accept(icon);
+        }
+    }
 
     /**
      * Loads the icon from the classpath resource.

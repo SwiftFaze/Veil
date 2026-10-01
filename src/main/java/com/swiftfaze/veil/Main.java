@@ -254,10 +254,7 @@ public class Main {
         consoleFrame.add(console);
 
         // Load and set the application icon on the dev console as well
-        var icon = AppIcon.load();
-        if (icon != null) {
-            consoleFrame.setIconImage(icon);
-        }
+        AppIcon.applyTo(consoleFrame::setIconImage);
 
         consoleFrame.pack();
         consoleFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -307,10 +304,7 @@ public class Main {
         frame.add(hintBar, BorderLayout.SOUTH);
 
         // Load and set the application icon
-        var icon = AppIcon.load();
-        if (icon != null) {
-            frame.setIconImage(icon);
-        }
+        AppIcon.applyTo(frame::setIconImage);
 
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
