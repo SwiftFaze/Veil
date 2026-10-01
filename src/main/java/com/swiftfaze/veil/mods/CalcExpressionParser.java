@@ -1,5 +1,7 @@
 package com.swiftfaze.veil.mods;
 
+import org.jspecify.annotations.Nullable;
+
 public class CalcExpressionParser {
 
     private CalcExpressionParser() {
@@ -19,7 +21,7 @@ public class CalcExpressionParser {
             this.input = input.trim();
         }
 
-        String nextToken() {
+        @Nullable String nextToken() {
             skipWhitespace();
             if (pos >= input.length()) {
                 return null;

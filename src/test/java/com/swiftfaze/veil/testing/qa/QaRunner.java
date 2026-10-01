@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.testing.qa;
 
+import org.jspecify.annotations.Nullable;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.swiftfaze.veil.Main;
@@ -128,7 +129,7 @@ public final class QaRunner {
         }
     }
 
-    private static Component awaitFocusOwner() {
+    private static @Nullable Component awaitFocusOwner() {
         for (int i = 0; i < FOCUS_ATTEMPTS; i++) {
             Component owner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
             if (owner != null) {

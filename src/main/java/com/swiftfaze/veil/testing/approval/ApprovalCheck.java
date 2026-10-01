@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.testing.approval;
 
+import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -55,7 +56,7 @@ public final class ApprovalCheck {
         }
     }
 
-    private static String readIfExists(Path path) throws IOException {
+    private static @Nullable String readIfExists(Path path) throws IOException {
         if (!Files.exists(path)) {
             return null;
         }

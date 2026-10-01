@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.steps;
 
+import org.jspecify.annotations.Nullable;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.filter.LevelFilter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -132,7 +133,7 @@ public class AppIconAndVersionSteps {
     }
 
     /** The first {@code <version>} after the project's own artifactId, or null if absent. */
-    private static String pomProjectVersion() throws IOException {
+    private static @Nullable String pomProjectVersion() throws IOException {
         Path pomPath = Path.of(System.getProperty("user.dir")).resolve("pom.xml");
         String pomContent = Files.readString(pomPath);
 

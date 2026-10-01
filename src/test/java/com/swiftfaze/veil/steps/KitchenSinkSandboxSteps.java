@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.steps;
 
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.sandbox.DevConsoleEntry;
@@ -314,7 +315,7 @@ public class KitchenSinkSandboxSteps {
         }
     }
 
-    private static Point backgroundPixelIn(BufferedImage image, int cellX, int cellY) {
+    private static @Nullable Point backgroundPixelIn(BufferedImage image, int cellX, int cellY) {
         for (int dy = 0; dy < GameConst.TILE_HEIGHT; dy++) {
             for (int dx = 0; dx < GameConst.TILE_WIDTH; dx++) {
                 int pixelX = cellX * GameConst.TILE_WIDTH + dx;

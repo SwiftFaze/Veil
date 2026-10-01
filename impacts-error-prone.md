@@ -13,7 +13,7 @@ Paths are relative to `src/main/java/com/swiftfaze/veil/` (M) or
 
 ## Not yet enabled
 
-Measured but not fixed yet: `BooleanParameter` (38), `ConstantField` (13), `MethodCanBeStatic` (40), `MissingBraces` (33), `NonFinalStaticField` (13), `ParameterMissingNullable` (82), `ReturnMissingNullable` (18), `UnnecessarilyFullyQualified` (81), `WildcardImport` (26).
+Measured but not fixed yet: `BooleanParameter` (38), `ConstantField` (13), `MethodCanBeStatic` (40), `MissingBraces` (33), `NonFinalStaticField` (13), `ParameterMissingNullable` (82), `UnnecessarilyFullyQualified` (81), `WildcardImport` (26).
 
 ## Fixed
 
@@ -47,5 +47,6 @@ Measured but not fixed yet: `BooleanParameter` (38), `ConstantField` (13), `Meth
 | `IdentifierName` | 12 | `M:Main.java`, `M:ui/widget/TerminalScrollBarUI.java`, `T:mods/ModLoaderIT.java`, `T:mods/ModSchemaValidationIT.java`, `T:steps/ModLoaderSteps.java`, `T:steps/WorldSingleFloorRenderingSteps.java` | Renamed `TerminalScrollBarUI` -> `TerminalScrollBarUi`, `buildUIScreens` -> `buildUiScreens`, step methods with `ID`/`XY` -> `Id`/`Xy`, and the integration tests `ModLoaderIT`/`ModSchemaValidationIT` -> `...It`, with Failsafe's `<includes>` set to `**/*It.java` (its default is `*IT`) and `CLAUDE.md`/`docs/testing.md` updated to match. | No |
 | `SystemOut` | 12 | `M:testing/approval/ApprovalReapprove.java`, `T:testing/aps/AcceptanceMutator.java`, `T:testing/qa/QaRunner.java`, `T:testing/quality/CrapReport.java`, `T:testing/uml/PitMutationMetrics.java`, `T:testing/uml/UmlExport.java` | `ApprovalReapprove` (main) logs its status lines through SLF4J. The test-scope CLIs (`AcceptanceMutator`, `MutationReport`, `QaRunner`, `UmlExport`, `PitMutationMetrics`, `CrapReport`) write report lines to a `Consumer<String>` instead of a `PrintStream`; their `main` passes `LOGGER::info` and tests collect into a list. No script parses these streams (`check-clean.sh` reads `target/crap/crap.txt`). | No in-game change. Dev-tool console output now carries the logback prefix (time, level, thread, logger) |
 | `MissingDefault` | 13 | `M:sandbox/PlayerDetailPanel.java`, `M:ui/SettingsKeybindsPanel.java`, `M:ui/SettingsScreenPanel.java`, `T:steps/DevConsoleSteps.java`, `T:steps/ModLoaderSteps.java`, `T:steps/UiComponentFrameworkSteps.java` | Main: explicit no-op `default` (with the reason) in the attribute-row, keybinds footer/navigation and settings-confirm switches - same behaviour. Test steps: `default` now throws `IllegalArgumentException` naming the unhandled key, so a typo in a step argument fails instead of silently doing nothing. | No |
+| `ReturnMissingNullable` | 18 | `M:AppIcon.java`, `M:mods/CalcExpressionParser.java`, `M:sandbox/DevConsoleCommandHistory.java`, `M:sandbox/DevConsolePanel.java`, `M:testing/approval/ApprovalCheck.java`, `M:ui/CodexPanel.java`, +7 more | Annotated with JSpecify `@Nullable` the return types of methods that really do return `null` (e.g. `AppIcon.load`, `CodexPanel.getSelectedEntryName`, `DetailsPaneWidget.getTable`, test helpers). None of these packages is `@NullMarked`, so NullAway's checking is unchanged; the annotation documents the contract. Also dropped `DevConsoleSteps`' fully-qualified `PlayerClass` (already imported). | No |
 
-Fixed so far: 113 violations across 28 checks.
+Fixed so far: 131 violations across 29 checks.

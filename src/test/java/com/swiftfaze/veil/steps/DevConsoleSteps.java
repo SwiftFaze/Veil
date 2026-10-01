@@ -607,7 +607,7 @@ public class DevConsoleSteps {
 
     @Given("the running player's class is {string}")
     public void theRunningPlayerClassIs(String className) {
-        com.swiftfaze.veil.entities.player.classes.PlayerClass cls = findPlayerClass(className);
+        PlayerClass cls = findPlayerClass(className);
         if (cls != null) {
             livePlayer.getPlayerInfo().setPlayerClass(cls);
         }
@@ -621,7 +621,7 @@ public class DevConsoleSteps {
 
     @Then("the running player's {string} is Mage's level-0 base strength")
     public void fieldIsMageLevelZeroBaseStrength(String fieldName) {
-        com.swiftfaze.veil.entities.player.classes.PlayerClass mage = findPlayerClass("Mage");
+        PlayerClass mage = findPlayerClass("Mage");
         assertNotNull(mage, "Class not found: Mage");
 
         Stats baseStats = new Stats();
@@ -792,7 +792,7 @@ public class DevConsoleSteps {
     }
 
     private void assertFieldIsWarriorBase(String fieldName) {
-        com.swiftfaze.veil.entities.player.classes.PlayerClass warrior = findPlayerClass("Warrior");
+        PlayerClass warrior = findPlayerClass("Warrior");
         assertNotNull(warrior, "Class not found: Warrior");
         Stats baseStats = new Stats();
         warrior.applyStatsAtLevel(baseStats, 0);
@@ -1029,7 +1029,7 @@ public class DevConsoleSteps {
         return copy;
     }
 
-    private com.swiftfaze.veil.entities.player.classes.PlayerClass findPlayerClass(String name) {
+    private @Nullable PlayerClass findPlayerClass(String name) {
         ModRegistry mods = ModLoader.load(Paths.get("mods"));
         return mods.getAllPlayerClasses().stream()
             .filter(cls -> name.equals(cls.getName()))
@@ -1246,7 +1246,7 @@ public class DevConsoleSteps {
     }
 
     /** Runs {@code edit <entryId>}; returns the detail panel it opened, or null. */
-    public Component openEntry(String entryId) {
+    public @Nullable Component openEntry(String entryId) {
         JTextField searchField = panel.getSearchField();
         searchField.setText("edit " + entryId);
         panel.runCommand();

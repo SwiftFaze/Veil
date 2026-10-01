@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.ui.widget;
 
+import org.jspecify.annotations.Nullable;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -137,7 +138,7 @@ public class SuggestionOverlayWidget {
         row.setForeground(isHighlighted ? WidgetTheme.SELECTED_TEXT : WidgetTheme.NORMAL_TEXT);
     }
 
-    private JLayeredPane layeredPaneOf(JComponent owner) {
+    private @Nullable JLayeredPane layeredPaneOf(JComponent owner) {
         Container ancestor = SwingUtilities.getAncestorOfClass(JLayeredPane.class, owner);
         return ancestor instanceof JLayeredPane pane ? pane : null;
     }

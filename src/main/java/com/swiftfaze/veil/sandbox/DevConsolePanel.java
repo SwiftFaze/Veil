@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.sandbox;
 
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.ListDetailLayoutUtility;
 import com.swiftfaze.veil.ui.widget.HeaderWidget;
@@ -133,7 +134,7 @@ public class DevConsolePanel extends JPanel {
     /**
      * The currently-opened provider's own panel, or {@code null} if none is open.
      */
-    public Component getOpenedProviderPanel() {
+    public @Nullable Component getOpenedProviderPanel() {
         return providerContainer.getComponentCount() > 0 ? providerContainer.getComponent(0) : null;
     }
 

@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.ui;
 
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.component.Inspectable;
 import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
@@ -132,7 +133,7 @@ public class CodexPanel extends PopupWidget {
         return currentEntries.size();
     }
 
-    public String getSelectedEntryName() {
+    public @Nullable String getSelectedEntryName() {
         Inspectable selected = entryList.getSelectedItem();
         return selected == null ? null : selected.getName();
     }
@@ -141,7 +142,7 @@ public class CodexPanel extends PopupWidget {
         return detailsPane.isShowingPlaceholder();
     }
 
-    public String getDetailPlaceholderText() {
+    public @Nullable String getDetailPlaceholderText() {
         return detailsPane.isShowingPlaceholder() ? NO_ENTRY_TEXT : null;
     }
 

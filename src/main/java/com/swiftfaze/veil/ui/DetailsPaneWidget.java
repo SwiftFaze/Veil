@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.ui;
 
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.component.DetailTable;
 import com.swiftfaze.veil.component.Inspectable;
 import com.swiftfaze.veil.ui.widget.TableWidget;
@@ -108,7 +109,7 @@ public class DetailsPaneWidget extends JPanel {
         return focusedIndex == index;
     }
 
-    public TableWidget<List<String>> getTable(int index) {
+    public @Nullable TableWidget<List<String>> getTable(int index) {
         return index < 0 || index >= tables.size() ? null : tables.get(index);
     }
 

@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.testing.uml;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -119,7 +120,7 @@ public final class PitMutationMetrics {
         }
     }
 
-    private static Tally outcome(String status) {
+    private static @Nullable Tally outcome(String status) {
         return switch (status) {
             case "KILLED", "TIMED_OUT", "MEMORY_ERROR" -> new Tally(1, 0, 0);
             case "SURVIVED" -> new Tally(0, 1, 0);

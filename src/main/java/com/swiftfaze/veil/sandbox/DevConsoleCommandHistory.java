@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.sandbox;
 
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class DevConsoleCommandHistory {
      * @return the history entry at the new cursor position, or the saved draft when pressing
      *         Down past the newest entry, or null if not navigating
      */
-    public String navigateDown() {
+    public @Nullable String navigateDown() {
         if (entries.isEmpty() || cursor == entries.size()) return null;
         cursor++;
         return cursor == entries.size() ? savedDraft : entries.get(cursor);
