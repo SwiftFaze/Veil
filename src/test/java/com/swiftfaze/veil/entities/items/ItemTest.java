@@ -94,4 +94,56 @@ class ItemTest {
                 List.of("Slot", "body")
         ), tables.get(0).rows());
     }
+
+    private static Item swordWithDamage4To9() {
+        return new Item(
+                "test:sword",
+                "Iron Sword",
+                new Item.ItemAttributes('/', "weapon", "hand", new Item.BaseDamage(4, 9), List.of())
+        );
+    }
+
+    @Test
+    void withBaseDamageReturnsNewItemWithUpdatedDamage() {
+        Item updated = swordWithDamage4To9().withBaseDamage(5, 12);
+
+        assertEquals(new Item.BaseDamage(5, 12), updated.getBaseDamage());
+    }
+
+    @Test
+    void withBaseDamagePreservesIdAndName() {
+        Item original = swordWithDamage4To9();
+
+        Item updated = original.withBaseDamage(5, 12);
+
+        assertEquals(original.getId(), updated.getId());
+        assertEquals(original.getName(), updated.getName());
+    }
+
+    @Test
+    void withBaseDamagePreservesGlyphTypeAndSlot() {
+        Item original = swordWithDamage4To9();
+
+        Item updated = original.withBaseDamage(5, 12);
+
+        assertEquals(original.getGlyph(), updated.getGlyph());
+        assertEquals(original.getType(), updated.getType());
+        assertEquals(original.getSlot(), updated.getSlot());
+    }
+
+    @Test
+    void withBaseDamagePreservesEffects() {
+        List<Item.Effect> effects = List.of(
+                new Item.Effect("bonus", "strength", "+2")
+        );
+        Item original = new Item(
+                "test:sword",
+                "Iron Sword",
+                new Item.ItemAttributes('/', "weapon", "hand", new Item.BaseDamage(4, 9), effects)
+        );
+
+        Item updated = original.withBaseDamage(5, 12);
+
+        assertEquals(effects, updated.getEffects());
+    }
 }

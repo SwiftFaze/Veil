@@ -13,7 +13,8 @@ Feature: Sandbox Items provider
   Supersedes: nothing. The search/results/back shell itself stays covered
   by sandbox-dev-console.feature and is unchanged.
   Out of scope: spawning items into the world or a player's inventory,
-  editing item fields, and any interaction with a live Player's inventory.
+  and any interaction with a live Player's inventory. Editing an item's
+  base damage is covered by sandbox-edit-item-fields.feature.
 
   QA: none - no keyboard input of its own; reached through the existing dev-console shell
 
@@ -88,9 +89,7 @@ Feature: Sandbox Items provider
   # Non-goals:
   #   - Spawning an item into the world or a player's inventory - tracked
   #     separately if/when an in-world item/inventory concern exists.
-  #   - Editing item fields - items are authored data, so the provider
-  #     returns no DevConsoleFieldMutator (the default), and set/add/subtract
-  #     commands cannot target an item.
+  #   - Editing item fields - see sandbox-edit-item-fields.feature.
   #   - Any change to DevConsolePanel's search/results/keybinding shell.
   #
   # Decisions derived from the codebase (not open questions):

@@ -1,7 +1,6 @@
 package com.swiftfaze.veil.sandbox;
 
 import com.swiftfaze.veil.entities.quests.Quest;
-import com.swiftfaze.veil.ui.DetailsPaneWidget;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -45,12 +44,21 @@ class QuestSandboxProviderTest {
     }
 
     @Test
+    void createdPanelIsTitledWithTheQuestName() {
+        QuestSandboxProvider provider = new QuestSandboxProvider(List.of(quest(RATS_ID, RATS_NAME)));
+
+        InspectableDetailPanel panel = (InspectableDetailPanel) provider.createPanel(RATS_ID);
+
+        assertEquals(RATS_NAME, panel.title());
+    }
+
+    @Test
     void createdPanelHasItsFirstTableFocused() {
         QuestSandboxProvider provider = new QuestSandboxProvider(List.of(quest(RATS_ID, RATS_NAME)));
 
-        DetailsPaneWidget pane = (DetailsPaneWidget) provider.createPanel(RATS_ID);
+        InspectableDetailPanel panel = (InspectableDetailPanel) provider.createPanel(RATS_ID);
 
-        assertTrue(pane.hasFocus());
+        assertTrue(panel.isTableFocused(0));
     }
 
     @Test

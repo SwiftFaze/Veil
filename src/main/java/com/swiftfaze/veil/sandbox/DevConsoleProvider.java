@@ -26,8 +26,8 @@ public interface DevConsoleProvider {
 
     /**
      * Opt-in hook for a provider whose entries support live field mutation via the command bar's
-     * set/add/subtract verbs. Empty by default - only {@link PlayerSandboxProvider} overrides it
-     * for v1.
+     * set/add/subtract verbs. Empty by default - overridden by {@link PlayerSandboxProvider}
+     * and {@link ItemSandboxProvider}.
      *
      * @param id the {@link DevConsoleEntry#id()} the mutation targets
      */

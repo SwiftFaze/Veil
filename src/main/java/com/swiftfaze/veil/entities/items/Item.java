@@ -62,6 +62,11 @@ public class Item implements Inspectable {
         return effects;
     }
 
+    public Item withBaseDamage(int minDamage, int maxDamage) {
+        BaseDamage newBaseDamage = new BaseDamage(minDamage, maxDamage);
+        return new Item(id, name, new ItemAttributes(glyph, type, slot, newBaseDamage, effects));
+    }
+
     @Override
     public List<DetailTable> getDetailTables() {
         List<List<String>> fieldRows = new ArrayList<>(List.of(

@@ -63,20 +63,35 @@ public final class ListDetailLayoutUtility {
     public static JPanel buildDetailsPanel() {
         Border detailsDivider = BorderFactory.createMatteBorder(0, 2, 0, 0, WidgetTheme.BORDER);
         Border detailsPadding = BorderFactory.createEmptyBorder(4, 10, 0, 0);
+        return buildDetailsPanel(BorderFactory.createCompoundBorder(detailsDivider, detailsPadding));
+    }
+
+    /**
+     * Builds a details panel with no list divider and no padding, for a details pane shown on
+     * its own under a header (the dev-console sandbox panels): the padding exists only to space
+     * the tables off a divider, so without one the tables sit flush with the header above them.
+     */
+    public static JPanel buildStandaloneDetailsPanel() {
+        return buildDetailsPanel(BorderFactory.createEmptyBorder());
+    }
+
+    private static JPanel buildDetailsPanel(Border border) {
         JPanel detailsPanel = new JPanel();
         detailsPanel.setBackground(WidgetTheme.BACKGROUND);
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
-        detailsPanel.setBorder(BorderFactory.createCompoundBorder(detailsDivider, detailsPadding));
+        detailsPanel.setBorder(border);
         return detailsPanel;
     }
 
     /**
-     * Configures a table widget with standard detail-pane styling (non-wrapping, non-selectable, full height).
+     * Configures a table widget with standard detail-pane styling (non-wrapping, non-selectable,
+     * full width). Height is capped at the table's own rows: left uncapped, BoxLayout stretches
+     * the table into the pane's spare height and its left border runs on below the last row.
      */
     public static <T> void configureDetailsTable(TableWidget<T> table) {
         table.setWrapAround(false);
         table.setSelectable(false);
         table.setAlignmentX(Component.LEFT_ALIGNMENT);
-        table.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+        table.setMaximumSize(new Dimension(Integer.MAX_VALUE, table.getPreferredSize().height));
     }
 }

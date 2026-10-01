@@ -2,7 +2,6 @@ package com.swiftfaze.veil.sandbox;
 
 import com.swiftfaze.veil.component.DetailTable;
 import com.swiftfaze.veil.component.Inspectable;
-import com.swiftfaze.veil.ui.DetailsPaneWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import org.junit.jupiter.api.Test;
 
@@ -60,20 +59,29 @@ class TileSandboxProviderTest {
     void createsPanelOpenedToTheRequestedTile() {
         TileSandboxProvider provider = new TileSandboxProvider();
 
-        DetailsPaneWidget panel = (DetailsPaneWidget) provider.createPanel("core:grass");
+        InspectableDetailPanel panel = (InspectableDetailPanel) provider.createPanel("core:grass");
 
-        assertEquals(1, panel.getTableCount());
-        TableWidget<List<String>> table = panel.getTable(0);
+        assertEquals(1, panel.tableCount());
+        TableWidget<List<String>> table = panel.table(0);
         table.moveToStart();
         List<String> idRow = table.getSelectedRow();
         assertEquals(List.of("ID", "core:grass"), idRow);
     }
 
     @Test
+    void panelIsTitledWithTheTileName() {
+        TileSandboxProvider provider = new TileSandboxProvider(List.of(new FakeTile(TILE_ID)));
+
+        InspectableDetailPanel panel = (InspectableDetailPanel) provider.createPanel(TILE_ID);
+
+        assertEquals(TILE_ID, panel.title());
+    }
+
+    @Test
     void panelFocusesItsFirstTable() {
         TileSandboxProvider provider = new TileSandboxProvider(List.of(new FakeTile(TILE_ID)));
 
-        DetailsPaneWidget panel = (DetailsPaneWidget) provider.createPanel(TILE_ID);
+        InspectableDetailPanel panel = (InspectableDetailPanel) provider.createPanel(TILE_ID);
 
         assertTrue(panel.isTableFocused(0));
     }
@@ -98,10 +106,10 @@ class TileSandboxProviderTest {
     void panelShowsAllDetailTablesFromTile() {
         TileSandboxProvider provider = new TileSandboxProvider(List.of(new FakeTile(TILE_ID)));
 
-        DetailsPaneWidget panel = (DetailsPaneWidget) provider.createPanel(TILE_ID);
+        InspectableDetailPanel panel = (InspectableDetailPanel) provider.createPanel(TILE_ID);
 
-        assertEquals(1, panel.getTableCount());
-        assertEquals(2, panel.getTable(0).getRowCount());
+        assertEquals(1, panel.tableCount());
+        assertEquals(2, panel.table(0).getRowCount());
     }
 
     /**
