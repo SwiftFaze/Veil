@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.34](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.33...v0.5.0-beta.34) (2026-10-01)
+
+
+### Features
+
+* show class stats across a level range in the sandbox ([#240](https://github.com/SwiftFaze/Veil/issues/240)) ([0ca9c5c](https://github.com/SwiftFaze/Veil/commit/0ca9c5c3a1d3bef4bbcbafec49ded866ff0c15d8))
+
 ## [0.5.0-beta.33](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.32...v0.5.0-beta.33) (2026-10-01)
 
 
