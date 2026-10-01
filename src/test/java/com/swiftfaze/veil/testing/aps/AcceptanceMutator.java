@@ -3,14 +3,17 @@ package com.swiftfaze.veil.testing.aps;
 import com.swiftfaze.veil.testing.aps.ScenarioRunner.RunResult;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests the acceptance tests: changes each literal in a scenario and expects the
@@ -28,6 +31,8 @@ import java.util.stream.Stream;
  */
 public final class AcceptanceMutator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AcceptanceMutator.class);
+
     static final String DEFAULT_SPEC_DIR = "specs/features";
     static final String DEFAULT_GLUE = "com.swiftfaze.veil.steps";
 
@@ -42,11 +47,11 @@ public final class AcceptanceMutator {
     }
 
     public static void main(String[] args) {
-        System.exit(execute(List.of(args), System.out).exitCode());
+        System.exit(execute(List.of(args), LOGGER::info).exitCode());
     }
 
     /** Parses the arguments, runs, prints the report, and returns the exit code. */
-    public static Outcome execute(List<String> args, PrintStream out) {
+    public static Outcome execute(List<String> args, Consumer<String> out) {
         Map<String, String> options = parse(args);
         Path specDir = Path.of(options.getOrDefault("--spec-dir", DEFAULT_SPEC_DIR));
         AcceptanceMutator mutator = new AcceptanceMutator(options.getOrDefault("--glue", DEFAULT_GLUE));

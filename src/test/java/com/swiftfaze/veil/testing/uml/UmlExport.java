@@ -5,11 +5,14 @@ import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Writes {@code target/uml/veil.edn}, the diagram uml-viewer opens, from Veil's compiled
@@ -18,6 +21,8 @@ import java.util.Collection;
  */
 public final class UmlExport {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UmlExport.class);
+
     static final Path POLICY = Path.of("docs", "uml", "veil.policy.edn");
     static final Path OUTPUT = Path.of("target", "uml", "veil.edn");
 
@@ -25,15 +30,15 @@ public final class UmlExport {
     }
 
     public static void main(String[] arguments) {
-        run(Path.of("").toAbsolutePath(), System.out);
+        run(Path.of("").toAbsolutePath(), LOGGER::info);
     }
 
-    static void run(Path root, PrintStream out) {
+    static void run(Path root, Consumer<String> out) {
         UmlGraph graph = UmlGraph.fromClasses(productionClasses());
         write(root, graph);
-        out.println("Wrote " + OUTPUT + ": " + graph.classes().size() + " classes, "
+        out.accept("Wrote " + OUTPUT + ": " + graph.classes().size() + " classes, "
                 + graph.edges().size() + " edges");
-        out.println(PitMutationMetrics.convert(root));
+        out.accept(PitMutationMetrics.convert(root));
     }
 
     static Collection<JavaClass> productionClasses() {

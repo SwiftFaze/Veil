@@ -10,14 +10,12 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,10 +58,9 @@ public class AcceptanceMutationSteps {
     }
 
     private void runCommandLine(String... args) {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        AcceptanceMutator.Outcome outcome =
-                AcceptanceMutator.execute(List.of(args), new PrintStream(buffer, true, StandardCharsets.UTF_8));
-        output = buffer.toString(StandardCharsets.UTF_8);
+        List<String> lines = new ArrayList<>();
+        AcceptanceMutator.Outcome outcome = AcceptanceMutator.execute(List.of(args), lines::add);
+        output = String.join("\n", lines);
         report = outcome.report();
         exitCode = outcome.exitCode();
     }
