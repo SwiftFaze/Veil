@@ -87,4 +87,8 @@ public class Player implements DrawableAsciiEntity {
         int screenY = (y - camera.getY()) * tileHeight + tileHeight;
         g2d.drawString(String.valueOf(symbol), screenX, screenY);
     }
+
+    public Stats getStats() {
+        return playerInfo.getStats();
+    }
 }

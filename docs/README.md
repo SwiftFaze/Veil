@@ -1,6 +1,9 @@
 # Docs index
 
-- [`architecture.md`](architecture.md) — the game engine and data model: entry point/window assembly, the `GamePanel` render loop, the world/tile model, mod-loaded content (buildings, classes, items, quests), rendering contracts, keyboard input, and the class/stats sandbox.
+- [`architecture.md`](architecture.md) — overview of the engine/widgets/screens layering and package map, linking to the area docs below.
+  - [`architecture-engine.md`](architecture-engine.md) — entry point/window assembly, `GamePanel`/`Camera`, player movement, rendering contracts, keyboard input, game event log, `GameConst`.
+  - [`architecture-mod-content.md`](architecture-mod-content.md) — the world/tile model and mod-loaded content (tiles, buildings, classes, items, quests).
+  - [`architecture-dev-console.md`](architecture-dev-console.md) — the F1 dev console framework and its providers.
 - [`mod-format.md`](mod-format.md) — the mod JSON contract: schemas under `docs/schemas/`, namespaced ids, `overrides`, and how field-level validation errors are reported.
 - [`components.md`](components.md) — general rules for how a UI component receives its data and reports player actions (self-describing types, data-only contracts, opt-in adoption, internal-vs-cross-component state), with the Codex/Inventory details pane as a worked example.
 - [`ui-widgets.md`](ui-widgets.md) — the reusable Swing widget framework in `ui/widget/` (`ListWidget`, `TableWidget`, `PopupWidget`, etc.) and the mod-driven theming system that colors it.

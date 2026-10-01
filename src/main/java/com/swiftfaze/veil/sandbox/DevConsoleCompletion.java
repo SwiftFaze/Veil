@@ -1,6 +1,7 @@
 package com.swiftfaze.veil.sandbox;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * Positional, context-sensitive Tab completion for the dev console command field.
@@ -15,12 +16,24 @@ public class DevConsoleCompletion {
     private static final String SET_VERB = "set";
     private static final String ADD_VERB = "add";
     private static final String SUBTRACT_VERB = "subtract";
+    private static final String SNAPSHOT_VERB = "snapshot";
+    private static final String RESTORE_VERB = "restore";
+    private static final String RELOAD_VERB = "reload";
     private static final String DEFAULT_VALUE = "default";
 
     private final DevConsoleModel model;
+    private final Map<String, Function<String, List<String>>> entryCandidatesByVerb;
 
     public DevConsoleCompletion(DevConsoleModel model) {
         this.model = model;
+        this.entryCandidatesByVerb = Map.of(
+                SEARCH_VERB, this::searchCandidates,
+                EDIT_VERB, this::editCandidates,
+                SET_VERB, this::mutationEntryCandidates,
+                ADD_VERB, this::mutationEntryCandidates,
+                SUBTRACT_VERB, this::mutationEntryCandidates,
+                SNAPSHOT_VERB, this::snapshotterEntryCandidates,
+                RESTORE_VERB, this::snapshotterEntryCandidates);
     }
 
     /**
@@ -79,12 +92,8 @@ public class DevConsoleCompletion {
      * Position 1 candidates depend on the verb.
      */
     private List<String> position1Candidates(String verb, String prefix) {
-        return switch (verb) {
-            case SEARCH_VERB -> searchCandidates(prefix);
-            case EDIT_VERB -> editCandidates(prefix);
-            case SET_VERB, ADD_VERB, SUBTRACT_VERB -> mutationEntryCandidates(prefix);
-            default -> List.of();
-        };
+        Function<String, List<String>> entryCandidates = entryCandidatesByVerb.get(verb);
+        return entryCandidates == null ? List.of() : entryCandidates.apply(prefix);
     }
 
     /**
@@ -112,7 +121,8 @@ public class DevConsoleCompletion {
      * Position 0: verb candidates from the fixed verb set.
      */
     private List<String> verbCandidates(String prefix) {
-        List<String> verbs = List.of(SEARCH_VERB, EDIT_VERB, SET_VERB, ADD_VERB, SUBTRACT_VERB);
+        List<String> verbs = List.of(SEARCH_VERB, EDIT_VERB, SET_VERB, ADD_VERB, SUBTRACT_VERB, RELOAD_VERB,
+                SNAPSHOT_VERB, RESTORE_VERB);
         return verbs.stream()
                 .filter(v -> v.startsWith(prefix.toLowerCase(Locale.ROOT)))
                 .toList();
@@ -158,6 +168,19 @@ public class DevConsoleCompletion {
         String lowerPrefix = prefix.toLowerCase(Locale.ROOT);
         return model.allResults().stream()
                 .filter(result -> result.provider().fieldMutator(result.entry().id()).isPresent())
+                .map(result -> localId(result.entry().id()))
+                .filter(localId -> localId.toLowerCase(Locale.ROOT).startsWith(lowerPrefix))
+                .toList();
+    }
+
+    /**
+     * Position 1, verb=snapshot/restore: candidates from local-id form (part after `:`)
+     * of entries whose provider has a snapshotter.
+     */
+    private List<String> snapshotterEntryCandidates(String prefix) {
+        String lowerPrefix = prefix.toLowerCase(Locale.ROOT);
+        return model.allResults().stream()
+                .filter(result -> result.provider().snapshotter(result.entry().id()).isPresent())
                 .map(result -> localId(result.entry().id()))
                 .filter(localId -> localId.toLowerCase(Locale.ROOT).startsWith(lowerPrefix))
                 .toList();

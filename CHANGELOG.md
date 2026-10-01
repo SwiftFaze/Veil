@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.5.0-beta.35](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.34...v0.5.0-beta.35) (2026-10-01)
+
+
+### Features
+
+* add Tiles provider to the sandbox dev console ([#241](https://github.com/SwiftFaze/Veil/issues/241)) ([2a864e0](https://github.com/SwiftFaze/Veil/commit/2a864e09312d914881a1d9be0a8595c6c9d1590e))
+
+## [0.5.0-beta.34](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.33...v0.5.0-beta.34) (2026-10-01)
+
+
+### Features
+
+* show class stats across a level range in the sandbox ([#240](https://github.com/SwiftFaze/Veil/issues/240)) ([0ca9c5c](https://github.com/SwiftFaze/Veil/commit/0ca9c5c3a1d3bef4bbcbafec49ded866ff0c15d8))
+
+## [0.5.0-beta.33](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.32...v0.5.0-beta.33) (2026-10-01)
+
+
+### Features
+
+* add dev console reload verb for mod hot-reload ([#239](https://github.com/SwiftFaze/Veil/issues/239)) ([437a228](https://github.com/SwiftFaze/Veil/commit/437a228f9b7c1c8081e0f9bebb1ce109b259a471))
+
 ## [0.5.0-beta.32](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.31...v0.5.0-beta.32) (2026-09-29)
 
 

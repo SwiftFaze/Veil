@@ -1,25 +1,38 @@
 package com.swiftfaze.veil.steps;
 
 import com.swiftfaze.veil.entities.player.Player;
+import com.swiftfaze.veil.entities.player.PlayerInfo;
+import com.swiftfaze.veil.entities.player.QuestLog;
+import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.entities.player.Stats;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
+import com.swiftfaze.veil.sandbox.DevConsoleEntry;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.PlayerDetailPanel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
+import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
+import com.swiftfaze.veil.sandbox.TileSandboxProvider;
+import com.swiftfaze.veil.ui.DetailsPaneWidget;
+import com.swiftfaze.veil.sandbox.ReloadableFakeProvider;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.TranscriptWidget;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
+import java.util.HashMap;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DevConsoleSteps {
@@ -39,10 +53,13 @@ public class DevConsoleSteps {
     private static final String TRANSCRIPT_SHOULD_HAVE_ENTRIES = "Transcript should have entries";
     private static final String CLASSES_PROVIDER_NAME = "Classes";
     private static final String PLAYER_PROVIDER_NAME = "Player";
+    private static final String QUESTS_PROVIDER_NAME = "Quests";
+    private static final String TILES_PROVIDER_NAME = "Tiles";
 
     private DevConsoleModel model;
     private DevConsolePanel panel;
     private Player livePlayer;
+    private Player playerBeforeReload;
     private PlayerDetailPanel playerDetailPanel;
     private Player identityBeforeEdit;
     private int maxHpBeforeEdit;
@@ -50,33 +67,63 @@ public class DevConsoleSteps {
     private int lastEditedFieldValue;
     private Stats statsSnapshot;
     private String classSnapshot;
+    private ReloadableFakeProvider fakeProvider;
+    private ReloadableFakeProvider secondProvider;
 
     @Given("the dev console is running with the {string} provider registered")
     public void theDevConsoleIsRunningWithTheProviderRegistered(String providerName) {
         List<DevConsoleProvider> providers = List.of(providerFor(providerName));
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
+
+        // If it's the Quests provider, create a live player and snapshot the quest log
+        if (QUESTS_PROVIDER_NAME.equals(providerName)) {
+            if (livePlayer == null) {
+                livePlayer = new Player(0, 0);
+            }
+            // Snapshot all quest states for later verification
+            QuestLog questLog = liveQuestLog();
+            Map<String, String> snapshot = new HashMap<>();
+            for (DevConsoleModel.SearchResult result : model.allResults()) {
+                String questId = result.entry().id();
+                String state = String.valueOf(questLog.getState(questId));
+                snapshot.put(questId, state);
+            }
+            SharedScenarioContext.setQuestLogSnapshot(snapshot);
+        }
     }
 
     @Given("the dev console is running with the {string} and {string} providers registered")
     public void theDevConsoleIsRunningWithTheProvidersRegistered(String provider1, String provider2) {
         livePlayer = new Player(0, 0);
         List<DevConsoleProvider> providers = List.of(providerFor(provider1), providerFor(provider2));
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
     }
 
     @Given("the dev console is running with the {string} provider attached to the running player")
     public void theDevConsoleIsRunningWithThePlayerProviderAttached(String providerName) {
         livePlayer = new Player(0, 0);
         List<DevConsoleProvider> providers = List.of(new PlayerSandboxProvider(() -> livePlayer));
-        model = new DevConsoleModel(providers);
-        panel = new DevConsolePanel(model);
+        startConsole(new DevConsoleModel(providers));
+    }
+
+    @Given("the running player is at position \\({int}, {int}\\)")
+    public void theRunningPlayerIsAtPosition(int x, int y) {
+        // Set position and verify it was set correctly.
+        // This method works for both Given and Then contexts - set the position
+        // and assert it to ensure the scenario is correct.
+        livePlayer.setPosition(x, y);
+        assertEquals(x, livePlayer.getX(), "Expected player X to be " + x);
+        assertEquals(y, livePlayer.getY(), "Expected player Y to be " + y);
+    }
+
+    @When("the running player is moved to position \\({int}, {int}\\)")
+    public void theRunningPlayerIsMovedToPosition(int x, int y) {
+        livePlayer.setPosition(x, y);
     }
 
     @When("the search text is set to {string}")
     public void theSearchTextIsSetTo(String text) {
-        model.setSearchText(text);
+        getCurrentModel().setSearchText(text);
     }
 
     @When("the command {string} is entered")
@@ -154,7 +201,7 @@ public class DevConsoleSteps {
     @Then("the transcript's last entry is an info line reporting {int} results for {string}")
     public void theTranscriptsLastEntryIsAnInfoLineReporting(int count, String term) {
         assertFalse(panel.getTranscript().entries().isEmpty(), TRANSCRIPT_SHOULD_HAVE_ENTRIES);
-        var lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
+        TranscriptWidget.TranscriptEntry lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
         assertEquals(TranscriptWidget.Level.INFO, lastEntry.level());
         assertTrue(lastEntry.text().contains(String.valueOf(count)));
         assertTrue(lastEntry.text().contains(term));
@@ -171,7 +218,7 @@ public class DevConsoleSteps {
     @Then("the transcript's last entry is an error line for {string}")
     public void theTranscriptsLastEntryIsAnErrorLineFor(String input) {
         assertFalse(panel.getTranscript().entries().isEmpty(), "Transcript should have entries after: " + input);
-        var lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
+        TranscriptWidget.TranscriptEntry lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
         assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level(), "Expected an error line after: " + input);
     }
 
@@ -232,9 +279,16 @@ public class DevConsoleSteps {
         assertFalse(resultNames().contains(name));
     }
 
+    @Then("the results do not include any entry in category {string}")
+    public void theResultsDoNotIncludeAnyEntryInCategory(String category) {
+        boolean found = getCurrentModel().filteredResults().stream()
+                .anyMatch(result -> category.equals(result.entry().category()));
+        assertFalse(found, "Expected no entries in category '" + category + "'");
+    }
+
     @Then("the results are empty")
     public void theResultsAreEmpty() {
-        assertTrue(model.filteredResults().isEmpty());
+        assertTrue(getCurrentModel().filteredResults().isEmpty());
     }
 
     @Then("the {string} result has namespace {string} and category {string}")
@@ -247,8 +301,9 @@ public class DevConsoleSteps {
     @When("{string} is opened")
     public void isOpened(String entryName) {
         DevConsoleModel.SearchResult result = findResult(entryName);
-        panel.getSearchField().setText("edit " + result.entry().id());
-        panel.runCommand();
+        String id = result.entry().id();
+        getCurrentPanel().getSearchField().setText("edit " + id);
+        getCurrentPanel().runCommand();
     }
 
     @Then("the opened detail panel is shown")
@@ -258,8 +313,25 @@ public class DevConsoleSteps {
 
     @When("the back action is triggered")
     public void theBackActionIsTriggered() {
-        panel.showSearchView();
+        getCurrentPanel().showSearchView();
         playerDetailPanel = null;
+    }
+
+    @Then("no player's quest log has changed")
+    public void noPlayerQuestLogHasChanged() {
+        assertNotNull(livePlayer, "Expected a live player for quest log verification");
+        Map<String, String> snapshot = SharedScenarioContext.getQuestLogSnapshot();
+        assertNotNull(snapshot, "Expected a quest log snapshot to be taken");
+
+        // Verify all quest states match the snapshot
+        QuestLog questLog = liveQuestLog();
+        for (Map.Entry<String, String> entry : snapshot.entrySet()) {
+            String questId = entry.getKey();
+            String expectedState = entry.getValue();
+            String actualState = String.valueOf(questLog.getState(questId));
+            assertEquals(expectedState, actualState,
+                    "Quest log state changed for quest " + questId + " after opening in console");
+        }
     }
 
     @Then("the table includes editable rows {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}")
@@ -380,15 +452,17 @@ public class DevConsoleSteps {
 
     @When("the command bar is set to {string}")
     public void theCommandBarIsSetTo(String command) {
-        statsSnapshot = snapshot(livePlayer.getPlayerInfo().getStats());
-        classSnapshot = livePlayer.getPlayerInfo().getPlayerClass().getName();
+        Optional<PlayerInfo> playerInfo = Optional.ofNullable(livePlayer).map(Player::getPlayerInfo);
+        playerInfo.map(PlayerInfo::getStats).ifPresent(stats -> statsSnapshot = snapshot(stats));
+        playerInfo.map(PlayerInfo::getPlayerClass).map(PlayerClass::getName).ifPresent(name -> classSnapshot = name);
+        playerBeforeReload = livePlayer;
         panel.getSearchField().setText(command);
         panel.runCommand();
     }
 
     @Then("the transcript's last line is a SUCCESS line for {string} set to {int}")
     public void transcriptsLastLineIsSuccessForFieldSetTo(String fieldName, int value) {
-        var lastEntry = lastTranscriptEntry();
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
         assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level());
         assertTrue(lastEntry.text().contains(fieldName));
         assertTrue(lastEntry.text().contains(String.valueOf(value)));
@@ -396,9 +470,42 @@ public class DevConsoleSteps {
 
     @Then("the transcript's last line is an ERROR line for {word} {string}")
     public void transcriptsLastLineIsErrorFor(String category, String token) {
-        var lastEntry = lastTranscriptEntry();
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
         assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level());
         assertTrue(lastEntry.text().contains(token), "Expected error text to mention: " + token);
+    }
+
+    @Then("the transcript's last line is a SUCCESS line for snapshot {string} saved")
+    public void transcriptsLastLineIsSuccessForSnapshotSaved(String snapshotName) {
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level());
+        assertTrue(lastEntry.text().contains(snapshotName), "Expected success text to mention snapshot name: " + snapshotName);
+        assertTrue(lastEntry.text().contains("saved"), "Expected success text to contain 'saved'");
+    }
+
+    @Then("the transcript's last line is a SUCCESS line for snapshot {string} restored")
+    public void transcriptsLastLineIsSuccessForSnapshotRestored(String snapshotName) {
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level());
+        assertTrue(lastEntry.text().contains(snapshotName), "Expected success text to mention snapshot name: " + snapshotName);
+        assertTrue(lastEntry.text().contains("restored"), "Expected success text to contain 'restored'");
+    }
+
+    @Then("the transcript's last line is an ERROR line reading {string}")
+    public void transcriptsLastLineIsErrorLineReading(String expectedText) {
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level());
+        assertEquals(expectedText, lastEntry.text(), "Expected exact error text");
+    }
+
+    @Given("the dev console also has the {string} provider attached")
+    public void theDevConsoleAlsoHasTheProviderAttached(String providerName) {
+        List<DevConsoleProvider> providers = List.of(
+            new PlayerSandboxProvider(() -> livePlayer),
+            providerFor(providerName)
+        );
+        model = new DevConsoleModel(providers);
+        panel = new DevConsolePanel(model);
     }
 
     @Then("the running player's {string} value is unchanged")
@@ -411,6 +518,52 @@ public class DevConsoleSteps {
     @Then("the running player's class value is unchanged")
     public void theRunningPlayerSClassValueIsUnchanged() {
         assertEquals(classSnapshot, livePlayer.getPlayerInfo().getPlayerClass().getName());
+    }
+
+    @Given("the dev console is running with a Tiles provider that has no tiles")
+    public void theDevConsoleIsRunningWithATilesProviderThatHasNoTiles() {
+        List<DevConsoleProvider> providers = List.of(new TileSandboxProvider(List.of()));
+        startConsole(new DevConsoleModel(providers));
+    }
+
+    @Then("the Tiles provider contributes one result per loaded tile")
+    public void theTilesProviderContributesOneResultPerLoadedTile() {
+        int loadedTiles = ModLoader.load(Paths.get("mods")).getAllTiles().size();
+        assertEquals(loadedTiles, model.filteredResults().size());
+    }
+
+    @Then("the tile detail shows these fields:")
+    public void theTileDetailShowsTheseFields(DataTable dataTable) {
+        assertTrue(panel.isProviderPanelShowing(), "Provider panel should be showing");
+
+        DetailsPaneWidget detailsPane = (DetailsPaneWidget) panel.getOpenedProviderPanel();
+        assertNotNull(detailsPane, "Details pane should be opened");
+
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+        TableWidget<List<String>> table = detailsPane.getTable(0);
+        assertNotNull(table, "Table should exist");
+        assertEquals(rows.size(), table.getRowCount(), "Detail row count mismatch");
+
+        table.moveToStart();
+        for (int i = 0; i < rows.size(); i++) {
+            if (i > 0) {
+                table.moveDown();
+            }
+            Map<String, String> expectedRow = rows.get(i);
+            List<String> actualRow = table.getSelectedRow();
+
+            assertEquals(expectedRow.get("Field"), actualRow.get(0),
+                "Row " + i + " field name mismatch");
+            assertEquals(expectedRow.get("Value"), actualRow.get(1),
+                "Row " + i + " value mismatch");
+        }
+    }
+
+    @Then("the Tiles provider rejects opening {string}")
+    public void theTilesProviderRejectsOpening(String id) {
+        TileSandboxProvider provider = new TileSandboxProvider();
+        assertThrows(IllegalArgumentException.class, () -> provider.createPanel(id),
+            "Expected IllegalArgumentException for unknown tile id: " + id);
     }
 
     @Then("the running player's {string} is Warrior's level-0 base Strength")
@@ -666,15 +819,170 @@ public class DevConsoleSteps {
         throw new AssertionError(message);
     }
 
+    /**
+     * Starts the console on {@code newModel} and publishes it to {@link SharedScenarioContext},
+     * so a later step in the same scenario can't be shadowed by a model an earlier step shared.
+     */
+    private void startConsole(DevConsoleModel newModel) {
+        model = newModel;
+        panel = new DevConsolePanel(newModel);
+        SharedScenarioContext.setDevConsoleModel(model);
+        SharedScenarioContext.setDevConsolePanel(panel);
+    }
+
+    private DevConsoleModel getCurrentModel() {
+        // Check if there's an updated model in the shared context (e.g., from loading fixture quests)
+        DevConsoleModel sharedModel = SharedScenarioContext.getDevConsoleModel();
+        if (sharedModel != null) {
+            model = sharedModel;
+        }
+        return model;
+    }
+
+    private DevConsolePanel getCurrentPanel() {
+        // Check if there's an updated panel in the shared context (e.g., from loading fixture quests)
+        DevConsolePanel sharedPanel = SharedScenarioContext.getDevConsolePanel();
+        if (sharedPanel != null) {
+            panel = sharedPanel;
+        }
+        return panel;
+    }
+
     private List<String> resultNames() {
-        return model.filteredResults().stream().map(result -> result.entry().name()).toList();
+        return getCurrentModel().filteredResults().stream().map(result -> result.entry().name()).toList();
     }
 
     private DevConsoleModel.SearchResult findResult(String name) {
-        return model.filteredResults().stream()
+        return getCurrentModel().filteredResults().stream()
                 .filter(result -> result.entry().name().equals(name))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No result named: " + name));
+    }
+
+    private QuestLog liveQuestLog() {
+        return Optional.of(livePlayer)
+                .map(Player::getPlayerInfo)
+                .map(PlayerInfo::getQuestLog)
+                .orElseThrow();
+    }
+
+    @Given("the dev console is running with a provider whose entries can change")
+    public void theDevConsoleIsRunningWithAProviderWhoseEntriesCanChange() {
+        fakeProvider = new ReloadableFakeProvider("Classes");
+        List<DevConsoleProvider> providers = List.of(fakeProvider);
+        startConsole(new DevConsoleModel(providers));
+    }
+
+    @Given("the provider starts with the entry {string}")
+    public void theProviderStartsWithTheEntry(String entryId) {
+        // Entries must be set before model construction, so recreate
+        fakeProvider.addEntry(createEntry(entryId));
+        startConsole(new DevConsoleModel(List.of(fakeProvider)));
+    }
+
+    @Given("the provider starts with the entries {string} and {string}")
+    public void theProviderStartsWithTheEntries(String entry1, String entry2) {
+        fakeProvider.addEntry(createEntry(entry1));
+        fakeProvider.addEntry(createEntry(entry2));
+        startConsole(new DevConsoleModel(List.of(fakeProvider)));
+    }
+
+    @Given("the provider's data now also contains the entry {string}")
+    public void theProviderSDataNowAlsoContainsTheEntry(String entryId) {
+        fakeProvider.addEntry(createEntry(entryId));
+    }
+
+    @Given("the provider's data now only contains the entry {string}")
+    public void theProviderSDataNowOnlyContainsTheEntry(String entryId) {
+        fakeProvider.clearEntries();
+        fakeProvider.addEntry(createEntry(entryId));
+    }
+
+    @Given("the provider's next refresh fails with {string}")
+    public void theProviderSNextRefreshFailsWith(String errorMessage) {
+        fakeProvider.setNextReloadFails(errorMessage);
+    }
+
+    @Then("searching for {string} finds the entry {string}")
+    public void searchingForFindsTheEntry(String searchTerm, String expectedEntryId) {
+        model.setSearchText(searchTerm);
+        List<DevConsoleModel.SearchResult> results = model.filteredResults();
+        boolean found = results.stream()
+                .anyMatch(r -> r.entry().id().equals(expectedEntryId));
+        assertTrue(found, "Entry " + expectedEntryId + " not found in search results for: " + searchTerm);
+    }
+
+    @Then("searching for {string} finds no entries")
+    public void searchingForFindsNoEntries(String searchTerm) {
+        model.setSearchText(searchTerm);
+        List<DevConsoleModel.SearchResult> results = model.filteredResults();
+        assertTrue(results.isEmpty(), "Expected no results for search: " + searchTerm);
+    }
+
+    @Then("the transcript's last line is a SUCCESS line {string}")
+    public void theTranscriptSLastLineIsASuccessLine(String expectedText) {
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level(),
+            "Expected SUCCESS line but got: " + lastEntry.level());
+        assertTrue(lastEntry.text().contains(expectedText),
+            "Expected SUCCESS line to contain: " + expectedText + ", but got: " + lastEntry.text());
+    }
+
+    @Then("the transcript's last line is an ERROR line {string}")
+    public void theTranscriptSLastLineIsAnErrorLine(String expectedText) {
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
+        assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level(),
+            "Expected ERROR line but got: " + lastEntry.level());
+        assertTrue(lastEntry.text().contains(expectedText),
+            "Expected ERROR line to contain: " + expectedText + ", but got: " + lastEntry.text());
+    }
+
+    @Then("every registered provider was asked to refresh exactly once")
+    public void everyRegisteredProviderWasAskedToRefreshExactlyOnce() {
+        assertEquals(1, fakeProvider.reloadCallCount(), "First provider should be reloaded once");
+        if (secondProvider != null) {
+            assertEquals(1, secondProvider.reloadCallCount(), "Second provider should be reloaded once");
+        }
+    }
+
+    @Then("no provider was asked to refresh")
+    public void noProviderWasAskedToRefresh() {
+        assertEquals(0, fakeProvider.reloadCallCount(), "Provider should not be reloaded");
+        if (secondProvider != null) {
+            assertEquals(0, secondProvider.reloadCallCount(), "Second provider should not be reloaded");
+        }
+    }
+
+    @Given("a second provider is also registered")
+    public void aSecondProviderIsAlsoRegistered() {
+        secondProvider = new ReloadableFakeProvider("Quests");
+        List<DevConsoleProvider> providers = List.of(fakeProvider, secondProvider);
+        startConsole(new DevConsoleModel(providers));
+    }
+
+    @Given("the dev console also has the {string} provider attached to the running player")
+    public void theDevConsoleAlsoHasTheProviderAttachedToTheRunningPlayer(String providerName) {
+        if (livePlayer == null) {
+            livePlayer = new Player(0, 0);
+        }
+        List<DevConsoleProvider> providers = List.of(fakeProvider, new PlayerSandboxProvider(() -> livePlayer));
+        startConsole(new DevConsoleModel(providers));
+    }
+
+    @Then("the transcript reports {int} results for {string}")
+    public void theTranscriptReportsResultsFor(int expectedCount, String searchTerm) {
+        List<TranscriptWidget.TranscriptEntry> entries = panel.getTranscript().entries();
+        boolean found = entries.stream().anyMatch(entry ->
+            entry.level() == TranscriptWidget.Level.INFO &&
+            entry.text().contains(String.valueOf(expectedCount)) &&
+            entry.text().contains(searchTerm)
+        );
+        assertTrue(found, "Expected transcript to report " + expectedCount + " results for: " + searchTerm);
+    }
+
+    @Then("the running player is the same player instance as before the reload")
+    public void theRunningPlayerIsSamePlayerInstanceAsBeforeTheReload() {
+        assertSame(playerBeforeReload, livePlayer, "Player should be the same instance");
     }
 
     private DevConsoleProvider providerFor(String name) {
@@ -684,6 +992,19 @@ public class DevConsoleSteps {
         if (PLAYER_PROVIDER_NAME.equals(name)) {
             return new PlayerSandboxProvider(() -> livePlayer);
         }
+        if (QUESTS_PROVIDER_NAME.equals(name)) {
+            return new QuestSandboxProvider();
+        }
+        if (TILES_PROVIDER_NAME.equals(name)) {
+            return new TileSandboxProvider();
+        }
         throw new IllegalArgumentException("Unknown provider: " + name);
+    }
+
+    private DevConsoleEntry createEntry(String id) {
+        String namespace = "core";
+        String category = "Classes";
+        String name = id.replace("core:", "");
+        return new DevConsoleEntry(namespace, id, category, name);
     }
 }
