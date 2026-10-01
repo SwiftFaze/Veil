@@ -9,14 +9,13 @@ import java.util.Properties;
 import java.util.function.Supplier;
 
 /**
- * Loads and manages the application version from a filtered properties file.
- * The version is read from the classpath resource /version.properties, which
- * is populated at build time via Maven filtering with the project version.
+ * The application version, read from the classpath resource /version.properties,
+ * which Maven filters with the project version at build time.
  *
- * If the resource is absent, unfiltered (contains literal `${project.version}`),
- * or has no version key, the version string is empty and a warning is logged.
+ * If the resource is absent, unfiltered (still contains {@code ${project.version}})
+ * or has no version key, the display version is empty and a warning is logged.
  */
-public class AppVersion {
+public final class AppVersion {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppVersion.class);
     private static final String RESOURCE_PATH = "/version.properties";
     private static final String VERSION_KEY = "version";
@@ -31,7 +30,8 @@ public class AppVersion {
     }
 
     /**
-     * Creates an instance with a custom resource supplier, for testing.
+     * Creates an instance reading the version from {@code resourceSupplier}
+     * instead of the classpath.
      */
     public AppVersion(Supplier<InputStream> resourceSupplier) {
         this.versionString = readVersion(resourceSupplier);
@@ -45,6 +45,21 @@ public class AppVersion {
         return versionString;
     }
 
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof AppVersion that && versionString.equals(that.versionString);
+    }
+
+    @Override
+    public int hashCode() {
+        return versionString.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return versionString;
+    }
+
     private static String readVersion(Supplier<InputStream> resourceSupplier) {
         try (InputStream stream = resourceSupplier.get()) {
             if (stream == null) {
@@ -52,16 +67,15 @@ public class AppVersion {
                 return "";
             }
 
-            Properties props = new Properties();
-            props.load(stream);
+            Properties properties = new Properties();
+            properties.load(stream);
 
-            String version = props.getProperty(VERSION_KEY, "").trim();
+            String version = properties.getProperty(VERSION_KEY, "").trim();
             if (version.isEmpty()) {
                 LOGGER.warn("No version key found in {}", RESOURCE_PATH);
                 return "";
             }
 
-            // Check for unfiltered placeholder
             if (version.contains("${")) {
                 LOGGER.warn("Version resource was not filtered; contains unprocessed placeholder: {}", version);
                 return "";

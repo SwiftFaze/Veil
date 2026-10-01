@@ -28,26 +28,27 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
-import java.util.function.Consumer;
+import ch.qos.logback.classic.filter.LevelFilter;
+import ch.qos.logback.core.AppenderBase;
+import ch.qos.logback.core.spi.FilterReply;
 import java.util.function.Supplier;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.JLabel;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,7 +56,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -69,6 +69,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * deliberately rather than reintroducing a reset hook.
  */
 public class UiComponentFrameworkSteps {
+
+    private static final String VERSION_OPEN_TAG = "<version>";
+    private static final int HINT_BAR_WIDTH = 800;
+    private static final int HINT_BAR_HEIGHT = 60;
+    private AppVersion loadedAppVersion;
+    private Image capturedIcon;
+    private Supplier<InputStream> iconResourceSupplier;
 
     public UiComponentFrameworkSteps() {
         SharedScenarioContext.setUiSteps(this);
@@ -1149,26 +1156,35 @@ public class UiComponentFrameworkSteps {
     }
 
     // App Version Display steps
-    private String bundledVersionOverride;
-    private AppVersion loadedAppVersion;
+
+    // The version label is the hint bar's only direct JLabel child; the widget deliberately
+    // exposes no accessor for it.
+    private JLabel versionLabel() {
+        return Arrays.stream(hintBar.getComponents())
+                .filter(JLabel.class::isInstance)
+                .map(JLabel.class::cast)
+                .findFirst()
+                .orElseThrow();
+    }
 
     @Given("the bundled version is {string}")
     public void theBundledVersionIs(String version) {
-        bundledVersionOverride = version;
-        String props = "version=" + version + "\n";
-        AppVersion appVersion = new AppVersion(() -> new ByteArrayInputStream(props.getBytes()));
+        String properties = "version=" + version + "\n";
+        AppVersion appVersion = new AppVersion(() -> new ByteArrayInputStream(properties.getBytes(StandardCharsets.UTF_8)));
         hintBar.setVersionText(appVersion.getDisplayVersion());
     }
 
     @Then("the hint bar's version label reads {string}")
     public void theHintBarVersionLabelReads(String expectedVersion) {
-        assertEquals(expectedVersion, hintBar.getVersionLabel().getText());
+        assertEquals(expectedVersion, versionLabel().getText());
     }
 
     @Then("the version label sits at the hint bar's right edge")
     public void theVersionLabelSitsAtTheHintBarRightEdge() {
-        JLabel versionLabel = hintBar.getVersionLabel();
-        assertSame(versionLabel, ((BorderLayout) hintBar.getLayout()).getLayoutComponent(BorderLayout.EAST));
+        hintBar.setSize(HINT_BAR_WIDTH, HINT_BAR_HEIGHT);
+        hintBar.doLayout();
+        JLabel label = versionLabel();
+        assertEquals(HINT_BAR_WIDTH, label.getX() + label.getWidth(), "Label should end at the bar's right edge");
     }
 
     @Then("the hint bar still shows the settings screen's hints")
@@ -1182,7 +1198,7 @@ public class UiComponentFrameworkSteps {
 
     @Then("the version label's color is the theme's dimmed text color")
     public void theVersionLabelColorIsTheThemesDimmedTextColor() {
-        assertEquals(WidgetTheme.DIMMED_TEXT, hintBar.getVersionLabel().getForeground());
+        assertEquals(WidgetTheme.DIMMED_TEXT, versionLabel().getForeground());
     }
 
     @When("version.properties is read from the classpath")
@@ -1192,7 +1208,7 @@ public class UiComponentFrameworkSteps {
     }
 
     @Then("its version equals the project's pom.xml version")
-    public void itsVersionEqualsTheProjectsPomXmlVersion() throws Exception {
+    public void itsVersionEqualsTheProjectsPomXmlVersion() throws IOException {
         assertNotNull(loadedAppVersion, "AppVersion should have been loaded in When step");
 
         // Read the pom.xml to get the project version
@@ -1206,7 +1222,7 @@ public class UiComponentFrameworkSteps {
             int versionStart = pomContent.indexOf("<version>", veilIndex);
             if (versionStart != -1) {
                 int versionEnd = pomContent.indexOf("</version>", versionStart);
-                projectVersion = pomContent.substring(versionStart + 9, versionEnd);
+                projectVersion = pomContent.substring(versionStart + VERSION_OPEN_TAG.length(), versionEnd);
             }
         }
 
@@ -1218,73 +1234,40 @@ public class UiComponentFrameworkSteps {
                 "Classpath version.properties version does not match pom.xml");
     }
 
-    private String bundledVersionPropertiesState;
 
     @Given("the bundled version.properties is absent")
     public void theBundledVersionPropertiesIsAbsent() {
-        bundledVersionPropertiesState = "absent";
         AppVersion appVersion = new AppVersion(() -> null);
         hintBar.setVersionText(appVersion.getDisplayVersion());
     }
 
     @Given("the bundled version.properties is present without a version key")
     public void theBundledVersionPropertiesIsPresentWithoutAVersionKey() {
-        bundledVersionPropertiesState = "present without a version key";
-        String props = "other.key=value\n";
-        AppVersion appVersion = new AppVersion(() -> new ByteArrayInputStream(props.getBytes()));
+        String properties = "other.key=value\n";
+        AppVersion appVersion = new AppVersion(() -> new ByteArrayInputStream(properties.getBytes(StandardCharsets.UTF_8)));
         hintBar.setVersionText(appVersion.getDisplayVersion());
     }
 
     @Given("the bundled version.properties is present with the unfiltered {string}")
     public void theBundledVersionPropertiesIsPresentWithTheUnfiltered(String placeholder) {
-        bundledVersionPropertiesState = "present with the unfiltered " + placeholder;
-        String props = "version=" + placeholder + "\n";
-        AppVersion appVersion = new AppVersion(() -> new ByteArrayInputStream(props.getBytes()));
+        String properties = "version=" + placeholder + "\n";
+        AppVersion appVersion = new AppVersion(() -> new ByteArrayInputStream(properties.getBytes(StandardCharsets.UTF_8)));
         hintBar.setVersionText(appVersion.getDisplayVersion());
     }
 
     @Then("the hint bar's version label is empty")
     public void theHintBarVersionLabelIsEmpty() {
-        assertEquals("", hintBar.getVersionLabel().getText());
+        assertEquals("", versionLabel().getText());
     }
 
-    private ListAppender<ILoggingEvent> versionLogAppender;
-
-    private void setupVersionLogging() {
-        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger)
-            LoggerFactory.getLogger(AppVersion.class);
-        versionLogAppender = new ListAppender<>();
-        versionLogAppender.start();
-        logger.addAppender(versionLogAppender);
-    }
-
-    private void teardownVersionLogging() {
-        if (versionLogAppender != null) {
-            ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger)
-                LoggerFactory.getLogger(AppVersion.class);
-            logger.detachAppender(versionLogAppender);
-            versionLogAppender = null;
-        }
-    }
 
     @Then("a warning about the missing version is logged")
     public void aWarningAboutTheMissingVersionIsLogged() {
-        setupVersionLogging();
-
-        // Create AppVersion to trigger the warning
-        String props = bundledVersionPropertiesState != null ? "" : "absent";
-        AppVersion appVersion = new AppVersion(() -> null);
-
-        assertTrue(versionLogAppender.list.stream().anyMatch(event ->
-            event.getLevel() == Level.WARN),
-            "Should have logged a WARN event");
-
-        teardownVersionLogging();
+        assertTrue(warnsWhile(AppVersion.class, () -> new AppVersion(() -> null)),
+                "Should have logged a WARN event");
     }
 
     // App Icon steps
-    private Image capturedIcon;
-    private Supplier<InputStream> iconResourceSupplier;
 
     @Given("the bundled icon resource is absent")
     public void theBundledIconResourceIsAbsent() {
@@ -1296,7 +1279,6 @@ public class UiComponentFrameworkSteps {
         if (iconResourceSupplier == null) {
             iconResourceSupplier = () -> AppIcon.class.getResourceAsStream("/icons/veil.png");
         }
-        capturedIcon = null;
         AppIcon.applyTo(icon -> capturedIcon = icon, iconResourceSupplier);
     }
 
@@ -1315,7 +1297,6 @@ public class UiComponentFrameworkSteps {
         if (iconResourceSupplier == null) {
             iconResourceSupplier = () -> AppIcon.class.getResourceAsStream("/icons/veil.png");
         }
-        capturedIcon = null;
         AppIcon.applyTo(icon -> capturedIcon = icon, iconResourceSupplier);
     }
 
@@ -1329,37 +1310,47 @@ public class UiComponentFrameworkSteps {
         assertNull(capturedIcon, "Icon should be null when resource is absent");
     }
 
-    private ListAppender<ILoggingEvent> iconLogAppender;
-
-    private void setupIconLogging() {
-        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger)
-            LoggerFactory.getLogger(AppIcon.class);
-        iconLogAppender = new ListAppender<>();
-        iconLogAppender.start();
-        logger.addAppender(iconLogAppender);
-    }
-
-    private void teardownIconLogging() {
-        if (iconLogAppender != null) {
-            ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger)
-                LoggerFactory.getLogger(AppIcon.class);
-            logger.detachAppender(iconLogAppender);
-            iconLogAppender = null;
-        }
-    }
 
     @Then("a warning about the missing icon is logged")
     public void aWarningAboutTheMissingIconIsLogged() {
-        setupIconLogging();
-
-        // Load with null supplier to trigger warning
-        AppIcon.load(() -> null);
-
-        assertTrue(iconLogAppender.list.stream().anyMatch(event ->
-            event.getLevel() == Level.WARN),
-            "Should have logged a WARN event for missing icon");
-
-        teardownIconLogging();
+        assertTrue(warnsWhile(AppIcon.class, () -> AppIcon.load(() -> null)),
+                "Should have logged a WARN event for missing icon");
     }
 
+    /** Runs {@code action} and reports whether {@code source}'s logger emitted a WARN meanwhile. */
+    private static boolean warnsWhile(Class<?> source, Runnable action) {
+        ch.qos.logback.classic.Logger logger =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(source);
+        WarnDetector detector = new WarnDetector();
+        detector.start();
+        logger.addAppender(detector);
+        try {
+            action.run();
+        } finally {
+            logger.detachAppender(detector);
+        }
+        return detector.sawWarning();
+    }
+
+    private static final class WarnDetector extends AppenderBase<ILoggingEvent> {
+        private boolean sawWarning;
+
+        WarnDetector() {
+            LevelFilter warnOnly = new LevelFilter();
+            warnOnly.setLevel(Level.WARN);
+            warnOnly.setOnMatch(FilterReply.ACCEPT);
+            warnOnly.setOnMismatch(FilterReply.DENY);
+            warnOnly.start();
+            addFilter(warnOnly);
+        }
+
+        @Override
+        protected void append(ILoggingEvent event) {
+            sawWarning = true;
+        }
+
+        boolean sawWarning() {
+            return sawWarning;
+        }
+    }
 }

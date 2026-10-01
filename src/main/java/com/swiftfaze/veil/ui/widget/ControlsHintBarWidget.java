@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GridLayout;
@@ -24,7 +25,7 @@ import java.util.List;
  * The bar also displays the application version at its right edge, using the
  * same font and a dimmed text color so it doesn't compete with the hints.
  */
-public class ControlsHintBarWidget extends JPanel {
+public final class ControlsHintBarWidget extends JPanel {
     private static final Font HINT_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 14);
     private static final int MAX_COLUMNS = 3;
     private static final int KEY_HORIZONTAL_PADDING = 4;
@@ -34,6 +35,10 @@ public class ControlsHintBarWidget extends JPanel {
     private static final int LABEL_PADDING_VERTICAL = 4;
     private static final int LABEL_PADDING_HORIZONTAL = 8;
 
+    private List<Hint> hints = List.of();
+    private final JPanel hintsPanel = new JPanel(new GridLayout(1, 1));
+    private final JLabel versionLabel = new JLabel();
+
     /**
      * A single "key does action" pair. The widget owns turning {@code key}
      * ("up", "escape", "shift+tab") into its displayed keycap label -
@@ -42,20 +47,14 @@ public class ControlsHintBarWidget extends JPanel {
     public record Hint(String key, String action) {
     }
 
-    private List<Hint> hints = List.of();
-    private final JPanel hintsPanel = new JPanel();
-    private final JLabel versionLabel = new JLabel();
-
     public ControlsHintBarWidget() {
         setBackground(WidgetTheme.BACKGROUND);
         setBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, WidgetTheme.BORDER));
         setLayout(new BorderLayout());
 
-        // Set up the hints panel (will be populated in rebuild())
         hintsPanel.setBackground(WidgetTheme.BACKGROUND);
         add(hintsPanel, BorderLayout.CENTER);
 
-        // Set up the version label
         versionLabel.setForeground(WidgetTheme.DIMMED_TEXT);
         versionLabel.setBackground(WidgetTheme.BACKGROUND);
         versionLabel.setOpaque(true);
@@ -81,10 +80,6 @@ public class ControlsHintBarWidget extends JPanel {
 
     public void setVersionText(String versionText) {
         versionLabel.setText(versionText);
-    }
-
-    public JLabel getVersionLabel() {
-        return versionLabel;
     }
 
     private void rebuild() {
@@ -115,7 +110,7 @@ public class ControlsHintBarWidget extends JPanel {
     }
 
     private JPanel buildCell(Hint hint, int keyWidth, int keyHeight) {
-        JPanel cell = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, CELL_GAP, 0));
+        JPanel cell = new JPanel(new FlowLayout(FlowLayout.LEFT, CELL_GAP, 0));
         cell.setBackground(WidgetTheme.BACKGROUND);
         if (hint == null) {
             return cell;

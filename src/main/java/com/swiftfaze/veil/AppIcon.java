@@ -11,27 +11,27 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * Loads and manages the application icon from a classpath resource.
- * The icon is loaded from /icons/veil.png, a 512x512 RGBA PNG image.
- *
- * If the resource is absent or cannot be read, logs a warning and does not
- * call the consumer.
+ * Loads the application icon (/icons/veil.png, a 512x512 RGBA PNG) from the
+ * classpath and hands it to a window. A missing or unreadable resource logs a
+ * warning and leaves the window on the default icon.
  */
-public class AppIcon {
+public final class AppIcon {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppIcon.class);
     private static final String RESOURCE_PATH = "/icons/veil.png";
 
+    private AppIcon() {
+    }
+
     /**
-     * Loads the icon from the classpath resource and applies it via the
-     * provided consumer if successfully loaded.
+     * Passes the bundled icon to {@code consumer}; does nothing if it cannot be loaded.
      */
     public static void applyTo(Consumer<Image> consumer) {
         applyTo(consumer, () -> AppIcon.class.getResourceAsStream(RESOURCE_PATH));
     }
 
     /**
-     * Loads the icon with a custom resource supplier and applies it via the
-     * provided consumer if successfully loaded. For testing.
+     * As {@link #applyTo(Consumer)}, reading the icon from {@code resourceSupplier}
+     * instead of the classpath so callers can substitute another source.
      */
     public static void applyTo(Consumer<Image> consumer, Supplier<InputStream> resourceSupplier) {
         Image icon = load(resourceSupplier);
@@ -41,15 +41,9 @@ public class AppIcon {
     }
 
     /**
-     * Loads the icon from the classpath resource.
-     * Returns null if the resource is absent or cannot be read.
-     */
-    public static Image load() {
-        return load(() -> AppIcon.class.getResourceAsStream(RESOURCE_PATH));
-    }
-
-    /**
-     * Loads the icon with a custom resource supplier, for testing.
+     * Reads an image from the stream {@code resourceSupplier} provides.
+     *
+     * @return the image, or null if the stream is absent or not a readable image
      */
     public static Image load(Supplier<InputStream> resourceSupplier) {
         try (InputStream stream = resourceSupplier.get()) {
