@@ -30,6 +30,8 @@ Feature: forbidden-apis — signature gate on default-charset and default-locale
   `jdk-non-portable`, `jdk-internal`, third-party bundles) and
   project-specific signature files.
 
+  QA: none - build-time gate with no runtime or keyboard input; verified by `mvn verify`
+
   Background:
     Given the `forbiddenapis` plugin is bound to the `verify` phase
     And its `check` and `testCheck` goals both use the `jdk-unsafe` and `jdk-deprecated` bundles targeting Java 17

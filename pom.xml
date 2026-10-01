@@ -508,7 +508,6 @@
                         <bundledSignature>jdk-unsafe</bundledSignature>
                         <bundledSignature>jdk-deprecated</bundledSignature>
                     </bundledSignatures>
-                    <failOnUnsupportedJava>false</failOnUnsupportedJava>
                 </configuration>
                 <executions>
                     <execution>
