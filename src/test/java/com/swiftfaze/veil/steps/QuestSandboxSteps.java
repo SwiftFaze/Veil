@@ -2,6 +2,7 @@ package com.swiftfaze.veil.steps;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.sandbox.ClassSandbox;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
@@ -14,6 +15,8 @@ import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
+import io.cucumber.datatable.DataTable;
+import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -25,13 +28,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class QuestSandboxSteps {
+    private static final int DEFAULT_KILL_COUNT = 5;
+    private static final String CORE_PREFIX = "core:";
+    private static final int ID_COLUMN = 1;
+    private static final int COUNT_COLUMN = 2;
+    private static final int CALC_COLUMN = 3;
 
     private Path modsRoot;
     private DevConsoleModel model;
@@ -62,7 +65,7 @@ public class QuestSandboxSteps {
 
     @Given("a loaded quest {string} with no rewards")
     public void aLoadedQuestWithNoRewards(String questName) throws IOException {
-        writeFixtureQuest(questName, "kill", "core:goblin", 5, List.of());
+        writeFixtureQuest(questName, "kill", "core:goblin", DEFAULT_KILL_COUNT, List.of());
         reloadConsoleWithTempQuestsAndUpdatePanel();
     }
 
@@ -75,21 +78,21 @@ public class QuestSandboxSteps {
     }
 
     @Then("the quest detail shows these fields:")
-    public void theQuestDetailShowsTheseFields(io.cucumber.datatable.DataTable dataTable) {
+    public void theQuestDetailShowsTheseFields(DataTable dataTable) {
         DevConsolePanel panel = SharedScenarioContext.getDevConsolePanel();
-        assertNotNull(panel, "Expected a dev console panel");
+        Assertions.assertNotNull(panel, "Expected a dev console panel");
 
-        DetailsPaneWidget detailsPane = assertInstanceOf(DetailsPaneWidget.class,
+        DetailsPaneWidget detailsPane = Assertions.assertInstanceOf(DetailsPaneWidget.class,
                 panel.getOpenedProviderPanel(),
                 "Expected the opened panel to be a DetailsPaneWidget");
 
-        assertFalse(detailsPane.isShowingPlaceholder(), "Expected quest details to be shown, not a placeholder");
+        Assertions.assertFalse(detailsPane.isShowingPlaceholder(), "Expected quest details to be shown, not a placeholder");
 
         List<Map<String, String>> expectedRows = dataTable.asMaps(String.class, String.class);
 
         // Get the first table (the main fields table)
         TableWidget<List<String>> table = detailsPane.getTable(0);
-        assertNotNull(table, "Expected at least one table in the quest detail");
+        Assertions.assertNotNull(table, "Expected at least one table in the quest detail");
 
         List<List<String>> rows = table.getRows();
 
@@ -101,58 +104,58 @@ public class QuestSandboxSteps {
             boolean found = false;
             for (List<String> row : rows) {
                 if (expectedField.equals(row.get(0))) {
-                    assertEquals(expectedValue, row.get(1), "Value mismatch for field '" + expectedField + "'");
+                    Assertions.assertEquals(expectedValue, row.get(1), "Value mismatch for field '" + expectedField + "'");
                     found = true;
                     break;
                 }
             }
-            assertTrue(found, "Expected to find field '" + expectedField + "' in quest detail");
+            Assertions.assertTrue(found, "Expected to find field '" + expectedField + "' in quest detail");
         }
     }
 
     @Then("the quest detail has a {string} table with these rows:")
-    public void theQuestDetailHasATableWithTheseRows(String tableLabel, io.cucumber.datatable.DataTable dataTable) {
+    public void theQuestDetailHasATableWithTheseRows(String tableLabel, DataTable dataTable) {
         DevConsolePanel panel = SharedScenarioContext.getDevConsolePanel();
-        assertNotNull(panel, "Expected a dev console panel");
+        Assertions.assertNotNull(panel, "Expected a dev console panel");
 
-        DetailsPaneWidget detailsPane = assertInstanceOf(DetailsPaneWidget.class,
+        DetailsPaneWidget detailsPane = Assertions.assertInstanceOf(DetailsPaneWidget.class,
                 panel.getOpenedProviderPanel(),
                 "Expected the opened panel to be a DetailsPaneWidget");
 
         // The "Rewards:" table is the second table (index 1)
-        assertEquals("Rewards:", tableLabel, "Currently only supporting Rewards table verification");
-        assertTrue(detailsPane.getTableCount() > 1, "Expected at least 2 tables for rewards");
+        Assertions.assertEquals("Rewards:", tableLabel, "Currently only supporting Rewards table verification");
+        Assertions.assertTrue(detailsPane.getTableCount() > 1, "Expected at least 2 tables for rewards");
 
         TableWidget<List<String>> table = detailsPane.getTable(1);
-        assertNotNull(table, "Expected a Rewards table at index 1");
+        Assertions.assertNotNull(table, "Expected a Rewards table at index 1");
 
         List<Map<String, String>> expectedRows = dataTable.asMaps(String.class, String.class);
         List<List<String>> rows = table.getRows();
 
-        assertEquals(expectedRows.size(), rows.size(), "Row count mismatch in Rewards table");
+        Assertions.assertEquals(expectedRows.size(), rows.size(), "Row count mismatch in Rewards table");
 
         for (int i = 0; i < expectedRows.size(); i++) {
             Map<String, String> expectedRow = expectedRows.get(i);
             List<String> row = rows.get(i);
 
-            assertEquals(expectedRow.get("Type"), row.get(0), "Type mismatch at row " + i);
-            assertEquals(expectedRow.get("ID"), row.get(1), "ID mismatch at row " + i);
-            assertEquals(expectedRow.get("Count"), row.get(2), "Count mismatch at row " + i);
-            assertEquals(expectedRow.get("Calc"), row.get(3), "Calc mismatch at row " + i);
+            Assertions.assertEquals(expectedRow.get("Type"), row.get(0), "Type mismatch at row " + i);
+            Assertions.assertEquals(expectedRow.get("ID"), row.get(ID_COLUMN), "ID mismatch at row " + i);
+            Assertions.assertEquals(expectedRow.get("Count"), row.get(COUNT_COLUMN), "Count mismatch at row " + i);
+            Assertions.assertEquals(expectedRow.get("Calc"), row.get(CALC_COLUMN), "Calc mismatch at row " + i);
         }
     }
 
     @Then("the quest detail has no {string} table")
     public void theQuestDetailHasNoTable(String tableLabel) {
         DevConsolePanel panel = SharedScenarioContext.getDevConsolePanel();
-        assertNotNull(panel, "Expected a dev console panel");
+        Assertions.assertNotNull(panel, "Expected a dev console panel");
 
-        DetailsPaneWidget detailsPane = assertInstanceOf(DetailsPaneWidget.class,
+        DetailsPaneWidget detailsPane = Assertions.assertInstanceOf(DetailsPaneWidget.class,
                 panel.getOpenedProviderPanel(),
                 "Expected the opened panel to be a DetailsPaneWidget");
 
         // For a quest with no rewards, there should only be 1 table (the main fields table)
-        assertEquals(1, detailsPane.getTableCount(), "Expected only the main fields table when there are no rewards");
+        Assertions.assertEquals(1, detailsPane.getTableCount(), "Expected only the main fields table when there are no rewards");
     }
 
     @Given("the F1 in-game dev console is built")
@@ -173,12 +176,12 @@ public class QuestSandboxSteps {
 
     @Then("its providers include the {string} provider")
     public void itsProvidersIncludeTheProvider(String providerName) {
-        assertNotNull(model, "Expected a dev console model to be built");
+        Assertions.assertNotNull(model, "Expected a dev console model to be built");
 
         // Check if any entry belongs to the specified provider by category
         boolean found = model.allResults().stream()
                 .anyMatch(result -> providerName.equals(result.entry().category()));
-        assertTrue(found, "Expected to find the " + providerName + " provider (no entries in " + providerName + " category)");
+        Assertions.assertTrue(found, "Expected to find the " + providerName + " provider (no entries in " + providerName + " category)");
     }
 
     private void writeFixtureQuest(String questName, String objectiveType, String objectiveTarget,
@@ -211,7 +214,7 @@ public class QuestSandboxSteps {
             questJson.add("rewards", rewardsArray);
         }
 
-        Files.writeString(coreDir.resolve("quests").resolve(questId.substring(5) + ".json"), questJson.toString());
+        Files.writeString(coreDir.resolve("quests").resolve(questId.substring(CORE_PREFIX.length()) + ".json"), questJson.toString());
     }
 
     private void writeManifest() throws IOException {
@@ -225,7 +228,7 @@ public class QuestSandboxSteps {
     }
 
     private void reloadConsoleWithTempQuestsAndUpdatePanel() {
-        List<com.swiftfaze.veil.entities.quests.Quest> quests = ModLoader.load(modsRoot).getAllQuests();
+        List<Quest> quests = ModLoader.load(modsRoot).getAllQuests();
         List<DevConsoleProvider> providers = List.of(new QuestSandboxProvider(quests));
         model = new DevConsoleModel(providers);
         DevConsolePanel panel = new DevConsolePanel(model);

@@ -16,7 +16,7 @@ public class QuestSandboxModel {
     }
 
     public QuestSandboxModel(List<Quest> quests) {
-        this.quests = quests;
+        this.quests = List.copyOf(quests);
     }
 
     public QuestSandboxModel(Path modsRoot) {

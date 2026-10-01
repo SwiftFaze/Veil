@@ -1,6 +1,8 @@
 package com.swiftfaze.veil.steps;
 
 import com.swiftfaze.veil.entities.player.Player;
+import com.swiftfaze.veil.entities.player.PlayerInfo;
+import com.swiftfaze.veil.entities.player.QuestLog;
 import com.swiftfaze.veil.entities.player.Stats;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.mods.ModLoader;
@@ -23,6 +25,7 @@ import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,12 +66,12 @@ public class DevConsoleSteps {
         SharedScenarioContext.setDevConsolePanel(panel);
 
         // If it's the Quests provider, create a live player and snapshot the quest log
-        if ("Quests".equals(providerName)) {
+        if (QUESTS_PROVIDER_NAME.equals(providerName)) {
             if (livePlayer == null) {
                 livePlayer = new Player(0, 0);
             }
             // Snapshot all quest states for later verification
-            com.swiftfaze.veil.entities.player.QuestLog questLog = livePlayer.getPlayerInfo().getQuestLog();
+            QuestLog questLog = liveQuestLog();
             Map<String, String> snapshot = new HashMap<>();
             for (DevConsoleModel.SearchResult result : model.allResults()) {
                 String questId = result.entry().id();
@@ -298,7 +301,7 @@ public class DevConsoleSteps {
         assertNotNull(snapshot, "Expected a quest log snapshot to be taken");
 
         // Verify all quest states match the snapshot
-        com.swiftfaze.veil.entities.player.QuestLog questLog = livePlayer.getPlayerInfo().getQuestLog();
+        QuestLog questLog = liveQuestLog();
         for (Map.Entry<String, String> entry : snapshot.entrySet()) {
             String questId = entry.getKey();
             String expectedState = entry.getValue();
@@ -695,6 +698,13 @@ public class DevConsoleSteps {
                 .filter(result -> result.entry().name().equals(name))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No result named: " + name));
+    }
+
+    private QuestLog liveQuestLog() {
+        return Optional.of(livePlayer)
+                .map(Player::getPlayerInfo)
+                .map(PlayerInfo::getQuestLog)
+                .orElseThrow();
     }
 
     private DevConsoleProvider providerFor(String name) {

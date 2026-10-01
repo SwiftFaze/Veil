@@ -46,7 +46,7 @@ public class QuestSandboxProvider implements DevConsoleProvider {
 
     @Override
     public JComponent createPanel(String id) {
-        var quest = model.findById(id);
+        com.swiftfaze.veil.entities.quests.Quest quest = model.findById(id);
         DetailsPaneWidget pane = new DetailsPaneWidget();
         pane.showEntry(quest);
         pane.focusFirstTable();

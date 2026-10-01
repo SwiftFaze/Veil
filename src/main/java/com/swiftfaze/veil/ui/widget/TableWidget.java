@@ -155,7 +155,7 @@ public class TableWidget<T> extends Widget {
     }
 
     public List<T> getRows() {
-        return rows;
+        return List.copyOf(rows);
     }
 
     public void moveToStart() {
