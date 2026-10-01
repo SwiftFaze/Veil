@@ -61,7 +61,9 @@ live-filter `DocumentListener` around `setText` so only real typing filters.
 `PlayerClassLoader.loadAll()` and exposes class names plus computed `Stats`
 per class (via `PlayerClass.applyBaseStats`, no duplicated formulas);
 `ClassDetailPanel` (a `JPanel` using `HeaderWidget` + `TableWidget`) shows
-the selected class's stats via Up/Down navigation. Editing a class's JSON
+the selected class's stats at levels 0, 5, 10, 15 and 20 (one row per stat,
+one column per level, via `ClassSandboxModel.computedStats(name, level)`)
+with Up/Down navigation. Editing a class's JSON
 and re-launching the sandbox picks up the change with no recompile, since
 `PlayerClassLoader` reads the resource fresh on every `ClassSandboxModel`
 construction — there is no static caching of loaded classes anywhere in

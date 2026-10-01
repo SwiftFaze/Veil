@@ -31,6 +31,6 @@ class ClassSandboxProviderTest {
         ClassDetailPanel panel = (ClassDetailPanel) provider.createPanel("core:mage");
 
         assertEquals("Mage", panel.getHeader().getTitle());
-        assertEquals(List.of("Attack Power", "16"), panel.getStatsTable().getSelectedRow());
+        assertEquals(List.of("Attack Power", "16", "16", "16", "16", "16"), panel.getStatsTable().getSelectedRow());
     }
 }
