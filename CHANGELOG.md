@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.39](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.38...v0.5.0-beta.39) (2026-10-01)
+
+
+### Features
+
+* add Items provider to the sandbox dev console ([#254](https://github.com/SwiftFaze/Veil/issues/254)) ([32abc67](https://github.com/SwiftFaze/Veil/commit/32abc67376c3a512d2eaf7dabb953d6cc5e79dd7))
+
 ## [0.5.0-beta.38](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.37...v0.5.0-beta.38) (2026-10-01)
 
 
