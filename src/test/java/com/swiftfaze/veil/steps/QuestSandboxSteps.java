@@ -9,7 +9,7 @@ import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
-import com.swiftfaze.veil.ui.DetailsPaneWidget;
+import com.swiftfaze.veil.sandbox.InspectableDetailPanel;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
@@ -82,16 +82,16 @@ public class QuestSandboxSteps {
         DevConsolePanel panel = SharedScenarioContext.getDevConsolePanel();
         Assertions.assertNotNull(panel, "Expected a dev console panel");
 
-        DetailsPaneWidget detailsPane = Assertions.assertInstanceOf(DetailsPaneWidget.class,
+        InspectableDetailPanel detailsPane = Assertions.assertInstanceOf(InspectableDetailPanel.class,
                 panel.getOpenedProviderPanel(),
-                "Expected the opened panel to be a DetailsPaneWidget");
+                "Expected the opened panel to be an InspectableDetailPanel");
 
         Assertions.assertFalse(detailsPane.isShowingPlaceholder(), "Expected quest details to be shown, not a placeholder");
 
         List<Map<String, String>> expectedRows = dataTable.asMaps(String.class, String.class);
 
         // Get the first table (the main fields table)
-        TableWidget<List<String>> table = detailsPane.getTable(0);
+        TableWidget<List<String>> table = detailsPane.table(0);
         Assertions.assertNotNull(table, "Expected at least one table in the quest detail");
 
         List<List<String>> rows = table.getRows();
@@ -118,15 +118,15 @@ public class QuestSandboxSteps {
         DevConsolePanel panel = SharedScenarioContext.getDevConsolePanel();
         Assertions.assertNotNull(panel, "Expected a dev console panel");
 
-        DetailsPaneWidget detailsPane = Assertions.assertInstanceOf(DetailsPaneWidget.class,
+        InspectableDetailPanel detailsPane = Assertions.assertInstanceOf(InspectableDetailPanel.class,
                 panel.getOpenedProviderPanel(),
-                "Expected the opened panel to be a DetailsPaneWidget");
+                "Expected the opened panel to be an InspectableDetailPanel");
 
         // The "Rewards:" table is the second table (index 1)
         Assertions.assertEquals("Rewards:", tableLabel, "Currently only supporting Rewards table verification");
-        Assertions.assertTrue(detailsPane.getTableCount() > 1, "Expected at least 2 tables for rewards");
+        Assertions.assertTrue(detailsPane.tableCount() > 1, "Expected at least 2 tables for rewards");
 
-        TableWidget<List<String>> table = detailsPane.getTable(1);
+        TableWidget<List<String>> table = detailsPane.table(1);
         Assertions.assertNotNull(table, "Expected a Rewards table at index 1");
 
         List<Map<String, String>> expectedRows = dataTable.asMaps(String.class, String.class);
@@ -150,12 +150,12 @@ public class QuestSandboxSteps {
         DevConsolePanel panel = SharedScenarioContext.getDevConsolePanel();
         Assertions.assertNotNull(panel, "Expected a dev console panel");
 
-        DetailsPaneWidget detailsPane = Assertions.assertInstanceOf(DetailsPaneWidget.class,
+        InspectableDetailPanel detailsPane = Assertions.assertInstanceOf(InspectableDetailPanel.class,
                 panel.getOpenedProviderPanel(),
-                "Expected the opened panel to be a DetailsPaneWidget");
+                "Expected the opened panel to be an InspectableDetailPanel");
 
         // For a quest with no rewards, there should only be 1 table (the main fields table)
-        Assertions.assertEquals(1, detailsPane.getTableCount(), "Expected only the main fields table when there are no rewards");
+        Assertions.assertEquals(1, detailsPane.tableCount(), "Expected only the main fields table when there are no rewards");
     }
 
     @Given("the F1 in-game dev console is built")

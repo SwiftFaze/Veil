@@ -2,65 +2,56 @@ package com.swiftfaze.veil.sandbox;
 
 import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.input.Keybindings;
-import com.swiftfaze.veil.ui.DetailsPaneWidget;
-import com.swiftfaze.veil.ui.widget.HeaderWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 
 import javax.swing.AbstractAction;
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * An item's full detail panel via Inspectable, showing field table plus effects
- * when present. Reuses DetailsPaneWidget (shared with InventoryPanel and CodexPanel)
- * and follows ClassDetailPanel's layout shape. A Base Damage row can be armed with
- * Enter and stepped with Left/Right, as in {@link PlayerDetailPanel}; each step goes
- * through the item's {@link DevConsoleFieldMutator}, so the command bar's floor and
- * min-above-max rules apply unchanged.
+ * An item's full detail panel: an {@link InspectableDetailPanel} showing the field table plus
+ * effects when present, with base-damage editing on top. A Base Damage row can be armed with
+ * Enter and stepped with Left/Right, as in {@link PlayerDetailPanel}; each step goes through the
+ * item's {@link DevConsoleFieldMutator}, so the command bar's floor and min-above-max rules apply
+ * unchanged. This panel takes the keyboard focus, so it owns every key binding, Up/Down included.
  */
 public final class ItemDetailPanel extends JPanel {
 
     private static final int FIELD_TABLE = 0;
     private static final String ONE_STEP = "1";
 
-    private final String title;
-    private final DetailsPaneWidget detailsPane;
+    private final InspectableDetailPanel details;
     private final DevConsoleFieldMutator fieldMutator;
 
     private Optional<ItemField> armedField = Optional.empty();
 
     public ItemDetailPanel(Item item, DevConsoleFieldMutator fieldMutator) {
-        this.title = item.getName();
+        this.details = new InspectableDetailPanel(item.getName(), item);
         this.fieldMutator = fieldMutator;
-        this.detailsPane = DetailsPaneWidget.standalone();
-        this.detailsPane.showEntry(item);
-        this.detailsPane.focusFirstTable();
 
         setBackground(WidgetTheme.BACKGROUND);
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new BorderLayout());
         setFocusable(true);
-
-        add(new HeaderWidget(title));
-        add(detailsPane);
+        add(details, BorderLayout.CENTER);
 
         bindKeys();
     }
 
     public String title() {
-        return title;
+        return details.title();
     }
 
     public int tableCount() {
-        return detailsPane.getTableCount();
+        return details.tableCount();
     }
 
     public TableWidget<List<String>> table(int index) {
-        return detailsPane.getTable(index);
+        return details.table(index);
     }
 
     private void bindKeys() {
@@ -90,13 +81,13 @@ public final class ItemDetailPanel extends JPanel {
 
     private void handleUp() {
         if (armedField.isEmpty()) {
-            detailsPane.moveUp();
+            details.moveUp();
         }
     }
 
     private void handleDown() {
         if (armedField.isEmpty()) {
-            detailsPane.moveDown();
+            details.moveDown();
         }
     }
 
@@ -109,7 +100,7 @@ public final class ItemDetailPanel extends JPanel {
     }
 
     private Optional<ItemField> selectedDamageField() {
-        if (!detailsPane.isTableFocused(FIELD_TABLE)) {
+        if (!details.isTableFocused(FIELD_TABLE)) {
             return Optional.empty();
         }
         return ItemField.fromDisplayName(fieldTable().getSelectedRow().get(0));
@@ -141,6 +132,6 @@ public final class ItemDetailPanel extends JPanel {
     }
 
     private TableWidget<List<String>> fieldTable() {
-        return detailsPane.getTable(FIELD_TABLE);
+        return details.table(FIELD_TABLE);
     }
 }

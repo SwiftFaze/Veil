@@ -1,7 +1,6 @@
 package com.swiftfaze.veil.sandbox;
 
 import com.swiftfaze.veil.entities.quests.Quest;
-import com.swiftfaze.veil.ui.DetailsPaneWidget;
 import javax.swing.JComponent;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -48,10 +47,7 @@ public class QuestSandboxProvider implements DevConsoleProvider {
     @Override
     public JComponent createPanel(String id) {
         Quest quest = model.findById(id);
-        DetailsPaneWidget pane = DetailsPaneWidget.standalone();
-        pane.showEntry(quest);
-        pane.focusFirstTable();
-        return pane;
+        return new InspectableDetailPanel(quest.getName(), quest);
     }
 
     private static String namespaceOf(String id) {

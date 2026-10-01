@@ -62,19 +62,17 @@ public final class ListDetailLayoutUtility {
      */
     public static JPanel buildDetailsPanel() {
         Border detailsDivider = BorderFactory.createMatteBorder(0, 2, 0, 0, WidgetTheme.BORDER);
-        return buildDetailsPanel(BorderFactory.createCompoundBorder(detailsDivider, detailsPadding()));
+        Border detailsPadding = BorderFactory.createEmptyBorder(4, 10, 0, 0);
+        return buildDetailsPanel(BorderFactory.createCompoundBorder(detailsDivider, detailsPadding));
     }
 
     /**
-     * Builds a details panel with the same padding but no list divider, for a details pane
-     * shown on its own (the dev-console sandbox panels) where there is no list to divide it from.
+     * Builds a details panel with no list divider and no padding, for a details pane shown on
+     * its own under a header (the dev-console sandbox panels): the padding exists only to space
+     * the tables off a divider, so without one the tables sit flush with the header above them.
      */
     public static JPanel buildStandaloneDetailsPanel() {
-        return buildDetailsPanel(detailsPadding());
-    }
-
-    private static Border detailsPadding() {
-        return BorderFactory.createEmptyBorder(4, 10, 0, 0);
+        return buildDetailsPanel(BorderFactory.createEmptyBorder());
     }
 
     private static JPanel buildDetailsPanel(Border border) {

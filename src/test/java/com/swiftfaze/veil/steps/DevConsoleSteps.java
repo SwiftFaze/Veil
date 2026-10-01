@@ -13,6 +13,7 @@ import com.swiftfaze.veil.sandbox.DevConsoleEntry;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
+import com.swiftfaze.veil.sandbox.InspectableDetailPanel;
 import com.swiftfaze.veil.sandbox.ItemDetailPanel;
 import com.swiftfaze.veil.sandbox.ItemSandboxProvider;
 import com.swiftfaze.veil.sandbox.KitchenSinkProvider;
@@ -21,7 +22,6 @@ import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.world.KitchenSinkScene;
 import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
 import com.swiftfaze.veil.sandbox.TileSandboxProvider;
-import com.swiftfaze.veil.ui.DetailsPaneWidget;
 import com.swiftfaze.veil.sandbox.ReloadableFakeProvider;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.TranscriptWidget;
@@ -749,11 +749,11 @@ public class DevConsoleSteps {
     public void theTileDetailShowsTheseFields(DataTable dataTable) {
         assertTrue(panel.isProviderPanelShowing(), "Provider panel should be showing");
 
-        DetailsPaneWidget detailsPane = (DetailsPaneWidget) panel.getOpenedProviderPanel();
+        InspectableDetailPanel detailsPane = (InspectableDetailPanel) panel.getOpenedProviderPanel();
         assertNotNull(detailsPane, "Details pane should be opened");
 
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
-        TableWidget<List<String>> table = detailsPane.getTable(0);
+        TableWidget<List<String>> table = detailsPane.table(0);
         assertNotNull(table, "Table should exist");
         assertEquals(rows.size(), table.getRowCount(), "Detail row count mismatch");
 

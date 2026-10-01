@@ -6,6 +6,7 @@ import com.swiftfaze.veil.ui.widget.TableWidget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.awt.Insets;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
@@ -49,8 +50,10 @@ class DetailsPaneWidgetTest {
     }
 
     @Test
-    void aStandalonePaneHasPaddingButNoDivider() {
-        assertInstanceOf(EmptyBorder.class, detailsPanelBorder(DetailsPaneWidget.standalone()));
+    void aStandalonePaneHasNoDividerOrPaddingSoTablesSitFlushUnderTheHeader() {
+        Border border = assertInstanceOf(EmptyBorder.class, detailsPanelBorder(DetailsPaneWidget.standalone()));
+
+        assertEquals(new Insets(0, 0, 0, 0), border.getBorderInsets(null));
     }
 
     @Test

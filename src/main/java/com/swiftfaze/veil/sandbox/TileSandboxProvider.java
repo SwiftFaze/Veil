@@ -2,7 +2,6 @@ package com.swiftfaze.veil.sandbox;
 
 import com.swiftfaze.veil.component.Inspectable;
 import com.swiftfaze.veil.mods.ModLoader;
-import com.swiftfaze.veil.ui.DetailsPaneWidget;
 
 import javax.swing.JComponent;
 import java.nio.file.Paths;
@@ -45,10 +44,7 @@ public class TileSandboxProvider implements DevConsoleProvider {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unknown tile id: " + id));
 
-        DetailsPaneWidget pane = DetailsPaneWidget.standalone();
-        pane.showEntry(tile);
-        pane.focusFirstTable();
-        return pane;
+        return new InspectableDetailPanel(tile.getName(), tile);
     }
 
     private static String namespaceOf(String id) {

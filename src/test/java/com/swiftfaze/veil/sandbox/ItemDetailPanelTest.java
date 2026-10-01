@@ -8,7 +8,6 @@ import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.BoxLayout;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
@@ -89,8 +88,11 @@ class ItemDetailPanelTest {
     }
 
     @Test
-    void stacksHeaderAndDetailsVertically() {
-        assertInstanceOf(BoxLayout.class, ironSwordPanel().getLayout());
+    void showsTheItemInAnInspectableDetailPanelTitledWithItsName() {
+        InspectableDetailPanel details =
+                assertInstanceOf(InspectableDetailPanel.class, ironSwordPanel().getComponent(0));
+
+        assertEquals("Iron Sword", details.title());
     }
 
     @Test

@@ -59,8 +59,11 @@ against a neighbor (space above a section label, space left of a details
 divider) rather than padding framing a single component's own content on
 all sides. Same pattern, just not yet pulled into a named constant.
 `DetailsPaneWidget.standalone()` (the dev-console sandbox panels, which have no
-list beside them) keeps that padding but drops the divider; Codex and Inventory
-use the default constructor, which keeps it. Details tables are capped at their
+list beside them) drops both the divider and that padding, so its tables sit
+flush under the panel's header like `ClassDetailPanel`'s; Codex and Inventory
+use the default constructor, which keeps both. A `BoxLayout` column must give
+every child the same `alignmentX` (`HeaderWidget` and `TableWidget` are
+`LEFT_ALIGNMENT`): mixed alignments offset the children against each other. Details tables are capped at their
 own rows' height, so a table's left border never runs on into empty space.
 
 ## Typography

@@ -46,7 +46,8 @@ running player, see below), `ItemSandboxProvider` (each mod-loaded item,
 `Item.getDetailTables()` in `ItemDetailPanel`'s `DetailsPaneWidget`; base damage is editable
 by command or by arming a Base Damage row with Enter and stepping it with Left/Right, each step
 going through the same `ItemFieldMutator`),
-`TileSandboxProvider` (see "Tiles provider" below)
+`TileSandboxProvider` (see "Tiles provider" below; tile, quest and item panels are all an
+`InspectableDetailPanel` - a `HeaderWidget` title over a standalone `DetailsPaneWidget`)
 and `QuestSandboxProvider` (each mod-loaded quest, read-only:
 `Quest.getDetailTables()` in a `DetailsPaneWidget`), and `KitchenSinkProvider`
 (one "Kitchen Sink" entry opening `KitchenSinkPreviewPanel`: a live preview of
