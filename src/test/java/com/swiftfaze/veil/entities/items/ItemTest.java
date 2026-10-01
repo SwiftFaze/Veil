@@ -94,4 +94,51 @@ class ItemTest {
                 List.of("Slot", "body")
         ), tables.get(0).rows());
     }
+
+    @Test
+    void withBaseDamageReturnsNewItemWithUpdatedDamage() {
+        Item original = new Item(
+                "test:sword",
+                "Iron Sword",
+                new Item.ItemAttributes(
+                        '/',
+                        "weapon",
+                        "hand",
+                        new Item.BaseDamage(4, 9),
+                        List.of()
+                )
+        );
+
+        Item updated = original.withBaseDamage(new Item.BaseDamage(5, 12));
+
+        assertEquals(original.getId(), updated.getId());
+        assertEquals(original.getName(), updated.getName());
+        assertEquals(original.getGlyph(), updated.getGlyph());
+        assertEquals(original.getType(), updated.getType());
+        assertEquals(original.getSlot(), updated.getSlot());
+        assertEquals(5, updated.getBaseDamage().min());
+        assertEquals(12, updated.getBaseDamage().max());
+    }
+
+    @Test
+    void withBaseDamagePreservesEffects() {
+        List<Item.Effect> effects = List.of(
+                new Item.Effect("bonus", "strength", "+2")
+        );
+        Item original = new Item(
+                "test:sword",
+                "Iron Sword",
+                new Item.ItemAttributes(
+                        '/',
+                        "weapon",
+                        "hand",
+                        new Item.BaseDamage(4, 9),
+                        effects
+                )
+        );
+
+        Item updated = original.withBaseDamage(new Item.BaseDamage(5, 12));
+
+        assertEquals(effects, updated.getEffects());
+    }
 }

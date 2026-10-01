@@ -314,6 +314,35 @@ public class DevConsoleSteps {
         getCurrentPanel().runCommand();
     }
 
+    @Then("when {string} is opened the item detail shows {string} as {string}")
+    public void whenIsOpenedTheItemDetailShows(String itemName, String fieldName, String expectedValue) {
+        isOpened(itemName);
+        ItemDetailPanel itemDetailPanel = openedItemDetailPanel();
+
+        for (int i = 0; i < itemDetailPanel.tableCount(); i++) {
+            TableWidget<List<String>> table = itemDetailPanel.table(i);
+            table.moveToStart();
+            for (int row = 0; row < table.getRowCount(); row++) {
+                List<String> rowData = table.getSelectedRow();
+                if (!rowData.isEmpty() && fieldName.equals(rowData.get(0))) {
+                    assertEquals(expectedValue, rowData.get(1),
+                            "Expected " + fieldName + " to show " + expectedValue + " but got " + rowData.get(1));
+                    return;
+                }
+                if (row < table.getRowCount() - 1) {
+                    table.moveDown();
+                }
+            }
+        }
+        fail("Field " + fieldName + " not found in item detail");
+    }
+
+    @Then("when {string} is opened the item detail has no {string} row")
+    public void whenIsOpenedTheItemDetailHasNoRow(String itemName, String fieldName) {
+        isOpened(itemName);
+        theItemDetailHasNoRow(fieldName);
+    }
+
     @Then("the opened detail panel is shown")
     public void theOpenedDetailPanelIsShown() {
         assertTrue(panel.isProviderPanelShowing());
