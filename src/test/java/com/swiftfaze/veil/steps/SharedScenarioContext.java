@@ -4,7 +4,10 @@ import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Shared state across step definition classes within a single scenario.
@@ -18,6 +21,8 @@ public class SharedScenarioContext {
     private static final ThreadLocal<DevConsoleSteps> DEV_CONSOLE_STEPS_HOLDER = new ThreadLocal<>();
     private static final ThreadLocal<UiComponentFrameworkSteps> UI_STEPS_HOLDER =
             ThreadLocal.withInitial(UiComponentFrameworkSteps::new); // lazily built: Cucumber only instantiates step classes whose steps run
+    private static final ThreadLocal<List<Consumer<UiComponentFrameworkSteps>>> UI_STEPS_LISTENERS =
+            ThreadLocal.withInitial(ArrayList::new);
     private static final ThreadLocal<KitchenSinkPreviewPanel> PREVIEW_PANEL_HOLDER = new ThreadLocal<>();
 
     public static Camera getCamera() {
@@ -66,6 +71,17 @@ public class SharedScenarioContext {
 
     public static void setUiSteps(UiComponentFrameworkSteps steps) {
         UI_STEPS_HOLDER.set(steps);
+        UI_STEPS_LISTENERS.get().forEach(listener -> listener.accept(steps));
+    }
+
+    /**
+     * Applies {@code setup} to the current UI steps instance and to every instance Cucumber builds
+     * later in this scenario. Cucumber creates its own {@code UiComponentFrameworkSteps} lazily on the
+     * first of its steps, replacing any instance another glue class obtained earlier.
+     */
+    public static void applyToUiSteps(Consumer<UiComponentFrameworkSteps> setup) {
+        UI_STEPS_LISTENERS.get().add(setup);
+        setup.accept(getUiSteps());
     }
 
     public static KitchenSinkPreviewPanel getKitchenSinkPreviewPanel() {
@@ -83,6 +99,7 @@ public class SharedScenarioContext {
         QUEST_LOG_SNAPSHOT.remove();
         DEV_CONSOLE_STEPS_HOLDER.remove();
         UI_STEPS_HOLDER.remove();
+        UI_STEPS_LISTENERS.remove();
         PREVIEW_PANEL_HOLDER.remove();
     }
 }

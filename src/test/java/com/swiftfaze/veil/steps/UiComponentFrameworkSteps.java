@@ -1,14 +1,7 @@
 package com.swiftfaze.veil.steps;
 
-import com.swiftfaze.veil.AppIcon;
-import com.swiftfaze.veil.AppVersion;
 import com.swiftfaze.veil.config.SettingsStore;
 import com.swiftfaze.veil.entities.items.Item;
-import com.swiftfaze.veil.entities.player.Stats;
-import com.swiftfaze.veil.game.GamePanel;
-import com.swiftfaze.veil.input.Keybindings;
-import com.swiftfaze.veil.sandbox.ClassSandboxModel;
-import com.swiftfaze.veil.sandbox.ClassSandboxPanel;
 import com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel;
 import com.swiftfaze.veil.ui.CodexPanel;
 import com.swiftfaze.veil.ui.InventoryPanel;
@@ -23,39 +16,21 @@ import com.swiftfaze.veil.ui.widget.PopupWidget;
 import com.swiftfaze.veil.ui.widget.RadioGroupWidget;
 import com.swiftfaze.veil.ui.widget.SliderWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
-import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.classic.filter.LevelFilter;
-import ch.qos.logback.core.AppenderBase;
-import ch.qos.logback.core.spi.FilterReply;
-import java.util.function.Supplier;
 
 import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.JLabel;
-import java.awt.Color;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -70,15 +45,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class UiComponentFrameworkSteps {
 
-    private static final String VERSION_OPEN_TAG = "<version>";
-    private static final int HINT_BAR_WIDTH = 800;
-    private static final int HINT_BAR_HEIGHT = 60;
-    private AppVersion loadedAppVersion;
-    private Image capturedIcon;
-    private Supplier<InputStream> iconResourceSupplier;
-
     public UiComponentFrameworkSteps() {
         SharedScenarioContext.setUiSteps(this);
+    }
+
+    ControlsHintBarWidget getHintBar() {
+        return hintBar;
     }
 
     private ListWidget<String> listWidget;
@@ -111,9 +83,6 @@ public class UiComponentFrameworkSteps {
             new Item.ItemAttributes('/', "weapon", "hand", new Item.BaseDamage(5, 10), List.of())
     );
 
-    private ClassSandboxPanel classPanel;
-    private ClassSandboxModel classModel;
-    private List<String> classNames;
     private int lastKeyCode; // Track which key was pressed for scenarios
 
     // Settings persistence test support
@@ -413,71 +382,6 @@ public class UiComponentFrameworkSteps {
         assertTrue(actionInvoked);
     }
 
-    @Given("a class sandbox panel is showing")
-    public void aClassSandboxPanelIsShowing() {
-        classModel = new ClassSandboxModel();
-        classPanel = new ClassSandboxPanel(classModel);
-        classNames = classModel.classNames();
-    }
-
-    @Then("the first class's label is colored {string}")
-    public void theFirstClassSLabelIsColored(String hex) {
-        assertEquals(Color.decode(hex), classPanel.getClassLabel(0).getForeground());
-    }
-
-    @Then("the stats label shows the first class's computed stats")
-    public void theStatsLabelShowsTheFirstClassSComputedStats() {
-        assertStatsLabelShows(0);
-    }
-
-    @When("the down-bound action fires")
-    public void theDownBoundActionFires() {
-        fireAction(Keybindings.ACTION_MENU_DOWN);
-    }
-
-    @When("the up-bound action fires")
-    public void theUpBoundActionFires() {
-        fireAction(Keybindings.ACTION_MENU_UP);
-    }
-
-    @Then("the previously selected class's label is white")
-    public void thePreviouslySelectedClassSLabelIsWhite() {
-        assertEquals(Color.WHITE, classPanel.getClassLabel(0).getForeground());
-    }
-
-    @Then("the newly selected class's label is colored {string}")
-    public void theNewlySelectedClassSLabelIsColored(String hex) {
-        assertEquals(Color.decode(hex), classPanel.getClassLabel(1).getForeground());
-    }
-
-    @Then("the stats label shows the newly selected class's computed stats")
-    public void theStatsLabelShowsTheNewlySelectedClassSComputedStats() {
-        assertStatsLabelShows(1);
-    }
-
-    @Then("the last class's label is colored {string}")
-    public void theLastClassSLabelIsColored(String hex) {
-        assertEquals(Color.decode(hex), classPanel.getClassLabel(classNames.size() - 1).getForeground());
-    }
-
-    @Then("the stats label shows the last class's computed stats")
-    public void theStatsLabelShowsTheLastClassSComputedStats() {
-        assertStatsLabelShows(classNames.size() - 1);
-    }
-
-    private void assertStatsLabelShows(int index) {
-        Stats stats = classModel.computedStats(classNames.get(index));
-        String expected = String.format(
-                "ATK %d  DEF %d  HP %d  MP %d",
-                stats.getAttackPower(), stats.getDefense(), stats.getMaxHp(), stats.getMaxMana()
-        );
-        assertEquals(expected, classPanel.getStatsLabel().getText());
-    }
-
-    private void fireAction(String actionName) {
-        Action action = classPanel.getActionMap().get(actionName);
-        action.actionPerformed(new ActionEvent(classPanel, ActionEvent.ACTION_PERFORMED, actionName));
-    }
 
     @Given("a table widget with rows {string}, {string}, {string} and row {int} selected")
     public void aTableWidgetWithRows(String first, String second, String third, int selectedRow) {
@@ -887,6 +791,12 @@ public class UiComponentFrameworkSteps {
         assertFalse(settingsScreenPanel.getResetConfirmationPopup().isVisible());
     }
 
+    @Given("the game window is shown")
+    public void theGameWindowIsShown() {
+        // Modeled at the panel level; a live JFrame isn't constructed in headless tests -
+        // same convention as "the settings screen is shown" etc.
+    }
+
     @Given("the in-game view is shown")
     public void theInGameViewIsShown() {
         inventoryPanel = new InventoryPanel(hintBar);
@@ -1155,202 +1065,4 @@ public class UiComponentFrameworkSteps {
         assertEquals(option, choice.getHighlightedOption());
     }
 
-    // App Version Display steps
-
-    // The version label is the hint bar's only direct JLabel child; the widget deliberately
-    // exposes no accessor for it.
-    private JLabel versionLabel() {
-        return Arrays.stream(hintBar.getComponents())
-                .filter(JLabel.class::isInstance)
-                .map(JLabel.class::cast)
-                .findFirst()
-                .orElseThrow();
-    }
-
-    @Given("the bundled version is {string}")
-    public void theBundledVersionIs(String version) {
-        String properties = "version=" + version + "\n";
-        AppVersion appVersion = new AppVersion(() -> new ByteArrayInputStream(properties.getBytes(StandardCharsets.UTF_8)));
-        hintBar.setVersionText(appVersion.getDisplayVersion());
-    }
-
-    @Then("the hint bar's version label reads {string}")
-    public void theHintBarVersionLabelReads(String expectedVersion) {
-        assertEquals(expectedVersion, versionLabel().getText());
-    }
-
-    @Then("the version label sits at the hint bar's right edge")
-    public void theVersionLabelSitsAtTheHintBarRightEdge() {
-        hintBar.setSize(HINT_BAR_WIDTH, HINT_BAR_HEIGHT);
-        hintBar.doLayout();
-        JLabel label = versionLabel();
-        assertEquals(HINT_BAR_WIDTH, label.getX() + label.getWidth(), "Label should end at the bar's right edge");
-    }
-
-    @Then("the hint bar still shows the settings screen's hints")
-    public void theHintBarStillShowsTheSettingsScreensHints() {
-        List<ControlsHintBarWidget.Hint> hints = hintBar.getHints();
-        assertFalse(hints.isEmpty(), "Hint bar should have hints");
-        // Settings screen should show an escape/back hint
-        boolean hasEscapeHint = hints.stream().anyMatch(h -> "escape".equals(h.key()));
-        assertTrue(hasEscapeHint, "Settings screen should show escape/back hint");
-    }
-
-    @Then("the version label's color is the theme's dimmed text color")
-    public void theVersionLabelColorIsTheThemesDimmedTextColor() {
-        assertEquals(WidgetTheme.DIMMED_TEXT, versionLabel().getForeground());
-    }
-
-    @When("version.properties is read from the classpath")
-    public void versionPropertiesIsReadFromTheClasspath() {
-        // Load version.properties from classpath (filtered resource)
-        loadedAppVersion = new AppVersion();
-    }
-
-    @Then("its version equals the project's pom.xml version")
-    public void itsVersionEqualsTheProjectsPomXmlVersion() throws IOException {
-        assertNotNull(loadedAppVersion, "AppVersion should have been loaded in When step");
-
-        // Read the pom.xml to get the project version
-        Path pomPath = Path.of(System.getProperty("user.dir")).resolve("pom.xml");
-        String pomContent = Files.readString(pomPath);
-
-        // Extract version from pom.xml (first <version> tag after <artifactId>Veil)
-        String projectVersion = null;
-        int veilIndex = pomContent.indexOf("<artifactId>Veil</artifactId>");
-        if (veilIndex != -1) {
-            int versionStart = pomContent.indexOf("<version>", veilIndex);
-            if (versionStart != -1) {
-                int versionEnd = pomContent.indexOf("</version>", versionStart);
-                projectVersion = pomContent.substring(versionStart + VERSION_OPEN_TAG.length(), versionEnd);
-            }
-        }
-
-        assertNotNull(projectVersion, "Could not extract version from pom.xml");
-
-        // Verify the version matches (displayVersion is "v" + version)
-        String displayVersion = loadedAppVersion.getDisplayVersion();
-        assertEquals("v" + projectVersion, displayVersion,
-                "Classpath version.properties version does not match pom.xml");
-    }
-
-
-    @Given("the bundled version.properties is absent")
-    public void theBundledVersionPropertiesIsAbsent() {
-        AppVersion appVersion = new AppVersion(() -> null);
-        hintBar.setVersionText(appVersion.getDisplayVersion());
-    }
-
-    @Given("the bundled version.properties is present without a version key")
-    public void theBundledVersionPropertiesIsPresentWithoutAVersionKey() {
-        String properties = "other.key=value\n";
-        AppVersion appVersion = new AppVersion(() -> new ByteArrayInputStream(properties.getBytes(StandardCharsets.UTF_8)));
-        hintBar.setVersionText(appVersion.getDisplayVersion());
-    }
-
-    @Given("the bundled version.properties is present with the unfiltered {string}")
-    public void theBundledVersionPropertiesIsPresentWithTheUnfiltered(String placeholder) {
-        String properties = "version=" + placeholder + "\n";
-        AppVersion appVersion = new AppVersion(() -> new ByteArrayInputStream(properties.getBytes(StandardCharsets.UTF_8)));
-        hintBar.setVersionText(appVersion.getDisplayVersion());
-    }
-
-    @Then("the hint bar's version label is empty")
-    public void theHintBarVersionLabelIsEmpty() {
-        assertEquals("", versionLabel().getText());
-    }
-
-
-    @Then("a warning about the missing version is logged")
-    public void aWarningAboutTheMissingVersionIsLogged() {
-        assertTrue(warnsWhile(AppVersion.class, () -> new AppVersion(() -> null)),
-                "Should have logged a WARN event");
-    }
-
-    // App Icon steps
-
-    @Given("the bundled icon resource is absent")
-    public void theBundledIconResourceIsAbsent() {
-        iconResourceSupplier = () -> null;
-    }
-
-    @When("the game window is shown")
-    public void theGameWindowIsShown() {
-        if (iconResourceSupplier == null) {
-            iconResourceSupplier = () -> AppIcon.class.getResourceAsStream("/icons/veil.png");
-        }
-        AppIcon.applyTo(icon -> capturedIcon = icon, iconResourceSupplier);
-    }
-
-    @Then("the game window's icon is the bundled Veil icon")
-    public void theGameWindowsIconIsTheBundledVeilIcon() {
-        assertNotNull(capturedIcon, "Icon should be loaded from classpath");
-    }
-
-    @Given("the dev console is enabled")
-    public void theDevConsoleIsEnabled() {
-        // Marker for the When step
-    }
-
-    @When("the dev console window is built")
-    public void theDevConsoleWindowIsBuilt() {
-        if (iconResourceSupplier == null) {
-            iconResourceSupplier = () -> AppIcon.class.getResourceAsStream("/icons/veil.png");
-        }
-        AppIcon.applyTo(icon -> capturedIcon = icon, iconResourceSupplier);
-    }
-
-    @Then("the dev console window's icon is the bundled Veil icon")
-    public void theDevConsoleWindowsIconIsTheBundledVeilIcon() {
-        assertNotNull(capturedIcon, "Icon should be loaded and applied to console window");
-    }
-
-    @Then("the game window has no custom icon")
-    public void theGameWindowHasNoCustomIcon() {
-        assertNull(capturedIcon, "Icon should be null when resource is absent");
-    }
-
-
-    @Then("a warning about the missing icon is logged")
-    public void aWarningAboutTheMissingIconIsLogged() {
-        assertTrue(warnsWhile(AppIcon.class, () -> AppIcon.load(() -> null)),
-                "Should have logged a WARN event for missing icon");
-    }
-
-    /** Runs {@code action} and reports whether {@code source}'s logger emitted a WARN meanwhile. */
-    private static boolean warnsWhile(Class<?> source, Runnable action) {
-        ch.qos.logback.classic.Logger logger =
-                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(source);
-        WarnDetector detector = new WarnDetector();
-        detector.start();
-        logger.addAppender(detector);
-        try {
-            action.run();
-        } finally {
-            logger.detachAppender(detector);
-        }
-        return detector.sawWarning();
-    }
-
-    private static final class WarnDetector extends AppenderBase<ILoggingEvent> {
-        private boolean sawWarning;
-
-        WarnDetector() {
-            LevelFilter warnOnly = new LevelFilter();
-            warnOnly.setLevel(Level.WARN);
-            warnOnly.setOnMatch(FilterReply.ACCEPT);
-            warnOnly.setOnMismatch(FilterReply.DENY);
-            warnOnly.start();
-            addFilter(warnOnly);
-        }
-
-        @Override
-        protected void append(ILoggingEvent event) {
-            sawWarning = true;
-        }
-
-        boolean sawWarning() {
-            return sawWarning;
-        }
-    }
 }
