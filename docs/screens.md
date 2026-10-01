@@ -204,6 +204,12 @@ in `controls-hint-bar.feature`, pending the composition-root rebuild
 mentioned in the UI shell note above (see that feature file's Non-goals for
 why).
 
+The bar is a `BorderLayout`: the hint grid in `CENTER` and, in `EAST`, a
+dimmed version label (`v<version>`, e.g. `v0.5.0-beta.39`) that stays put as
+hints change. `Main.loadGame()` fills it once via `setVersionText`, from
+`AppVersion`, which reads the Maven-filtered `/version.properties`; an
+absent, unfiltered or key-less file shows nothing and logs a warning.
+
 `CodexPanel` extends `PopupWidget` and mirrors `InventoryPanel`'s list+detail
 split structure: a tab switcher across Items, Tiles, and Classes (three
 `JLabel`s styled as tabs with selection highlighting) above a 50/50 split body

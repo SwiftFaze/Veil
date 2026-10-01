@@ -2,11 +2,6 @@ package com.swiftfaze.veil.steps;
 
 import com.swiftfaze.veil.config.SettingsStore;
 import com.swiftfaze.veil.entities.items.Item;
-import com.swiftfaze.veil.entities.player.Stats;
-import com.swiftfaze.veil.game.GamePanel;
-import com.swiftfaze.veil.input.Keybindings;
-import com.swiftfaze.veil.sandbox.ClassSandboxModel;
-import com.swiftfaze.veil.sandbox.ClassSandboxPanel;
 import com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel;
 import com.swiftfaze.veil.ui.CodexPanel;
 import com.swiftfaze.veil.ui.InventoryPanel;
@@ -26,8 +21,6 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import javax.swing.Action;
-import javax.swing.ActionMap;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,6 +47,10 @@ public class UiComponentFrameworkSteps {
 
     public UiComponentFrameworkSteps() {
         SharedScenarioContext.setUiSteps(this);
+    }
+
+    ControlsHintBarWidget getHintBar() {
+        return hintBar;
     }
 
     private ListWidget<String> listWidget;
@@ -86,9 +83,6 @@ public class UiComponentFrameworkSteps {
             new Item.ItemAttributes('/', "weapon", "hand", new Item.BaseDamage(5, 10), List.of())
     );
 
-    private ClassSandboxPanel classPanel;
-    private ClassSandboxModel classModel;
-    private List<String> classNames;
     private int lastKeyCode; // Track which key was pressed for scenarios
 
     // Settings persistence test support
@@ -388,71 +382,6 @@ public class UiComponentFrameworkSteps {
         assertTrue(actionInvoked);
     }
 
-    @Given("a class sandbox panel is showing")
-    public void aClassSandboxPanelIsShowing() {
-        classModel = new ClassSandboxModel();
-        classPanel = new ClassSandboxPanel(classModel);
-        classNames = classModel.classNames();
-    }
-
-    @Then("the first class's label is colored {string}")
-    public void theFirstClassSLabelIsColored(String hex) {
-        assertEquals(Color.decode(hex), classPanel.getClassLabel(0).getForeground());
-    }
-
-    @Then("the stats label shows the first class's computed stats")
-    public void theStatsLabelShowsTheFirstClassSComputedStats() {
-        assertStatsLabelShows(0);
-    }
-
-    @When("the down-bound action fires")
-    public void theDownBoundActionFires() {
-        fireAction(Keybindings.ACTION_MENU_DOWN);
-    }
-
-    @When("the up-bound action fires")
-    public void theUpBoundActionFires() {
-        fireAction(Keybindings.ACTION_MENU_UP);
-    }
-
-    @Then("the previously selected class's label is white")
-    public void thePreviouslySelectedClassSLabelIsWhite() {
-        assertEquals(Color.WHITE, classPanel.getClassLabel(0).getForeground());
-    }
-
-    @Then("the newly selected class's label is colored {string}")
-    public void theNewlySelectedClassSLabelIsColored(String hex) {
-        assertEquals(Color.decode(hex), classPanel.getClassLabel(1).getForeground());
-    }
-
-    @Then("the stats label shows the newly selected class's computed stats")
-    public void theStatsLabelShowsTheNewlySelectedClassSComputedStats() {
-        assertStatsLabelShows(1);
-    }
-
-    @Then("the last class's label is colored {string}")
-    public void theLastClassSLabelIsColored(String hex) {
-        assertEquals(Color.decode(hex), classPanel.getClassLabel(classNames.size() - 1).getForeground());
-    }
-
-    @Then("the stats label shows the last class's computed stats")
-    public void theStatsLabelShowsTheLastClassSComputedStats() {
-        assertStatsLabelShows(classNames.size() - 1);
-    }
-
-    private void assertStatsLabelShows(int index) {
-        Stats stats = classModel.computedStats(classNames.get(index));
-        String expected = String.format(
-                "ATK %d  DEF %d  HP %d  MP %d",
-                stats.getAttackPower(), stats.getDefense(), stats.getMaxHp(), stats.getMaxMana()
-        );
-        assertEquals(expected, classPanel.getStatsLabel().getText());
-    }
-
-    private void fireAction(String actionName) {
-        Action action = classPanel.getActionMap().get(actionName);
-        action.actionPerformed(new ActionEvent(classPanel, ActionEvent.ACTION_PERFORMED, actionName));
-    }
 
     @Given("a table widget with rows {string}, {string}, {string} and row {int} selected")
     public void aTableWidgetWithRows(String first, String second, String third, int selectedRow) {
