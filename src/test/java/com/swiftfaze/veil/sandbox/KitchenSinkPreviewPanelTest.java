@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.KeyStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -37,11 +38,11 @@ class KitchenSinkPreviewPanelTest {
         return new ArrayList<>(Collections.nCopies(12, FLOOR));
     }
 
-    private static BufferedImage paint(KitchenSinkPreviewPanel panel, int width, int height) {
-        panel.setSize(width, height);
+    private static BufferedImage paint(KitchenSinkPreviewPanel target, int width, int height) {
+        target.setSize(width, height);
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
-        panel.paint(g);
+        target.paint(g);
         g.dispose();
         return image;
     }
@@ -57,9 +58,26 @@ class KitchenSinkPreviewPanelTest {
         return image.getRGB(0, 0);
     }
 
-    private static void press(KitchenSinkPreviewPanel panel, KeyStroke key) {
-        Object actionName = panel.getInputMap(JComponent.WHEN_FOCUSED).get(key);
-        panel.getActionMap().get(actionName).actionPerformed(new ActionEvent(panel, 0, ""));
+    private static Point markerCentroid(BufferedImage image) {
+        long sumX = 0;
+        long sumY = 0;
+        int count = 0;
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                if (image.getRGB(x, y) == WidgetTheme.PREVIEW_MARKER.getRGB()) {
+                    sumX += x;
+                    sumY += y;
+                    count++;
+                }
+            }
+        }
+        assertTrue(count > 0, "No marker pixels drawn");
+        return new Point((int) (sumX / count), (int) (sumY / count));
+    }
+
+    private static void press(KitchenSinkPreviewPanel target, KeyStroke key) {
+        Object actionName = target.getInputMap(JComponent.WHEN_FOCUSED).get(key);
+        target.getActionMap().get(actionName).actionPerformed(new ActionEvent(target, 0, ""));
     }
 
     @Test
@@ -73,7 +91,7 @@ class KitchenSinkPreviewPanelTest {
 
         press(panel, Keybindings.TOGGLE_WALKABILITY);
 
-        assertTrue(panel.getModel().isOverlayOn());
+        assertEquals(tintedBackground(WidgetTheme.WALKABLE_TINT), paint(panel, TILE, TILE).getRGB(1, 1));
     }
 
     @Test
@@ -82,7 +100,7 @@ class KitchenSinkPreviewPanelTest {
 
         press(panel, Keybindings.MOVE_RIGHT_ARROW);
 
-        assertEquals(1, panel.getModel().getMarkerX());
+        assertEquals(1, markerCentroid(paint(panel, 10 * TILE, 3 * TILE)).x / TILE);
     }
 
     @Test
@@ -103,7 +121,7 @@ class KitchenSinkPreviewPanelTest {
     @Test
     void walkableAndUnwalkableCellsGetTheirOwnTint() {
         KitchenSinkPreviewPanel panel = panelOver(List.of(FLOOR, WALL));
-        panel.getModel().toggleOverlay();
+        press(panel, Keybindings.TOGGLE_WALKABILITY);
 
         BufferedImage image = paint(panel, 2 * TILE, TILE);
 
@@ -114,7 +132,7 @@ class KitchenSinkPreviewPanelTest {
     @Test
     void theOverlayStopsAtTheSceneEdge() {
         KitchenSinkPreviewPanel panel = panelOver(twelveFloors());
-        panel.getModel().toggleOverlay();
+        press(panel, Keybindings.TOGGLE_WALKABILITY);
 
         BufferedImage image = paint(panel, 12 * TILE, 4 * TILE);
 
@@ -125,25 +143,13 @@ class KitchenSinkPreviewPanelTest {
     @Test
     void theMarkerIsDrawnInsideItsOwnCell() {
         KitchenSinkPreviewPanel panel = panelOver(twelveFloors());
-        panel.getModel().moveMarker(1, 1);
+        press(panel, Keybindings.MOVE_RIGHT_ARROW);
+        press(panel, Keybindings.MOVE_DOWN_ARROW);
 
-        BufferedImage image = paint(panel, 10 * TILE, 3 * TILE);
+        Point centroid = markerCentroid(paint(panel, 10 * TILE, 3 * TILE));
 
-        long sumX = 0;
-        long sumY = 0;
-        int count = 0;
-        for (int y = 0; y < image.getHeight(); y++) {
-            for (int x = 0; x < image.getWidth(); x++) {
-                if (image.getRGB(x, y) == WidgetTheme.PREVIEW_MARKER.getRGB()) {
-                    sumX += x;
-                    sumY += y;
-                    count++;
-                }
-            }
-        }
-        assertTrue(count > 0, "No marker pixels drawn");
-        assertEquals(1, (int) (sumX / count) / TILE, "Marker not in column 1");
-        assertEquals(1, (int) (sumY / count) / TILE, "Marker not in row 1");
+        assertEquals(1, centroid.x / TILE, "Marker not in column 1");
+        assertEquals(1, centroid.y / TILE, "Marker not in row 1");
     }
 
     @Test
