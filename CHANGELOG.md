@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.38](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.37...v0.5.0-beta.38) (2026-10-01)
+
+
+### Features
+
+* sandbox kitchen-sink tile scene with walkability overlay ([#247](https://github.com/SwiftFaze/Veil/issues/247)) ([5e00fa1](https://github.com/SwiftFaze/Veil/commit/5e00fa1ac51da71bbd540feee1b6b6d4959dc297))
+
 ## [0.5.0-beta.37](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.36...v0.5.0-beta.37) (2026-10-01)
 
 
