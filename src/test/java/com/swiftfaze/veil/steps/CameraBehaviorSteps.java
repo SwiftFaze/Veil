@@ -1,6 +1,6 @@
 package com.swiftfaze.veil.steps;
 
-import com.swiftfaze.veil.Camera;
+import com.swiftfaze.veil.render.Camera;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

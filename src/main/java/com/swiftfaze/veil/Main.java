@@ -31,6 +31,7 @@ import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
 import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
 import com.swiftfaze.veil.sandbox.TileSandboxProvider;
+import com.swiftfaze.veil.sandbox.KitchenSinkProvider;
 import com.swiftfaze.veil.game.GameListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -276,7 +277,8 @@ public class Main {
             new ClassSandboxProvider(),
             new QuestSandboxProvider(),
             new TileSandboxProvider(),
-            new PlayerSandboxProvider(playerSupplier)
+            new PlayerSandboxProvider(playerSupplier),
+            new KitchenSinkProvider()
         );
     }
 

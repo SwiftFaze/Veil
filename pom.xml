@@ -336,7 +336,9 @@
                          this list in step with the classes that have real logic; the
                          pure layout/wiring classes are excluded below instead. -->
                     <targetClasses>
+                        <!-- Camera moved to .render; the old name stays only because check-quality-gates.sh forbids dropping a base entry. -->
                         <param>com.swiftfaze.veil.Camera</param>
+                        <param>com.swiftfaze.veil.render.Camera</param>
                         <param>com.swiftfaze.veil.world.*</param>
                         <param>com.swiftfaze.veil.testing.approval.*</param>
                         <param>com.swiftfaze.veil.entities.*</param>
@@ -363,6 +365,9 @@
                         <param>com.swiftfaze.veil.sandbox.TileSandboxProvider</param>
                         <param>com.swiftfaze.veil.sandbox.DevConsoleCompletion</param>
                         <param>com.swiftfaze.veil.sandbox.DevConsoleCommandHistory</param>
+                        <param>com.swiftfaze.veil.sandbox.KitchenSinkModel</param>
+                        <param>com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel</param>
+                        <param>com.swiftfaze.veil.sandbox.KitchenSinkProvider</param>
                         <param>com.swiftfaze.veil.ui.widget.SuggestionOverlayWidget</param>
                     </targetClasses>
                     <!-- Same pure layout/wiring classes the PMD and JaCoCo exclusion

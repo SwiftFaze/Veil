@@ -33,7 +33,8 @@ public class ClassSandbox {
         return List.of(
             new ClassSandboxProvider(),
             new TileSandboxProvider(),
-            new QuestSandboxProvider()
+            new QuestSandboxProvider(),
+            new KitchenSinkProvider()
         );
     }
 }
