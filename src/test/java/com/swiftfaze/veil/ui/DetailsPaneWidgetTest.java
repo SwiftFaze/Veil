@@ -2,13 +2,21 @@ package com.swiftfaze.veil.ui;
 
 import com.swiftfaze.veil.component.DetailTable;
 import com.swiftfaze.veil.component.Inspectable;
+import com.swiftfaze.veil.ui.widget.TableWidget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.JComponent;
+import javax.swing.JScrollPane;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,6 +28,29 @@ class DetailsPaneWidgetTest {
     @BeforeEach
     void setUp() {
         detailsPane = new DetailsPaneWidget();
+    }
+
+    @Test
+    void tablesAreCappedAtTheirRowsHeightSoTheyDoNotStretchIntoEmptySpace() {
+        detailsPane.showEntry(createTwoTableEntry());
+
+        TableWidget<List<String>> fieldTable = detailsPane.getTable(0);
+        TableWidget<List<String>> effectsTable = detailsPane.getTable(1);
+
+        assertEquals(fieldTable.getPreferredSize().height, fieldTable.getMaximumSize().height);
+        assertEquals(effectsTable.getPreferredSize().height, effectsTable.getMaximumSize().height);
+    }
+
+    @Test
+    void theDefaultPaneDrawsADividerAgainstTheListBesideIt() {
+        CompoundBorder border = assertInstanceOf(CompoundBorder.class, detailsPanelBorder(detailsPane));
+
+        assertInstanceOf(MatteBorder.class, border.getOutsideBorder());
+    }
+
+    @Test
+    void aStandalonePaneHasPaddingButNoDivider() {
+        assertInstanceOf(EmptyBorder.class, detailsPanelBorder(DetailsPaneWidget.standalone()));
     }
 
     @Test
@@ -197,6 +228,11 @@ class DetailsPaneWidgetTest {
                 );
             }
         };
+    }
+
+    private static Border detailsPanelBorder(DetailsPaneWidget pane) {
+        JScrollPane scrollPane = (JScrollPane) pane.getComponent(0);
+        return ((JComponent) scrollPane.getViewport().getView()).getBorder();
     }
 
     private Inspectable createTwoTableEntry() {

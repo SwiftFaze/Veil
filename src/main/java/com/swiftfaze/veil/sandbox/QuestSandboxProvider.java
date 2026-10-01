@@ -48,7 +48,7 @@ public class QuestSandboxProvider implements DevConsoleProvider {
     @Override
     public JComponent createPanel(String id) {
         Quest quest = model.findById(id);
-        DetailsPaneWidget pane = new DetailsPaneWidget();
+        DetailsPaneWidget pane = DetailsPaneWidget.standalone();
         pane.showEntry(quest);
         pane.focusFirstTable();
         return pane;

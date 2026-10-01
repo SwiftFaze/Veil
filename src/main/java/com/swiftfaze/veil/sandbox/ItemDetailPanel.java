@@ -37,7 +37,7 @@ public final class ItemDetailPanel extends JPanel {
     public ItemDetailPanel(Item item, DevConsoleFieldMutator fieldMutator) {
         this.title = item.getName();
         this.fieldMutator = fieldMutator;
-        this.detailsPane = new DetailsPaneWidget();
+        this.detailsPane = DetailsPaneWidget.standalone();
         this.detailsPane.showEntry(item);
         this.detailsPane.focusFirstTable();
 

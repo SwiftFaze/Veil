@@ -58,6 +58,10 @@ from the internal-padding standard above — like `HeaderWidget`'s
 against a neighbor (space above a section label, space left of a details
 divider) rather than padding framing a single component's own content on
 all sides. Same pattern, just not yet pulled into a named constant.
+`DetailsPaneWidget.standalone()` (the dev-console sandbox panels, which have no
+list beside them) keeps that padding but drops the divider; Codex and Inventory
+use the default constructor, which keeps it. Details tables are capped at their
+own rows' height, so a table's left border never runs on into empty space.
 
 ## Typography
 

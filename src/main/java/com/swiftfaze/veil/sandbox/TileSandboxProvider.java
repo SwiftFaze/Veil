@@ -45,7 +45,7 @@ public class TileSandboxProvider implements DevConsoleProvider {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unknown tile id: " + id));
 
-        DetailsPaneWidget pane = new DetailsPaneWidget();
+        DetailsPaneWidget pane = DetailsPaneWidget.standalone();
         pane.showEntry(tile);
         pane.focusFirstTable();
         return pane;

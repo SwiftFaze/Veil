@@ -24,8 +24,18 @@ public class DetailsPaneWidget extends JPanel {
     private final List<TableWidget<List<String>>> tables = new ArrayList<>();
     private int focusedIndex = -1;
 
+    /** A details pane beside a list (Codex, Inventory), with a divider against that list. */
     public DetailsPaneWidget() {
-        detailsPanel = ListDetailLayoutUtility.buildDetailsPanel();
+        this(ListDetailLayoutUtility.buildDetailsPanel());
+    }
+
+    /** A details pane shown on its own, with no list beside it and so no divider. */
+    public static DetailsPaneWidget standalone() {
+        return new DetailsPaneWidget(ListDetailLayoutUtility.buildStandaloneDetailsPanel());
+    }
+
+    private DetailsPaneWidget(JPanel detailsPanel) {
+        this.detailsPanel = detailsPanel;
         detailsScrollPane = ListDetailLayoutUtility.buildScrollPane(detailsPanel);
         setOpaque(false);
         setLayout(new java.awt.BorderLayout());

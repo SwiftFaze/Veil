@@ -62,21 +62,38 @@ public final class ListDetailLayoutUtility {
      */
     public static JPanel buildDetailsPanel() {
         Border detailsDivider = BorderFactory.createMatteBorder(0, 2, 0, 0, WidgetTheme.BORDER);
-        Border detailsPadding = BorderFactory.createEmptyBorder(4, 10, 0, 0);
+        return buildDetailsPanel(BorderFactory.createCompoundBorder(detailsDivider, detailsPadding()));
+    }
+
+    /**
+     * Builds a details panel with the same padding but no list divider, for a details pane
+     * shown on its own (the dev-console sandbox panels) where there is no list to divide it from.
+     */
+    public static JPanel buildStandaloneDetailsPanel() {
+        return buildDetailsPanel(detailsPadding());
+    }
+
+    private static Border detailsPadding() {
+        return BorderFactory.createEmptyBorder(4, 10, 0, 0);
+    }
+
+    private static JPanel buildDetailsPanel(Border border) {
         JPanel detailsPanel = new JPanel();
         detailsPanel.setBackground(WidgetTheme.BACKGROUND);
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
-        detailsPanel.setBorder(BorderFactory.createCompoundBorder(detailsDivider, detailsPadding));
+        detailsPanel.setBorder(border);
         return detailsPanel;
     }
 
     /**
-     * Configures a table widget with standard detail-pane styling (non-wrapping, non-selectable, full height).
+     * Configures a table widget with standard detail-pane styling (non-wrapping, non-selectable,
+     * full width). Height is capped at the table's own rows: left uncapped, BoxLayout stretches
+     * the table into the pane's spare height and its left border runs on below the last row.
      */
     public static <T> void configureDetailsTable(TableWidget<T> table) {
         table.setWrapAround(false);
         table.setSelectable(false);
         table.setAlignmentX(Component.LEFT_ALIGNMENT);
-        table.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+        table.setMaximumSize(new Dimension(Integer.MAX_VALUE, table.getPreferredSize().height));
     }
 }
