@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.swiftfaze</groupId>
     <artifactId>Veil</artifactId>
-    <version>0.5.0-beta.39</version>
+    <version>0.5.0-beta.40</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -131,6 +131,23 @@
                  it silently stop being copied to target/classes. -->
             <resource>
                 <directory>${project.basedir}/src/main/resources</directory>
+                <!-- version.properties is filtered separately to avoid accidentally
+                     filtering other resources (logback.xml, JSON schemas) that
+                     contain ${...} syntax -->
+                <excludes>
+                    <exclude>version.properties</exclude>
+                </excludes>
+            </resource>
+            <!-- Filtered version.properties block: Maven substitutes ${project.version}
+                 at build time so dev runs (mvn compile exec:java) and packaged installs
+                 show the same version string. Only this one resource is filtered to
+                 prevent mangling JSON schemas and logback.xml. -->
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <includes>
+                    <include>version.properties</include>
+                </includes>
+                <filtering>true</filtering>
             </resource>
             <!-- JSON schemas for mod content types, committed under docs/schemas/ and loaded
                  at runtime by ModSchemaValidator for field-level validation and diagnostics -->
@@ -373,6 +390,8 @@
                         <param>com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel</param>
                         <param>com.swiftfaze.veil.sandbox.KitchenSinkProvider</param>
                         <param>com.swiftfaze.veil.ui.widget.SuggestionOverlayWidget</param>
+                        <param>com.swiftfaze.veil.AppVersion</param>
+                        <param>com.swiftfaze.veil.AppIcon</param>
                     </targetClasses>
                     <!-- Same pure layout/wiring classes the PMD and JaCoCo exclusion
                          lists below carry, for the same reason: no branching logic to

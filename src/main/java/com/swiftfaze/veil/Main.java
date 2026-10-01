@@ -117,6 +117,8 @@ public class Main {
         ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
         GameEventLog eventLog = GameEventLog.fromSystemProperties();
 
+        hintBar.setVersionText(new AppVersion().getDisplayVersion());
+
         GamePanel gamePanel = buildGameCard(cardPanel, cards, hintBar, eventLog);
         ScreenNavigator navigator = new ScreenNavigator(cardLayout, cardPanel, cards, eventLog);
         ScreenDeck deck = new ScreenDeck(cardPanel, cards, navigator::navigateTo);
@@ -248,6 +250,8 @@ public class Main {
 
         JFrame consoleFrame = new JFrame("Veil - Dev Console");
         consoleFrame.add(console);
+        AppIcon.applyTo(consoleFrame::setIconImage);
+
         consoleFrame.pack();
         consoleFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         consoleFrame.setLocationRelativeTo(null);
@@ -294,6 +298,8 @@ public class Main {
         frame.setLayout(new BorderLayout());
         deck.addTo(frame);
         frame.add(hintBar, BorderLayout.SOUTH);
+        AppIcon.applyTo(frame::setIconImage);
+
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         wireWindowMode(frame, deck.cardsView());

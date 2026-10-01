@@ -168,13 +168,13 @@ jobs:
           extra_args=()
           case "${{ matrix.os }}" in
             windows-latest)
-              extra_args+=(--win-menu --win-shortcut --win-dir-chooser)
+              extra_args+=(--win-menu --win-shortcut --win-dir-chooser --icon packaging/icons/veil.ico)
               ;;
             ubuntu-latest)
-              extra_args+=(--linux-shortcut --linux-package-name veil)
+              extra_args+=(--linux-shortcut --linux-package-name veil --icon packaging/icons/veil.png)
               ;;
             macos-latest)
-              extra_args+=(--mac-package-identifier com.swiftfaze.veil)
+              extra_args+=(--mac-package-identifier com.swiftfaze.veil --icon packaging/icons/veil.icns)
               # macOS pkg additionally rejects a major version of 0 ("The
               # first number in an app-version cannot be zero or negative").
               # We're still pre-1.0, so bump just this OS's internal bundle

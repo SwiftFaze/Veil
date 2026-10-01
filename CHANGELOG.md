@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.40](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.39...v0.5.0-beta.40) (2026-10-01)
+
+
+### Features
+
+* executable icon and in-game version display ([#256](https://github.com/SwiftFaze/Veil/issues/256)) ([2bee003](https://github.com/SwiftFaze/Veil/commit/2bee00316fa064bb0874be42e29400a06e4654b0))
+
 ## [0.5.0-beta.39](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.38...v0.5.0-beta.39) (2026-10-01)
 
 

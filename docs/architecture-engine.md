@@ -13,6 +13,10 @@ inline wiring in `Main.buildGameCard`/`wirePopups` (see `docs/screens.md`'s
 "UI shell" note). There is no game loop/ticker — the world only repaints
 in response to key events (see `GamePanel.bindKeys`).
 
+`Main` also sets the window icon (`AppIcon`, from `/icons/veil.png`) on the
+game frame and the dev console frame; if the resource is missing the
+default icon stays and a warning is logged.
+
 **`GamePanel`** is the core of the simulation: it owns the `Player`, the
 active `WorldScene`, and a `Camera`, wires keyboard input directly to player
 movement, and drives all rendering from `paintComponent`. The world is a

@@ -126,6 +126,15 @@ just its own internal bundle version metadata (`0.2.0` → `1.2.0`) — the
 uploaded filename is unaffected and still shows the real version. This
 step becomes a no-op once the project reaches `1.0.0`.
 
+**App icon**: `jpackage --icon` takes a different format per OS, so the
+matrix passes `packaging/icons/veil.ico` (Windows), `veil.png` (Linux) and
+`veil.icns` (macOS). All three were generated once from the supplied
+512x512 PNG with Pillow and are committed; there is no build step that
+regenerates them, so replacing the artwork means re-exporting all three.
+The runtime window/taskbar icon is a separate copy of the PNG at
+`src/main/resources/icons/veil.png`, applied by `AppIcon` (keep the two
+PNGs identical).
+
 ### Testing the installer build without cutting a release
 
 The workflow also accepts `workflow_dispatch` (Actions tab → Release →

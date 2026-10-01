@@ -4,7 +4,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GridLayout;
@@ -19,14 +21,23 @@ import java.util.List;
  * (background/foreground swapped from the theme's normal text colors) so it
  * reads like a terminal help bar (nano's status line), wrapping into a
  * compact grid instead of one ever-widening line.
+ *
+ * The bar also displays the application version at its right edge, using the
+ * same font and a dimmed text color so it doesn't compete with the hints.
  */
-public class ControlsHintBarWidget extends JPanel {
+public final class ControlsHintBarWidget extends JPanel {
     private static final Font HINT_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 14);
     private static final int MAX_COLUMNS = 3;
     private static final int KEY_HORIZONTAL_PADDING = 4;
     private static final int CELL_GAP = 6;
     private static final int GRID_HGAP = 20;
     private static final int GRID_VGAP = 2;
+    private static final int LABEL_PADDING_VERTICAL = 4;
+    private static final int LABEL_PADDING_HORIZONTAL = 8;
+
+    private List<Hint> hints = List.of();
+    private final JPanel hintsPanel = new JPanel(new GridLayout(1, 1));
+    private final JLabel versionLabel = new JLabel();
 
     /**
      * A single "key does action" pair. The widget owns turning {@code key}
@@ -36,12 +47,24 @@ public class ControlsHintBarWidget extends JPanel {
     public record Hint(String key, String action) {
     }
 
-    private List<Hint> hints = List.of();
-
     public ControlsHintBarWidget() {
         setBackground(WidgetTheme.BACKGROUND);
         setBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, WidgetTheme.BORDER));
-        setLayout(new GridLayout(1, 1));
+        setLayout(new BorderLayout());
+
+        hintsPanel.setBackground(WidgetTheme.BACKGROUND);
+        add(hintsPanel, BorderLayout.CENTER);
+
+        versionLabel.setForeground(WidgetTheme.DIMMED_TEXT);
+        versionLabel.setBackground(WidgetTheme.BACKGROUND);
+        versionLabel.setOpaque(true);
+        versionLabel.setFont(HINT_FONT);
+        versionLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        versionLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+        versionLabel.setBorder(BorderFactory.createEmptyBorder(
+                LABEL_PADDING_VERTICAL, LABEL_PADDING_HORIZONTAL,
+                LABEL_PADDING_VERTICAL, LABEL_PADDING_HORIZONTAL));
+        add(versionLabel, BorderLayout.EAST);
     }
 
     public void setHints(List<Hint> newHints) {
@@ -55,20 +78,24 @@ public class ControlsHintBarWidget extends JPanel {
         return List.copyOf(hints);
     }
 
+    public void setVersionText(String versionText) {
+        versionLabel.setText(versionText);
+    }
+
     private void rebuild() {
-        removeAll();
+        hintsPanel.removeAll();
         if (hints.isEmpty()) {
-            setLayout(new GridLayout(1, 1));
+            hintsPanel.setLayout(new GridLayout(1, 1));
             return;
         }
         int columns = Math.min(MAX_COLUMNS, hints.size());
         int rows = (int) Math.ceil(hints.size() / (double) columns);
-        setLayout(new GridLayout(rows, columns, GRID_HGAP, GRID_VGAP));
+        hintsPanel.setLayout(new GridLayout(rows, columns, GRID_HGAP, GRID_VGAP));
 
         int keyWidth = widestKeyWidth();
         FontMetrics metrics = getFontMetrics(HINT_FONT);
         for (Hint cell : columnMajorOrder(rows, columns)) {
-            add(buildCell(cell, keyWidth, metrics.getHeight()));
+            hintsPanel.add(buildCell(cell, keyWidth, metrics.getHeight()));
         }
     }
 
@@ -83,7 +110,7 @@ public class ControlsHintBarWidget extends JPanel {
     }
 
     private JPanel buildCell(Hint hint, int keyWidth, int keyHeight) {
-        JPanel cell = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, CELL_GAP, 0));
+        JPanel cell = new JPanel(new FlowLayout(FlowLayout.LEFT, CELL_GAP, 0));
         cell.setBackground(WidgetTheme.BACKGROUND);
         if (hint == null) {
             return cell;
