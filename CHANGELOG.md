@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.37](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.36...v0.5.0-beta.37) (2026-10-01)
+
+
+### Features
+
+* teleport the live player from the dev console Player panel ([#238](https://github.com/SwiftFaze/Veil/issues/238)) ([d523430](https://github.com/SwiftFaze/Veil/commit/d52343011ebfcb8e5c56295505ee1f4514a25814))
+
 ## [0.5.0-beta.36](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.35...v0.5.0-beta.36) (2026-10-01)
 
 
