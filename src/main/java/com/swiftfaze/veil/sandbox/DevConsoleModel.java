@@ -1,18 +1,19 @@
 package com.swiftfaze.veil.sandbox;
 
+
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 public class DevConsoleModel {
 
-    private final List<SearchResult> allResults;
+    private final List<DevConsoleProvider> providers;
+    private List<SearchResult> allResults;
     private String searchText = "";
 
     public DevConsoleModel(List<DevConsoleProvider> providers) {
-        this.allResults = providers.stream()
-                .flatMap(provider -> provider.entries().stream().map(entry -> new SearchResult(provider, entry)))
-                .toList();
+        this.providers = List.copyOf(providers);
+        this.allResults = rebuildResults();
     }
 
     public void setSearchText(String searchText) {
@@ -49,6 +50,29 @@ public class DevConsoleModel {
 
     public List<SearchResult> allResults() {
         return allResults;
+    }
+
+    /**
+     * Asks every registered provider to refresh from mods/, then rebuilds the entry list
+     * atomically. If any provider's reload() or entries() throws ModLoadException, the
+     * previous entry list stays in place.
+     *
+     * @return the total number of entries after reload
+     */
+    public int reload() {
+        for (DevConsoleProvider provider : providers) {
+            provider.reload();
+        }
+        List<SearchResult> newResults = rebuildResults();
+        this.allResults = newResults;
+        return newResults.size();
+    }
+
+
+    private List<SearchResult> rebuildResults() {
+        return providers.stream()
+                .flatMap(provider -> provider.entries().stream().map(entry -> new SearchResult(provider, entry)))
+                .toList();
     }
 
     private boolean matchesToken(DevConsoleEntry entry, String token) {
