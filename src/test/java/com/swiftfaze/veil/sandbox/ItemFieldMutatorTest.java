@@ -1,352 +1,194 @@
 package com.swiftfaze.veil.sandbox;
 
 import com.swiftfaze.veil.entities.items.Item;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ItemFieldMutatorTest {
 
-    private static Item ironSword() {
-        return new Item(
+    private static final String MIN = ItemField.MIN_DAMAGE.token();
+    private static final String MAX = ItemField.MAX_DAMAGE.token();
+    private static final String MIN_NAME = ItemField.MIN_DAMAGE.displayName();
+    private static final String MAX_NAME = ItemField.MAX_DAMAGE.displayName();
+    private static final String DEFAULT = "default";
+    private static final Item.BaseDamage ORIGINAL = new Item.BaseDamage(4, 9);
+
+    private AtomicReference<Item> stored;
+    private ItemFieldMutator mutator;
+
+    @BeforeEach
+    void setUp() {
+        stored = new AtomicReference<>(new Item(
                 "core:iron_sword",
                 "Iron Sword",
-                new Item.ItemAttributes('/', "weapon", "hand", new Item.BaseDamage(4, 9), List.of())
-        );
+                new Item.ItemAttributes('/', "weapon", "hand", ORIGINAL, List.of())));
+        mutator = new ItemFieldMutator(ORIGINAL, stored::get, stored::set);
     }
 
-    private ItemFieldMutator.ItemDamageUpdater createUpdater(Map<String, Item> itemsMap) {
-        return info -> {
-            Item current = itemsMap.get(info.itemId());
-            Item.BaseDamage newDamage = new Item.BaseDamage(info.newMin(), info.newMax());
-            Item updated = current.withBaseDamage(newDamage);
-            itemsMap.put(info.itemId(), updated);
-            return new DevConsoleMutationResult.Success(info.displayName(), info.newValue());
-        };
+    private Item.BaseDamage storedDamage() {
+        Item item = stored.get();
+        return item.getBaseDamage();
     }
 
     @Test
     void setChangesMaxDamageAndReturnsSuccess() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, MAX, "12");
 
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
-
-        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, "maxdmg", "12");
-
-        assertTrue(result instanceof DevConsoleMutationResult.Success);
-        DevConsoleMutationResult.Success success = (DevConsoleMutationResult.Success) result;
-        assertEquals("Base Damage (Max)", success.fieldName());
-        assertEquals(12, success.newValue());
-        assertEquals(12, itemsMap.get(item.getId()).getBaseDamage().max());
-        assertEquals(4, itemsMap.get(item.getId()).getBaseDamage().min());
+        assertEquals(new DevConsoleMutationResult.Success(MAX_NAME, 12), result);
+        assertEquals(new Item.BaseDamage(4, 12), storedDamage());
     }
 
     @Test
     void setChangesMinDamageAndReturnsSuccess() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, MIN, "0");
 
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
-
-        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, "mindmg", "0");
-
-        assertTrue(result instanceof DevConsoleMutationResult.Success);
-        DevConsoleMutationResult.Success success = (DevConsoleMutationResult.Success) result;
-        assertEquals("Base Damage (Min)", success.fieldName());
-        assertEquals(0, success.newValue());
-        assertEquals(0, itemsMap.get(item.getId()).getBaseDamage().min());
-        assertEquals(9, itemsMap.get(item.getId()).getBaseDamage().max());
+        assertEquals(new DevConsoleMutationResult.Success(MIN_NAME, 0), result);
+        assertEquals(new Item.BaseDamage(0, 9), storedDamage());
     }
 
     @Test
     void addIncreasesMaxDamage() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.ADD, MAX, "3");
 
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
-
-        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.ADD, "maxdmg", "3");
-
-        assertTrue(result instanceof DevConsoleMutationResult.Success);
-        DevConsoleMutationResult.Success success = (DevConsoleMutationResult.Success) result;
-        assertEquals(12, success.newValue());
-        assertEquals(12, itemsMap.get(item.getId()).getBaseDamage().max());
+        assertEquals(new DevConsoleMutationResult.Success(MAX_NAME, 12), result);
+        assertEquals(new Item.BaseDamage(4, 12), storedDamage());
     }
 
     @Test
     void subtractDecreasesMinDamage() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SUBTRACT, MIN, "1");
 
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
-
-        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SUBTRACT, "mindmg", "1");
-
-        assertTrue(result instanceof DevConsoleMutationResult.Success);
-        DevConsoleMutationResult.Success success = (DevConsoleMutationResult.Success) result;
-        assertEquals(3, success.newValue());
-        assertEquals(3, itemsMap.get(item.getId()).getBaseDamage().min());
+        assertEquals(new DevConsoleMutationResult.Success(MIN_NAME, 3), result);
+        assertEquals(new Item.BaseDamage(3, 9), storedDamage());
     }
 
     @Test
     void subtractClampsToZero() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SUBTRACT, MIN, "50");
 
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
+        assertEquals(new DevConsoleMutationResult.Success(MIN_NAME, 0), result);
+        assertEquals(new Item.BaseDamage(0, 9), storedDamage());
+    }
 
-        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SUBTRACT, "mindmg", "50");
+    @Test
+    void setBelowZeroClampsToZero() {
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, MIN, "-5");
 
-        assertTrue(result instanceof DevConsoleMutationResult.Success);
-        DevConsoleMutationResult.Success success = (DevConsoleMutationResult.Success) result;
-        assertEquals(0, success.newValue());
-        assertEquals(0, itemsMap.get(item.getId()).getBaseDamage().min());
+        assertEquals(new DevConsoleMutationResult.Success(MIN_NAME, 0), result);
     }
 
     @Test
     void defaultRestoresOriginalMaxDamage() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
+        mutator.apply(DevConsoleMutationVerb.SET, MAX, "20");
 
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, MAX, DEFAULT);
 
-        // First, set a new value
-        mutator.apply(DevConsoleMutationVerb.SET, "maxdmg", "20");
-        assertEquals(20, itemsMap.get(item.getId()).getBaseDamage().max());
+        assertEquals(new DevConsoleMutationResult.Success(MAX_NAME, 9), result);
+        assertEquals(ORIGINAL, storedDamage());
+    }
 
-        // Then, reset to default
-        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, "maxdmg", "default");
+    @Test
+    void defaultRestoresOriginalMinDamage() {
+        mutator.apply(DevConsoleMutationVerb.SET, MIN, "2");
 
-        assertTrue(result instanceof DevConsoleMutationResult.Success);
-        DevConsoleMutationResult.Success success = (DevConsoleMutationResult.Success) result;
-        assertEquals(9, success.newValue());
-        assertEquals(9, itemsMap.get(item.getId()).getBaseDamage().max());
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, MIN, DEFAULT);
+
+        assertEquals(new DevConsoleMutationResult.Success(MIN_NAME, 4), result);
+        assertEquals(ORIGINAL, storedDamage());
     }
 
     @Test
     void rejectsUnknownField() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
-
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
-
         DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, "glyph", "1");
 
-        assertTrue(result instanceof DevConsoleMutationResult.Failure);
-        DevConsoleMutationResult.Failure failure = (DevConsoleMutationResult.Failure) result;
-        assertEquals("glyph", failure.token());
+        assertEquals(new DevConsoleMutationResult.Failure("glyph"), result);
     }
 
     @Test
     void rejectsNonNumericValue() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, MAX, "lots");
 
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
-
-        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, "maxdmg", "lots");
-
-        assertTrue(result instanceof DevConsoleMutationResult.Failure);
-        DevConsoleMutationResult.Failure failure = (DevConsoleMutationResult.Failure) result;
-        assertEquals("lots", failure.token());
+        assertEquals(new DevConsoleMutationResult.Failure("lots"), result);
     }
 
     @Test
     void rejectsNegativeAddMagnitude() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.ADD, MAX, "-2");
 
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
-
-        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.ADD, "maxdmg", "-2");
-
-        assertTrue(result instanceof DevConsoleMutationResult.Failure);
-        DevConsoleMutationResult.Failure failure = (DevConsoleMutationResult.Failure) result;
-        assertEquals("-2", failure.token());
+        assertEquals(new DevConsoleMutationResult.Failure("-2"), result);
     }
 
     @Test
-    void rejectsMinGreaterThanMax() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
+    void acceptsZeroAddMagnitudeAsNoChange() {
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.ADD, MAX, "0");
 
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
-
-        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, "mindmg", "10");
-
-        assertTrue(result instanceof DevConsoleMutationResult.Failure);
-        DevConsoleMutationResult.Failure failure = (DevConsoleMutationResult.Failure) result;
-        assertEquals("10", failure.token());
-        // Verify nothing changed
-        assertEquals(4, itemsMap.get(item.getId()).getBaseDamage().min());
-        assertEquals(9, itemsMap.get(item.getId()).getBaseDamage().max());
+        assertEquals(new DevConsoleMutationResult.Success(MAX_NAME, 9), result);
     }
 
     @Test
-    void rejectsMaxLessThanMin() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
+    void rejectsNegativeSubtractMagnitude() {
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SUBTRACT, MAX, "-2");
 
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
+        assertEquals(new DevConsoleMutationResult.Failure("-2"), result);
+    }
 
-        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, "maxdmg", "3");
+    @Test
+    void rejectsMinGreaterThanMaxAndLeavesItemUnchanged() {
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, MIN, "10");
 
-        assertTrue(result instanceof DevConsoleMutationResult.Failure);
-        DevConsoleMutationResult.Failure failure = (DevConsoleMutationResult.Failure) result;
-        assertEquals("3", failure.token());
-        // Verify nothing changed
-        assertEquals(4, itemsMap.get(item.getId()).getBaseDamage().min());
-        assertEquals(9, itemsMap.get(item.getId()).getBaseDamage().max());
+        assertEquals(new DevConsoleMutationResult.Failure("10"), result);
+        assertEquals(ORIGINAL, storedDamage());
+    }
+
+    @Test
+    void rejectsMaxLessThanMinAndLeavesItemUnchanged() {
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, MAX, "3");
+
+        assertEquals(new DevConsoleMutationResult.Failure("3"), result);
+        assertEquals(ORIGINAL, storedDamage());
+    }
+
+    @Test
+    void acceptsMinEqualToMax() {
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.SET, MIN, "9");
+
+        assertEquals(new DevConsoleMutationResult.Success(MIN_NAME, 9), result);
+        assertEquals(new Item.BaseDamage(9, 9), storedDamage());
     }
 
     @Test
     void rejectsDefaultOnAddVerb() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.ADD, MAX, DEFAULT);
 
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
-
-        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.ADD, "maxdmg", "default");
-
-        assertTrue(result instanceof DevConsoleMutationResult.Failure);
+        assertEquals(new DevConsoleMutationResult.Failure(DEFAULT), result);
     }
 
     @Test
     void editsAccumulateAcrossCommands() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
+        mutator.apply(DevConsoleMutationVerb.SET, MAX, "20");
 
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
+        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.ADD, MAX, "5");
 
-        mutator.apply(DevConsoleMutationVerb.SET, "maxdmg", "20");
-        assertEquals(20, itemsMap.get(item.getId()).getBaseDamage().max());
-
-        DevConsoleMutationResult result = mutator.apply(DevConsoleMutationVerb.ADD, "maxdmg", "5");
-
-        assertTrue(result instanceof DevConsoleMutationResult.Success);
-        DevConsoleMutationResult.Success success = (DevConsoleMutationResult.Success) result;
-        assertEquals(25, success.newValue());
-        assertEquals(25, itemsMap.get(item.getId()).getBaseDamage().max());
+        assertEquals(new DevConsoleMutationResult.Success(MAX_NAME, 25), result);
+        assertEquals(new Item.BaseDamage(4, 25), storedDamage());
     }
 
     @Test
-    void fieldTokensIncludesMinAndMaxDamage() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
-
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
-
-        java.util.List<String> tokens = mutator.fieldTokens();
-
-        assertEquals(2, tokens.size());
-        assertTrue(tokens.contains("mindmg"));
-        assertTrue(tokens.contains("maxdmg"));
+    void fieldTokensListsMinAndMaxDamage() {
+        assertEquals(List.of(MIN, MAX), mutator.fieldTokens());
     }
 
     @Test
-    void hasClassDefaultReturnsTrueForBothFields() {
-        Item item = ironSword();
-        Map<String, Item> itemsMap = new HashMap<>();
-        itemsMap.put(item.getId(), item);
-
-        ItemFieldMutator mutator = new ItemFieldMutator(
-                item.getId(),
-                item.getBaseDamage(),
-                createUpdater(itemsMap),
-                id -> itemsMap.get(id)
-        );
-
-        assertTrue(mutator.hasClassDefault("mindmg"));
-        assertTrue(mutator.hasClassDefault("maxdmg"));
+    void hasClassDefaultOnlyForItemFields() {
+        assertTrue(mutator.hasClassDefault(MIN));
+        assertTrue(mutator.hasClassDefault(MAX));
+        assertFalse(mutator.hasClassDefault("glyph"));
     }
 }

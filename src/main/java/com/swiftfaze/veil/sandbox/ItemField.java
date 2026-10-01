@@ -1,27 +1,25 @@
 package com.swiftfaze.veil.sandbox;
 
+import com.swiftfaze.veil.entities.items.Item;
+
 import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * The two {@link com.swiftfaze.veil.entities.items.Item.BaseDamage} fields addressable by the dev
- * console's set/add/subtract verbs. Other fields (glyph, type, slot, effects) are deliberately
- * not here - {@link ItemFieldMutator#apply} rejects any other token as an unknown field.
+ * The two {@link Item.BaseDamage} fields addressable by the dev console's set/add/subtract verbs.
+ * Other fields (glyph, type, slot, effects) are deliberately not here -
+ * {@link ItemFieldMutator#apply} rejects any other token as an unknown field.
  */
 enum ItemField {
-    MIN_DAMAGE("mindmg", "Base Damage (Min)", 0, true),
-    MAX_DAMAGE("maxdmg", "Base Damage (Max)", 0, true);
+    MIN_DAMAGE("mindmg", "Base Damage (Min)"),
+    MAX_DAMAGE("maxdmg", "Base Damage (Max)");
 
     private final String token;
     private final String displayName;
-    private final int floor;
-    private final boolean hasClassDefault;
 
-    ItemField(String token, String displayName, int floor, boolean hasClassDefault) {
+    ItemField(String token, String displayName) {
         this.token = token;
         this.displayName = displayName;
-        this.floor = floor;
-        this.hasClassDefault = hasClassDefault;
     }
 
     static Optional<ItemField> fromToken(String token) {
@@ -36,11 +34,21 @@ enum ItemField {
         return token;
     }
 
-    int floor() {
-        return floor;
+    /** This field's current value within {@code damage}. */
+    int valueIn(Item.BaseDamage damage) {
+        return switch (this) {
+            case MIN_DAMAGE -> damage.min();
+            case MAX_DAMAGE -> damage.max();
+        };
     }
 
-    boolean hasClassDefault() {
-        return hasClassDefault;
+    /** The minimum damage after setting this field to {@code value} within {@code damage}. */
+    int minWith(Item.BaseDamage damage, int value) {
+        return this == MIN_DAMAGE ? value : damage.min();
+    }
+
+    /** The maximum damage after setting this field to {@code value} within {@code damage}. */
+    int maxWith(Item.BaseDamage damage, int value) {
+        return this == MAX_DAMAGE ? value : damage.max();
     }
 }

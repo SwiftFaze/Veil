@@ -62,12 +62,9 @@ public class Item implements Inspectable {
         return effects;
     }
 
-    public Item withBaseDamage(BaseDamage newBaseDamage) {
-        return new Item(id, name, new ItemAttributes(glyph, type, slot, newBaseDamage, effects));
-    }
-
     public Item withBaseDamage(int minDamage, int maxDamage) {
-        return withBaseDamage(new BaseDamage(minDamage, maxDamage));
+        BaseDamage newBaseDamage = new BaseDamage(minDamage, maxDamage);
+        return new Item(id, name, new ItemAttributes(glyph, type, slot, newBaseDamage, effects));
     }
 
     @Override

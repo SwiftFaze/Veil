@@ -361,6 +361,8 @@
                         <param>com.swiftfaze.veil.sandbox.PlayerField</param>
                         <param>com.swiftfaze.veil.sandbox.PlayerFieldMutator</param>
                         <param>com.swiftfaze.veil.sandbox.ItemSandboxProvider</param>
+                        <param>com.swiftfaze.veil.sandbox.ItemField</param>
+                        <param>com.swiftfaze.veil.sandbox.ItemFieldMutator</param>
                         <param>com.swiftfaze.veil.sandbox.ItemDetailPanel</param>
                         <param>com.swiftfaze.veil.sandbox.PlayerSnapshotter</param>
                         <param>com.swiftfaze.veil.sandbox.PlayerSnapshotter$Snapshot</param>

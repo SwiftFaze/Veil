@@ -95,29 +95,40 @@ class ItemTest {
         ), tables.get(0).rows());
     }
 
-    @Test
-    void withBaseDamageReturnsNewItemWithUpdatedDamage() {
-        Item original = new Item(
+    private static Item swordWithDamage4To9() {
+        return new Item(
                 "test:sword",
                 "Iron Sword",
-                new Item.ItemAttributes(
-                        '/',
-                        "weapon",
-                        "hand",
-                        new Item.BaseDamage(4, 9),
-                        List.of()
-                )
+                new Item.ItemAttributes('/', "weapon", "hand", new Item.BaseDamage(4, 9), List.of())
         );
+    }
 
-        Item updated = original.withBaseDamage(new Item.BaseDamage(5, 12));
+    @Test
+    void withBaseDamageReturnsNewItemWithUpdatedDamage() {
+        Item updated = swordWithDamage4To9().withBaseDamage(5, 12);
+
+        assertEquals(new Item.BaseDamage(5, 12), updated.getBaseDamage());
+    }
+
+    @Test
+    void withBaseDamagePreservesIdAndName() {
+        Item original = swordWithDamage4To9();
+
+        Item updated = original.withBaseDamage(5, 12);
 
         assertEquals(original.getId(), updated.getId());
         assertEquals(original.getName(), updated.getName());
+    }
+
+    @Test
+    void withBaseDamagePreservesGlyphTypeAndSlot() {
+        Item original = swordWithDamage4To9();
+
+        Item updated = original.withBaseDamage(5, 12);
+
         assertEquals(original.getGlyph(), updated.getGlyph());
         assertEquals(original.getType(), updated.getType());
         assertEquals(original.getSlot(), updated.getSlot());
-        assertEquals(5, updated.getBaseDamage().min());
-        assertEquals(12, updated.getBaseDamage().max());
     }
 
     @Test
@@ -128,16 +139,10 @@ class ItemTest {
         Item original = new Item(
                 "test:sword",
                 "Iron Sword",
-                new Item.ItemAttributes(
-                        '/',
-                        "weapon",
-                        "hand",
-                        new Item.BaseDamage(4, 9),
-                        effects
-                )
+                new Item.ItemAttributes('/', "weapon", "hand", new Item.BaseDamage(4, 9), effects)
         );
 
-        Item updated = original.withBaseDamage(new Item.BaseDamage(5, 12));
+        Item updated = original.withBaseDamage(5, 12);
 
         assertEquals(effects, updated.getEffects());
     }

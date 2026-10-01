@@ -58,28 +58,19 @@ public class ItemSandboxProvider implements DevConsoleProvider {
 
     @Override
     public Optional<DevConsoleFieldMutator> fieldMutator(String id) {
-        Item item = findItemById(id);
-        Item.BaseDamage originalBaseDamage = originalBaseDamageById.getOrDefault(id, item.getBaseDamage());
+        findItemById(id);
         return Optional.of(new ItemFieldMutator(
-                id,
-                originalBaseDamage,
-                this::updateItemDamage,
-                lookupId -> findItemById(lookupId)
-        ));
-    }
-
-    private DevConsoleMutationResult updateItemDamage(ItemFieldMutator.DamageUpdateInfo info) {
-        Item current = findItemById(info.itemId());
-        Item updated = current.withBaseDamage(info.newMin(), info.newMax());
-        itemsById.put(info.itemId(), updated);
-        return new DevConsoleMutationResult.Success(info.displayName(), info.newValue());
+                originalBaseDamageById.get(id),
+                () -> findItemById(id),
+                updated -> itemsById.put(id, updated)));
     }
 
     private Item findItemById(String id) {
-        return itemsById.values().stream()
-                .filter(item -> item.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown item id: " + id));
+        Item item = itemsById.get(id);
+        if (item == null) {
+            throw new IllegalArgumentException("Unknown item id: " + id);
+        }
+        return item;
     }
 
     private static String namespaceOf(String id) {

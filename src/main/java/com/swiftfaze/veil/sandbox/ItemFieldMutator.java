@@ -5,44 +5,30 @@ import com.swiftfaze.veil.entities.items.Item;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.function.Function;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
- * Applies the dev-console command bar's set/add/subtract verbs to an item's base damage fields,
- * reusing the same field floors/clamping rules as {@link PlayerFieldMutator}. The mutator holds
- * references to the item ID, the original mod-loaded BaseDamage (for `default` restoration), and
- * a function to replace the item with new damage values (delegated to the provider to avoid
- * instantiating engine entities from the sandbox package).
+ * Applies the dev-console command bar's set/add/subtract verbs to one item's base damage fields.
+ * Values never go below {@link #FLOOR}, and an edit that would leave min above max is rejected.
+ * The mutator reads the item through a supplier and hands the edited immutable copy to a consumer,
+ * so it knows nothing about where the provider keeps items. It also keeps the original mod-loaded
+ * damage, which the {@code default} keyword restores.
  */
 public class ItemFieldMutator implements DevConsoleFieldMutator {
 
     private static final String DEFAULT_VALUE_TOKEN = "default";
+    private static final int FLOOR = 0;
 
-    private final String itemId;
     private final Item.BaseDamage originalBaseDamage;
-    private final ItemDamageUpdater damageUpdater;
-    private final Function<String, Item> itemFinder;
+    private final Supplier<Item> currentItem;
+    private final Consumer<Item> itemReplacer;
 
-    /**
-     * Information about a damage update operation.
-     */
-    public record DamageUpdateInfo(String itemId, int newMin, int newMax, String displayName, int newValue) {
-    }
-
-    /**
-     * Callback to update an item's damage and handle the replacement.
-     * The provider is responsible for constructing BaseDamage and the updated Item.
-     */
-    public interface ItemDamageUpdater {
-        DevConsoleMutationResult updateDamage(DamageUpdateInfo info);
-    }
-
-    public ItemFieldMutator(String itemId, Item.BaseDamage originalBaseDamage,
-                            ItemDamageUpdater damageUpdater, Function<String, Item> itemFinder) {
-        this.itemId = itemId;
+    public ItemFieldMutator(Item.BaseDamage originalBaseDamage, Supplier<Item> currentItem,
+                            Consumer<Item> itemReplacer) {
         this.originalBaseDamage = originalBaseDamage;
-        this.damageUpdater = damageUpdater;
-        this.itemFinder = itemFinder;
+        this.currentItem = currentItem;
+        this.itemReplacer = itemReplacer;
     }
 
     @Override
@@ -52,63 +38,44 @@ public class ItemFieldMutator implements DevConsoleFieldMutator {
             return new DevConsoleMutationResult.Failure(fieldToken);
         }
 
-        Item currentItem = itemFinder.apply(itemId);
-        Item.BaseDamage currentDamage = currentItem.getBaseDamage();
+        Item item = currentItem.get();
+        Item.BaseDamage currentDamage = item.getBaseDamage();
         OptionalInt resolvedValue = resolveValue(field.get(), verb, rawValue, currentDamage);
         if (resolvedValue.isEmpty()) {
             return new DevConsoleMutationResult.Failure(rawValue);
         }
 
-        int newValue = applyClamped(field.get(), currentDamage, resolvedValue.getAsInt());
-        int newMin = field.get() == ItemField.MIN_DAMAGE ? newValue : currentDamage.min();
-        int newMax = field.get() == ItemField.MAX_DAMAGE ? newValue : currentDamage.max();
-
-        // Validate that min is not > max after the update
+        int newValue = Math.max(FLOOR, resolvedValue.getAsInt());
+        int newMin = field.get().minWith(currentDamage, newValue);
+        int newMax = field.get().maxWith(currentDamage, newValue);
         if (newMin > newMax) {
             return new DevConsoleMutationResult.Failure(rawValue);
         }
 
-        // Tell the provider to replace the item
-        DamageUpdateInfo info = new DamageUpdateInfo(itemId, newMin, newMax, field.get().displayName(), newValue);
-        return damageUpdater.updateDamage(info);
+        itemReplacer.accept(item.withBaseDamage(newMin, newMax));
+        return new DevConsoleMutationResult.Success(field.get().displayName(), newValue);
     }
 
-    private OptionalInt resolveValue(ItemField field, DevConsoleMutationVerb verb, String rawValue, Item.BaseDamage currentDamage) {
+    private OptionalInt resolveValue(ItemField field, DevConsoleMutationVerb verb, String rawValue,
+                                     Item.BaseDamage currentDamage) {
         if (DEFAULT_VALUE_TOKEN.equals(rawValue)) {
-            return verb == DevConsoleMutationVerb.SET ? defaultValue(field) : OptionalInt.empty();
+            return verb == DevConsoleMutationVerb.SET
+                    ? OptionalInt.of(field.valueIn(originalBaseDamage))
+                    : OptionalInt.empty();
         }
         OptionalInt parsed = parseInt(rawValue);
         if (parsed.isEmpty() || (verb != DevConsoleMutationVerb.SET && parsed.getAsInt() < 0)) {
             return OptionalInt.empty();
         }
-        return OptionalInt.of(combine(field, verb, parsed.getAsInt(), currentDamage));
+        return OptionalInt.of(combine(verb, field.valueIn(currentDamage), parsed.getAsInt()));
     }
 
-    private int combine(ItemField field, DevConsoleMutationVerb verb, int value, Item.BaseDamage currentDamage) {
-        int current = switch (field) {
-            case MIN_DAMAGE -> currentDamage.min();
-            case MAX_DAMAGE -> currentDamage.max();
-        };
+    private int combine(DevConsoleMutationVerb verb, int current, int value) {
         return switch (verb) {
             case SET -> value;
             case ADD -> current + value;
             case SUBTRACT -> current - value;
         };
-    }
-
-    private OptionalInt defaultValue(ItemField field) {
-        if (!field.hasClassDefault()) {
-            return OptionalInt.empty();
-        }
-        int value = switch (field) {
-            case MIN_DAMAGE -> originalBaseDamage.min();
-            case MAX_DAMAGE -> originalBaseDamage.max();
-        };
-        return OptionalInt.of(value);
-    }
-
-    private int applyClamped(ItemField field, Item.BaseDamage unused, int rawNewValue) {
-        return Math.max(field.floor(), rawNewValue);
     }
 
     private OptionalInt parseInt(String rawValue) {
@@ -126,6 +93,6 @@ public class ItemFieldMutator implements DevConsoleFieldMutator {
 
     @Override
     public boolean hasClassDefault(String fieldToken) {
-        return ItemField.fromToken(fieldToken).map(ItemField::hasClassDefault).orElse(false);
+        return ItemField.fromToken(fieldToken).isPresent();
     }
 }

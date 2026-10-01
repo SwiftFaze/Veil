@@ -20,8 +20,10 @@ display name, so two providers can't collide on a shared name). `set <entry>
 are addressed by either their full id or just the part after the namespace
 (`player`, not `core:player`, via `DevConsoleModel.findByEntryToken`). A
 provider opts in by returning a `DevConsoleFieldMutator` from
-`DevConsoleProvider.fieldMutator(id)`; `PlayerSandboxProvider` is the only one
-that does for v1, via `PlayerFieldMutator`/`PlayerField`, reusing the same
+`DevConsoleProvider.fieldMutator(id)`; `PlayerSandboxProvider` (via
+`PlayerFieldMutator`/`PlayerField`) and `ItemSandboxProvider` (via
+`ItemFieldMutator`/`ItemField`, editing `mindmg`/`maxdmg` by swapping in an immutable
+`Item.withBaseDamage` copy; min above max is rejected) do. Player edits reuse the same
 field floors/clamping rules as `PlayerDetailPanel`'s arm+Left/Right editing.
 Every mutation writes a SUCCESS or ERROR line to the transcript. `reload`
 re-reads `mods/` without restarting: `DevConsoleModel.reload()` calls each
@@ -41,7 +43,7 @@ resolves to nothing) instead of running anything; a bare word alone is not a
 search. Multiple providers can register entries together: `ClassSandboxProvider`
 (each player class, opening `ClassDetailPanel`), `PlayerSandboxProvider` (the
 running player, see below), `ItemSandboxProvider` (each mod-loaded item,
-read-only: `Item.getDetailTables()` in `ItemDetailPanel`'s `DetailsPaneWidget`),
+`Item.getDetailTables()` in `ItemDetailPanel`'s `DetailsPaneWidget`; base damage is editable),
 `TileSandboxProvider` (see "Tiles provider" below)
 and `QuestSandboxProvider` (each mod-loaded quest, read-only:
 `Quest.getDetailTables()` in a `DetailsPaneWidget`), and `KitchenSinkProvider`
