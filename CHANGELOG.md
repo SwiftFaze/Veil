@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.35](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.34...v0.5.0-beta.35) (2026-10-01)
+
+
+### Features
+
+* add Tiles provider to the sandbox dev console ([#241](https://github.com/SwiftFaze/Veil/issues/241)) ([2a864e0](https://github.com/SwiftFaze/Veil/commit/2a864e09312d914881a1d9be0a8595c6c9d1590e))
+
 ## [0.5.0-beta.34](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.33...v0.5.0-beta.34) (2026-10-01)
 
 
