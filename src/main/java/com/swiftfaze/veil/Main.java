@@ -29,6 +29,7 @@ import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
+import com.swiftfaze.veil.sandbox.ItemSandboxProvider;
 import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
 import com.swiftfaze.veil.sandbox.TileSandboxProvider;
 import com.swiftfaze.veil.sandbox.KitchenSinkProvider;
@@ -275,6 +276,7 @@ public class Main {
     public static List<DevConsoleProvider> buildDevConsoleProviders(Supplier<Player> playerSupplier) {
         return List.of(
             new ClassSandboxProvider(),
+            new ItemSandboxProvider(),
             new QuestSandboxProvider(),
             new TileSandboxProvider(),
             new PlayerSandboxProvider(playerSupplier),

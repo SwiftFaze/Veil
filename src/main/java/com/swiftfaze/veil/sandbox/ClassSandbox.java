@@ -32,6 +32,7 @@ public class ClassSandbox {
     public static List<DevConsoleProvider> providers() {
         return List.of(
             new ClassSandboxProvider(),
+            new ItemSandboxProvider(),
             new TileSandboxProvider(),
             new QuestSandboxProvider(),
             new KitchenSinkProvider()

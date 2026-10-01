@@ -40,7 +40,9 @@ writes a specific error line (unknown command, missing argument, or an id that
 resolves to nothing) instead of running anything; a bare word alone is not a
 search. Multiple providers can register entries together: `ClassSandboxProvider`
 (each player class, opening `ClassDetailPanel`), `PlayerSandboxProvider` (the
-running player, see below), `TileSandboxProvider` (see "Tiles provider" below)
+running player, see below), `ItemSandboxProvider` (each mod-loaded item,
+read-only: `Item.getDetailTables()` in `ItemDetailPanel`'s `DetailsPaneWidget`),
+`TileSandboxProvider` (see "Tiles provider" below)
 and `QuestSandboxProvider` (each mod-loaded quest, read-only:
 `Quest.getDetailTables()` in a `DetailsPaneWidget`), and `KitchenSinkProvider`
 (one "Kitchen Sink" entry opening `KitchenSinkPreviewPanel`: a live preview of

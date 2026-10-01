@@ -13,6 +13,8 @@ import com.swiftfaze.veil.sandbox.DevConsoleEntry;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
+import com.swiftfaze.veil.sandbox.ItemDetailPanel;
+import com.swiftfaze.veil.sandbox.ItemSandboxProvider;
 import com.swiftfaze.veil.sandbox.KitchenSinkProvider;
 import com.swiftfaze.veil.sandbox.PlayerDetailPanel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
@@ -57,6 +59,7 @@ public class DevConsoleSteps {
     private static final String TRANSCRIPT_SHOULD_HAVE_ENTRIES = "Transcript should have entries";
     private static final String CLASSES_PROVIDER_NAME = "Classes";
     private static final String PLAYER_PROVIDER_NAME = "Player";
+    private static final String ITEMS_PROVIDER_NAME = "Items";
     private static final String KITCHEN_SINK_PROVIDER_NAME = "Kitchen Sink";
     private static final String QUESTS_PROVIDER_NAME = "Quests";
     private static final String TILES_PROVIDER_NAME = "Tiles";
@@ -320,6 +323,120 @@ public class DevConsoleSteps {
     public void theBackActionIsTriggered() {
         getCurrentPanel().showSearchView();
         playerDetailPanel = null;
+    }
+
+    @Then("there is one result per mod-loaded item")
+    public void thereIsOneResultPerModLoadedItem() {
+        ModRegistry mods = ModLoader.load(Paths.get("mods"));
+        int expectedCount = mods.getAllItems().size();
+        assertEquals(expectedCount, model.filteredResults().size(),
+                "Expected one result per mod-loaded item");
+    }
+
+    @Then("the item detail shows field rows:")
+    public void theItemDetailShowsFieldRows(DataTable dataTable) {
+        ItemDetailPanel itemDetailPanel = openedItemDetailPanel();
+        List<List<String>> expectedRows = dataTable.asLists();
+
+        assertTrue(itemDetailPanel.tableCount() >= 1, "Expected at least one table for field rows");
+        TableWidget<List<String>> table = itemDetailPanel.table(0);
+        assertNotNull(table, "First table should not be null");
+
+        List<List<String>> expectedData = expectedRows.subList(1, expectedRows.size());
+
+        int rowIndex = 0;
+        table.moveToStart();
+        for (List<String> expectedRow : expectedData) {
+            List<String> actualRow = table.getSelectedRow();
+            assertEquals(expectedRow, actualRow,
+                    "Row " + rowIndex + " should match");
+            if (rowIndex < expectedData.size() - 1) {
+                table.moveDown();
+            }
+            rowIndex++;
+        }
+    }
+
+    @Then("the item detail shows an {string} table with row {string}, {string}, {string}")
+    public void theItemDetailShowsTableWithRow(String tableLabel, String col1, String col2, String col3) {
+        ItemDetailPanel itemDetailPanel = openedItemDetailPanel();
+
+        List<String> expectedRow = List.of(col1, col2, col3);
+        boolean found = false;
+        for (int i = 0; i < itemDetailPanel.tableCount(); i++) {
+            TableWidget<List<String>> table = itemDetailPanel.table(i);
+            table.moveToStart();
+            for (int row = 0; row < table.getRowCount(); row++) {
+                List<String> rowData = table.getSelectedRow();
+                if (rowData.equals(expectedRow)) {
+                    found = true;
+                    break;
+                }
+                if (row < table.getRowCount() - 1) {
+                    table.moveDown();
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+        assertTrue(found, "Expected to find row with " + col1 + ", " + col2 + ", " + col3
+                + " in table " + tableLabel);
+    }
+
+    @Then("the item detail has no {string} row")
+    public void theItemDetailHasNoRow(String fieldName) {
+        ItemDetailPanel itemDetailPanel = openedItemDetailPanel();
+
+        for (int i = 0; i < itemDetailPanel.tableCount(); i++) {
+            TableWidget<List<String>> table = itemDetailPanel.table(i);
+            table.moveToStart();
+            for (int row = 0; row < table.getRowCount(); row++) {
+                List<String> rowData = table.getSelectedRow();
+                if (!rowData.isEmpty() && fieldName.equals(rowData.get(0))) {
+                    fail("Field row should not be present: " + fieldName);
+                }
+                if (row < table.getRowCount() - 1) {
+                    table.moveDown();
+                }
+            }
+        }
+    }
+
+    @Then("the item detail has no {string} table")
+    public void theItemDetailHasNoTable(String tableLabel) {
+        ItemDetailPanel itemDetailPanel = openedItemDetailPanel();
+
+        for (int i = 0; i < itemDetailPanel.tableCount(); i++) {
+            TableWidget<List<String>> table = itemDetailPanel.table(i);
+            table.moveToStart();
+            List<String> firstRow = table.getSelectedRow();
+            boolean matchesLabel = !firstRow.isEmpty()
+                    && (tableLabel.equals(firstRow.get(0) + " table")
+                    || "Effects: table".equals(tableLabel) && firstRow.get(0).contains("Type"));
+            if (matchesLabel) {
+                fail("Table should not be present: " + tableLabel);
+            }
+        }
+    }
+
+    @When("the Items provider is asked for the panel of {string}")
+    public void theItemsProviderIsAskedForThePanelOf(String itemId) {
+        // The failure itself is asserted in the next step; here we only confirm the id is not registered.
+        boolean registered = new ItemSandboxProvider().entries().stream()
+                .anyMatch(entry -> entry.id().equals(itemId));
+        assertFalse(registered, "Expected no item registered under id: " + itemId);
+    }
+
+    @Then("it fails with an unknown item id error for {string}")
+    public void itFailsWithUnknownItemIdError(String itemId) {
+        ItemSandboxProvider provider = new ItemSandboxProvider();
+        IllegalArgumentException failure = assertThrows(IllegalArgumentException.class,
+                () -> provider.createPanel(itemId));
+        assertTrue(failure.getMessage().contains("Unknown item id"),
+                "Error message should mention 'Unknown item id'");
+        assertTrue(failure.getMessage().contains(itemId),
+                "Error message should include the item id: " + itemId);
     }
 
     @Then("no player's quest log has changed")
@@ -748,6 +865,13 @@ public class DevConsoleSteps {
         }
     }
 
+    private ItemDetailPanel openedItemDetailPanel() {
+        assertTrue(panel.isProviderPanelShowing(), "An item detail panel should be open");
+        assertTrue(panel.getOpenedProviderPanel() instanceof ItemDetailPanel,
+                "The opened provider panel should be an item detail panel");
+        return (ItemDetailPanel) panel.getOpenedProviderPanel();
+    }
+
     private String getRowFieldName(int rowIndex) {
         List<String> row = getRow(rowIndex);
         return row != null && !row.isEmpty() ? row.get(0) : "";
@@ -813,7 +937,7 @@ public class DevConsoleSteps {
     }
 
     private com.swiftfaze.veil.entities.player.classes.PlayerClass findPlayerClass(String name) {
-        ModRegistry mods = ModLoader.load(java.nio.file.Paths.get("mods"));
+        ModRegistry mods = ModLoader.load(Paths.get("mods"));
         return mods.getAllPlayerClasses().stream()
             .filter(cls -> name.equals(cls.getName()))
             .findFirst()
@@ -997,6 +1121,9 @@ public class DevConsoleSteps {
         }
         if (PLAYER_PROVIDER_NAME.equals(name)) {
             return new PlayerSandboxProvider(() -> livePlayer);
+        }
+        if (ITEMS_PROVIDER_NAME.equals(name)) {
+            return new ItemSandboxProvider();
         }
         if (KITCHEN_SINK_PROVIDER_NAME.equals(name)) {
             ModRegistry mods = ModLoader.load(Paths.get("mods"));
