@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.33](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.32...v0.5.0-beta.33) (2026-10-01)
+
+
+### Features
+
+* add dev console reload verb for mod hot-reload ([#239](https://github.com/SwiftFaze/Veil/issues/239)) ([437a228](https://github.com/SwiftFaze/Veil/commit/437a228f9b7c1c8081e0f9bebb1ce109b259a471))
+
 ## [0.5.0-beta.32](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.31...v0.5.0-beta.32) (2026-09-29)
 
 
