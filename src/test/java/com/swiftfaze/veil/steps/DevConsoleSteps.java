@@ -1,8 +1,9 @@
 package com.swiftfaze.veil.steps;
 
 import com.swiftfaze.veil.entities.player.Player;
+import com.swiftfaze.veil.entities.player.PlayerInfo;
+import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.entities.player.Stats;
-import com.swiftfaze.veil.exceptions.ModLoadException;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.mods.ModRegistry;
@@ -13,6 +14,7 @@ import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.PlayerDetailPanel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
+import com.swiftfaze.veil.sandbox.ReloadableFakeProvider;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.TranscriptWidget;
 import io.cucumber.java.en.Given;
@@ -22,6 +24,7 @@ import io.cucumber.java.en.When;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,8 +55,8 @@ public class DevConsoleSteps {
     private int lastEditedFieldValue;
     private Stats statsSnapshot;
     private String classSnapshot;
-    private FakeDevConsoleProvider fakeProvider;
-    private FakeDevConsoleProvider secondProvider;
+    private ReloadableFakeProvider fakeProvider;
+    private ReloadableFakeProvider secondProvider;
 
     @Given("the dev console is running with the {string} provider registered")
     public void theDevConsoleIsRunningWithTheProviderRegistered(String providerName) {
@@ -158,7 +161,7 @@ public class DevConsoleSteps {
     @Then("the transcript's last entry is an info line reporting {int} results for {string}")
     public void theTranscriptsLastEntryIsAnInfoLineReporting(int count, String term) {
         assertFalse(panel.getTranscript().entries().isEmpty(), TRANSCRIPT_SHOULD_HAVE_ENTRIES);
-        var lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
+        TranscriptWidget.TranscriptEntry lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
         assertEquals(TranscriptWidget.Level.INFO, lastEntry.level());
         assertTrue(lastEntry.text().contains(String.valueOf(count)));
         assertTrue(lastEntry.text().contains(term));
@@ -175,7 +178,7 @@ public class DevConsoleSteps {
     @Then("the transcript's last entry is an error line for {string}")
     public void theTranscriptsLastEntryIsAnErrorLineFor(String input) {
         assertFalse(panel.getTranscript().entries().isEmpty(), "Transcript should have entries after: " + input);
-        var lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
+        TranscriptWidget.TranscriptEntry lastEntry = panel.getTranscript().entries().get(panel.getTranscript().entries().size() - 1);
         assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level(), "Expected an error line after: " + input);
     }
 
@@ -384,18 +387,17 @@ public class DevConsoleSteps {
 
     @When("the command bar is set to {string}")
     public void theCommandBarIsSetTo(String command) {
-        if (livePlayer != null) {
-            statsSnapshot = snapshot(livePlayer.getPlayerInfo().getStats());
-            classSnapshot = livePlayer.getPlayerInfo().getPlayerClass().getName();
-            playerBeforeReload = livePlayer;
-        }
+        Optional<PlayerInfo> playerInfo = Optional.ofNullable(livePlayer).map(Player::getPlayerInfo);
+        playerInfo.map(PlayerInfo::getStats).ifPresent(stats -> statsSnapshot = snapshot(stats));
+        playerInfo.map(PlayerInfo::getPlayerClass).map(PlayerClass::getName).ifPresent(name -> classSnapshot = name);
+        playerBeforeReload = livePlayer;
         panel.getSearchField().setText(command);
         panel.runCommand();
     }
 
     @Then("the transcript's last line is a SUCCESS line for {string} set to {int}")
     public void transcriptsLastLineIsSuccessForFieldSetTo(String fieldName, int value) {
-        var lastEntry = lastTranscriptEntry();
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
         assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level());
         assertTrue(lastEntry.text().contains(fieldName));
         assertTrue(lastEntry.text().contains(String.valueOf(value)));
@@ -403,7 +405,7 @@ public class DevConsoleSteps {
 
     @Then("the transcript's last line is an ERROR line for {word} {string}")
     public void transcriptsLastLineIsErrorFor(String category, String token) {
-        var lastEntry = lastTranscriptEntry();
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
         assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level());
         assertTrue(lastEntry.text().contains(token), "Expected error text to mention: " + token);
     }
@@ -642,7 +644,7 @@ public class DevConsoleSteps {
 
     @Given("the dev console is running with a provider whose entries can change")
     public void theDevConsoleIsRunningWithAProviderWhoseEntriesCanChange() {
-        fakeProvider = new FakeDevConsoleProvider("Classes");
+        fakeProvider = new ReloadableFakeProvider("Classes");
         List<DevConsoleProvider> providers = List.of(fakeProvider);
         model = new DevConsoleModel(providers);
         panel = new DevConsolePanel(model);
@@ -698,7 +700,7 @@ public class DevConsoleSteps {
 
     @Then("the transcript's last line is a SUCCESS line {string}")
     public void theTranscriptSLastLineIsASuccessLine(String expectedText) {
-        var lastEntry = lastTranscriptEntry();
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
         assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level(),
             "Expected SUCCESS line but got: " + lastEntry.level());
         assertTrue(lastEntry.text().contains(expectedText),
@@ -707,7 +709,7 @@ public class DevConsoleSteps {
 
     @Then("the transcript's last line is an ERROR line {string}")
     public void theTranscriptSLastLineIsAnErrorLine(String expectedText) {
-        var lastEntry = lastTranscriptEntry();
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
         assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level(),
             "Expected ERROR line but got: " + lastEntry.level());
         assertTrue(lastEntry.text().contains(expectedText),
@@ -732,7 +734,7 @@ public class DevConsoleSteps {
 
     @Given("a second provider is also registered")
     public void aSecondProviderIsAlsoRegistered() {
-        secondProvider = new FakeDevConsoleProvider("Quests");
+        secondProvider = new ReloadableFakeProvider("Quests");
         List<DevConsoleProvider> providers = List.of(fakeProvider, secondProvider);
         model = new DevConsoleModel(providers);
         panel = new DevConsolePanel(model);
@@ -750,7 +752,7 @@ public class DevConsoleSteps {
 
     @Then("the transcript reports {int} results for {string}")
     public void theTranscriptReportsResultsFor(int expectedCount, String searchTerm) {
-        var entries = panel.getTranscript().entries();
+        List<TranscriptWidget.TranscriptEntry> entries = panel.getTranscript().entries();
         boolean found = entries.stream().anyMatch(entry ->
             entry.level() == TranscriptWidget.Level.INFO &&
             entry.text().contains(String.valueOf(expectedCount)) &&
@@ -779,52 +781,5 @@ public class DevConsoleSteps {
         String category = "Classes";
         String name = id.replace("core:", "");
         return new DevConsoleEntry(namespace, id, category, name);
-    }
-
-    static class FakeDevConsoleProvider implements DevConsoleProvider {
-        private final String category;
-        private final java.util.List<DevConsoleEntry> entries = new java.util.ArrayList<>();
-        private int reloadCount = 0;
-        private String nextReloadError = null;
-
-        FakeDevConsoleProvider(String category) {
-            this.category = category;
-        }
-
-        @Override
-        public List<DevConsoleEntry> entries() {
-            return new java.util.ArrayList<>(entries);
-        }
-
-        @Override
-        public javax.swing.JComponent createPanel(String id) {
-            return new javax.swing.JPanel();
-        }
-
-        @Override
-        public void reload() {
-            if (nextReloadError != null) {
-                String error = nextReloadError;
-                nextReloadError = null;
-                throw new com.swiftfaze.veil.exceptions.ModLoadException(error);
-            }
-            reloadCount++;
-        }
-
-        void addEntry(DevConsoleEntry entry) {
-            entries.add(entry);
-        }
-
-        void clearEntries() {
-            entries.clear();
-        }
-
-        void setNextReloadFails(String errorMessage) {
-            this.nextReloadError = errorMessage;
-        }
-
-        int reloadCallCount() {
-            return reloadCount;
-        }
     }
 }

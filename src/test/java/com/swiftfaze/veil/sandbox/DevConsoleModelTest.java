@@ -6,9 +6,7 @@ import com.swiftfaze.veil.exceptions.ModLoadException;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -85,21 +83,30 @@ class DevConsoleModelTest {
 
     @Test
     void reloadRebuildsResultsWithUpdatedEntries() {
-        MutableProvider provider = new MutableProvider("Classes", "Mage");
+        ReloadableFakeProvider provider = new ReloadableFakeProvider("Classes", "Mage");
         DevConsoleModel model = new DevConsoleModel(List.of(provider));
-        assertEquals(1, model.allResults().size());
 
         provider.addEntry(new DevConsoleEntry("core", "core:rogue", "Classes", "Rogue"));
         int count = model.reload();
 
         assertEquals(2, count);
         assertEquals(2, model.allResults().size());
+    }
+
+    @Test
+    void reloadMakesNewlyAddedEntryFindable() {
+        ReloadableFakeProvider provider = new ReloadableFakeProvider("Classes", "Mage");
+        DevConsoleModel model = new DevConsoleModel(List.of(provider));
+
+        provider.addEntry(new DevConsoleEntry("core", "core:rogue", "Classes", "Rogue"));
+        model.reload();
+
         assertTrue(model.findById("core:rogue").isPresent());
     }
 
     @Test
     void reloadReturnsNewEntryCount() {
-        MutableProvider provider = new MutableProvider("Classes", "Mage", "Warrior");
+        ReloadableFakeProvider provider = new ReloadableFakeProvider("Classes", "Mage", "Warrior");
         DevConsoleModel model = new DevConsoleModel(List.of(provider));
         provider.removeEntryById("core:warrior");
 
@@ -110,7 +117,7 @@ class DevConsoleModelTest {
 
     @Test
     void reloadKeepsPreviousEntriesOnException() {
-        MutableProvider provider = new MutableProvider("Classes", "Mage");
+        ReloadableFakeProvider provider = new ReloadableFakeProvider("Classes", "Mage");
         DevConsoleModel model = new DevConsoleModel(List.of(provider));
 
         provider.setNextReloadFails("Failed to load tile from file: bad.json");
@@ -122,8 +129,8 @@ class DevConsoleModelTest {
 
     @Test
     void reloadCallsEveryProviderOnce() {
-        MutableProvider provider1 = new MutableProvider("Classes", "Mage");
-        MutableProvider provider2 = new MutableProvider("Quests", "Quest1");
+        ReloadableFakeProvider provider1 = new ReloadableFakeProvider("Classes", "Mage");
+        ReloadableFakeProvider provider2 = new ReloadableFakeProvider("Quests", "Quest1");
         DevConsoleModel model = new DevConsoleModel(List.of(provider1, provider2));
 
         model.reload();
@@ -146,56 +153,5 @@ class DevConsoleModelTest {
                 return new JPanel();
             }
         };
-    }
-
-    static class MutableProvider implements DevConsoleProvider {
-        private final String category;
-        private final List<DevConsoleEntry> entries;
-        private int reloadCount = 0;
-        private String nextReloadError = null;
-
-        MutableProvider(String category, String... names) {
-            this.category = category;
-            this.entries = new ArrayList<>();
-            for (String name : names) {
-                this.entries.add(new DevConsoleEntry("core", "core:" + name.toLowerCase(Locale.ROOT), category, name));
-            }
-        }
-
-        @Override
-        public List<DevConsoleEntry> entries() {
-            return new ArrayList<>(entries);
-        }
-
-        @Override
-        public JComponent createPanel(String id) {
-            return new JPanel();
-        }
-
-        @Override
-        public void reload() {
-            if (nextReloadError != null) {
-                String error = nextReloadError;
-                nextReloadError = null;
-                throw new ModLoadException(error);
-            }
-            reloadCount++;
-        }
-
-        void addEntry(DevConsoleEntry entry) {
-            entries.add(entry);
-        }
-
-        void removeEntryById(String id) {
-            entries.removeIf(e -> e.id().equals(id));
-        }
-
-        void setNextReloadFails(String errorMessage) {
-            this.nextReloadError = errorMessage;
-        }
-
-        int reloadCallCount() {
-            return reloadCount;
-        }
     }
 }

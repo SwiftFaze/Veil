@@ -42,5 +42,6 @@ public interface DevConsoleProvider {
      * May throw {@link com.swiftfaze.veil.exceptions.ModLoadException} if the reload fails.
      */
     default void reload() {
+        // Intentionally empty: providers without cached mod data have nothing to refresh.
     }
 }

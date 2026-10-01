@@ -179,7 +179,13 @@ provider opts in by returning a `DevConsoleFieldMutator` from
 `DevConsoleProvider.fieldMutator(id)`; `PlayerSandboxProvider` is the only one
 that does for v1, via `PlayerFieldMutator`/`PlayerField`, reusing the same
 field floors/clamping rules as `PlayerDetailPanel`'s arm+Left/Right editing.
-Every mutation writes a SUCCESS or ERROR line to the transcript. Anything else
+Every mutation writes a SUCCESS or ERROR line to the transcript. `reload`
+re-reads `mods/` without restarting: `DevConsoleModel.reload()` calls each
+provider's `DevConsoleProvider.reload()` (default no-op; mod-backed providers
+override it), then rebuilds the entry list from every provider's `entries()`.
+The new list replaces the old only if every provider succeeds, so a
+`ModLoadException` leaves the previous entries in place and is reported as an
+ERROR line. Anything else
 writes a specific error line (unknown command, missing argument, or an id that
 resolves to nothing) instead of running anything; a bare word alone is not a
 search. Multiple providers can register

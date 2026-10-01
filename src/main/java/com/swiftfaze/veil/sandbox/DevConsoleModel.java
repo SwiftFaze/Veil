@@ -1,6 +1,5 @@
 package com.swiftfaze.veil.sandbox;
 
-import com.swiftfaze.veil.exceptions.ModLoadException;
 
 import java.util.List;
 import java.util.Locale;
@@ -13,7 +12,7 @@ public class DevConsoleModel {
     private String searchText = "";
 
     public DevConsoleModel(List<DevConsoleProvider> providers) {
-        this.providers = providers;
+        this.providers = List.copyOf(providers);
         this.allResults = rebuildResults();
     }
 
@@ -61,17 +60,14 @@ public class DevConsoleModel {
      * @return the total number of entries after reload
      */
     public int reload() {
-        try {
-            for (DevConsoleProvider provider : providers) {
-                provider.reload();
-            }
-            List<SearchResult> newResults = rebuildResults();
-            this.allResults = newResults;
-            return newResults.size();
-        } catch (ModLoadException e) {
-            throw e;
+        for (DevConsoleProvider provider : providers) {
+            provider.reload();
         }
+        List<SearchResult> newResults = rebuildResults();
+        this.allResults = newResults;
+        return newResults.size();
     }
+
 
     private List<SearchResult> rebuildResults() {
         return providers.stream()
