@@ -179,8 +179,14 @@ provider opts in by returning a `DevConsoleFieldMutator` from
 `DevConsoleProvider.fieldMutator(id)`; `PlayerSandboxProvider` is the only one
 that does for v1, via `PlayerFieldMutator`/`PlayerField`, reusing the same
 field floors/clamping rules as `PlayerDetailPanel`'s arm+Left/Right editing.
-Every mutation writes a SUCCESS or ERROR line to the transcript. Anything else
-writes a specific error line (unknown command, missing argument, or an id that
+Every mutation writes a SUCCESS or ERROR line to the transcript.
+`snapshot <entry> <name>` and `restore <entry> <name>` save and reload a named
+in-memory copy of an entity's state for the dev-console session; a provider opts
+in by returning a `DevConsoleSnapshotter` from `DevConsoleProvider.snapshotter(id)`
+(`PlayerSandboxProvider` does, via `PlayerSnapshotter`, capturing the player's
+position and the ten editable `Stats` fields). Re-snapshotting a name overwrites
+it; restoring an unknown name writes an ERROR line.
+Anything else writes a specific error line (unknown command, missing argument, or an id that
 resolves to nothing) instead of running anything; a bare word alone is not a
 search. Multiple providers can register
 entries together — `ClassSandboxProvider` exposes every player class as a

@@ -417,7 +417,7 @@ public class DevConsoleSteps {
 
     @Then("the transcript's last line is a SUCCESS line for snapshot {string} saved")
     public void transcriptsLastLineIsSuccessForSnapshotSaved(String snapshotName) {
-        var lastEntry = lastTranscriptEntry();
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
         assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level());
         assertTrue(lastEntry.text().contains(snapshotName), "Expected success text to mention snapshot name: " + snapshotName);
         assertTrue(lastEntry.text().contains("saved"), "Expected success text to contain 'saved'");
@@ -425,7 +425,7 @@ public class DevConsoleSteps {
 
     @Then("the transcript's last line is a SUCCESS line for snapshot {string} restored")
     public void transcriptsLastLineIsSuccessForSnapshotRestored(String snapshotName) {
-        var lastEntry = lastTranscriptEntry();
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
         assertEquals(TranscriptWidget.Level.SUCCESS, lastEntry.level());
         assertTrue(lastEntry.text().contains(snapshotName), "Expected success text to mention snapshot name: " + snapshotName);
         assertTrue(lastEntry.text().contains("restored"), "Expected success text to contain 'restored'");
@@ -433,7 +433,7 @@ public class DevConsoleSteps {
 
     @Then("the transcript's last line is an ERROR line reading {string}")
     public void transcriptsLastLineIsErrorLineReading(String expectedText) {
-        var lastEntry = lastTranscriptEntry();
+        TranscriptWidget.TranscriptEntry lastEntry = lastTranscriptEntry();
         assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level());
         assertEquals(expectedText, lastEntry.text(), "Expected exact error text");
     }

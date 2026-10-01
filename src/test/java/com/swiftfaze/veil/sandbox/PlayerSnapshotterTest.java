@@ -1,125 +1,128 @@
 package com.swiftfaze.veil.sandbox;
 
 import com.swiftfaze.veil.entities.player.Player;
+import com.swiftfaze.veil.entities.player.Stats;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class PlayerSnapshotterTest {
 
+    private static final String SLOT = "boss";
+    private static final int SEED = 10;
+    private static final int OTHER_SEED = 500;
+    private static final int HOME_X = 4;
+    private static final int HOME_Y = 7;
+
+    private final Player player = new Player(HOME_X, HOME_Y);
+    private final Player replacement = new Player(0, 0);
+    private final PlayerSnapshotter snapshotter = new PlayerSnapshotter(() -> player);
+
     @Test
-    void takeSnapshotCapturesPositionAndAllTenStatFields() {
-        Player player = new Player(4, 7);
-        player.getPlayerInfo().getStats().setStrength(18);
-        player.getPlayerInfo().getStats().setDexterity(14);
-        player.getPlayerInfo().getStats().setConstitution(16);
-        player.getPlayerInfo().getStats().setIntelligence(12);
-        player.getPlayerInfo().getStats().setWisdom(11);
-        player.getPlayerInfo().getStats().setLuck(9);
-        player.getPlayerInfo().getStats().setMaxHp(150);
-        player.getPlayerInfo().getStats().setMaxMana(80);
-        player.getPlayerInfo().getStats().setCurrentHp(70);
-        player.getPlayerInfo().getStats().setCurrentMana(30);
-
-        PlayerSnapshotter snapshotter = new PlayerSnapshotter(() -> player);
-        String result = snapshotter.takeSnapshot("boss");
-
-        assertEquals("Snapshot boss saved", result);
+    void takeSnapshotReportsTheSavedSlot() {
+        assertEquals("Snapshot boss saved", snapshotter.takeSnapshot(SLOT));
     }
 
     @Test
-    void restoreSnapshotWritesPositionAndStatsBackToPlayer() {
-        Player player = new Player(4, 7);
-        player.getPlayerInfo().getStats().setStrength(18);
-        player.getPlayerInfo().getStats().setCurrentHp(60);
+    void restoreWritesPositionBackToPlayer() {
+        snapshotter.takeSnapshot(SLOT);
+        player.setPosition(0, 0);
 
-        PlayerSnapshotter snapshotter = new PlayerSnapshotter(() -> player);
-        snapshotter.takeSnapshot("boss");
+        Optional<String> result = snapshotter.restoreSnapshot(SLOT);
 
-        // Change the player state
-        player.setPosition(10, 2);
-        player.getPlayerInfo().getStats().setStrength(3);
-        player.getPlayerInfo().getStats().setCurrentHp(5);
-
-        // Restore
-        Optional<String> result = snapshotter.restoreSnapshot("boss");
-
-        assertTrue(result.isPresent());
-        assertEquals("Snapshot boss restored", result.get());
-        assertEquals(4, player.getX());
-        assertEquals(7, player.getY());
-        assertEquals(18, player.getPlayerInfo().getStats().getStrength());
-        assertEquals(60, player.getPlayerInfo().getStats().getCurrentHp());
+        assertEquals(Optional.of("Snapshot boss restored"), result);
+        assertEquals(HOME_X, player.getX());
+        assertEquals(HOME_Y, player.getY());
     }
 
     @Test
-    void restoreSnapshotReturnsEmptyForUnknownName() {
-        Player player = new Player(0, 0);
-        PlayerSnapshotter snapshotter = new PlayerSnapshotter(() -> player);
+    void restoreWritesEveryStatFieldBackToPlayer() {
+        fill(playerStats(), SEED);
+        snapshotter.takeSnapshot(SLOT);
+        fill(playerStats(), OTHER_SEED);
 
-        Optional<String> result = snapshotter.restoreSnapshot("nosuchslot");
+        snapshotter.restoreSnapshot(SLOT);
 
-        assertFalse(result.isPresent());
+        assertFilled(playerStats(), SEED);
     }
 
     @Test
-    void resnapshotingAnExistingNameOverwritesIt() {
-        Player player = new Player(0, 0);
-        player.getPlayerInfo().getStats().setStrength(18);
+    void restoreReturnsEmptyForUnknownName() {
+        assertFalse(snapshotter.restoreSnapshot("nosuchslot").isPresent());
+    }
 
-        PlayerSnapshotter snapshotter = new PlayerSnapshotter(() -> player);
-        snapshotter.takeSnapshot("boss");
+    @Test
+    void resnapshottingAnExistingNameOverwritesIt() {
+        fill(playerStats(), SEED);
+        snapshotter.takeSnapshot(SLOT);
+        fill(playerStats(), OTHER_SEED);
+        snapshotter.takeSnapshot(SLOT);
+        fill(playerStats(), SEED);
 
-        // Change and re-snapshot
-        player.getPlayerInfo().getStats().setStrength(2);
-        snapshotter.takeSnapshot("boss");
+        snapshotter.restoreSnapshot(SLOT);
 
-        // Change again
-        player.getPlayerInfo().getStats().setStrength(7);
-
-        // Restore should get the second snapshot
-        snapshotter.restoreSnapshot("boss");
-        assertEquals(2, player.getPlayerInfo().getStats().getStrength());
+        assertFilled(playerStats(), OTHER_SEED);
     }
 
     @Test
     void restoreTargetsTheSupplierPlayerNotACachedReference() {
-        Player player1 = new Player(0, 0);
-        player1.getPlayerInfo().getStats().setStrength(18);
+        Player[] current = {player};
+        PlayerSnapshotter switching = new PlayerSnapshotter(() -> current[0]);
+        fill(playerStats(), SEED);
+        switching.takeSnapshot(SLOT);
+        current[0] = replacement;
 
-        // Use an array to allow the supplier to be changed after snapshot
-        Player[] currentPlayer = { player1 };
+        switching.restoreSnapshot(SLOT);
 
-        PlayerSnapshotter snapshotter = new PlayerSnapshotter(() -> currentPlayer[0]);
-        snapshotter.takeSnapshot("boss");
-
-        // Supplier now returns a different player
-        Player player2 = new Player(0, 0);
-        player2.getPlayerInfo().getStats().setStrength(1);
-        currentPlayer[0] = player2;
-
-        // Restore should write to player2, not player1
-        snapshotter.restoreSnapshot("boss");
-        assertEquals(18, player2.getPlayerInfo().getStats().getStrength(), "player2 should have restored value");
-        assertEquals(18, player1.getPlayerInfo().getStats().getStrength(), "player1 should still have original value");
+        assertFilled(replacementStats(), SEED);
     }
 
     @Test
     void separateNamedSlotsAreKeptIndependently() {
-        Player player = new Player(0, 0);
-        player.getPlayerInfo().getStats().setStrength(18);
-
-        PlayerSnapshotter snapshotter = new PlayerSnapshotter(() -> player);
+        fill(playerStats(), SEED);
         snapshotter.takeSnapshot("strong");
-
-        player.getPlayerInfo().getStats().setStrength(2);
+        fill(playerStats(), OTHER_SEED);
         snapshotter.takeSnapshot("weak");
 
         snapshotter.restoreSnapshot("strong");
-        assertEquals(18, player.getPlayerInfo().getStats().getStrength());
+
+        assertFilled(playerStats(), SEED);
+    }
+
+    private Stats playerStats() {
+        return player.getStats();
+    }
+
+    private Stats replacementStats() {
+        return replacement.getStats();
+    }
+
+    /** Gives each of the ten editable fields a distinct value derived from the seed. */
+    private static void fill(Stats stats, int seed) {
+        stats.setStrength(seed);
+        stats.setDexterity(seed + 1);
+        stats.setConstitution(seed + 2);
+        stats.setIntelligence(seed + 3);
+        stats.setWisdom(seed + 4);
+        stats.setLuck(seed + 5);
+        stats.setMaxHp(seed + 6);
+        stats.setMaxMana(seed + 7);
+        stats.setCurrentHp(seed + 8);
+        stats.setCurrentMana(seed + 9);
+    }
+
+    private static void assertFilled(Stats stats, int seed) {
+        int[] actual = {stats.getStrength(), stats.getDexterity(), stats.getConstitution(),
+                stats.getIntelligence(), stats.getWisdom(), stats.getLuck(), stats.getMaxHp(),
+                stats.getMaxMana(), stats.getCurrentHp(), stats.getCurrentMana()};
+        int[] expected = new int[actual.length];
+        for (int i = 0; i < expected.length; i++) {
+            expected[i] = seed + i;
+        }
+        assertArrayEquals(expected, actual);
     }
 }

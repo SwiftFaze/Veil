@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -14,7 +15,8 @@ import java.util.function.Consumer;
  * it to the caller to open. `set`/`add`/`subtract <entry> <field> <value>` mutate a live entity's
  * field via {@link DevConsoleFieldMutator} and write a SUCCESS/ERROR transcript line - only
  * entities whose provider returns one from {@link DevConsoleProvider#fieldMutator} support this.
- * `snapshot`/`restore <entry> <name>` capture or restore entity state via {@link DevConsoleSnapshotter}.
+ * `snapshot`/`restore <entry> <name>` capture or restore entity state via
+ * {@link DevConsoleSnapshotter}.
  * Anything else writes a specific error line instead of running anything - an unrecognized verb
  * ("Unknown command: ..."), a verb missing its required argument ("Usage: ..."), or an `edit` id
  * that resolves to no entry ("No entry found for id: ...").
@@ -120,49 +122,38 @@ public class DevConsoleCommandRunner {
     }
 
     private void runSnapshot(String argument) {
-        String[] parts = argument.split("\\s+", 2);
-        if (parts.length < 2) {
-            transcript.appendError("Usage: snapshot <entry> <name>");
-            return;
-        }
-        Optional<DevConsoleSnapshotter> snapshotter = resolveSnapshotter(parts[0], "snapshot");
-        if (snapshotter.isEmpty()) {
-            return;
-        }
-        String message = snapshotter.get().takeSnapshot(parts[1]);
-        transcript.appendSuccess(message);
+        withSnapshotter(SNAPSHOT_VERB, argument, (snapshotter, name) ->
+                transcript.appendSuccess(snapshotter.takeSnapshot(name)));
     }
 
     private void runRestore(String argument) {
-        String[] parts = argument.split("\\s+", 2);
-        if (parts.length < 2) {
-            transcript.appendError("Usage: restore <entry> <name>");
-            return;
-        }
-        Optional<DevConsoleSnapshotter> snapshotter = resolveSnapshotter(parts[0], "restore");
-        if (snapshotter.isEmpty()) {
-            return;
-        }
-        Optional<String> result = snapshotter.get().restoreSnapshot(parts[1]);
-        if (result.isPresent()) {
-            transcript.appendSuccess(result.get());
-        } else {
-            transcript.appendError("No snapshot named: " + parts[1]);
-        }
+        withSnapshotter(RESTORE_VERB, argument, (snapshotter, name) -> {
+            Optional<String> result = snapshotter.restoreSnapshot(name);
+            if (result.isPresent()) {
+                transcript.appendSuccess(result.get());
+            } else {
+                transcript.appendError("No snapshot named: " + name);
+            }
+        });
     }
 
-    private Optional<DevConsoleSnapshotter> resolveSnapshotter(String entryToken, String verb) {
-        Optional<DevConsoleModel.SearchResult> found = model.findByEntryToken(entryToken);
+    private void withSnapshotter(String verb, String argument, BiConsumer<DevConsoleSnapshotter, String> action) {
+        String[] parts = argument.split("\\s+", SNAPSHOT_MIN_PARTS);
+        if (parts.length < SNAPSHOT_MIN_PARTS) {
+            transcript.appendError("Usage: " + verb + " <entry> <name>");
+            return;
+        }
+        Optional<DevConsoleModel.SearchResult> found = model.findByEntryToken(parts[0]);
         if (found.isEmpty()) {
-            transcript.appendError("No entry found for id: " + entryToken);
-            return Optional.empty();
+            transcript.appendError("No entry found for id: " + parts[0]);
+            return;
         }
         Optional<DevConsoleSnapshotter> snapshotter = found.get().provider().snapshotter(found.get().entry().id());
         if (snapshotter.isEmpty()) {
-            transcript.appendError("Entry does not support snapshots: " + entryToken);
-            return Optional.empty();
+            transcript.appendError("Entry does not support snapshots: " + parts[0]);
+            return;
         }
-        return snapshotter;
+        action.accept(snapshotter.get(), parts[1]);
     }
 
     private List<List<String>> resultRows(List<DevConsoleModel.SearchResult> results) {
