@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.42](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.41...v0.5.0-beta.42) (2026-10-01)
+
+
+### Features
+
+* add forbidden-apis gate for default charset and locale ([#260](https://github.com/SwiftFaze/Veil/issues/260)) ([fec15a8](https://github.com/SwiftFaze/Veil/commit/fec15a80d24aaee221ac30a9b67f84fb5fd38c06))
+
 ## [0.5.0-beta.41](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.40...v0.5.0-beta.41) (2026-10-01)
 
 
