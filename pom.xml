@@ -210,7 +210,7 @@
                              the flag list (confirmed bug: google/error-prone#4256). This machine is
                              Windows, so this is not theoretical - keep this whole string as one <arg>
                              with no embedded newlines.
-                             Restored to ERROR by #215: EnumOrdinal (fixed tab indices), StringCaseLocaleUsage (ASCII content types), MissingSummary (style-only), ImmutableEnumChecker (function field records). -->
+                             All four checks were demoted to WARN before #215 restored them to ERROR: EnumOrdinal, StringCaseLocaleUsage, MissingSummary, ImmutableEnumChecker. -->
                         <arg>-Xplugin:ErrorProne -XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:JSpecifyMode=true -Xep:NullAway:ERROR -Xep:EnumOrdinal:ERROR -Xep:StringCaseLocaleUsage:ERROR -Xep:MissingSummary:ERROR -Xep:ImmutableEnumChecker:ERROR</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
