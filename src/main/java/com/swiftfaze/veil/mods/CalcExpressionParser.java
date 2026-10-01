@@ -27,9 +27,15 @@ public class CalcExpressionParser {
                 return null;
             }
             char ch = input.charAt(pos);
-            if (isSingleCharOperator(ch)) return consumeOperator();
-            if (Character.isLetter(ch)) return consumeIdentifier();
-            if (Character.isDigit(ch) || ch == '.') return consumeNumber();
+            if (isSingleCharOperator(ch)) {
+                return consumeOperator();
+            }
+            if (Character.isLetter(ch)) {
+                return consumeIdentifier();
+            }
+            if (Character.isDigit(ch) || ch == '.') {
+                return consumeNumber();
+            }
             throw new IllegalArgumentException("Unexpected character: " + ch);
         }
 
@@ -98,10 +104,18 @@ public class CalcExpressionParser {
         }
 
         private double parseFactor() {
-            if (currentToken == null) throw new IllegalArgumentException("Unexpected end of expression");
-            if (currentToken.equals("-")) return parseNegation();
-            if (currentToken.equals("(")) return parseParenthesizedExpression();
-            if (currentToken.equals("level")) return parseLevel();
+            if (currentToken == null) {
+                throw new IllegalArgumentException("Unexpected end of expression");
+            }
+            if (currentToken.equals("-")) {
+                return parseNegation();
+            }
+            if (currentToken.equals("(")) {
+                return parseParenthesizedExpression();
+            }
+            if (currentToken.equals("level")) {
+                return parseLevel();
+            }
             return parseNumber();
         }
 
@@ -113,7 +127,9 @@ public class CalcExpressionParser {
         private double parseParenthesizedExpression() {
             currentToken = tokenizer.nextToken();
             double result = parseExpression();
-            if (!currentToken.equals(")")) throw new IllegalArgumentException("Expected ')'");
+            if (!currentToken.equals(")")) {
+                throw new IllegalArgumentException("Expected ')'");
+            }
             currentToken = tokenizer.nextToken();
             return result;
         }

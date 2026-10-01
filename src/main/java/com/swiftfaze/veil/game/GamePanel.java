@@ -150,7 +150,9 @@ public class GamePanel extends JPanel {
         scene.renderWorld(g2d, TILE_WIDTH, TILE_HEIGHT, camera);
 
         for (Positionable entity : entitiesToDraw) {
-            if (Objects.equals(entity, scene)) continue;
+            if (Objects.equals(entity, scene)) {
+                continue;
+            }
 
             if (entity instanceof DrawableAsciiEntity ascii) {
                 ascii.render(g2d, TILE_WIDTH, TILE_HEIGHT, camera);

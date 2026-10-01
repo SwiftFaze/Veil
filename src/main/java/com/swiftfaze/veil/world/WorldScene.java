@@ -115,8 +115,9 @@ public abstract class WorldScene implements DrawableAsciiEntity {
             for (int y = 0; y < height; y++) {
                 Tile type = tiles[x][y];
 
-                if (type == null)
+                if (type == null) {
                     continue;
+                }
 
                 int screenX = (x - camera.getX()) * tileWidth;
                 int screenY = (y - camera.getY()) * tileHeight + tileHeight;

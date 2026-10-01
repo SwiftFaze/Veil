@@ -169,13 +169,17 @@ public class TableWidget<T> extends Widget {
     }
 
     public void moveToStart() {
-        if (rows.isEmpty()) return;
+        if (rows.isEmpty()) {
+            return;
+        }
         selectedRowIndex = 0;
         refreshHighlight();
     }
 
     public void moveToEnd() {
-        if (rows.isEmpty()) return;
+        if (rows.isEmpty()) {
+            return;
+        }
         selectedRowIndex = rows.size() - 1;
         refreshHighlight();
     }
@@ -189,7 +193,9 @@ public class TableWidget<T> extends Widget {
     }
 
     public void moveUp() {
-        if (rows.isEmpty()) return;
+        if (rows.isEmpty()) {
+            return;
+        }
         selectedRowIndex = wrapAround
             ? (selectedRowIndex - 1 + rows.size()) % rows.size()
             : Math.max(0, selectedRowIndex - 1);
@@ -197,7 +203,9 @@ public class TableWidget<T> extends Widget {
     }
 
     public void moveDown() {
-        if (rows.isEmpty()) return;
+        if (rows.isEmpty()) {
+            return;
+        }
         selectedRowIndex = wrapAround
             ? (selectedRowIndex + 1) % rows.size()
             : Math.min(rows.size() - 1, selectedRowIndex + 1);
@@ -205,7 +213,9 @@ public class TableWidget<T> extends Widget {
     }
 
     public void moveLeft() {
-        if (rows.isEmpty() || columnRenderers.isEmpty()) return;
+        if (rows.isEmpty() || columnRenderers.isEmpty()) {
+            return;
+        }
         selectedColumnIndex = wrapAround
             ? (selectedColumnIndex - 1 + columnRenderers.size()) % columnRenderers.size()
             : Math.max(0, selectedColumnIndex - 1);
@@ -213,7 +223,9 @@ public class TableWidget<T> extends Widget {
     }
 
     public void moveRight() {
-        if (rows.isEmpty() || columnRenderers.isEmpty()) return;
+        if (rows.isEmpty() || columnRenderers.isEmpty()) {
+            return;
+        }
         selectedColumnIndex = wrapAround
             ? (selectedColumnIndex + 1) % columnRenderers.size()
             : Math.min(columnRenderers.size() - 1, selectedColumnIndex + 1);
@@ -244,7 +256,9 @@ public class TableWidget<T> extends Widget {
             @Override
             public void actionPerformed(ActionEvent e) {
                 T selected = getSelectedRow();
-                if (selected != null) onConfirm.accept(selected);
+                if (selected != null) {
+                    onConfirm.accept(selected);
+                }
             }
         });
     }

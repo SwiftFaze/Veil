@@ -13,7 +13,7 @@ Paths are relative to `src/main/java/com/swiftfaze/veil/` (M) or
 
 ## Not yet enabled
 
-Measured but not fixed yet: `BooleanParameter` (38), `ConstantField` (13), `MethodCanBeStatic` (40), `MissingBraces` (33), `NonFinalStaticField` (13), `ParameterMissingNullable` (82), `UnnecessarilyFullyQualified` (81).
+Measured but not fixed yet: `BooleanParameter` (38), `ConstantField` (13), `MethodCanBeStatic` (40), `NonFinalStaticField` (13), `ParameterMissingNullable` (82), `UnnecessarilyFullyQualified` (81).
 
 ## Fixed
 
@@ -49,5 +49,6 @@ Measured but not fixed yet: `BooleanParameter` (38), `ConstantField` (13), `Meth
 | `MissingDefault` | 13 | `M:sandbox/PlayerDetailPanel.java`, `M:ui/SettingsKeybindsPanel.java`, `M:ui/SettingsScreenPanel.java`, `T:steps/DevConsoleSteps.java`, `T:steps/ModLoaderSteps.java`, `T:steps/UiComponentFrameworkSteps.java` | Main: explicit no-op `default` (with the reason) in the attribute-row, keybinds footer/navigation and settings-confirm switches - same behaviour. Test steps: `default` now throws `IllegalArgumentException` naming the unhandled key, so a typo in a step argument fails instead of silently doing nothing. | No |
 | `ReturnMissingNullable` | 18 | `M:AppIcon.java`, `M:mods/CalcExpressionParser.java`, `M:sandbox/DevConsoleCommandHistory.java`, `M:sandbox/DevConsolePanel.java`, `M:testing/approval/ApprovalCheck.java`, `M:ui/CodexPanel.java`, +7 more | Annotated with JSpecify `@Nullable` the return types of methods that really do return `null` (e.g. `AppIcon.load`, `CodexPanel.getSelectedEntryName`, `DetailsPaneWidget.getTable`, test helpers). None of these packages is `@NullMarked`, so NullAway's checking is unchanged; the annotation documents the contract. Also dropped `DevConsoleSteps`' fully-qualified `PlayerClass` (already imported). | No |
 | `WildcardImport` | 26 | `M:Main.java`, `M:entities/player/Player.java`, `M:game/GamePanel.java`, `M:render/DrawableAsciiEntity.java`, `M:sandbox/ClassSandboxPanel.java`, `M:sandbox/DevConsoleCompletion.java`, +20 more | Replaced every `javax.swing.*`, `java.awt.*`, `java.util.*` and static `GameConst.*`/`Assertions.*` import with the explicit names each file uses. One `java.awt.*` in `InventoryPanel` was unused outright; `PopupWidget` keeps using its own package's `FocusManager`, not Swing's. | No |
+| `MissingBraces` | 33 | `M:game/GamePanel.java`, `M:mods/CalcExpressionParser.java`, `M:mods/ModLoader.java`, `M:sandbox/DevConsoleCommandHistory.java`, `M:ui/widget/RadioGroupWidget.java`, `M:ui/widget/TableWidget.java`, +1 more | Braced every brace-less `if` body (guard clauses in `CalcExpressionParser`, `ModLoader`, `DevConsoleCommandHistory`, `RadioGroupWidget`, `TableWidget`, `GamePanel`, `WorldScene`). Layout only. | No |
 
-Fixed so far: 157 violations across 30 checks.
+Fixed so far: 190 violations across 31 checks.

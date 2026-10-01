@@ -157,7 +157,9 @@ public class RadioGroupWidget<T> extends Widget {
     }
 
     public void moveVertical(boolean down) {
-        if (options.isEmpty()) return;
+        if (options.isEmpty()) {
+            return;
+        }
         highlightedIndex = down
             ? (wrapAround
                 ? (highlightedIndex + 1) % options.size()
@@ -169,7 +171,9 @@ public class RadioGroupWidget<T> extends Widget {
     }
 
     public void moveHorizontal(boolean right) {
-        if (options.isEmpty()) return;
+        if (options.isEmpty()) {
+            return;
+        }
         highlightedIndex = right
             ? (wrapAround
                 ? (highlightedIndex + 1) % options.size()
@@ -214,7 +218,9 @@ public class RadioGroupWidget<T> extends Widget {
                 // repaint anything.
                 refreshHighlight();
                 T option = getSelectedOption();
-                if (option != null) onConfirm.accept(option);
+                if (option != null) {
+                    onConfirm.accept(option);
+                }
             }
         });
     }
@@ -225,13 +231,17 @@ public class RadioGroupWidget<T> extends Widget {
         setLayout(buildLayout());
         createLabels();
         refreshHighlight();
-        if (!horizontal) uniformizeVerticalLabelWidths();
+        if (!horizontal) {
+            uniformizeVerticalLabelWidths();
+        }
         revalidate();
         repaint();
     }
 
     private LayoutManager buildLayout() {
-        if (fillWidth && horizontal) return new GridLayout(1, 0, 4, 0);
+        if (fillWidth && horizontal) {
+            return new GridLayout(1, 0, 4, 0);
+        }
         return new BoxLayout(this, horizontal ? BoxLayout.X_AXIS : BoxLayout.Y_AXIS);
     }
 

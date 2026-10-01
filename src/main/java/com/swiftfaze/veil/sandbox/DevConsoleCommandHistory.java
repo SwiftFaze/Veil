@@ -27,8 +27,12 @@ public class DevConsoleCommandHistory {
      */
     public void record(String command) {
         String trimmed = command.strip();
-        if (trimmed.isEmpty()) return;
-        if (!entries.isEmpty() && entries.get(entries.size() - 1).equals(trimmed)) return;
+        if (trimmed.isEmpty()) {
+            return;
+        }
+        if (!entries.isEmpty() && entries.get(entries.size() - 1).equals(trimmed)) {
+            return;
+        }
         entries.add(trimmed);
         cursor = entries.size();
         savedDraft = "";
@@ -43,11 +47,15 @@ public class DevConsoleCommandHistory {
      * @return the history entry at the new cursor position
      */
     public String navigateUp(String currentDraft) {
-        if (entries.isEmpty()) return currentDraft;
+        if (entries.isEmpty()) {
+            return currentDraft;
+        }
         if (cursor == entries.size()) {
             savedDraft = currentDraft;
         }
-        if (cursor > 0) cursor--;
+        if (cursor > 0) {
+            cursor--;
+        }
         return entries.get(cursor);
     }
 
@@ -60,7 +68,9 @@ public class DevConsoleCommandHistory {
      *         Down past the newest entry, or null if not navigating
      */
     public @Nullable String navigateDown() {
-        if (entries.isEmpty() || cursor == entries.size()) return null;
+        if (entries.isEmpty() || cursor == entries.size()) {
+            return null;
+        }
         cursor++;
         return cursor == entries.size() ? savedDraft : entries.get(cursor);
     }

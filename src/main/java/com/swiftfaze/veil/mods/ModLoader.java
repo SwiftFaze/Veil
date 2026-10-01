@@ -396,7 +396,9 @@ public final class ModLoader {
     }
 
     private static Item.BaseDamage parseItemBaseDamage(JsonObject json) {
-        if (!json.has("baseDamage")) return new Item.BaseDamage(0, 0);
+        if (!json.has("baseDamage")) {
+            return new Item.BaseDamage(0, 0);
+        }
         JsonObject bd = json.getAsJsonObject("baseDamage");
         int min = bd.has("min") ? bd.get("min").getAsInt() : 0;
         int max = bd.has("max") ? bd.get("max").getAsInt() : 0;
@@ -405,13 +407,17 @@ public final class ModLoader {
 
     private static List<Item.Effect> parseItemEffects(JsonObject json, String id, Set<String> validStatNames, Path file) {
         List<Item.Effect> effects = new ArrayList<>();
-        if (!json.has("effects")) return effects;
+        if (!json.has("effects")) {
+            return effects;
+        }
         for (var element : json.getAsJsonArray("effects")) {
             JsonObject effectObj = element.getAsJsonObject();
             String effectType = effectObj.get("type").getAsString();
             String stat = effectObj.get("stat").getAsString();
             String calc = effectObj.get("calc").getAsString();
-            if (!validStatNames.contains(stat)) throw new ModLoadException("Item '" + id + "' references unregistered stat '" + stat + "' in file: " + file);
+            if (!validStatNames.contains(stat)) {
+                throw new ModLoadException("Item '" + id + "' references unregistered stat '" + stat + "' in file: " + file);
+            }
             validateCalcExpression(calc, id, file);
             effects.add(new Item.Effect(effectType, stat, calc));
         }
@@ -491,15 +497,21 @@ public final class ModLoader {
     private static Quest.Reward readQuestReward(JsonObject rewardObj, String questId, Path file,
                                                   Map<String, Item> itemsById) {
         String type = rewardObj.get("type").getAsString();
-        if ("item".equals(type)) return parseItemReward(rewardObj, questId, file, itemsById);
-        if ("xp".equals(type)) return parseXpReward(rewardObj, questId, file);
+        if ("item".equals(type)) {
+            return parseItemReward(rewardObj, questId, file, itemsById);
+        }
+        if ("xp".equals(type)) {
+            return parseXpReward(rewardObj, questId, file);
+        }
         throw new ModLoadException("Quest '" + questId + "' has unsupported reward type '" + type + "' in file: " + file);
     }
 
     private static Quest.Reward parseItemReward(JsonObject rewardObj, String questId, Path file, Map<String, Item> itemsById) {
         String itemId = rewardObj.get("id").getAsString();
         int count = rewardObj.has("count") ? rewardObj.get("count").getAsInt() : 1;
-        if (!itemsById.containsKey(itemId)) throw new ModLoadException("Quest '" + questId + "' references unknown item '" + itemId + "' in file: " + file);
+        if (!itemsById.containsKey(itemId)) {
+            throw new ModLoadException("Quest '" + questId + "' references unknown item '" + itemId + "' in file: " + file);
+        }
         return new Quest.Reward("item", itemId, count, null);
     }
 
