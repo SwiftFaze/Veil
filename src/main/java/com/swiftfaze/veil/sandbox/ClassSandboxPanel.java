@@ -5,7 +5,13 @@ import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.widget.ListWidget;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.InputMap;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;

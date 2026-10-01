@@ -2,8 +2,11 @@ package com.swiftfaze.veil.ui;
 
 import com.swiftfaze.veil.ui.widget.CompactPopupWidget;
 import com.swiftfaze.veil.ui.widget.RadioGroupWidget;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JComponent;
+import javax.swing.JTextPane;
+import java.awt.Component;
 import java.util.List;
 
 public class DropConfirmationPopup extends CompactPopupWidget {

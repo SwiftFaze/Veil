@@ -2,7 +2,10 @@ package com.swiftfaze.veil.ui.widget;
 
 import com.swiftfaze.veil.input.Keybindings;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JLabel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 

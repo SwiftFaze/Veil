@@ -4,7 +4,9 @@ import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.render.DrawableAsciiEntity;
 import com.swiftfaze.veil.world.WorldScene;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
 
 
 public class Player implements DrawableAsciiEntity {

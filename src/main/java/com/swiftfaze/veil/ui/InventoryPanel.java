@@ -9,9 +9,12 @@ import com.swiftfaze.veil.ui.widget.PopupWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.InputMap;
 import javax.swing.border.Border;
-import java.awt.*;
+
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;

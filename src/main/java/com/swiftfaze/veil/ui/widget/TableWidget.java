@@ -1,7 +1,13 @@
 package com.swiftfaze.veil.ui.widget;
 
 import com.swiftfaze.veil.input.Keybindings;
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.InputMap;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
 import java.awt.Color;

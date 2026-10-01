@@ -10,15 +10,28 @@ import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.world.TileTestScene2;
 import com.swiftfaze.veil.world.WorldScene;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import static com.swiftfaze.veil.GameConst.*;
+import static com.swiftfaze.veil.GameConst.DEFAULT_MAP_HEIGHT;
+import static com.swiftfaze.veil.GameConst.DEFAULT_MAP_WIDTH;
+import static com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_X;
+import static com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_Y;
+import static com.swiftfaze.veil.GameConst.GAME_WINDOW_HEIGHT;
+import static com.swiftfaze.veil.GameConst.GAME_WINDOW_WIDTH;
+import static com.swiftfaze.veil.GameConst.TILE_HEIGHT;
+import static com.swiftfaze.veil.GameConst.TILE_WIDTH;
 
 public class GamePanel extends JPanel {
 

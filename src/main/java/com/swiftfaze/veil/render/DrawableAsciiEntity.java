@@ -1,6 +1,7 @@
 package com.swiftfaze.veil.render;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
 
 public interface DrawableAsciiEntity extends Positionable {
     char getSymbol();
