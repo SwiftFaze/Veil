@@ -14,16 +14,21 @@ import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.PlayerDetailPanel;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
+import com.swiftfaze.veil.sandbox.TileSandboxProvider;
+import com.swiftfaze.veil.ui.DetailsPaneWidget;
 import com.swiftfaze.veil.sandbox.ReloadableFakeProvider;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.TranscriptWidget;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DevConsoleSteps {
@@ -43,6 +49,7 @@ public class DevConsoleSteps {
     private static final String TRANSCRIPT_SHOULD_HAVE_ENTRIES = "Transcript should have entries";
     private static final String CLASSES_PROVIDER_NAME = "Classes";
     private static final String PLAYER_PROVIDER_NAME = "Player";
+    private static final String TILES_PROVIDER_NAME = "Tiles";
 
     private DevConsoleModel model;
     private DevConsolePanel panel;
@@ -422,6 +429,53 @@ public class DevConsoleSteps {
         assertEquals(classSnapshot, livePlayer.getPlayerInfo().getPlayerClass().getName());
     }
 
+    @Given("the dev console is running with a Tiles provider that has no tiles")
+    public void theDevConsoleIsRunningWithATilesProviderThatHasNoTiles() {
+        List<DevConsoleProvider> providers = List.of(new TileSandboxProvider(List.of()));
+        model = new DevConsoleModel(providers);
+        panel = new DevConsolePanel(model);
+    }
+
+    @Then("the Tiles provider contributes one result per loaded tile")
+    public void theTilesProviderContributesOneResultPerLoadedTile() {
+        int loadedTiles = ModLoader.load(Paths.get("mods")).getAllTiles().size();
+        assertEquals(loadedTiles, model.filteredResults().size());
+    }
+
+    @Then("the tile detail shows these fields:")
+    public void theTileDetailShowsTheseFields(DataTable dataTable) {
+        assertTrue(panel.isProviderPanelShowing(), "Provider panel should be showing");
+
+        DetailsPaneWidget detailsPane = (DetailsPaneWidget) panel.getOpenedProviderPanel();
+        assertNotNull(detailsPane, "Details pane should be opened");
+
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+        TableWidget<List<String>> table = detailsPane.getTable(0);
+        assertNotNull(table, "Table should exist");
+        assertEquals(rows.size(), table.getRowCount(), "Detail row count mismatch");
+
+        table.moveToStart();
+        for (int i = 0; i < rows.size(); i++) {
+            if (i > 0) {
+                table.moveDown();
+            }
+            Map<String, String> expectedRow = rows.get(i);
+            List<String> actualRow = table.getSelectedRow();
+
+            assertEquals(expectedRow.get("Field"), actualRow.get(0),
+                "Row " + i + " field name mismatch");
+            assertEquals(expectedRow.get("Value"), actualRow.get(1),
+                "Row " + i + " value mismatch");
+        }
+    }
+
+    @Then("the Tiles provider rejects opening {string}")
+    public void theTilesProviderRejectsOpening(String id) {
+        TileSandboxProvider provider = new TileSandboxProvider();
+        assertThrows(IllegalArgumentException.class, () -> provider.createPanel(id),
+            "Expected IllegalArgumentException for unknown tile id: " + id);
+    }
+
     @Then("the running player's {string} is Warrior's level-0 base Strength")
     public void fieldIsWarriorLevelZeroBaseStrength(String fieldName) {
         assertFieldIsWarriorBase(fieldName);
@@ -772,6 +826,9 @@ public class DevConsoleSteps {
         }
         if (PLAYER_PROVIDER_NAME.equals(name)) {
             return new PlayerSandboxProvider(() -> livePlayer);
+        }
+        if (TILES_PROVIDER_NAME.equals(name)) {
+            return new TileSandboxProvider();
         }
         throw new IllegalArgumentException("Unknown provider: " + name);
     }
