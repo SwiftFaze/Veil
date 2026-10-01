@@ -122,23 +122,28 @@ public class AppIconAndVersionSteps {
     public void itsVersionEqualsTheProjectsPomXmlVersion() throws IOException {
         assertNotNull(loadedAppVersion, "AppVersion should have been loaded in When step");
 
-        Path pomPath = Path.of(System.getProperty("user.dir")).resolve("pom.xml");
-        String pomContent = Files.readString(pomPath);
-
-        // First <version> tag after <artifactId>Veil
-        String projectVersion = null;
-        int veilIndex = pomContent.indexOf("<artifactId>Veil</artifactId>");
-        if (veilIndex != -1) {
-            int versionStart = pomContent.indexOf(VERSION_OPEN_TAG, veilIndex);
-            if (versionStart != -1) {
-                int versionEnd = pomContent.indexOf("</version>", versionStart);
-                projectVersion = pomContent.substring(versionStart + VERSION_OPEN_TAG.length(), versionEnd);
-            }
-        }
+        String projectVersion = pomProjectVersion();
 
         assertNotNull(projectVersion, "Could not extract version from pom.xml");
         assertEquals("v" + projectVersion, loadedAppVersion.getDisplayVersion(),
                 "Classpath version.properties version does not match pom.xml");
+    }
+
+    /** The first {@code <version>} after the project's own artifactId, or null if absent. */
+    private static String pomProjectVersion() throws IOException {
+        Path pomPath = Path.of(System.getProperty("user.dir")).resolve("pom.xml");
+        String pomContent = Files.readString(pomPath);
+
+        int veilIndex = pomContent.indexOf("<artifactId>Veil</artifactId>");
+        if (veilIndex == -1) {
+            return null;
+        }
+        int versionStart = pomContent.indexOf(VERSION_OPEN_TAG, veilIndex);
+        if (versionStart == -1) {
+            return null;
+        }
+        int versionEnd = pomContent.indexOf("</version>", versionStart);
+        return pomContent.substring(versionStart + VERSION_OPEN_TAG.length(), versionEnd);
     }
 
     @Given("the bundled version.properties is absent")
