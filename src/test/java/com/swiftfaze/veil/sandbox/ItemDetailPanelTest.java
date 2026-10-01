@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.swing.InputMap;
 import javax.swing.JComponent;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.nio.file.Paths;
 import java.util.List;
@@ -88,10 +89,11 @@ class ItemDetailPanelTest {
     }
 
     @Test
-    void showsTheItemInAnInspectableDetailPanelTitledWithItsName() {
-        InspectableDetailPanel details =
-                assertInstanceOf(InspectableDetailPanel.class, ironSwordPanel().getComponent(0));
+    void fillsItselfWithAnInspectableDetailPanelTitledWithTheItemName() {
+        ItemDetailPanel panel = ironSwordPanel();
+        InspectableDetailPanel details = assertInstanceOf(InspectableDetailPanel.class, panel.getComponent(0));
 
+        assertInstanceOf(BorderLayout.class, panel.getLayout());
         assertEquals("Iron Sword", details.title());
     }
 

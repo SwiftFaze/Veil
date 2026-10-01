@@ -58,10 +58,6 @@ public final class InspectableDetailPanel extends JPanel {
         return detailsPane.isTableFocused(index);
     }
 
-    public boolean isShowingPlaceholder() {
-        return detailsPane.isShowingPlaceholder();
-    }
-
     public void moveUp() {
         detailsPane.moveUp();
     }

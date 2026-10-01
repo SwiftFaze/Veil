@@ -86,7 +86,7 @@ public class QuestSandboxSteps {
                 panel.getOpenedProviderPanel(),
                 "Expected the opened panel to be an InspectableDetailPanel");
 
-        Assertions.assertFalse(detailsPane.isShowingPlaceholder(), "Expected quest details to be shown, not a placeholder");
+        Assertions.assertTrue(detailsPane.tableCount() > 0, "Expected quest details to be shown, not a placeholder");
 
         List<Map<String, String>> expectedRows = dataTable.asMaps(String.class, String.class);
 
