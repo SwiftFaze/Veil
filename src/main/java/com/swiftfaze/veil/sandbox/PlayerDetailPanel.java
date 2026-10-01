@@ -264,15 +264,23 @@ public class PlayerDetailPanel extends JPanel {
     }
 
     private void applyAdjustment(int rowIndex, int delta) {
+        if (rowIndex >= EDITABLE_STRENGTH && rowIndex <= EDITABLE_LUCK) {
+            adjustAttribute(rowIndex, delta);
+        } else if (rowIndex == EDITABLE_X) {
+            adjustPositionX(delta);
+        } else if (rowIndex == EDITABLE_Y) {
+            adjustPositionY(delta);
+        } else {
+            adjustVital(rowIndex, delta);
+        }
+    }
+
+    private void adjustVital(int rowIndex, int delta) {
         switch (rowIndex) {
-            case EDITABLE_STRENGTH, EDITABLE_DEXTERITY, EDITABLE_CONSTITUTION,
-                 EDITABLE_INTELLIGENCE, EDITABLE_WISDOM, EDITABLE_LUCK -> adjustAttribute(rowIndex, delta);
             case EDITABLE_MAX_HP -> adjustMaxHp(delta);
             case EDITABLE_MAX_MANA -> adjustMaxMana(delta);
             case EDITABLE_CURRENT_HP -> adjustCurrentHp(delta);
             case EDITABLE_CURRENT_MANA -> adjustCurrentMana(delta);
-            case EDITABLE_X -> adjustPositionX(delta);
-            case EDITABLE_Y -> adjustPositionY(delta);
             default -> { }
         }
     }

@@ -671,7 +671,7 @@ public class DevConsoleSteps {
     }
 
     @Given("the running player is at position {int}, {int}")
-    public void theRunningPlayerIsAtPosition(int x, int y) {
+    public void theRunningPlayerIsPlacedAt(int x, int y) {
         livePlayer.setPosition(x, y);
         refreshDisplayedRows();
     }
