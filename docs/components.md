@@ -127,7 +127,7 @@ instance (`worldX`/`worldY` + a blueprint), not a catalog entry, and
 implements neither interface.
 
 This isn't a new idea for this codebase, either — `Positionable` →
-`DrawableAsciiEntity` (see `architecture.md`'s "Rendering contracts")
+`DrawableAsciiEntity` (see `architecture-engine.md`'s "Rendering contracts")
 already applies Rule 1 to world rendering, where `GamePanel` iterates
 `entitiesToDraw` generically instead of switching on entity type.
 
