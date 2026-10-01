@@ -29,7 +29,8 @@ import java.util.List;
  * output, always shown on launch. Typing `search <term>` and pressing Enter filters entries and
  * prints a numbered result table into the transcript; typing `edit <namespace:id>` and
  * pressing Enter opens that entry's detail panel in place of the transcript. `set`/`add`/
- * `subtract` mutate a field and write a transcript line. Escape returns from a detail panel to
+ * `subtract` mutate a field and write a transcript line. `reload` asks every provider to
+ * refresh from mods/ and rebuilds the entry list. Escape returns from a detail panel to
  * the transcript.
  */
 public class DevConsolePanel extends JPanel {

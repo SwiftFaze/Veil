@@ -18,9 +18,11 @@ public class PlayerSandboxProvider implements DevConsoleProvider {
 
     private static final String PLAYER_ID = "core:player";
     private final Supplier<Player> playerSupplier;
+    private final PlayerSnapshotter snapshotter;
 
     public PlayerSandboxProvider(Supplier<Player> playerSupplier) {
         this.playerSupplier = playerSupplier;
+        this.snapshotter = new PlayerSnapshotter(playerSupplier);
     }
 
     @Override
@@ -36,5 +38,10 @@ public class PlayerSandboxProvider implements DevConsoleProvider {
     @Override
     public Optional<DevConsoleFieldMutator> fieldMutator(String id) {
         return Optional.of(new PlayerFieldMutator(playerSupplier));
+    }
+
+    @Override
+    public Optional<DevConsoleSnapshotter> snapshotter(String id) {
+        return Optional.of(snapshotter);
     }
 }

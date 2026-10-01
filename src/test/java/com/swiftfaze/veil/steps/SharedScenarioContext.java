@@ -1,25 +1,55 @@
 package com.swiftfaze.veil.steps;
 
 import com.swiftfaze.veil.render.Camera;
+import com.swiftfaze.veil.sandbox.DevConsoleModel;
+import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel;
+import java.util.Map;
 
 /**
  * Shared state across step definition classes within a single scenario.
  * Uses ThreadLocal to store scenario-scoped state without requiring dependency injection.
  */
 public class SharedScenarioContext {
-    private static final ThreadLocal<Camera> cameraHolder = new ThreadLocal<>();
+    private static final ThreadLocal<Camera> CAMERA = new ThreadLocal<>();
+    private static final ThreadLocal<DevConsoleModel> DEV_CONSOLE_MODEL = new ThreadLocal<>();
+    private static final ThreadLocal<DevConsolePanel> DEV_CONSOLE_PANEL = new ThreadLocal<>();
+    private static final ThreadLocal<Map<String, String>> QUEST_LOG_SNAPSHOT = new ThreadLocal<>();
     private static final ThreadLocal<DevConsoleSteps> DEV_CONSOLE_STEPS_HOLDER = new ThreadLocal<>();
     private static final ThreadLocal<UiComponentFrameworkSteps> UI_STEPS_HOLDER =
             ThreadLocal.withInitial(UiComponentFrameworkSteps::new); // lazily built: Cucumber only instantiates step classes whose steps run
     private static final ThreadLocal<KitchenSinkPreviewPanel> PREVIEW_PANEL_HOLDER = new ThreadLocal<>();
 
     public static Camera getCamera() {
-        return cameraHolder.get();
+        return CAMERA.get();
     }
 
     public static void setCamera(Camera camera) {
-        cameraHolder.set(camera);
+        CAMERA.set(camera);
+    }
+
+    public static DevConsoleModel getDevConsoleModel() {
+        return DEV_CONSOLE_MODEL.get();
+    }
+
+    public static void setDevConsoleModel(DevConsoleModel model) {
+        DEV_CONSOLE_MODEL.set(model);
+    }
+
+    public static DevConsolePanel getDevConsolePanel() {
+        return DEV_CONSOLE_PANEL.get();
+    }
+
+    public static void setDevConsolePanel(DevConsolePanel panel) {
+        DEV_CONSOLE_PANEL.set(panel);
+    }
+
+    public static Map<String, String> getQuestLogSnapshot() {
+        return QUEST_LOG_SNAPSHOT.get();
+    }
+
+    public static void setQuestLogSnapshot(Map<String, String> snapshot) {
+        QUEST_LOG_SNAPSHOT.set(snapshot);
     }
 
     public static DevConsoleSteps getDevConsoleSteps() {
@@ -47,7 +77,10 @@ public class SharedScenarioContext {
     }
 
     public static void cleanup() {
-        cameraHolder.remove();
+        CAMERA.remove();
+        DEV_CONSOLE_MODEL.remove();
+        DEV_CONSOLE_PANEL.remove();
+        QUEST_LOG_SNAPSHOT.remove();
         DEV_CONSOLE_STEPS_HOLDER.remove();
         UI_STEPS_HOLDER.remove();
         PREVIEW_PANEL_HOLDER.remove();

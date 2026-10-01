@@ -26,8 +26,12 @@ import com.swiftfaze.veil.ui.widget.FocusManager;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
+import com.swiftfaze.veil.sandbox.DevConsoleProvider;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
+import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
+import com.swiftfaze.veil.sandbox.TileSandboxProvider;
+import com.swiftfaze.veil.sandbox.KitchenSinkProvider;
 import com.swiftfaze.veil.game.GameListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class Main {
     /**
@@ -236,9 +241,8 @@ public class Main {
             return;
         }
 
-        DevConsoleModel model = new DevConsoleModel(
-            List.of(new ClassSandboxProvider(), new PlayerSandboxProvider(gamePanel::getPlayer), new com.swiftfaze.veil.sandbox.KitchenSinkProvider())
-        );
+        List<DevConsoleProvider> providers = buildDevConsoleProviders(gamePanel::getPlayer);
+        DevConsoleModel model = new DevConsoleModel(providers);
         DevConsolePanel console = new DevConsolePanel(model);
 
         JFrame consoleFrame = new JFrame("Veil - Dev Console");
@@ -266,6 +270,16 @@ public class Main {
             public void updatePlayer(Player player) {
             }
         });
+    }
+
+    public static List<DevConsoleProvider> buildDevConsoleProviders(Supplier<Player> playerSupplier) {
+        return List.of(
+            new ClassSandboxProvider(),
+            new QuestSandboxProvider(),
+            new TileSandboxProvider(),
+            new PlayerSandboxProvider(playerSupplier),
+            new KitchenSinkProvider()
+        );
     }
 
     private static void configureAndShowFrame(JFrame frame, ScreenDeck deck, ControlsHintBarWidget hintBar,
