@@ -163,7 +163,7 @@ class GamePanelTest {
         assertTrue(listenerCalled[0]);
     }
 
-    private void fireAction(GamePanel panel, String actionName) {
+    private static void fireAction(GamePanel panel, String actionName) {
         Action action = panel.getActionMap().get(actionName);
         action.actionPerformed(new ActionEvent(panel, ActionEvent.ACTION_PERFORMED, actionName));
     }

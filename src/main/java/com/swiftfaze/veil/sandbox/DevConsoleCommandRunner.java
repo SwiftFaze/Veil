@@ -172,7 +172,7 @@ public class DevConsoleCommandRunner {
         action.accept(snapshotter.get(), parts[1]);
     }
 
-    private List<List<String>> resultRows(List<DevConsoleModel.SearchResult> results) {
+    private static List<List<String>> resultRows(List<DevConsoleModel.SearchResult> results) {
         List<List<String>> rows = new ArrayList<>();
         for (int i = 0; i < results.size(); i++) {
             rows.add(rowFor(results.get(i), i + 1));
@@ -180,17 +180,17 @@ public class DevConsoleCommandRunner {
         return rows;
     }
 
-    private List<String> rowFor(DevConsoleModel.SearchResult result, int rowNumber) {
+    private static List<String> rowFor(DevConsoleModel.SearchResult result, int rowNumber) {
         return List.of(String.valueOf(rowNumber), result.entry().id(), result.entry().name(),
                 result.entry().category(), result.entry().namespace());
     }
 
-    private String verbOf(String trimmed) {
+    private static String verbOf(String trimmed) {
         int spaceIndex = trimmed.indexOf(' ');
         return spaceIndex < 0 ? trimmed : trimmed.substring(0, spaceIndex);
     }
 
-    private String argumentOf(String trimmed) {
+    private static String argumentOf(String trimmed) {
         int spaceIndex = trimmed.indexOf(' ');
         return spaceIndex < 0 ? "" : trimmed.substring(spaceIndex + 1).trim();
     }

@@ -200,7 +200,7 @@ public class PatternFieldWidget extends Widget {
         }
     }
 
-    private boolean isAppendable(char c) {
+    private static boolean isAppendable(char c) {
         // Enter (\n, \r) satisfies Character.isWhitespace() just like a space does, so without
         // this exclusion it could be inserted as a literal newline — a character no single-line
         // pattern ever matches. Real Enter presses never reach here (see bindEnterToNextField),
@@ -211,7 +211,7 @@ public class PatternFieldWidget extends Widget {
         return Character.isLetterOrDigit(c) || Character.isWhitespace(c) || isPrintableSpecial(c);
     }
 
-    private boolean isPrintableSpecial(char c) {
+    private static boolean isPrintableSpecial(char c) {
         return c != '\t' && c >= 32 && c <= 126;
     }
 
@@ -344,7 +344,7 @@ public class PatternFieldWidget extends Widget {
         }
     }
 
-    private class AllowedCharacterFilter extends DocumentFilter {
+    private static class AllowedCharacterFilter extends DocumentFilter {
         @Override
         public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
                 throws BadLocationException {
@@ -358,7 +358,7 @@ public class PatternFieldWidget extends Widget {
             super.replace(fb, offset, length, filtered(text), attrs);
         }
 
-        private String filtered(String text) {
+        private static String filtered(String text) {
             if (text == null) {
                 return "";
             }

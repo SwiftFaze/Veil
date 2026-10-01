@@ -129,17 +129,17 @@ public class PauseScreenSteps {
             "Expected notification for: " + menuItem + ", but got: " + menuSelectNotifications);
     }
 
-    private void fireAction(GamePanel panel, String actionName) {
+    private static void fireAction(GamePanel panel, String actionName) {
         Action action = panel.getActionMap().get(actionName);
         action.actionPerformed(new ActionEvent(panel, ActionEvent.ACTION_PERFORMED, actionName));
     }
 
-    private void fireAction(PauseMenuPopup popup, String actionName) {
+    private static void fireAction(PauseMenuPopup popup, String actionName) {
         Action action = popup.getActionMap().get(actionName);
         action.actionPerformed(new ActionEvent(popup, ActionEvent.ACTION_PERFORMED, actionName));
     }
 
-    private void fireMenuDown(PauseMenuPopup popup) {
+    private static void fireMenuDown(PauseMenuPopup popup) {
         fireAction(popup, "popup-down");
     }
 }

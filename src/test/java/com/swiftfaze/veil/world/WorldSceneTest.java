@@ -29,7 +29,7 @@ class WorldSceneTest {
     private static final Tile DOOR = new Tile("test:door", '/', Color.YELLOW, true);
     private static final Tile WATER = new Tile("test:water", '~', Color.BLUE, false);
 
-    private WorldScene sceneOf(int width, int height) {
+    private static WorldScene sceneOf(int width, int height) {
         return new WorldScene(width, height) {
         };
     }

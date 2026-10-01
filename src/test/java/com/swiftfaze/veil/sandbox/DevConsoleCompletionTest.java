@@ -110,7 +110,7 @@ class DevConsoleCompletionTest {
         assertEquals("set player str", filled);
     }
 
-    private DevConsoleProvider mutatorProviderWithFields(String id, String localName, List<String> fieldTokens) {
+    private static DevConsoleProvider mutatorProviderWithFields(String id, String localName, List<String> fieldTokens) {
         return new DevConsoleProvider() {
             @Override
             public List<DevConsoleEntry> entries() {
@@ -144,11 +144,11 @@ class DevConsoleCompletionTest {
         };
     }
 
-    private DevConsoleProvider mutatorProvider(String id, String localName) {
+    private static DevConsoleProvider mutatorProvider(String id, String localName) {
         return mutatorProviderWithFields(id, localName, List.of());
     }
 
-    private DevConsoleProvider plainProvider(String id, String localName) {
+    private static DevConsoleProvider plainProvider(String id, String localName) {
         return new DevConsoleProvider() {
             @Override
             public List<DevConsoleEntry> entries() {
@@ -162,7 +162,7 @@ class DevConsoleCompletionTest {
         };
     }
 
-    private DevConsoleProvider snapshotterProvider(String id, String localName) {
+    private static DevConsoleProvider snapshotterProvider(String id, String localName) {
         return new DevConsoleProvider() {
             @Override
             public List<DevConsoleEntry> entries() {

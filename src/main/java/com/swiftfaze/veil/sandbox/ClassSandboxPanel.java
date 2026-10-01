@@ -86,7 +86,7 @@ public class ClassSandboxPanel extends JPanel {
         });
     }
 
-    private JLabel makeLabel(String text) {
+    private static JLabel makeLabel(String text) {
         JLabel label = new JLabel(text);
         label.setForeground(WidgetTheme.NORMAL_TEXT);
         label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));

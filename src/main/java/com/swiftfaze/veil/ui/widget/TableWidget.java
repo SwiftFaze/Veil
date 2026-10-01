@@ -295,7 +295,7 @@ public class TableWidget<T> extends Widget {
         repaint();
     }
 
-    private JPanel buildRowPanel(List<String> cellText, boolean isHeader) {
+    private static JPanel buildRowPanel(List<String> cellText, boolean isHeader) {
         int columnCount = Math.max(1, cellText.size());
         JPanel rowPanel = new JPanel(new GridLayout(1, columnCount));
         rowPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -309,7 +309,7 @@ public class TableWidget<T> extends Widget {
         return rowPanel;
     }
 
-    private JLabel buildCellLabel(String text, boolean isHeader) {
+    private static JLabel buildCellLabel(String text, boolean isHeader) {
         JLabel label = new JLabel(text);
         label.setOpaque(true);
         label.setBackground(isHeader ? WidgetTheme.TABLE_HEADER_BACKGROUND : WidgetTheme.BACKGROUND);
@@ -319,7 +319,7 @@ public class TableWidget<T> extends Widget {
         return label;
     }
 
-    private Border baseCellBorder() {
+    private static Border baseCellBorder() {
         Border cellLine = BorderFactory.createMatteBorder(0, 0, 1, 1, WidgetTheme.BORDER);
         Border padding = BorderFactory.createEmptyBorder(4, 8, 4, 8);
         return BorderFactory.createCompoundBorder(cellLine, padding);

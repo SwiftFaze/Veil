@@ -263,14 +263,14 @@ public class UiComponentFrameworkSteps {
         fireRadioGroupAction(choice, actionName);
     }
 
-    private void fireRadioGroupAction(RadioGroupWidget<String> widget, String actionName) {
+    private static void fireRadioGroupAction(RadioGroupWidget<String> widget, String actionName) {
         Action action = widget.getActionMap().get(actionName);
         if (action != null) {
             action.actionPerformed(new ActionEvent(widget, ActionEvent.ACTION_PERFORMED, actionName));
         }
     }
 
-    private void firePreviewPanelKey(String actionName) {
+    private static void firePreviewPanelKey(String actionName) {
         KitchenSinkPreviewPanel panel = SharedScenarioContext.getKitchenSinkPreviewPanel();
         if (panel == null) {
             return;
@@ -289,7 +289,7 @@ public class UiComponentFrameworkSteps {
         }
     }
 
-    private void firePopupAction(PopupWidget popup, String actionName) {
+    private static void firePopupAction(PopupWidget popup, String actionName) {
         Action action = popup.getActionMap().get(actionName);
         if (action != null) {
             action.actionPerformed(new ActionEvent(popup, ActionEvent.ACTION_PERFORMED, actionName));

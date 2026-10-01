@@ -572,7 +572,7 @@ public class ModLoaderSteps {
         }
     }
 
-    private Color widgetThemeColor(String key) {
+    private static Color widgetThemeColor(String key) {
         return switch (key) {
             case "SELECTED_HIGHLIGHT" -> WidgetTheme.SELECTED_HIGHLIGHT;
             case "SELECTED_TEXT" -> WidgetTheme.SELECTED_TEXT;
@@ -951,7 +951,7 @@ public class ModLoaderSteps {
         assertTrue(message.contains(unresolvedTileId), "expected message to name unresolved tile id: " + message);
     }
 
-    private int getStatValue(Stats stats, String statName) {
+    private static int getStatValue(Stats stats, String statName) {
         Map<String, Function<Stats, Integer>> getters = Map.of(
                 "strength", Stats::getStrength,
                 "dexterity", Stats::getDexterity,
@@ -1075,7 +1075,7 @@ public class ModLoaderSteps {
         Files.writeString(modDir.resolve("mod.json"), manifest.toString());
     }
 
-    private void writeTiles(Path modDir, List<TileFixture> fixtures) throws IOException {
+    private static void writeTiles(Path modDir, List<TileFixture> fixtures) throws IOException {
         if (fixtures.isEmpty()) {
             return;
         }
@@ -1090,7 +1090,7 @@ public class ModLoaderSteps {
         }
     }
 
-    private String tileJson(String id, char symbol, int r, int g, int b, boolean walkable, String overrides) {
+    private static String tileJson(String id, char symbol, int r, int g, int b, boolean walkable, String overrides) {
         JsonObject tile = new JsonObject();
         tile.addProperty("id", id);
         tile.addProperty("symbol", String.valueOf(symbol));
@@ -1106,7 +1106,7 @@ public class ModLoaderSteps {
         return tile.toString();
     }
 
-    private void writeBuildings(Path modDir, List<BuildingFixture> fixtures) throws IOException {
+    private static void writeBuildings(Path modDir, List<BuildingFixture> fixtures) throws IOException {
         if (fixtures.isEmpty()) {
             return;
         }
@@ -1139,7 +1139,7 @@ public class ModLoaderSteps {
         }
     }
 
-    private void writeClasses(Path modDir, List<ClassFixture> fixtures) throws IOException {
+    private static void writeClasses(Path modDir, List<ClassFixture> fixtures) throws IOException {
         if (fixtures.isEmpty()) {
             return;
         }
@@ -1153,7 +1153,7 @@ public class ModLoaderSteps {
         }
     }
 
-    private String classJson(ClassFixture fixture) {
+    private static String classJson(ClassFixture fixture) {
         JsonObject classObj = new JsonObject();
         classObj.addProperty("id", fixture.id());
         classObj.addProperty("name", fixture.name());
@@ -1178,7 +1178,7 @@ public class ModLoaderSteps {
         return classObj.toString();
     }
 
-    private void writeItems(Path modDir, List<ItemFixture> fixtures) throws IOException {
+    private static void writeItems(Path modDir, List<ItemFixture> fixtures) throws IOException {
         if (fixtures.isEmpty()) {
             return;
         }
@@ -1191,7 +1191,7 @@ public class ModLoaderSteps {
         }
     }
 
-    private String itemJson(ItemFixture fixture) {
+    private static String itemJson(ItemFixture fixture) {
         JsonObject item = new JsonObject();
         item.addProperty("id", fixture.id());
         item.addProperty("name", fixture.name() != null ? fixture.name() : fixture.id());
@@ -1223,7 +1223,7 @@ public class ModLoaderSteps {
         return item.toString();
     }
 
-    private void writeQuests(Path modDir, List<QuestFixture> fixtures) throws IOException {
+    private static void writeQuests(Path modDir, List<QuestFixture> fixtures) throws IOException {
         if (fixtures.isEmpty()) {
             return;
         }
@@ -1236,7 +1236,7 @@ public class ModLoaderSteps {
         }
     }
 
-    private String questJson(QuestFixture fixture) {
+    private static String questJson(QuestFixture fixture) {
         JsonObject quest = new JsonObject();
         quest.addProperty("id", fixture.id());
         quest.addProperty("name", fixture.name() != null ? fixture.name() : fixture.id());
@@ -1277,7 +1277,7 @@ public class ModLoaderSteps {
         return quest.toString();
     }
 
-    private void writeThemes(Path modDir, List<ThemeFixture> fixtures) throws IOException {
+    private static void writeThemes(Path modDir, List<ThemeFixture> fixtures) throws IOException {
         if (fixtures.isEmpty()) {
             return;
         }
@@ -1290,7 +1290,7 @@ public class ModLoaderSteps {
         }
     }
 
-    private String themeJson(ThemeFixture fixture) {
+    private static String themeJson(ThemeFixture fixture) {
         JsonObject theme = new JsonObject();
         theme.addProperty("id", fixture.id());
         theme.add("colors", themeColorsJson(fixture.colors()));
@@ -1300,7 +1300,7 @@ public class ModLoaderSteps {
         return theme.toString();
     }
 
-    private JsonObject themeColorsJson(Map<String, ThemeColorFixture> colors) {
+    private static JsonObject themeColorsJson(Map<String, ThemeColorFixture> colors) {
         JsonObject colorsJson = new JsonObject();
         for (Map.Entry<String, ThemeColorFixture> entry : colors.entrySet()) {
             JsonObject color = new JsonObject();

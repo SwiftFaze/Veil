@@ -331,7 +331,7 @@ public class ApprovalTestsGlyphGridSteps {
     }
 
     // Utility methods
-    private String gridToString(List<String> grid) {
+    private static String gridToString(List<String> grid) {
         StringBuilder sb = new StringBuilder();
         for (String row : grid) {
             sb.append(row).append("\n");

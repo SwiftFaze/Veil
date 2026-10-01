@@ -63,7 +63,7 @@ class WidgetThemeTest {
         return colors;
     }
 
-    private Color widgetThemeColor(String key) {
+    private static Color widgetThemeColor(String key) {
         return switch (key) {
             case "SELECTED_HIGHLIGHT" -> WidgetTheme.SELECTED_HIGHLIGHT;
             case "SELECTED_TEXT" -> WidgetTheme.SELECTED_TEXT;
@@ -81,7 +81,7 @@ class WidgetThemeTest {
         };
     }
 
-    private Map<String, Color> currentColors() {
+    private static Map<String, Color> currentColors() {
         Map<String, Color> colors = new LinkedHashMap<>();
         colors.put("SELECTED_HIGHLIGHT", WidgetTheme.SELECTED_HIGHLIGHT);
         colors.put("SELECTED_TEXT", WidgetTheme.SELECTED_TEXT);

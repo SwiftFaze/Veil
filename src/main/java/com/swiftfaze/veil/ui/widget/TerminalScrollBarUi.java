@@ -44,7 +44,7 @@ public class TerminalScrollBarUi extends BasicScrollBarUI {
         g.fillRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height);
     }
 
-    private JButton zeroSizeButton() {
+    private static JButton zeroSizeButton() {
         JButton button = new JButton();
         Dimension zero = new Dimension(0, 0);
         button.setPreferredSize(zero);

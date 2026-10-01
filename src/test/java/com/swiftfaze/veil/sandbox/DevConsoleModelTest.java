@@ -139,7 +139,7 @@ class DevConsoleModelTest {
         assertEquals(1, provider2.reloadCallCount());
     }
 
-    private DevConsoleProvider stubProvider(String category, String... names) {
+    private static DevConsoleProvider stubProvider(String category, String... names) {
         return new DevConsoleProvider() {
             @Override
             public List<DevConsoleEntry> entries() {

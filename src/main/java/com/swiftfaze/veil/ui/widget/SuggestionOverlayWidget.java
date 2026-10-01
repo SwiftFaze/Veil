@@ -138,7 +138,7 @@ public class SuggestionOverlayWidget {
         row.setForeground(isHighlighted ? WidgetTheme.SELECTED_TEXT : WidgetTheme.NORMAL_TEXT);
     }
 
-    private @Nullable JLayeredPane layeredPaneOf(JComponent owner) {
+    private static @Nullable JLayeredPane layeredPaneOf(JComponent owner) {
         Container ancestor = SwingUtilities.getAncestorOfClass(JLayeredPane.class, owner);
         return ancestor instanceof JLayeredPane pane ? pane : null;
     }
@@ -184,7 +184,7 @@ public class SuggestionOverlayWidget {
         content.setBounds(ownerOrigin.x + horizontalInset, ownerOrigin.y + ownerTopOffset - height, width, height);
     }
 
-    private JLabel buildRow(String candidate, boolean isHighlighted) {
+    private static JLabel buildRow(String candidate, boolean isHighlighted) {
         JLabel label = new JLabel(candidate);
         label.setFont(ROW_FONT);
         label.setOpaque(true);
@@ -196,7 +196,7 @@ public class SuggestionOverlayWidget {
         return label;
     }
 
-    private JLabel fullWidth(JLabel label) {
+    private static JLabel fullWidth(JLabel label) {
         label.setMaximumSize(new Dimension(Integer.MAX_VALUE, label.getPreferredSize().height));
         return label;
     }

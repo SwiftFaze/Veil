@@ -79,7 +79,7 @@ public class TranscriptWidget extends Widget {
         scrollToBottom();
     }
 
-    private int[] columnWidths(List<String> headers, List<List<String>> rows) {
+    private static int[] columnWidths(List<String> headers, List<List<String>> rows) {
         int[] widths = new int[headers.size()];
         for (int i = 0; i < headers.size(); i++) {
             widths[i] = headers.get(i).length();
@@ -92,7 +92,7 @@ public class TranscriptWidget extends Widget {
         return widths;
     }
 
-    private JLabel buildTableLine(List<String> cells, int[] columnWidths, Color color) {
+    private static JLabel buildTableLine(List<String> cells, int[] columnWidths, Color color) {
         StringBuilder line = new StringBuilder();
         for (int i = 0; i < cells.size(); i++) {
             if (i > 0) {
@@ -103,11 +103,11 @@ public class TranscriptWidget extends Widget {
         return plainLabel(line.toString(), color);
     }
 
-    private String padded(String text, int width) {
+    private static String padded(String text, int width) {
         return String.format("%-" + width + "s", text);
     }
 
-    private JLabel plainLabel(String text, Color color) {
+    private static JLabel plainLabel(String text, Color color) {
         JLabel label = new JLabel(text);
         label.setForeground(color);
         label.setFont(LINE_FONT);
@@ -120,7 +120,7 @@ public class TranscriptWidget extends Widget {
      * matching HeaderWidget/PatternFieldWidget's own "full width" convention - rather than
      * leaving it clamped to its own preferred (text-length) width.
      */
-    private <T extends Component> T fullWidth(T component) {
+    private static <T extends Component> T fullWidth(T component) {
         component.setMaximumSize(new Dimension(Integer.MAX_VALUE, component.getPreferredSize().height));
         return component;
     }

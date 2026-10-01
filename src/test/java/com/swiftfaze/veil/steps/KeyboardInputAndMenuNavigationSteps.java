@@ -53,7 +53,7 @@ public class KeyboardInputAndMenuNavigationSteps {
         assertFalse(listenerNotified);
     }
 
-    private String actionNameFor(String spokenName) {
+    private static String actionNameFor(String spokenName) {
         return switch (spokenName) {
             case "move up" -> Keybindings.ACTION_MOVE_UP;
             case "move down" -> Keybindings.ACTION_MOVE_DOWN;

@@ -121,14 +121,14 @@ public class ClassStatsSandboxSteps {
         Files.writeString(coreDir.resolve("classes").resolve("mage.json"), classJson.toString());
     }
 
-    private void writeManifest(Path coreDir) throws IOException {
+    private static void writeManifest(Path coreDir) throws IOException {
         JsonObject manifest = new JsonObject();
         manifest.addProperty("id", "core");
         manifest.add("dependsOn", new JsonArray());
         Files.writeString(coreDir.resolve("mod.json"), manifest.toString());
     }
 
-    private void writeStatsRegistry(Path coreDir) throws IOException {
+    private static void writeStatsRegistry(Path coreDir) throws IOException {
         JsonObject stats = new JsonObject();
         JsonArray statNames = new JsonArray();
         statNames.add("strength");
@@ -143,7 +143,7 @@ public class ClassStatsSandboxSteps {
         Files.writeString(coreDir.resolve("stats.json"), stats.toString());
     }
 
-    private void addStat(JsonObject stats, String name, int base) {
+    private static void addStat(JsonObject stats, String name, int base) {
         JsonObject stat = new JsonObject();
         stat.addProperty("base", base);
         stats.add(name, stat);

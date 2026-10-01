@@ -67,7 +67,7 @@ class SuggestionOverlayWidgetTest {
         assertEquals(OWNER_WIDTH - 2 * HORIZONTAL_INSET, bounds.width, "width must shrink by the inset on both sides");
     }
 
-    private Rectangle contentBounds(SuggestionOverlayWidget overlay) throws Exception {
+    private static Rectangle contentBounds(SuggestionOverlayWidget overlay) throws Exception {
         Field field = SuggestionOverlayWidget.class.getDeclaredField("content");
         field.setAccessible(true);
         JPanel content = (JPanel) field.get(overlay);

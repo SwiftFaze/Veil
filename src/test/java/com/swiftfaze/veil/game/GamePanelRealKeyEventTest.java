@@ -55,7 +55,7 @@ class GamePanelRealKeyEventTest {
         }
     }
 
-    private void waitForFocus(GamePanel panel) throws InterruptedException {
+    private static void waitForFocus(GamePanel panel) throws InterruptedException {
         for (int i = 0; i < MAX_FOCUS_WAIT_ATTEMPTS && !panel.isFocusOwner(); i++) {
             panel.requestFocusInWindow();
             TimeUnit.MILLISECONDS.sleep(FOCUS_POLL_INTERVAL_MS);

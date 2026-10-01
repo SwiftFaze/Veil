@@ -384,11 +384,11 @@ public class PlayerDetailPanel extends JPanel {
         return rowDataSuppliers.get(rowIndex).get();
     }
 
-    private String[] rowData(String fieldName, int value) {
+    private static String[] rowData(String fieldName, int value) {
         return new String[]{fieldName, String.valueOf(value)};
     }
 
-    private String[] rowData(String fieldName, String value) {
+    private static String[] rowData(String fieldName, String value) {
         return new String[]{fieldName, value};
     }
 

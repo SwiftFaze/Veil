@@ -930,7 +930,7 @@ public class DevConsoleSteps {
         }
     }
 
-    private int rowIndexOf(String fieldName) {
+    private static int rowIndexOf(String fieldName) {
         return switch (fieldName) {
             case "Class" -> 0;
             case "Strength" -> 1;
@@ -982,7 +982,7 @@ public class DevConsoleSteps {
         return table.getSelectedRow();
     }
 
-    private int getStatValue(Stats stats, String fieldName) {
+    private static int getStatValue(Stats stats, String fieldName) {
         return switch (fieldName) {
             case "Strength" -> stats.getStrength();
             case "Dexterity" -> stats.getDexterity();
@@ -1014,7 +1014,7 @@ public class DevConsoleSteps {
         return entries.get(entries.size() - 1);
     }
 
-    private Stats snapshot(Stats stats) {
+    private static Stats snapshot(Stats stats) {
         Stats copy = new Stats();
         copy.setStrength(stats.getStrength());
         copy.setDexterity(stats.getDexterity());
@@ -1029,7 +1029,7 @@ public class DevConsoleSteps {
         return copy;
     }
 
-    private @Nullable PlayerClass findPlayerClass(String name) {
+    private static @Nullable PlayerClass findPlayerClass(String name) {
         ModRegistry mods = ModLoader.load(Paths.get("mods"));
         return mods.getAllPlayerClasses().stream()
             .filter(cls -> name.equals(cls.getName()))
@@ -1253,7 +1253,7 @@ public class DevConsoleSteps {
         return panel.isProviderPanelShowing() ? panel.getOpenedProviderPanel() : null;
     }
 
-    private DevConsoleEntry createEntry(String id) {
+    private static DevConsoleEntry createEntry(String id) {
         String namespace = "core";
         String category = CLASSES_PROVIDER_NAME;
         String name = id.replace("core:", "");

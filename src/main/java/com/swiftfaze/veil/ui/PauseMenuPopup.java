@@ -85,7 +85,7 @@ public class PauseMenuPopup extends PopupWidget {
         }
     }
 
-    private JLabel makeTitleLabel() {
+    private static JLabel makeTitleLabel() {
         JLabel titleLabel = new JLabel("Paused");
         titleLabel.setForeground(WidgetTheme.NORMAL_TEXT);
         titleLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));

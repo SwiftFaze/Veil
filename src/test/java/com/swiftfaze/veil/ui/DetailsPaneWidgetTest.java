@@ -211,7 +211,7 @@ class DetailsPaneWidgetTest {
         assertEquals(0, detailsPane.getTableCount());
     }
 
-    private Inspectable createSingleTableEntry() {
+    private static Inspectable createSingleTableEntry() {
         return new Inspectable() {
             @Override
             public String getId() {
@@ -238,7 +238,7 @@ class DetailsPaneWidgetTest {
         return ((JComponent) scrollPane.getViewport().getView()).getBorder();
     }
 
-    private Inspectable createTwoTableEntry() {
+    private static Inspectable createTwoTableEntry() {
         return new Inspectable() {
             @Override
             public String getId() {

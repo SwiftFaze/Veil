@@ -149,7 +149,7 @@ public abstract class WorldScene implements DrawableAsciiEntity {
         }
     }
 
-    private void overlayEntities(char[][] grid, Viewport viewport, List<? extends PositionedGlyph> entities) {
+    private static void overlayEntities(char[][] grid, Viewport viewport, List<? extends PositionedGlyph> entities) {
         for (PositionedGlyph entity : entities) {
             int col = entity.getX() - viewport.cameraX();
             int row = entity.getY() - viewport.cameraY();
@@ -159,7 +159,7 @@ public abstract class WorldScene implements DrawableAsciiEntity {
         }
     }
 
-    private boolean isWithinViewport(int row, int col, Viewport viewport) {
+    private static boolean isWithinViewport(int row, int col, Viewport viewport) {
         return row >= 0 && row < viewport.height() && col >= 0 && col < viewport.width();
     }
 }

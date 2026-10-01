@@ -109,7 +109,7 @@ public final class ControlsHintBarWidget extends JPanel {
         return Arrays.asList(cells);
     }
 
-    private JPanel buildCell(Hint hint, int keyWidth, int keyHeight) {
+    private static JPanel buildCell(Hint hint, int keyWidth, int keyHeight) {
         JPanel cell = new JPanel(new FlowLayout(FlowLayout.LEFT, CELL_GAP, 0));
         cell.setBackground(WidgetTheme.BACKGROUND);
         if (hint == null) {

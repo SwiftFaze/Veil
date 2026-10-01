@@ -140,7 +140,7 @@ public class DetailsPaneWidget extends JPanel {
         }
     }
 
-    private JLabel buildPlaceholderLabel(String text) {
+    private static JLabel buildPlaceholderLabel(String text) {
         JLabel label = new JLabel(text);
         label.setForeground(com.swiftfaze.veil.ui.widget.WidgetTheme.NORMAL_TEXT);
         label.setFont(new java.awt.Font(java.awt.Font.MONOSPACED, java.awt.Font.PLAIN, 16));

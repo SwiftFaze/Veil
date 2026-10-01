@@ -99,7 +99,7 @@ class ModLoaderIt {
         assertEquals(new Color(0, 0, 0), theme.color("BACKGROUND"));
     }
 
-    private Stats statsAtLevel(PlayerClass playerClass, int level) {
+    private static Stats statsAtLevel(PlayerClass playerClass, int level) {
         Stats stats = new Stats();
         playerClass.applyStatsAtLevel(stats, level);
         return stats;

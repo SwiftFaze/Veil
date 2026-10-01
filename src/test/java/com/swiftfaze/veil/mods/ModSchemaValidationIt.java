@@ -67,7 +67,7 @@ class ModSchemaValidationIt {
         }
     }
 
-    private void validateFile(Path file, String schemaType, List<String> errors) {
+    private static void validateFile(Path file, String schemaType, List<String> errors) {
         if (!Files.exists(file)) {
             return;
         }
@@ -79,7 +79,7 @@ class ModSchemaValidationIt {
         }
     }
 
-    private void validateDirectory(Path dir, String schemaType, List<String> errors) throws IOException {
+    private static void validateDirectory(Path dir, String schemaType, List<String> errors) throws IOException {
         if (!Files.isDirectory(dir)) {
             return;
         }

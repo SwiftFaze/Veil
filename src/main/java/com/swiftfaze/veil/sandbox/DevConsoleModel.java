@@ -75,22 +75,22 @@ public class DevConsoleModel {
                 .toList();
     }
 
-    private boolean matchesToken(DevConsoleEntry entry, String token) {
+    private static boolean matchesToken(DevConsoleEntry entry, String token) {
         return entry.id().equals(token) || localId(entry.id()).equals(token);
     }
 
-    private String localId(String id) {
+    private static String localId(String id) {
         int colonIndex = id.indexOf(':');
         return colonIndex < 0 ? id : id.substring(colonIndex + 1);
     }
 
-    private boolean matches(DevConsoleEntry entry, String needle) {
+    private static boolean matches(DevConsoleEntry entry, String needle) {
         return contains(entry.namespace(), needle)
                 || contains(entry.category(), needle)
                 || contains(entry.name(), needle);
     }
 
-    private boolean contains(String field, String needle) {
+    private static boolean contains(String field, String needle) {
         return field.toLowerCase(Locale.ROOT).contains(needle);
     }
 

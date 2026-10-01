@@ -39,7 +39,7 @@ public class CalcExpressionParser {
             throw new IllegalArgumentException("Unexpected character: " + ch);
         }
 
-        private boolean isSingleCharOperator(char ch) {
+        private static boolean isSingleCharOperator(char ch) {
             return ch == '(' || ch == ')' || ch == '+' || ch == '-' || ch == '*' || ch == '/';
         }
 
