@@ -415,7 +415,7 @@
                     <excludedClasses>
                         <param>com.swiftfaze.veil.ui.widget.ButtonWidget</param>
                         <param>com.swiftfaze.veil.ui.widget.FocusManager</param>
-                        <param>com.swiftfaze.veil.ui.widget.TerminalScrollBarUI</param>
+                        <param>com.swiftfaze.veil.ui.widget.TerminalScrollBarUi</param>
                         <param>com.swiftfaze.veil.ui.widget.Widget</param>
                         <param>com.swiftfaze.veil.ui.GameWindow</param>
                         <param>com.swiftfaze.veil.ui.ResetConfirmationPopup</param>
@@ -493,7 +493,7 @@
                     <excludes>
                         <exclude>**/ui/widget/ButtonWidget.java</exclude>
                         <exclude>**/ui/widget/FocusManager.java</exclude>
-                        <exclude>**/ui/widget/TerminalScrollBarUI.java</exclude>
+                        <exclude>**/ui/widget/TerminalScrollBarUi.java</exclude>
                         <exclude>**/ui/widget/Widget.java</exclude>
                         <exclude>**/ui/GameWindow.java</exclude>
                         <exclude>**/ui/ResetConfirmationPopup.java</exclude>
@@ -587,8 +587,8 @@
                                 <exclude>**/ui/widget/ButtonWidget$*.class</exclude>
                                 <exclude>**/ui/widget/FocusManager.class</exclude>
                                 <exclude>**/ui/widget/FocusManager$*.class</exclude>
-                                <exclude>**/ui/widget/TerminalScrollBarUI.class</exclude>
-                                <exclude>**/ui/widget/TerminalScrollBarUI$*.class</exclude>
+                                <exclude>**/ui/widget/TerminalScrollBarUi.class</exclude>
+                                <exclude>**/ui/widget/TerminalScrollBarUi$*.class</exclude>
                                 <exclude>**/ui/widget/Widget.class</exclude>
                                 <exclude>**/ui/widget/Widget$*.class</exclude>
                                 <exclude>**/ui/GameWindow.class</exclude>
