@@ -8,6 +8,8 @@ Feature: Table widget
   consumers — the rebuilt inventory popup's field/value and effects
   tables — were removed alongside EastPanel; see the trailing Risks note.
 
+  QA: none - comment-only rename (TerminalScrollBarUi, #219); no keyboard behavior changed
+
   Scenario: Navigating a table widget down moves the selection to the next row
     Given a table widget with rows "Sword", "Shield", "Potion" and row 1 selected
     And the table widget has keyboard focus
