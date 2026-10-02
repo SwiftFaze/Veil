@@ -4,6 +4,8 @@ import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
 
+import java.util.Locale;
+
 /**
  * Shared arbitrary generators for property-based testing of Veil game logic.
  * These arbitraries are used across multiple property test classes to ensure

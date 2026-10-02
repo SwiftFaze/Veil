@@ -184,7 +184,7 @@ public class KitchenSinkSandboxSteps {
         Assertions.assertFalse(model.isOverlayOn(), "Overlay is still on");
         BufferedImage now = render();
         BufferedImage overlayOff = renderWithOverlay(false);
-        Assertions.assertEquals(WidgetTheme.BACKGROUND.getRGB(), now.getRGB(1, 1), "A cell is still tinted");
+        Assertions.assertEquals(WidgetTheme.background().getRGB(), now.getRGB(1, 1), "A cell is still tinted");
         Assertions.assertEquals(overlayOff.getRGB(1, 1), now.getRGB(1, 1));
     }
 
@@ -320,7 +320,7 @@ public class KitchenSinkSandboxSteps {
             for (int dx = 0; dx < GameConst.TILE_WIDTH; dx++) {
                 int pixelX = cellX * GameConst.TILE_WIDTH + dx;
                 int pixelY = cellY * GameConst.TILE_HEIGHT + dy;
-                if (image.getRGB(pixelX, pixelY) == WidgetTheme.BACKGROUND.getRGB()) {
+                if (image.getRGB(pixelX, pixelY) == WidgetTheme.background().getRGB()) {
                     return new Point(pixelX, pixelY);
                 }
             }

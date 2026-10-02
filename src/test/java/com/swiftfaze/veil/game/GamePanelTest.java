@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.game;
 
+import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.input.Keybindings;
 import org.junit.jupiter.api.Test;

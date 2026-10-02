@@ -2,6 +2,7 @@ package com.swiftfaze.veil.steps;
 
 import org.jspecify.annotations.Nullable;
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.filter.LevelFilter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
@@ -30,6 +31,7 @@ import java.util.function.Supplier;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -113,7 +115,7 @@ public class AppIconAndVersionSteps {
 
     @Then("the version label's color is the theme's dimmed text color")
     public void theVersionLabelColorIsTheThemesDimmedTextColor() {
-        assertEquals(WidgetTheme.DIMMED_TEXT, versionLabel().getForeground());
+        assertEquals(WidgetTheme.dimmedText(), versionLabel().getForeground());
     }
 
     @When("version.properties is read from the classpath")
@@ -206,7 +208,7 @@ public class AppIconAndVersionSteps {
     @Then("the game window has no custom icon")
     public void theGameWindowHasNoCustomIcon() {
         applyIcon();
-        Assertions.assertNull(capturedIcon, "Icon should be null when resource is absent");
+        assertNull(capturedIcon, "Icon should be null when resource is absent");
     }
 
     @Then("a warning about the missing icon is logged")
