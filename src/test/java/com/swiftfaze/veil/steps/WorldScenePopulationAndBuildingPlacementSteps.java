@@ -33,7 +33,7 @@ public class WorldScenePopulationAndBuildingPlacementSteps {
     );
 
     private WorldScene scene;
-    private Tile[][] pendingBlueprint;
+    private List<List<Tile>> pendingBlueprint;
     private Building building;
 
     @Given("an empty world scene {int} tiles wide and {int} tiles tall")
@@ -65,19 +65,14 @@ public class WorldScenePopulationAndBuildingPlacementSteps {
     @Given("a building with the following blueprint:")
     public void aBuildingWithTheFollowingBlueprint(DataTable table) {
         List<List<String>> rows = table.asLists();
-        pendingBlueprint = new Tile[rows.size()][];
-        for (int y = 0; y < rows.size(); y++) {
-            List<String> row = rows.get(y);
-            pendingBlueprint[y] = new Tile[row.size()];
-            for (int x = 0; x < row.size(); x++) {
-                pendingBlueprint[y][x] = NAMED_TILES.get(row.get(x).trim());
-            }
-        }
+        pendingBlueprint = rows.stream()
+                .map(row -> row.stream().map(cell -> NAMED_TILES.get(cell.trim())).toList())
+                .toList();
     }
 
     @Given("a building with an empty blueprint")
     public void aBuildingWithAnEmptyBlueprint() {
-        pendingBlueprint = new Tile[0][0];
+        pendingBlueprint = List.of();
     }
 
     @Given("the building's world position is set to \\({int}, {int})")

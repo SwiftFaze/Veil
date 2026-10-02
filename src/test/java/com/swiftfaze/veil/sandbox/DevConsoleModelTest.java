@@ -1,4 +1,5 @@
 package com.swiftfaze.veil.sandbox;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
@@ -139,12 +140,12 @@ class DevConsoleModelTest {
         assertEquals(1, provider2.reloadCallCount());
     }
 
-    private DevConsoleProvider stubProvider(String category, String... names) {
+    private static DevConsoleProvider stubProvider(String category, String... names) {
         return new DevConsoleProvider() {
             @Override
             public List<DevConsoleEntry> entries() {
                 return List.of(names).stream()
-                        .map(name -> new DevConsoleEntry("core", "core:" + name.toLowerCase(java.util.Locale.ROOT), category, name))
+                        .map(name -> new DevConsoleEntry("core", "core:" + name.toLowerCase(Locale.ROOT), category, name))
                         .toList();
             }
 

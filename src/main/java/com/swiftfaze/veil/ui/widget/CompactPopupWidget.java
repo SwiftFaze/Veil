@@ -1,10 +1,16 @@
 package com.swiftfaze.veil.ui.widget;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JTextPane;
+import javax.swing.SwingConstants;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
 
 /**
  * A compact, fixed-size, centered popup variant suitable for smaller dialogs
@@ -30,18 +36,18 @@ public class CompactPopupWidget extends PopupWidget {
         // Outer frame around the whole dialog, not just the title — without this the body
         // below the title bar has no border at all and reads as black-on-black against the
         // game view behind it.
-        setBorder(BorderFactory.createLineBorder(WidgetTheme.BORDER, 2));
+        super.setBorder(BorderFactory.createLineBorder(WidgetTheme.border(), 2));
 
         // Add a title bar at the top, separated from the body by a divider line rather than
         // its own full box (the outer frame above already closes that box).
         titleLabel = new JLabel(title);
-        titleLabel.setForeground(WidgetTheme.NORMAL_TEXT);
-        titleLabel.setBackground(WidgetTheme.BACKGROUND);
+        titleLabel.setForeground(WidgetTheme.normalText());
+        titleLabel.setBackground(WidgetTheme.background());
         titleLabel.setOpaque(true);
         titleLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, 14));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         titleLabel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.BORDER),
+            BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.border()),
             BorderFactory.createEmptyBorder(4, 8, 4, 8)
         ));
         add(titleLabel, BorderLayout.NORTH);
@@ -70,7 +76,7 @@ public class CompactPopupWidget extends PopupWidget {
         pane.setFocusable(false);
         pane.setOpaque(false);
         pane.setBackground(null);
-        pane.setForeground(WidgetTheme.NORMAL_TEXT);
+        pane.setForeground(WidgetTheme.normalText());
         pane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
         pane.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         pane.setAlignmentX(Component.CENTER_ALIGNMENT);

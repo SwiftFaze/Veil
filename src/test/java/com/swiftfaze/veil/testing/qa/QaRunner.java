@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.testing.qa;
 
+import org.jspecify.annotations.Nullable;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.swiftfaze.veil.Main;
@@ -11,13 +12,17 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Replays a {@code specs/qa/<slug>.keys} script as real key events against the real game
@@ -29,25 +34,27 @@ import java.util.stream.Stream;
  * game's own timers) would otherwise keep the JVM, and so {@code exec:java}, alive forever.
  */
 public final class QaRunner {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(QaRunner.class);
     static final Path QA_DIR = Path.of("specs", "qa");
 
     private static final int FOCUS_ATTEMPTS = 100;
     private static final int POLL_MS = 50;
     private static final int SETTLE_MS = 150;
 
-    private final PrintStream out;
+    private final Consumer<String> out;
 
-    private QaRunner(PrintStream out) {
+    private QaRunner(Consumer<String> out) {
         this.out = out;
     }
 
     public static void main(String[] arguments) {
-        QaRunner runner = new QaRunner(System.out);
+        QaRunner runner = new QaRunner(LOGGER::info);
         int code = 1;
         try {
             code = runner.run(arguments);
         } catch (QaException e) {
-            runner.out.println("FAIL: " + e.getMessage());
+            runner.out.accept("FAIL: " + e.getMessage());
         } finally {
             System.exit(code);
         }
@@ -55,7 +62,7 @@ public final class QaRunner {
 
     private int run(String[] arguments) {
         if (arguments.length != 1) {
-            out.println("usage: QaRunner <slug> | --all");
+            out.accept("usage: QaRunner <slug> | --all");
             return 2;
         }
         List<String> slugs = "--all".equals(arguments[0]) ? allSlugs() : List.of(arguments[0]);
@@ -85,12 +92,12 @@ public final class QaRunner {
             QaProcedure procedure = QaProcedure.load(QA_DIR, slug);
             EventMatcher.Result result = EventMatcher.match(procedure.expected(), replay(procedure));
             if (result.passed()) {
-                out.println("PASS " + slug);
+                out.accept("PASS " + slug);
                 return true;
             }
-            out.println("FAIL " + slug + "\n" + result.describeFailure().indent(2).stripTrailing());
+            out.accept("FAIL " + slug + "\n" + result.describeFailure().indent(2).stripTrailing());
         } catch (QaException e) {
-            out.println("FAIL " + slug + ": " + e.getMessage());
+            out.accept("FAIL " + slug + ": " + e.getMessage());
         } finally {
             disposeAllWindows();
         }
@@ -122,7 +129,7 @@ public final class QaRunner {
         }
     }
 
-    private static Component awaitFocusOwner() {
+    private static @Nullable Component awaitFocusOwner() {
         for (int i = 0; i < FOCUS_ATTEMPTS; i++) {
             Component owner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
             if (owner != null) {
@@ -190,7 +197,7 @@ public final class QaRunner {
 
     private static void sleep(int millis) {
         try {
-            Thread.sleep(millis);
+            TimeUnit.MILLISECONDS.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new QaException("Interrupted", e);

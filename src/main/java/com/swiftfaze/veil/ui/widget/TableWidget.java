@@ -1,15 +1,24 @@
 package com.swiftfaze.veil.ui.widget;
 
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.input.Keybindings;
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.InputMap;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +30,7 @@ import java.util.function.Function;
  * terminal-rendered markdown table), an optional header row, and an optional
  * non-selectable mode for purely static/display data.
  */
-public class TableWidget<T> extends Widget {
+public final class TableWidget<T> extends Widget {
     private final List<String> columnHeaders;
     private final List<Function<T, String>> columnRenderers;
     private final List<T> rows = new ArrayList<>();
@@ -36,15 +45,15 @@ public class TableWidget<T> extends Widget {
     private boolean otherRowsDimmed = false;
 
     public TableWidget(List<Function<T, String>> columnRenderers) {
-        this(List.of(), columnRenderers);
+        this(columnRenderers, List.of());
     }
 
-    public TableWidget(List<String> columnHeaders, List<Function<T, String>> columnRenderers) {
+    public TableWidget(List<Function<T, String>> columnRenderers, List<String> columnHeaders) {
         this.columnHeaders = columnHeaders;
         this.columnRenderers = columnRenderers;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setAlignmentX(LEFT_ALIGNMENT);
-        setBorder(BorderFactory.createMatteBorder(1, 1, 0, 0, WidgetTheme.BORDER));
+        setBorder(BorderFactory.createMatteBorder(1, 1, 0, 0, WidgetTheme.border()));
         buildHeaderRow();
         bindKeys();
     }
@@ -58,7 +67,7 @@ public class TableWidget<T> extends Widget {
             int column = i;
             renderers.add(row -> row.get(column));
         }
-        TableWidget<List<String>> table = new TableWidget<>(columnHeaders, renderers);
+        TableWidget<List<String>> table = new TableWidget<>(renderers, columnHeaders);
         table.setRows(rows);
         return table;
     }
@@ -109,7 +118,7 @@ public class TableWidget<T> extends Widget {
     }
 
     /**
-     * When true, every row except the selected one renders in WidgetTheme.DIMMED_TEXT
+     * When true, every row except the selected one renders in WidgetTheme.dimmedText()
      * instead of NORMAL_TEXT - pairs with setSelectedRowAccentBorder() to make the
      * accented row read as the only currently-active thing, like a modal dimming its
      * backdrop. False (the default) leaves every consumer's existing look unchanged.
@@ -163,13 +172,17 @@ public class TableWidget<T> extends Widget {
     }
 
     public void moveToStart() {
-        if (rows.isEmpty()) return;
+        if (rows.isEmpty()) {
+            return;
+        }
         selectedRowIndex = 0;
         refreshHighlight();
     }
 
     public void moveToEnd() {
-        if (rows.isEmpty()) return;
+        if (rows.isEmpty()) {
+            return;
+        }
         selectedRowIndex = rows.size() - 1;
         refreshHighlight();
     }
@@ -183,7 +196,9 @@ public class TableWidget<T> extends Widget {
     }
 
     public void moveUp() {
-        if (rows.isEmpty()) return;
+        if (rows.isEmpty()) {
+            return;
+        }
         selectedRowIndex = wrapAround
             ? (selectedRowIndex - 1 + rows.size()) % rows.size()
             : Math.max(0, selectedRowIndex - 1);
@@ -191,7 +206,9 @@ public class TableWidget<T> extends Widget {
     }
 
     public void moveDown() {
-        if (rows.isEmpty()) return;
+        if (rows.isEmpty()) {
+            return;
+        }
         selectedRowIndex = wrapAround
             ? (selectedRowIndex + 1) % rows.size()
             : Math.min(rows.size() - 1, selectedRowIndex + 1);
@@ -199,7 +216,9 @@ public class TableWidget<T> extends Widget {
     }
 
     public void moveLeft() {
-        if (rows.isEmpty() || columnRenderers.isEmpty()) return;
+        if (rows.isEmpty() || columnRenderers.isEmpty()) {
+            return;
+        }
         selectedColumnIndex = wrapAround
             ? (selectedColumnIndex - 1 + columnRenderers.size()) % columnRenderers.size()
             : Math.max(0, selectedColumnIndex - 1);
@@ -207,7 +226,9 @@ public class TableWidget<T> extends Widget {
     }
 
     public void moveRight() {
-        if (rows.isEmpty() || columnRenderers.isEmpty()) return;
+        if (rows.isEmpty() || columnRenderers.isEmpty()) {
+            return;
+        }
         selectedColumnIndex = wrapAround
             ? (selectedColumnIndex + 1) % columnRenderers.size()
             : Math.min(columnRenderers.size() - 1, selectedColumnIndex + 1);
@@ -238,7 +259,9 @@ public class TableWidget<T> extends Widget {
             @Override
             public void actionPerformed(ActionEvent e) {
                 T selected = getSelectedRow();
-                if (selected != null) onConfirm.accept(selected);
+                if (selected != null) {
+                    onConfirm.accept(selected);
+                }
             }
         });
     }
@@ -247,7 +270,7 @@ public class TableWidget<T> extends Widget {
         if (columnHeaders.isEmpty()) {
             return;
         }
-        headerPanel = buildRowPanel(columnHeaders, true);
+        headerPanel = buildRowPanel(columnHeaders, /* isHeader= */ true);
         add(headerPanel);
     }
 
@@ -262,7 +285,7 @@ public class TableWidget<T> extends Widget {
             for (Function<T, String> renderer : columnRenderers) {
                 cellText.add(renderer.apply(row));
             }
-            JPanel rowPanel = buildRowPanel(cellText, false);
+            JPanel rowPanel = buildRowPanel(cellText, /* isHeader= */ false);
             List<JLabel> cells = new ArrayList<>();
             for (var component : rowPanel.getComponents()) {
                 cells.add((JLabel) component);
@@ -275,11 +298,11 @@ public class TableWidget<T> extends Widget {
         repaint();
     }
 
-    private JPanel buildRowPanel(List<String> cellText, boolean isHeader) {
+    private static JPanel buildRowPanel(List<String> cellText, boolean isHeader) {
         int columnCount = Math.max(1, cellText.size());
         JPanel rowPanel = new JPanel(new GridLayout(1, columnCount));
         rowPanel.setAlignmentX(LEFT_ALIGNMENT);
-        rowPanel.setBackground(isHeader ? WidgetTheme.TABLE_HEADER_BACKGROUND : WidgetTheme.BACKGROUND);
+        rowPanel.setBackground(isHeader ? WidgetTheme.tableHeaderBackground() : WidgetTheme.background());
         for (String text : cellText) {
             rowPanel.add(buildCellLabel(text, isHeader));
         }
@@ -289,18 +312,18 @@ public class TableWidget<T> extends Widget {
         return rowPanel;
     }
 
-    private JLabel buildCellLabel(String text, boolean isHeader) {
+    private static JLabel buildCellLabel(String text, boolean isHeader) {
         JLabel label = new JLabel(text);
         label.setOpaque(true);
-        label.setBackground(isHeader ? WidgetTheme.TABLE_HEADER_BACKGROUND : WidgetTheme.BACKGROUND);
-        label.setForeground(WidgetTheme.NORMAL_TEXT);
-        label.setFont(new java.awt.Font(java.awt.Font.MONOSPACED, isHeader ? java.awt.Font.BOLD : java.awt.Font.PLAIN, 16));
+        label.setBackground(isHeader ? WidgetTheme.tableHeaderBackground() : WidgetTheme.background());
+        label.setForeground(WidgetTheme.normalText());
+        label.setFont(new Font(Font.MONOSPACED, isHeader ? Font.BOLD : Font.PLAIN, 16));
         label.setBorder(new AccentableCellBorder(baseCellBorder(), null));
         return label;
     }
 
-    private Border baseCellBorder() {
-        Border cellLine = BorderFactory.createMatteBorder(0, 0, 1, 1, WidgetTheme.BORDER);
+    private static Border baseCellBorder() {
+        Border cellLine = BorderFactory.createMatteBorder(0, 0, 1, 1, WidgetTheme.border());
         Border padding = BorderFactory.createEmptyBorder(4, 8, 4, 8);
         return BorderFactory.createCompoundBorder(cellLine, padding);
     }
@@ -319,7 +342,7 @@ public class TableWidget<T> extends Widget {
             WidgetTheme.applySelection(cell, highlighted);
             cell.setBorder(new AccentableCellBorder(baseCellBorder(), accented ? selectedRowAccentColor : null));
             if (otherRowsDimmed && !highlighted) {
-                cell.setForeground(WidgetTheme.DIMMED_TEXT);
+                cell.setForeground(WidgetTheme.dimmedText());
             }
         }
     }
@@ -331,7 +354,7 @@ public class TableWidget<T> extends Widget {
             // it knows nothing about, so scrolling to reveal row 0 alone can (and did, in
             // practice) leave the header scrolled just out of view above it. Unioning the
             // header's bounds into the target whenever row 0 is selected forces the header along.
-            java.awt.Rectangle target = rowCells.get(selectedRowIndex).get(0).getParent().getBounds();
+            Rectangle target = rowCells.get(selectedRowIndex).get(0).getParent().getBounds();
             if (selectedRowIndex == 0 && headerPanel != null) {
                 target = target.union(headerPanel.getBounds());
             }
@@ -354,7 +377,7 @@ public class TableWidget<T> extends Widget {
         private final Border inner;
         private final Color accentColor;
 
-        AccentableCellBorder(Border inner, Color accentColor) {
+        AccentableCellBorder(Border inner, @Nullable Color accentColor) {
             this.inner = inner;
             this.accentColor = accentColor;
         }

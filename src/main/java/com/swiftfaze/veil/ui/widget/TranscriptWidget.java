@@ -41,27 +41,27 @@ public class TranscriptWidget extends Widget {
     }
 
     public void appendCommand(String text) {
-        append(Level.COMMAND, text, WidgetTheme.DIMMED_TEXT);
+        append(Level.COMMAND, text, WidgetTheme.dimmedText());
     }
 
     public void appendInfo(String text) {
-        append(Level.INFO, text, WidgetTheme.NORMAL_TEXT);
+        append(Level.INFO, text, WidgetTheme.normalText());
     }
 
     public void appendError(String text) {
-        append(Level.ERROR, text, WidgetTheme.INVALID_HIGHLIGHT);
+        append(Level.ERROR, text, WidgetTheme.invalidHighlight());
     }
 
     public void appendSuccess(String text) {
-        append(Level.SUCCESS, text, WidgetTheme.VALID_HIGHLIGHT);
+        append(Level.SUCCESS, text, WidgetTheme.validHighlight());
     }
 
     public void appendResultTable(List<String> headers, List<List<String>> rows) {
         lastResultTable = rows;
         int[] columnWidths = columnWidths(headers, rows);
-        add(fullWidth(buildTableLine(headers, columnWidths, WidgetTheme.TABLE_HEADER_TEXT)));
+        add(fullWidth(buildTableLine(headers, columnWidths, WidgetTheme.tableHeaderText())));
         for (List<String> row : rows) {
-            add(fullWidth(buildTableLine(row, columnWidths, WidgetTheme.NORMAL_TEXT)));
+            add(fullWidth(buildTableLine(row, columnWidths, WidgetTheme.normalText())));
         }
         scrollToBottom();
     }
@@ -80,7 +80,7 @@ public class TranscriptWidget extends Widget {
         scrollToBottom();
     }
 
-    private int[] columnWidths(List<String> headers, List<List<String>> rows) {
+    private static int[] columnWidths(List<String> headers, List<List<String>> rows) {
         int[] widths = new int[headers.size()];
         for (int i = 0; i < headers.size(); i++) {
             widths[i] = headers.get(i).length();
@@ -93,7 +93,7 @@ public class TranscriptWidget extends Widget {
         return widths;
     }
 
-    private JLabel buildTableLine(List<String> cells, int[] columnWidths, Color color) {
+    private static JLabel buildTableLine(List<String> cells, int[] columnWidths, Color color) {
         StringBuilder line = new StringBuilder();
         for (int i = 0; i < cells.size(); i++) {
             if (i > 0) {
@@ -104,11 +104,11 @@ public class TranscriptWidget extends Widget {
         return plainLabel(line.toString(), color);
     }
 
-    private String padded(String text, int width) {
+    private static String padded(String text, int width) {
         return String.format(Locale.ROOT, "%-" + width + "s", text);
     }
 
-    private JLabel plainLabel(String text, Color color) {
+    private static JLabel plainLabel(String text, Color color) {
         JLabel label = new JLabel(text);
         label.setForeground(color);
         label.setFont(LINE_FONT);
@@ -121,7 +121,7 @@ public class TranscriptWidget extends Widget {
      * matching HeaderWidget/PatternFieldWidget's own "full width" convention - rather than
      * leaving it clamped to its own preferred (text-length) width.
      */
-    private <T extends Component> T fullWidth(T component) {
+    private static <T extends Component> T fullWidth(T component) {
         component.setMaximumSize(new Dimension(Integer.MAX_VALUE, component.getPreferredSize().height));
         return component;
     }

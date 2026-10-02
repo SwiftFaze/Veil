@@ -47,7 +47,7 @@ public class SettingsRepository {
      * replaces nested Maps entirely; this fills in any missing actions
      * from the hardcoded defaults.
      */
-    private void mergeKeybindDefaults(SettingsConfig loaded) {
+    private static void mergeKeybindDefaults(SettingsConfig loaded) {
         SettingsConfig defaults = new SettingsConfig();
         for (String action : defaults.getKeybinds().keySet()) {
             if (!loaded.getKeybinds().containsKey(action)) {

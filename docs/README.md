@@ -12,6 +12,7 @@
 - [`testing.md`](testing.md) — index: the three test layers (unit, acceptance, integration), where each lives, and how to run them, plus local-only QA key-replay runs.
 - [`testing-acceptance.md`](testing-acceptance.md) — Cucumber acceptance tests and glyph-grid approval tests.
 - [`testing-quality-gates.md`](testing-quality-gates.md) — mutation testing (PIT), PMD/JaCoCo, and the Error Prone/NullAway compile-time gates.
+- [`error-prone-checks.md`](error-prone-checks.md) — the ADD/EXCLUDE decision and reason for every Error Prone check not at ERROR by default.
 - [`testing-module-dependency.md`](testing-module-dependency.md) — the ArchUnit module-dependency and package-cycle gate.
 - [`uml-viewer.md`](uml-viewer.md) — the local UML diagram of Veil's classes with CRAP and mutation colouring: prerequisites, `bb export` / `bb metrics` / `bb view`, and its known limits.
 - [`release.md`](release.md) — the two release channels (`master` stable, `develop` beta) and why versioning/changelog generation is fully automatic.

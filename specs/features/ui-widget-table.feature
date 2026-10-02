@@ -8,6 +8,8 @@ Feature: Table widget
   consumers — the rebuilt inventory popup's field/value and effects
   tables — were removed alongside EastPanel; see the trailing Risks note.
 
+  QA: none - comment-only rename (TerminalScrollBarUi, #219); no keyboard behavior changed
+
   Scenario: Navigating a table widget down moves the selection to the next row
     Given a table widget with rows "Sword", "Shield", "Potion" and row 1 selected
     And the table widget has keyboard focus
@@ -48,7 +50,7 @@ Feature: Table widget
   # Non-goals:
   #   - Cell-level confirm (as opposed to row-level) — decided against
   #     during spec drafting.
-  #   - Scrolling behavior specifics — TerminalScrollBarUI is reused
+  #   - Scrolling behavior specifics — TerminalScrollBarUi is reused
   #     as-is from the existing framework, nothing new to prove there.
   #   - Any mouse/pointer handling — this game is keyboard-only by
   #     design.

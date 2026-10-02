@@ -36,13 +36,13 @@ public class PopupToggleListener implements GameListener {
     public void toggleInventory() {
         if (inventoryPanel.isVisible()) {
             inventoryPanel.dismiss();
-            eventLog.recordEvent(GameEvent.popupToggled(INVENTORY, false));
+            eventLog.recordEvent(GameEvent.popupToggled(INVENTORY, /* open= */ false));
         } else {
             if (codexPanel.isVisible()) {
                 codexPanel.dismiss();
             }
             inventoryPanel.open();
-            eventLog.recordEvent(GameEvent.popupToggled(INVENTORY, true));
+            eventLog.recordEvent(GameEvent.popupToggled(INVENTORY, /* open= */ true));
         }
     }
 

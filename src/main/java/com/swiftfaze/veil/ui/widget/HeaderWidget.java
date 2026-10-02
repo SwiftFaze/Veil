@@ -22,7 +22,7 @@ public class HeaderWidget extends Widget {
 
     public HeaderWidget(String title) {
         this.titleLabel = new JLabel(title, SwingConstants.CENTER);
-        titleLabel.setForeground(WidgetTheme.NORMAL_TEXT);
+        titleLabel.setForeground(WidgetTheme.normalText());
         titleLabel.setFont(TITLE_FONT);
 
         setLayout(new BorderLayout());
@@ -30,7 +30,7 @@ public class HeaderWidget extends Widget {
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(0, 0, BOTTOM_MARGIN, 0),
                 BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(WidgetTheme.BORDER, 1),
+                        BorderFactory.createLineBorder(WidgetTheme.border(), 1),
                         BorderFactory.createEmptyBorder(4, 8, 4, 8))));
         add(titleLabel, BorderLayout.CENTER);
 

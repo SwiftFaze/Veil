@@ -39,7 +39,7 @@ public final class KitchenSinkPreviewPanel extends JPanel {
         this.camera = new Camera(VIEWPORT_TILES_WIDE, VIEWPORT_TILES_HIGH);
         this.hasAnyTiles = model.hasTiles();
         setFocusable(true);
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         if (!hasAnyTiles) {
             add(buildEmptyLabel());
         }
@@ -93,7 +93,7 @@ public final class KitchenSinkPreviewPanel extends JPanel {
 
     private static JLabel buildEmptyLabel() {
         JLabel label = new JLabel(EMPTY_MESSAGE);
-        label.setForeground(WidgetTheme.NORMAL_TEXT);
+        label.setForeground(WidgetTheme.normalText());
         label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, EMPTY_LABEL_FONT_SIZE));
         return label;
     }

@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.ui.widget;
 
+import org.jspecify.annotations.Nullable;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -126,18 +127,18 @@ public class SuggestionOverlayWidget {
     }
 
     private void setHighlightedIndex(int newIndex) {
-        restyleRow(highlightedIndex, false);
+        restyleRow(highlightedIndex, /* isHighlighted= */ false);
         highlightedIndex = newIndex;
-        restyleRow(highlightedIndex, true);
+        restyleRow(highlightedIndex, /* isHighlighted= */ true);
     }
 
     private void restyleRow(int index, boolean isHighlighted) {
         JLabel row = rowLabels.get(index);
-        row.setBackground(isHighlighted ? WidgetTheme.SELECTED_HIGHLIGHT : WidgetTheme.BACKGROUND);
-        row.setForeground(isHighlighted ? WidgetTheme.SELECTED_TEXT : WidgetTheme.NORMAL_TEXT);
+        row.setBackground(isHighlighted ? WidgetTheme.selectedHighlight() : WidgetTheme.background());
+        row.setForeground(isHighlighted ? WidgetTheme.selectedText() : WidgetTheme.normalText());
     }
 
-    private JLayeredPane layeredPaneOf(JComponent owner) {
+    private static @Nullable JLayeredPane layeredPaneOf(JComponent owner) {
         Container ancestor = SwingUtilities.getAncestorOfClass(JLayeredPane.class, owner);
         return ancestor instanceof JLayeredPane pane ? pane : null;
     }
@@ -148,8 +149,8 @@ public class SuggestionOverlayWidget {
         }
         content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-        content.setBackground(WidgetTheme.BACKGROUND);
-        content.setBorder(BorderFactory.createLineBorder(WidgetTheme.WINDOW_BORDER, BORDER_WIDTH));
+        content.setBackground(WidgetTheme.background());
+        content.setBorder(BorderFactory.createLineBorder(WidgetTheme.windowBorder(), BORDER_WIDTH));
         this.layeredPane = pane;
         pane.add(content, JLayeredPane.POPUP_LAYER);
     }
@@ -183,19 +184,19 @@ public class SuggestionOverlayWidget {
         content.setBounds(ownerOrigin.x + horizontalInset, ownerOrigin.y + ownerTopOffset - height, width, height);
     }
 
-    private JLabel buildRow(String candidate, boolean isHighlighted) {
+    private static JLabel buildRow(String candidate, boolean isHighlighted) {
         JLabel label = new JLabel(candidate);
         label.setFont(ROW_FONT);
         label.setOpaque(true);
         label.setFocusable(false);
-        label.setBackground(isHighlighted ? WidgetTheme.SELECTED_HIGHLIGHT : WidgetTheme.BACKGROUND);
-        label.setForeground(isHighlighted ? WidgetTheme.SELECTED_TEXT : WidgetTheme.NORMAL_TEXT);
+        label.setBackground(isHighlighted ? WidgetTheme.selectedHighlight() : WidgetTheme.background());
+        label.setForeground(isHighlighted ? WidgetTheme.selectedText() : WidgetTheme.normalText());
         label.setBorder(BorderFactory.createEmptyBorder(ROW_PADDING_V, ROW_PADDING_H, ROW_PADDING_V, ROW_PADDING_H));
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
     }
 
-    private JLabel fullWidth(JLabel label) {
+    private static JLabel fullWidth(JLabel label) {
         label.setMaximumSize(new Dimension(Integer.MAX_VALUE, label.getPreferredSize().height));
         return label;
     }

@@ -10,15 +10,23 @@ import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.InputMap;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class TitleScreenPanel extends JPanel implements HintAware {
+public final class TitleScreenPanel extends JPanel implements HintAware {
     private static final Logger logger = LoggerFactory.getLogger(TitleScreenPanel.class);
     private static final List<ControlsHintBarWidget.Hint> HINTS = List.of(new ControlsHintBarWidget.Hint("enter", "Select"));
 
@@ -37,14 +45,14 @@ public class TitleScreenPanel extends JPanel implements HintAware {
         this.onMenuSelect = onMenuSelect;
         this.hintBar = hintBar;
         this.eventLog = eventLog;
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setFocusable(true);
 
         // Title
         titleLabel = new JLabel("VEIL");
         titleLabel.setFont(loadTitleFont());
-        titleLabel.setForeground(WidgetTheme.NORMAL_TEXT);
+        titleLabel.setForeground(WidgetTheme.normalText());
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Menu

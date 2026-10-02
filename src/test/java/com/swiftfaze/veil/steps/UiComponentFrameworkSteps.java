@@ -1,18 +1,17 @@
 package com.swiftfaze.veil.steps;
 
+import com.swiftfaze.veil.config.SettingsConfig;
+import com.swiftfaze.veil.config.SettingsRepository;
 import com.swiftfaze.veil.config.SettingsStore;
 import com.swiftfaze.veil.entities.items.Item;
-import com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel;
 import com.swiftfaze.veil.ui.CodexPanel;
 import com.swiftfaze.veil.ui.InventoryPanel;
-import com.swiftfaze.veil.ui.ResetConfirmationPopup;
 import com.swiftfaze.veil.ui.SettingsKeybindsPanel;
 import com.swiftfaze.veil.ui.SettingsScreenPanel;
 import com.swiftfaze.veil.ui.TitleScreenPanel;
 import com.swiftfaze.veil.ui.widget.ButtonWidget;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
 import com.swiftfaze.veil.ui.widget.ListWidget;
-import com.swiftfaze.veil.ui.widget.PopupWidget;
 import com.swiftfaze.veil.ui.widget.RadioGroupWidget;
 import com.swiftfaze.veil.ui.widget.SliderWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
@@ -21,6 +20,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import javax.swing.Action;
+import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,7 +30,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -45,31 +44,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class UiComponentFrameworkSteps {
 
-    public UiComponentFrameworkSteps() {
-        SharedScenarioContext.setUiSteps(this);
-    }
-
-    ControlsHintBarWidget getHintBar() {
-        return hintBar;
-    }
-
     private ListWidget<String> listWidget;
     private ButtonWidget buttonWidget;
-    private String selectedItem;
     private String confirmedItem;
     private boolean actionInvoked;
     private List<String> listItems;
     private List<String> dataSourceItems;
 
     private TableWidget<String> tableWidget;
-    private List<String> confirmedTableRows = new ArrayList<>();
+    private final List<String> confirmedTableRows = new ArrayList<>();
     private RadioGroupWidget<String> radioGroupWidget;
     private SliderWidget sliderWidget;
     private TitleScreenPanel titleScreenPanel;
     private String lastMenuSelection;
     private SettingsScreenPanel settingsScreenPanel;
     private SettingsKeybindsPanel keybindsPanel;
-    private ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
+    private final ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
     private InventoryPanel inventoryPanel;
     private CodexPanel codexPanel;
 
@@ -83,13 +73,21 @@ public class UiComponentFrameworkSteps {
             new Item.ItemAttributes('/', "weapon", "hand", new Item.BaseDamage(5, 10), List.of())
     );
 
-    private int lastKeyCode; // Track which key was pressed for scenarios
 
     // Settings persistence test support
     private Path tempDir;
     private SettingsStore settingsStore;
     private String lastWindowMode;
-    private com.swiftfaze.veil.config.SettingsConfig loadedConfig;
+    private SettingsConfig loadedConfig;
+
+    public UiComponentFrameworkSteps() {
+        SharedScenarioContext.setUiSteps(this);
+    }
+
+    ControlsHintBarWidget getHintBar() {
+        return hintBar;
+    }
+
 
     @Given("a list widget with items {string}, {string}, {string} and {string} selected")
     public void aListWidgetWithItems(String first, String second, String third, String selected) {
@@ -146,9 +144,9 @@ public class UiComponentFrameworkSteps {
         } else if (keybindsPanel != null) {
             keybindsPanel.moveUp();
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
-            firePopupAction(inventoryPanel, "popup-up");
+            fireAction(inventoryPanel, "popup-up");
         } else if (codexPanel != null && codexPanel.isVisible()) {
-            firePopupAction(codexPanel, "popup-up");
+            fireAction(codexPanel, "popup-up");
         } else if (settingsScreenPanel != null) {
             settingsScreenPanel.moveUp();
         } else if (titleScreenPanel != null) {
@@ -168,9 +166,9 @@ public class UiComponentFrameworkSteps {
         } else if (keybindsPanel != null) {
             keybindsPanel.moveDown();
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
-            firePopupAction(inventoryPanel, "popup-down");
+            fireAction(inventoryPanel, "popup-down");
         } else if (codexPanel != null && codexPanel.isVisible()) {
-            firePopupAction(codexPanel, "popup-down");
+            fireAction(codexPanel, "popup-down");
         } else if (settingsScreenPanel != null) {
             settingsScreenPanel.moveDown();
         } else if (titleScreenPanel != null) {
@@ -190,9 +188,9 @@ public class UiComponentFrameworkSteps {
         } else if (confirmationPopupIsOpen()) {
             fireResetChoiceAction("radio-left");
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
-            firePopupAction(inventoryPanel, "popup-left");
+            fireAction(inventoryPanel, "popup-left");
         } else if (codexPanel != null && codexPanel.isVisible()) {
-            firePopupAction(codexPanel, "popup-left");
+            fireAction(codexPanel, "popup-left");
         } else if (settingsScreenPanel != null) {
             settingsScreenPanel.moveLeft();
         } else if (sliderWidget != null) {
@@ -210,9 +208,9 @@ public class UiComponentFrameworkSteps {
         } else if (confirmationPopupIsOpen()) {
             fireResetChoiceAction("radio-right");
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
-            firePopupAction(inventoryPanel, "popup-right");
+            fireAction(inventoryPanel, "popup-right");
         } else if (codexPanel != null && codexPanel.isVisible()) {
-            firePopupAction(codexPanel, "popup-right");
+            fireAction(codexPanel, "popup-right");
         } else if (settingsScreenPanel != null) {
             settingsScreenPanel.moveRight();
         } else if (sliderWidget != null) {
@@ -226,9 +224,9 @@ public class UiComponentFrameworkSteps {
 
     private void fireEnterKey() {
         if (keybindsPanel != null && keybindsPanel.getDiscardConfirmationPopup().isVisible()) {
-            fireRadioGroupAction(keybindsPanel.getDiscardConfirmationPopup().getChoiceWidget(), "radio-confirm");
+            fireAction(keybindsPanel.getDiscardConfirmationPopup().getChoiceWidget(), "radio-confirm");
         } else if (keybindsPanel != null && keybindsPanel.getResetConfirmationPopup().isVisible()) {
-            fireRadioGroupAction(keybindsPanel.getResetConfirmationPopup().getChoiceWidget(), "radio-confirm");
+            fireAction(keybindsPanel.getResetConfirmationPopup().getChoiceWidget(), "radio-confirm");
         } else if (keybindsPanel != null) {
             keybindsPanel.confirm();
         } else if (confirmationPopupIsOpen()) {
@@ -263,40 +261,26 @@ public class UiComponentFrameworkSteps {
 
     private void fireResetChoiceAction(String actionName) {
         RadioGroupWidget<String> choice = settingsScreenPanel.getResetConfirmationPopup().getChoiceWidget();
-        fireRadioGroupAction(choice, actionName);
+        fireAction(choice, actionName);
     }
 
-    private void fireRadioGroupAction(RadioGroupWidget<String> widget, String actionName) {
-        Action action = widget.getActionMap().get(actionName);
+    private static void fireAction(JComponent component, String actionName) {
+        Action action = component.getActionMap().get(actionName);
         if (action != null) {
-            action.actionPerformed(new ActionEvent(widget, ActionEvent.ACTION_PERFORMED, actionName));
+            action.actionPerformed(new ActionEvent(component, ActionEvent.ACTION_PERFORMED, actionName));
         }
     }
 
-    private void firePreviewPanelKey(String actionName) {
-        KitchenSinkPreviewPanel panel = SharedScenarioContext.getKitchenSinkPreviewPanel();
+    private static void firePreviewPanelKey(String actionName) {
+        JComponent panel = SharedScenarioContext.getKitchenSinkPreviewPanel();
         if (panel == null) {
             return;
         }
-        Action action = panel.getActionMap().get(actionName);
-        if (action != null) {
-            action.actionPerformed(new ActionEvent(panel, ActionEvent.ACTION_PERFORMED, actionName));
-        }
+        fireAction(panel, actionName);
     }
 
     private void fireResetAction(String actionName) {
-        ResetConfirmationPopup popup = settingsScreenPanel.getResetConfirmationPopup();
-        Action action = popup.getActionMap().get(actionName);
-        if (action != null) {
-            action.actionPerformed(new ActionEvent(popup, ActionEvent.ACTION_PERFORMED, actionName));
-        }
-    }
-
-    private void firePopupAction(PopupWidget popup, String actionName) {
-        Action action = popup.getActionMap().get(actionName);
-        if (action != null) {
-            action.actionPerformed(new ActionEvent(popup, ActionEvent.ACTION_PERFORMED, actionName));
-        }
+        fireAction(settingsScreenPanel.getResetConfirmationPopup(), actionName);
     }
 
     private void fireToggleInventoryKey() {
@@ -317,9 +301,9 @@ public class UiComponentFrameworkSteps {
         } else if (confirmationPopupIsOpen()) {
             fireResetAction("popup-dismiss");
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
-            firePopupAction(inventoryPanel, "popup-dismiss");
+            fireAction(inventoryPanel, "popup-dismiss");
         } else if (codexPanel != null && codexPanel.isVisible()) {
-            firePopupAction(codexPanel, "popup-dismiss");
+            fireAction(codexPanel, "popup-dismiss");
         } else if (settingsScreenPanel != null) {
             settingsScreenPanel.back();
         }
@@ -604,11 +588,8 @@ public class UiComponentFrameworkSteps {
         settingsScreenPanel.setOnWindowModeChanged(mode -> lastWindowMode = mode);
     }
 
-    @Then("the settings items are {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}")
-    public void theSettingsItemsAre(String item1, String item2, String item3, String item4, String item5,
-                                    String item6, String item7, String item8, String item9, String item10,
-                                    String item11) {
-        List<String> expected = List.of(item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11);
+    @Then("the settings items are {quotedList}")
+    public void theSettingsItemsAre(List<String> expected) {
         List<String> actual = settingsScreenPanel.getAllItemNames();
         assertEquals(expected, actual);
     }
@@ -920,19 +901,20 @@ public class UiComponentFrameworkSteps {
             settingsStore = new SettingsStore(tempDir);
         }
         // Write to settings.json
-        com.swiftfaze.veil.config.SettingsConfig config = settingsStore.config();
+        SettingsConfig config = settingsStore.config();
         switch (key) {
             case "Brightness" -> config.setBrightness(value);
             case "Volume" -> config.setVolume(value);
             case "WindowWidth" -> config.setWindowWidth(value);
             case "WindowHeight" -> config.setWindowHeight(value);
+            default -> throw new IllegalArgumentException("Unhandled key: " + key);
         }
         settingsStore.persist();
     }
 
     @When("the settings file is loaded")
     public void theSettingsFileIsLoaded() throws Exception {
-        com.swiftfaze.veil.config.SettingsRepository repo = new com.swiftfaze.veil.config.SettingsRepository(tempDir);
+        SettingsRepository repo = new SettingsRepository(tempDir);
         loadedConfig = repo.load();
     }
 
@@ -941,6 +923,7 @@ public class UiComponentFrameworkSteps {
         switch (key) {
             case "WindowWidth" -> assertEquals(expected, loadedConfig.getWindowWidth());
             case "WindowHeight" -> assertEquals(expected, loadedConfig.getWindowHeight());
+            default -> throw new IllegalArgumentException("Unhandled key: " + key);
         }
     }
 
@@ -953,11 +936,12 @@ public class UiComponentFrameworkSteps {
             settingsStore = new SettingsStore(tempDir);
         }
         // Write to settings.json
-        com.swiftfaze.veil.config.SettingsConfig config = settingsStore.config();
+        SettingsConfig config = settingsStore.config();
         switch (key) {
             case "Fullscreen" -> config.setFullscreen(value);
             case "Font" -> config.setFont(value);
             case "Theme" -> config.setTheme(value);
+            default -> throw new IllegalArgumentException("Unhandled key: " + key);
         }
         settingsStore.persist();
     }
@@ -965,23 +949,25 @@ public class UiComponentFrameworkSteps {
     @Then("the settings file now has {string} set to {int}")
     public void assertSettingsFileHasSetToInt(String key, int value) throws Exception {
         // Re-load from disk to verify persistence
-        com.swiftfaze.veil.config.SettingsRepository repo = new com.swiftfaze.veil.config.SettingsRepository(tempDir);
-        com.swiftfaze.veil.config.SettingsConfig config = repo.load();
+        SettingsRepository repo = new SettingsRepository(tempDir);
+        SettingsConfig config = repo.load();
         switch (key) {
             case "Brightness" -> assertEquals(value, config.getBrightness());
             case "Volume" -> assertEquals(value, config.getVolume());
+            default -> throw new IllegalArgumentException("Unhandled key: " + key);
         }
     }
 
     @Then("the settings file now has {string} set to {string}")
     public void assertSettingsFileHasSetToString(String key, String value) throws Exception {
         // Re-load from disk to verify persistence
-        com.swiftfaze.veil.config.SettingsRepository repo = new com.swiftfaze.veil.config.SettingsRepository(tempDir);
-        com.swiftfaze.veil.config.SettingsConfig config = repo.load();
+        SettingsRepository repo = new SettingsRepository(tempDir);
+        SettingsConfig config = repo.load();
         switch (key) {
             case "Fullscreen" -> assertEquals(value, config.getFullscreen());
             case "Font" -> assertEquals(value, config.getFont());
             case "Theme" -> assertEquals(value, config.getTheme());
+            default -> throw new IllegalArgumentException("Unhandled key: " + key);
         }
     }
 
@@ -1001,7 +987,7 @@ public class UiComponentFrameworkSteps {
         if (settingsStore == null) {
             settingsStore = new SettingsStore(tempDir);
         }
-        com.swiftfaze.veil.config.SettingsConfig config = settingsStore.config();
+        SettingsConfig config = settingsStore.config();
         config.getKeybinds().put(action, key);
         settingsStore.persist();
     }
@@ -1009,8 +995,8 @@ public class UiComponentFrameworkSteps {
     @Then("the settings file now has {string} bound to {string}")
     public void assertSettingsFileHasKeybindSetToString(String action, String key) throws Exception {
         // Re-load from disk to verify persistence
-        com.swiftfaze.veil.config.SettingsRepository repo = new com.swiftfaze.veil.config.SettingsRepository(tempDir);
-        com.swiftfaze.veil.config.SettingsConfig config = repo.load();
+        SettingsRepository repo = new SettingsRepository(tempDir);
+        SettingsConfig config = repo.load();
         assertEquals(key, config.getKeybinds().get(action));
     }
 
@@ -1038,7 +1024,7 @@ public class UiComponentFrameworkSteps {
         RadioGroupWidget<String> choice = keybindsPanel.getDiscardConfirmationPopup().getChoiceWidget();
         int guard = 0;
         while (!option.equals(choice.getHighlightedOption()) && guard < 10) {
-            fireRadioGroupAction(choice, "radio-left");
+            fireAction(choice, "radio-left");
             guard++;
         }
         assertEquals(option, choice.getHighlightedOption());
@@ -1059,7 +1045,7 @@ public class UiComponentFrameworkSteps {
         RadioGroupWidget<String> choice = keybindsPanel.getResetConfirmationPopup().getChoiceWidget();
         int guard = 0;
         while (!option.equals(choice.getHighlightedOption()) && guard < 10) {
-            fireRadioGroupAction(choice, "radio-right");
+            fireAction(choice, "radio-right");
             guard++;
         }
         assertEquals(option, choice.getHighlightedOption());

@@ -29,7 +29,7 @@ public class QuestLogSteps {
         assertEquals(parseState(stateName), player.getPlayerInfo().getQuestLog().getState(questId));
     }
 
-    private QuestLog.State parseState(String stateName) {
+    private static QuestLog.State parseState(String stateName) {
         return QuestLog.State.valueOf(stateName.toUpperCase(Locale.ROOT).replace(' ', '_'));
     }
 }

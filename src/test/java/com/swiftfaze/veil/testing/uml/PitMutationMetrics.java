@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.testing.uml;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -10,7 +11,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.stream.Stream;
 
 /**
@@ -29,6 +33,8 @@ import java.util.stream.Stream;
  * overloads share one entry, as they do in crap.edn. Nested classes fold into their outer class.
  */
 public final class PitMutationMetrics {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PitMutationMetrics.class);
 
     static final Path MUTATIONS_XML = Path.of("target", "pit-reports", "mutations.xml");
     static final Path OUTPUT_DIR = Path.of(".metrics", "mutate");
@@ -47,11 +53,11 @@ public final class PitMutationMetrics {
     }
 
     public static void main(String[] arguments) {
-        run(Path.of("").toAbsolutePath(), System.out);
+        run(Path.of("").toAbsolutePath(), LOGGER::info);
     }
 
-    static void run(Path root, PrintStream out) {
-        out.println(convert(root));
+    static void run(Path root, Consumer<String> out) {
+        out.accept(convert(root));
     }
 
     /** Converts if the PIT XML exists under {@code root}; returns a one-line message either way. */
@@ -114,7 +120,7 @@ public final class PitMutationMetrics {
         }
     }
 
-    private static Tally outcome(String status) {
+    private static @Nullable Tally outcome(String status) {
         return switch (status) {
             case "KILLED", "TIMED_OUT", "MEMORY_ERROR" -> new Tally(1, 0, 0);
             case "SURVIVED" -> new Tally(0, 1, 0);

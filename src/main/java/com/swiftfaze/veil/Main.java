@@ -37,8 +37,21 @@ import com.swiftfaze.veil.game.GameListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -52,7 +65,10 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class Main {
+public final class Main {
+
+    private Main() {
+    }
     /**
      * The card deck the screens live in: what to do with it (add a screen, register a
      * card for lookup, navigate, read the registry) without handing out the Swing
@@ -122,7 +138,7 @@ public class Main {
         GamePanel gamePanel = buildGameCard(cardPanel, cards, hintBar, eventLog);
         ScreenNavigator navigator = new ScreenNavigator(cardLayout, cardPanel, cards, eventLog);
         ScreenDeck deck = new ScreenDeck(cardPanel, cards, navigator::navigateTo);
-        buildUIScreens(deck, gamePanel, hintBar, eventLog);
+        buildUiScreens(deck, gamePanel, hintBar, eventLog);
         wirePauseMenuNavigation(deck, gamePanel);
         wireDevConsole(gamePanel);
         configureAndShowFrame(frame, deck, hintBar, navigator);
@@ -183,7 +199,7 @@ public class Main {
         hintBar.setHints(GAME_HINTS);
     }
 
-    private static void buildUIScreens(ScreenDeck deck, GamePanel gamePanel, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
+    private static void buildUiScreens(ScreenDeck deck, GamePanel gamePanel, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
         TitleScreenPanel titleScreen = new TitleScreenPanel(menuItem -> {
             handleMenuSelection(menuItem, deck, gamePanel);
             if ("New".equals(menuItem)) {
@@ -294,7 +310,7 @@ public class Main {
         // flush against the true window edge and shows on every card (title/settings/
         // keybinds/game) uniformly rather than only around whichever panel drew its own.
         ((JComponent) frame.getContentPane()).setBorder(
-                BorderFactory.createLineBorder(WidgetTheme.WINDOW_BORDER, 2));
+                BorderFactory.createLineBorder(WidgetTheme.windowBorder(), 2));
         frame.setLayout(new BorderLayout());
         deck.addTo(frame);
         frame.add(hintBar, BorderLayout.SOUTH);
@@ -307,7 +323,7 @@ public class Main {
         frame.setVisible(true);
         navigator.showInitial("title");
         // cardPanel.getComponent(0) is whichever card was added to the container FIRST
-        // (the "game" card, added in buildGameCard() before buildUIScreens() adds "title") -
+        // (the "game" card, added in buildGameCard() before buildUiScreens() adds "title") -
         // not whichever card CardLayout is currently showing. Requesting focus on that
         // hidden, non-showing component silently fails, so no component ever holds
         // keyboard focus. Look the actually-visible card up by name instead.

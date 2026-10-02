@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * files must also be updated to match, or this test will fail.
  */
 @DisplayName("Shipped mods/core/** must validate against schema definitions")
-class ModSchemaValidationIT {
+class ModSchemaValidationIt {
 
     @Test
     void allCoreModFilesValidateAgainstSchemas() throws IOException {
@@ -67,7 +67,7 @@ class ModSchemaValidationIT {
         }
     }
 
-    private void validateFile(Path file, String schemaType, List<String> errors) throws IOException {
+    private static void validateFile(Path file, String schemaType, List<String> errors) {
         if (!Files.exists(file)) {
             return;
         }
@@ -79,19 +79,13 @@ class ModSchemaValidationIT {
         }
     }
 
-    private void validateDirectory(Path dir, String schemaType, List<String> errors) throws IOException {
+    private static void validateDirectory(Path dir, String schemaType, List<String> errors) throws IOException {
         if (!Files.isDirectory(dir)) {
             return;
         }
         try (Stream<Path> files = Files.list(dir)) {
             files.filter(f -> Files.isRegularFile(f) && f.toString().endsWith(".json"))
-                    .forEach(f -> {
-                        try {
-                            validateFile(f, schemaType, errors);
-                        } catch (IOException e) {
-                            errors.add("  " + f + ": IO error: " + e.getMessage());
-                        }
-                    });
+                    .forEach(f -> validateFile(f, schemaType, errors));
         }
     }
 }

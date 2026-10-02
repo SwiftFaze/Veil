@@ -1,6 +1,12 @@
 package com.swiftfaze.veil.sandbox;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 
 /**
@@ -66,7 +72,7 @@ public class DevConsoleCompletion {
      * suggestion and then pressing space to move on re-suggested the just-accepted word instead
      * of advancing to the next argument.
      */
-    private int currentPosition(String commandLine, String[] tokens) {
+    private static int currentPosition(String commandLine, String[] tokens) {
         boolean startingNewToken = commandLine.endsWith(" ") || commandLine.endsWith("\t");
         return startingNewToken ? tokens.length : tokens.length - 1;
     }
@@ -120,7 +126,7 @@ public class DevConsoleCompletion {
     /**
      * Position 0: verb candidates from the fixed verb set.
      */
-    private List<String> verbCandidates(String prefix) {
+    private static List<String> verbCandidates(String prefix) {
         List<String> verbs = List.of(SEARCH_VERB, EDIT_VERB, SET_VERB, ADD_VERB, SUBTRACT_VERB, RELOAD_VERB,
                 SNAPSHOT_VERB, RESTORE_VERB);
         return verbs.stream()
@@ -228,7 +234,7 @@ public class DevConsoleCompletion {
     /**
      * Deduplicate and sort candidates alphabetically (case-insensitive) for determinism.
      */
-    private List<String> dedupeAndSort(List<String> candidates) {
+    private static List<String> dedupeAndSort(List<String> candidates) {
         Set<String> deduped = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         deduped.addAll(candidates);
         return new ArrayList<>(deduped);
@@ -237,7 +243,7 @@ public class DevConsoleCompletion {
     /**
      * Reconstruct the command line with a single candidate filled in place of the prefix token.
      */
-    private String fillInPlace(String[] tokens, int position, String candidate) {
+    private static String fillInPlace(String[] tokens, int position, String candidate) {
         StringBuilder commandLine = new StringBuilder();
         for (int i = 0; i < position; i++) {
             commandLine.append(tokens[i]).append(" ");
@@ -249,7 +255,7 @@ public class DevConsoleCompletion {
     /**
      * Extract the local-id form (substring after the last `:`, or the whole string if no `:`).
      */
-    private String localId(String id) {
+    private static String localId(String id) {
         int colonIndex = id.indexOf(':');
         return colonIndex < 0 ? id : id.substring(colonIndex + 1);
     }

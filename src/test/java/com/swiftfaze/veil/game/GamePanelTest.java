@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.game;
 
+import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.input.Keybindings;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,7 @@ import javax.swing.Action;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -23,8 +25,7 @@ class GamePanelTest {
     void constructorInitializes() {
         GamePanel panel = new GamePanel();
 
-        assertEquals(com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_X, panel.getPlayer().getX());
-        assertEquals(com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_Y, panel.getPlayer().getY());
+        assertPlayerAtDefaultStart(panel::getPlayer);
     }
 
     /**
@@ -125,8 +126,7 @@ class GamePanelTest {
 
         panel.resetState();
 
-        assertEquals(com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_X, panel.getPlayer().getX());
-        assertEquals(com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_Y, panel.getPlayer().getY());
+        assertPlayerAtDefaultStart(panel::getPlayer);
         assertFalse(panel.isPaused());
     }
 
@@ -163,7 +163,13 @@ class GamePanelTest {
         assertTrue(listenerCalled[0]);
     }
 
-    private void fireAction(GamePanel panel, String actionName) {
+    private static void assertPlayerAtDefaultStart(Supplier<Player> playerSource) {
+        Player player = playerSource.get();
+        assertEquals(GameConst.DEFAULT_PLAYER_START_X, player.getX());
+        assertEquals(GameConst.DEFAULT_PLAYER_START_Y, player.getY());
+    }
+
+    private static void fireAction(GamePanel panel, String actionName) {
         Action action = panel.getActionMap().get(actionName);
         action.actionPerformed(new ActionEvent(panel, ActionEvent.ACTION_PERFORMED, actionName));
     }

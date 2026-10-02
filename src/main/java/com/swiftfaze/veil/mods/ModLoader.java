@@ -223,7 +223,7 @@ public final class ModLoader {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             ModSchemaValidator.validate("building", json, file);
             String id = json.get("id").getAsString();
-            Tile[][] blueprint = readBlueprint(json.getAsJsonArray("tiles"), tilesById, id, file);
+            List<List<Tile>> blueprint = readBlueprint(json.getAsJsonArray("tiles"), tilesById, id, file);
 
             RegistrationContext<Building> buildingContext = new RegistrationContext<>(buildings.registry(), buildings.owningModById(), json.has("overrides"), "Building");
             registerWithCollisionCheck(id, new Building(blueprint), modId, buildingContext);
@@ -234,13 +234,14 @@ public final class ModLoader {
         }
     }
 
-    private static Tile[][] readBlueprint(JsonArray rows, Map<String, Tile> tilesById, String buildingId, Path file) {
+    private static List<List<Tile>> readBlueprint(JsonArray rows, Map<String, Tile> tilesById, String buildingId, Path file) {
         int height = rows.size();
         int width = rows.get(0).getAsJsonArray().size();
-        Tile[][] blueprint = new Tile[height][width];
+        List<List<Tile>> blueprint = new ArrayList<>(height);
 
         for (int y = 0; y < height; y++) {
             JsonArray row = rows.get(y).getAsJsonArray();
+            List<Tile> tileRow = new ArrayList<>(width);
             for (int x = 0; x < width; x++) {
                 String tileId = row.get(x).getAsString();
                 Tile tile = tilesById.get(tileId);
@@ -248,8 +249,9 @@ public final class ModLoader {
                     throw new ModLoadException("Building '" + buildingId
                             + "' references unknown tile ID: " + tileId + " in file: " + file);
                 }
-                blueprint[y][x] = tile;
+                tileRow.add(tile);
             }
+            blueprint.add(tileRow);
         }
 
         return blueprint;
@@ -394,7 +396,9 @@ public final class ModLoader {
     }
 
     private static Item.BaseDamage parseItemBaseDamage(JsonObject json) {
-        if (!json.has("baseDamage")) return new Item.BaseDamage(0, 0);
+        if (!json.has("baseDamage")) {
+            return new Item.BaseDamage(0, 0);
+        }
         JsonObject bd = json.getAsJsonObject("baseDamage");
         int min = bd.has("min") ? bd.get("min").getAsInt() : 0;
         int max = bd.has("max") ? bd.get("max").getAsInt() : 0;
@@ -403,13 +407,17 @@ public final class ModLoader {
 
     private static List<Item.Effect> parseItemEffects(JsonObject json, String id, Set<String> validStatNames, Path file) {
         List<Item.Effect> effects = new ArrayList<>();
-        if (!json.has("effects")) return effects;
+        if (!json.has("effects")) {
+            return effects;
+        }
         for (var element : json.getAsJsonArray("effects")) {
             JsonObject effectObj = element.getAsJsonObject();
             String effectType = effectObj.get("type").getAsString();
             String stat = effectObj.get("stat").getAsString();
             String calc = effectObj.get("calc").getAsString();
-            if (!validStatNames.contains(stat)) throw new ModLoadException("Item '" + id + "' references unregistered stat '" + stat + "' in file: " + file);
+            if (!validStatNames.contains(stat)) {
+                throw new ModLoadException("Item '" + id + "' references unregistered stat '" + stat + "' in file: " + file);
+            }
             validateCalcExpression(calc, id, file);
             effects.add(new Item.Effect(effectType, stat, calc));
         }
@@ -489,15 +497,19 @@ public final class ModLoader {
     private static Quest.Reward readQuestReward(JsonObject rewardObj, String questId, Path file,
                                                   Map<String, Item> itemsById) {
         String type = rewardObj.get("type").getAsString();
-        if ("item".equals(type)) return parseItemReward(rewardObj, questId, file, itemsById);
-        if ("xp".equals(type)) return parseXpReward(rewardObj, questId, file);
-        throw new ModLoadException("Quest '" + questId + "' has unsupported reward type '" + type + "' in file: " + file);
+        return switch (type) {
+            case "item" -> parseItemReward(rewardObj, questId, file, itemsById);
+            case "xp" -> parseXpReward(rewardObj, questId, file);
+            default -> throw new ModLoadException("Quest '" + questId + "' has unsupported reward type '" + type + "' in file: " + file);
+        };
     }
 
     private static Quest.Reward parseItemReward(JsonObject rewardObj, String questId, Path file, Map<String, Item> itemsById) {
         String itemId = rewardObj.get("id").getAsString();
         int count = rewardObj.has("count") ? rewardObj.get("count").getAsInt() : 1;
-        if (!itemsById.containsKey(itemId)) throw new ModLoadException("Quest '" + questId + "' references unknown item '" + itemId + "' in file: " + file);
+        if (!itemsById.containsKey(itemId)) {
+            throw new ModLoadException("Quest '" + questId + "' references unknown item '" + itemId + "' in file: " + file);
+        }
         return new Quest.Reward("item", itemId, count, null);
     }
 

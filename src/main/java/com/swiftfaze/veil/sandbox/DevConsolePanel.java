@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.sandbox;
 
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.ListDetailLayoutUtility;
 import com.swiftfaze.veil.ui.widget.HeaderWidget;
@@ -33,7 +34,7 @@ import java.util.List;
  * refresh from mods/ and rebuilds the entry list. Escape returns from a detail panel to
  * the transcript.
  */
-public class DevConsolePanel extends JPanel {
+public final class DevConsolePanel extends JPanel {
 
     private static final String SEARCH_CARD = "search";
     private static final String PROVIDER_CARD = "provider";
@@ -60,15 +61,15 @@ public class DevConsolePanel extends JPanel {
         this.transcript = new TranscriptWidget();
         this.commandRunner = new DevConsoleCommandRunner(model, transcript, this::showProvider);
         this.providerContainer = new JPanel(new BorderLayout());
-        providerContainer.setBackground(WidgetTheme.BACKGROUND);
+        providerContainer.setBackground(WidgetTheme.background());
         this.completion = new DevConsoleCompletion(model);
         this.history = new DevConsoleCommandHistory();
 
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BorderLayout());
         setFocusable(false);
         setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(WidgetTheme.WINDOW_BORDER, 2),
+                BorderFactory.createLineBorder(WidgetTheme.windowBorder(), 2),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
         setPreferredSize(DEFAULT_SIZE);
 
@@ -133,13 +134,13 @@ public class DevConsolePanel extends JPanel {
     /**
      * The currently-opened provider's own panel, or {@code null} if none is open.
      */
-    public Component getOpenedProviderPanel() {
+    public @Nullable Component getOpenedProviderPanel() {
         return providerContainer.getComponentCount() > 0 ? providerContainer.getComponent(0) : null;
     }
 
     private JPanel buildSearchView() {
         JPanel searchView = new JPanel(new BorderLayout());
-        searchView.setBackground(WidgetTheme.BACKGROUND);
+        searchView.setBackground(WidgetTheme.background());
         searchView.add(new HeaderWidget(TITLE), BorderLayout.NORTH);
         searchView.add(buildTranscriptScrollPane(), BorderLayout.CENTER);
         searchView.add(buildCommandField(), BorderLayout.SOUTH);

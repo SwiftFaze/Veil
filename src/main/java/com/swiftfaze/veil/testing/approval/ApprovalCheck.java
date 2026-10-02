@@ -1,13 +1,18 @@
 package com.swiftfaze.veil.testing.approval;
 
+import org.jspecify.annotations.Nullable;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 
-public class ApprovalCheck {
+public final class ApprovalCheck {
+
+    private ApprovalCheck() {
+    }
 
     private static final Path APPROVED_DIR = Paths.get("src/test/resources/approved");
 
@@ -26,7 +31,7 @@ public class ApprovalCheck {
             // On match, clean up any stale .received.txt
             deleteIfExists(receivedPath);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to verify approval: " + e.getMessage(), e);
+            throw new UncheckedIOException("Failed to verify approval: " + e.getMessage(), e);
         }
     }
 
@@ -53,7 +58,7 @@ public class ApprovalCheck {
         }
     }
 
-    private static String readIfExists(Path path) throws IOException {
+    private static @Nullable String readIfExists(Path path) throws IOException {
         if (!Files.exists(path)) {
             return null;
         }

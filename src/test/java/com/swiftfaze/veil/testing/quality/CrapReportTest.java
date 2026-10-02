@@ -32,7 +32,7 @@ class CrapReportTest {
     void passesAndWritesBothOutputsWhenEveryMethodIsWithinTheLimit() throws Exception {
         writeJacoco(method("ok", 2, 0, 3));
 
-        CrapReport.Result result = CrapReport.run(root, false);
+        CrapReport.Result result = CrapReport.run(root, /* reportOnly= */ false);
 
         assertEquals(CrapReport.PASS, result.exitCode());
         assertTrue(Files.readString(root.resolve(CrapReport.CRAP_TXT)).contains("a.B#ok"));
@@ -44,8 +44,8 @@ class CrapReportTest {
     void failsInGateModeAndPassesInReportOnlyMode() throws Exception {
         writeJacoco(method("risky", 4, 5, 0));
 
-        assertEquals(CrapReport.VIOLATIONS, CrapReport.run(root, false).exitCode());
-        assertEquals(CrapReport.PASS, CrapReport.run(root, true).exitCode());
+        assertEquals(CrapReport.VIOLATIONS, CrapReport.run(root, /* reportOnly= */ false).exitCode());
+        assertEquals(CrapReport.PASS, CrapReport.run(root, /* reportOnly= */ true).exitCode());
     }
 
     @Test
@@ -54,13 +54,13 @@ class CrapReportTest {
         Files.writeString(root.resolve(CrapReport.JACOCO_XML), "<report><package><class name=\"a/Skip\">"
                 + method("risky", 6, 5, 0) + "</class></package></report>");
 
-        assertEquals(CrapReport.PASS, CrapReport.run(root, false).exitCode());
+        assertEquals(CrapReport.PASS, CrapReport.run(root, /* reportOnly= */ false).exitCode());
         assertFalse(Files.readString(root.resolve(CrapReport.CRAP_EDN)).contains("Skip"));
     }
 
     @Test
     void cannotRunWithoutAJacocoReportAndWritesNothing() {
-        CrapReport.Result result = CrapReport.run(root, false);
+        CrapReport.Result result = CrapReport.run(root, /* reportOnly= */ false);
 
         assertEquals(CrapReport.CANNOT_RUN, result.exitCode());
         assertTrue(result.messages().get(0).contains(CrapReport.JACOCO_XML));
@@ -72,7 +72,7 @@ class CrapReportTest {
         Files.writeString(root.resolve("quality-gates.properties"), "other=1\n");
         writeJacoco(method("ok", 1, 0, 1));
 
-        CrapReport.Result result = CrapReport.run(root, false);
+        CrapReport.Result result = CrapReport.run(root, /* reportOnly= */ false);
 
         assertEquals(CrapReport.CANNOT_RUN, result.exitCode());
         assertTrue(result.messages().get(0).contains("crap.max"));
@@ -83,7 +83,7 @@ class CrapReportTest {
         Files.writeString(root.resolve("pom.xml"), "<project/>");
         writeJacoco(method("ok", 1, 0, 1));
 
-        CrapReport.Result result = CrapReport.run(root, false);
+        CrapReport.Result result = CrapReport.run(root, /* reportOnly= */ false);
 
         assertEquals(CrapReport.CANNOT_RUN, result.exitCode());
         assertTrue(result.messages().get(0).contains("could not find the exclusion list"));

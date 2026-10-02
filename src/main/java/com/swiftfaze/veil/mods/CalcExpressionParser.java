@@ -1,5 +1,7 @@
 package com.swiftfaze.veil.mods;
 
+import org.jspecify.annotations.Nullable;
+
 public class CalcExpressionParser {
 
     private CalcExpressionParser() {
@@ -19,19 +21,25 @@ public class CalcExpressionParser {
             this.input = input.trim();
         }
 
-        String nextToken() {
+        @Nullable String nextToken() {
             skipWhitespace();
             if (pos >= input.length()) {
                 return null;
             }
             char ch = input.charAt(pos);
-            if (isSingleCharOperator(ch)) return consumeOperator();
-            if (Character.isLetter(ch)) return consumeIdentifier();
-            if (Character.isDigit(ch) || ch == '.') return consumeNumber();
+            if (isSingleCharOperator(ch)) {
+                return consumeOperator();
+            }
+            if (Character.isLetter(ch)) {
+                return consumeIdentifier();
+            }
+            if (Character.isDigit(ch) || ch == '.') {
+                return consumeNumber();
+            }
             throw new IllegalArgumentException("Unexpected character: " + ch);
         }
 
-        private boolean isSingleCharOperator(char ch) {
+        private static boolean isSingleCharOperator(char ch) {
             return ch == '(' || ch == ')' || ch == '+' || ch == '-' || ch == '*' || ch == '/';
         }
 
@@ -96,11 +104,15 @@ public class CalcExpressionParser {
         }
 
         private double parseFactor() {
-            if (currentToken == null) throw new IllegalArgumentException("Unexpected end of expression");
-            if (currentToken.equals("-")) return parseNegation();
-            if (currentToken.equals("(")) return parseParenthesizedExpression();
-            if (currentToken.equals("level")) return parseLevel();
-            return parseNumber();
+            if (currentToken == null) {
+                throw new IllegalArgumentException("Unexpected end of expression");
+            }
+            return switch (currentToken) {
+                case "-" -> parseNegation();
+                case "(" -> parseParenthesizedExpression();
+                case "level" -> parseLevel();
+                default -> parseNumber();
+            };
         }
 
         private double parseNegation() {
@@ -111,7 +123,9 @@ public class CalcExpressionParser {
         private double parseParenthesizedExpression() {
             currentToken = tokenizer.nextToken();
             double result = parseExpression();
-            if (!currentToken.equals(")")) throw new IllegalArgumentException("Expected ')'");
+            if (!")".equals(currentToken)) {
+                throw new IllegalArgumentException("Expected ')'");
+            }
             currentToken = tokenizer.nextToken();
             return result;
         }
@@ -127,7 +141,7 @@ public class CalcExpressionParser {
                 currentToken = tokenizer.nextToken();
                 return result;
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Unexpected token: " + currentToken);
+                throw new IllegalArgumentException("Unexpected token: " + currentToken, e);
             }
         }
     }

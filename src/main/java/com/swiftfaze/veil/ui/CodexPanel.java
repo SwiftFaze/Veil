@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.ui;
 
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.component.Inspectable;
 import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
@@ -12,9 +13,18 @@ import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import com.swiftfaze.veil.world.Tile;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.InputMap;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -61,7 +71,7 @@ public class CodexPanel extends PopupWidget {
 
     public CodexPanel(ControlsHintBarWidget hintBar) {
         this.hintBar = hintBar;
-        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.BORDER);
+        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.border());
         Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         setBorder(BorderFactory.createCompoundBorder(bottomLine, padding));
 
@@ -132,7 +142,7 @@ public class CodexPanel extends PopupWidget {
         return currentEntries.size();
     }
 
-    public String getSelectedEntryName() {
+    public @Nullable String getSelectedEntryName() {
         Inspectable selected = entryList.getSelectedItem();
         return selected == null ? null : selected.getName();
     }
@@ -141,7 +151,7 @@ public class CodexPanel extends PopupWidget {
         return detailsPane.isShowingPlaceholder();
     }
 
-    public String getDetailPlaceholderText() {
+    public @Nullable String getDetailPlaceholderText() {
         return detailsPane.isShowingPlaceholder() ? NO_ENTRY_TEXT : null;
     }
 
@@ -262,9 +272,9 @@ public class CodexPanel extends PopupWidget {
     private JPanel buildTabRow() {
         Category[] categories = Category.values();
         JPanel row = new JPanel(new GridLayout(1, categories.length));
-        row.setBackground(WidgetTheme.BACKGROUND);
+        row.setBackground(WidgetTheme.background());
         row.setAlignmentX(Component.LEFT_ALIGNMENT);
-        row.setBorder(BorderFactory.createLineBorder(WidgetTheme.BORDER, 1));
+        row.setBorder(BorderFactory.createLineBorder(WidgetTheme.border(), 1));
         for (int i = 0; i < categories.length; i++) {
             boolean isLast = i == categories.length - 1;
             JLabel label = new JLabel(categories[i].getLabel(), SwingConstants.CENTER);
@@ -272,7 +282,7 @@ public class CodexPanel extends PopupWidget {
             label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
             Border padding = BorderFactory.createEmptyBorder(6, 8, 6, 8);
             label.setBorder(isLast ? padding : BorderFactory.createCompoundBorder(
-                    BorderFactory.createMatteBorder(0, 0, 0, 1, WidgetTheme.BORDER), padding));
+                    BorderFactory.createMatteBorder(0, 0, 0, 1, WidgetTheme.border()), padding));
             tabLabels.put(categories[i], label);
             row.add(label);
         }

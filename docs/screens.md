@@ -91,7 +91,7 @@ key calls `TableWidget.updateRow()` to refresh just that row's Key cell
 without disturbing the selected row - `setRows()` would have reset selection
 to the first row on every keypress. The armed action row gets a green accent
 border via `TableWidget.setSelectedRowAccentColor()` (the same
-`WidgetTheme.VALID_HIGHLIGHT` convention `RadioGroupWidget`'s confirmed-option
+`WidgetTheme.validHighlight()` convention `RadioGroupWidget`'s confirmed-option
 border already uses), and every other row dims via
 `TableWidget.setOtherRowsDimmed()`, so the armed row reads as the only
 currently-active thing, like a modal dimming its backdrop. Rebind edits
@@ -155,7 +155,7 @@ apply a persisted Fullscreen setting at launch.
 
 `InventoryPanel` extends `PopupWidget`: its body is a 50/50 split
 (`GridLayout`) between an item `ListWidget<Item>` on the left (scrollable
-via a `JScrollPane` styled with `TerminalScrollBarUI`, non-wrapping) and a
+via a `JScrollPane` styled with `TerminalScrollBarUi`, non-wrapping) and a
 details pane on the right (name/type/slot/damage range/effects table,
 refreshed live off the list's `onSelectionChange` hook), divided by a 2px
 light-gray line matching the rest of the UI's border style. The effects are

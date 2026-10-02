@@ -9,7 +9,15 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-public class ApprovalReapprove {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public final class ApprovalReapprove {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApprovalReapprove.class);
+
+    private ApprovalReapprove() {
+    }
 
     private static final Path APPROVED_DIR = Paths.get("src/test/resources/approved");
 
@@ -17,21 +25,20 @@ public class ApprovalReapprove {
         try {
             reapproveAll(APPROVED_DIR);
         } catch (IOException e) {
-            System.err.println("Error during re-approval: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.error("Error during re-approval: {}", e.getMessage(), e);
             System.exit(1);
         }
     }
 
     public static int reapproveAll(Path approvedDir) throws IOException {
         if (!Files.exists(approvedDir)) {
-            System.out.println("No approved fixtures directory found at: " + approvedDir);
+            LOGGER.info("No approved fixtures directory found at: {}", approvedDir);
             return 0;
         }
 
         File[] files = approvedDir.toFile().listFiles();
         if (files == null) {
-            System.out.println("Failed to list files in: " + approvedDir);
+            LOGGER.info("Failed to list files in: {}", approvedDir);
             return 0;
         }
 
@@ -40,7 +47,7 @@ public class ApprovalReapprove {
             .toList();
 
         if (receivedFiles.isEmpty()) {
-            System.out.println("No .received.txt files found in: " + approvedDir);
+            LOGGER.info("No .received.txt files found in: {}", approvedDir);
             return 0;
         }
 
@@ -53,10 +60,10 @@ public class ApprovalReapprove {
 
             Files.delete(receivedFile.toPath());
 
-            System.out.println("Re-approved: " + baseName);
+            LOGGER.info("Re-approved: {}", baseName);
         }
 
-        System.out.println("Done. " + receivedFiles.size() + " fixture(s) re-approved.");
+        LOGGER.info("Done. {} fixture(s) re-approved.", receivedFiles.size());
         return receivedFiles.size();
     }
 }

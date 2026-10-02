@@ -10,7 +10,8 @@ spacing/typography/color rules a panel or widget should follow, see
 **Widget theming** (`mods/<modid>/themes/*.json`): a directory of files, one
 theme per file, matching the `tiles/`/`items/`/`quests/` directory-of-many-files
 convention (not the `stats.json` singleton) — each file defining all 13 colors
-`WidgetTheme` (see below) exposes as static fields: `SELECTED_HIGHLIGHT`,
+`WidgetTheme` (see below) exposes through accessors (`SELECTED_HIGHLIGHT` →
+`WidgetTheme.selectedHighlight()`, and so on): `SELECTED_HIGHLIGHT`,
 `SELECTED_TEXT`, `NORMAL_TEXT`, `DIMMED_TEXT`, `BACKGROUND`, `INVALID_HIGHLIGHT`,
 `VALID_HIGHLIGHT`, `TABLE_HEADER_BACKGROUND`, `BORDER`, `SCROLLBAR_THUMB`,
 `ACCENT`, `WINDOW_BORDER`, `TABLE_HEADER_TEXT` (`WidgetColorTheme.REQUIRED_KEYS`), each an `{r, g, b}` object using
@@ -45,27 +46,27 @@ to match its id, same as tiles/items/quests. A theme missing a required color
 key, or with a malformed `{r,g,b}` value, throws `ModLoadException` the same as
 any other content type. `Main.loadGame()` loads the mod registry once at
 startup and calls `WidgetTheme.applyTheme(...)` with whichever theme owns ID
-`core:default`, before any screen/widget is constructed (they read
-`WidgetTheme`'s statics at construction time). No settings/config persistence
+`core:default`, before any screen/widget is constructed (most read
+`WidgetTheme`'s accessors at construction time). No settings/config persistence
 system exists yet to pick a non-default theme — the Settings screen's "Theme"
 row (see `docs/screens.md`) is a purely visual placeholder, not wired to this
 registry. Theming coverage isn't limited to the original widget-library files
 either: every hardcoded `Color` literal across `ui/`, `ui/widget/`, and the dev
-`sandbox/ClassSandboxPanel` was swept to reference a `WidgetTheme` field instead
+`sandbox/ClassSandboxPanel` was swept to reference a `WidgetTheme` accessor instead
 (gameplay/world rendering — `Player`, `WorldScene`, `GamePanel` — stays
 hardcoded, since those colors are game content, not UI chrome). This is the
 widget-theming initiative.
 
 A small reusable widget framework lives in `ui/widget/`: `Widget` (base
-`JPanel` — themed background via `WidgetTheme.BACKGROUND`, focusable),
+`JPanel` — themed background via `WidgetTheme.background()`, focusable),
 `FocusManager` (a modal-open flag a popup's content can consult), `WidgetTheme`
-(13 mutable `static Color` fields — `SELECTED_HIGHLIGHT`/`SELECTED_TEXT`/
-`NORMAL_TEXT`/`DIMMED_TEXT`/`BACKGROUND`/`INVALID_HIGHLIGHT`/`VALID_HIGHLIGHT`/
-`TABLE_HEADER_BACKGROUND`/`BORDER`/`SCROLLBAR_THUMB`/`ACCENT`/`WINDOW_BORDER`/
-`TABLE_HEADER_TEXT` — hardcoded as
-field initializers so any widget built without `ModLoader` ever running still
-gets sane defaults, but overwritten from a loaded `WidgetColorTheme` via
-`applyTheme` at startup; see "Widget theming" above), `ListWidget<T>` (a
+(13 colors — `selectedHighlight()`/`selectedText()`/`normalText()`/
+`dimmedText()`/`background()`/`invalidHighlight()`/`validHighlight()`/
+`tableHeaderBackground()`/`border()`/`scrollbarThumb()`/`accent()`/
+`windowBorder()`/`tableHeaderText()` — read from an immutable palette held in
+one `AtomicReference`, initialised with hardcoded defaults so any widget built
+without `ModLoader` ever running still gets sane colors, and swapped whole for
+one built from a loaded `WidgetColorTheme` by `applyTheme` at startup; see "Widget theming" above), `ListWidget<T>` (a
 keyboard-navigable,
 optionally non-wrapping list over a pluggable data source, with
 `onConfirm`/`onSelectionChange` callbacks and auto-scroll-into-view of the
@@ -115,7 +116,7 @@ return false to be centered at their preferred size instead of stretched);
 (a `LayoutManager` stretching every child to the parent's full bounds by
 default, for `JLayeredPane` overlays; now respects `PopupWidget.isFullScreen()`
 to center non-full-screen popups at their preferred size instead),
-`TerminalScrollBarUI` (a flat black-track/solid-thumb `BasicScrollBarUI`
+`TerminalScrollBarUi` (a flat black-track/solid-thumb `BasicScrollBarUI`
 replacing the platform look-and-feel's default scrollbar chrome), and
 `ControlsHintBarWidget` (a single persistent bar, one shared instance built
 once in `Main.loadGame()` and docked at `BorderLayout.SOUTH` of the game

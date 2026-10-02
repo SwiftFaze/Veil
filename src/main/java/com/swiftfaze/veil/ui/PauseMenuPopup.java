@@ -5,9 +5,14 @@ import com.swiftfaze.veil.ui.widget.ListWidget;
 import com.swiftfaze.veil.ui.widget.PopupWidget;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.InputMap;
+import javax.swing.JLabel;
 import javax.swing.border.Border;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.function.Consumer;
@@ -26,7 +31,7 @@ public class PauseMenuPopup extends PopupWidget {
     private Consumer<String> onMenuSelect = item -> { };
 
     public PauseMenuPopup() {
-        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.BORDER);
+        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.border());
         Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         setBorder(BorderFactory.createCompoundBorder(bottomLine, padding));
 
@@ -80,9 +85,9 @@ public class PauseMenuPopup extends PopupWidget {
         }
     }
 
-    private JLabel makeTitleLabel() {
+    private static JLabel makeTitleLabel() {
         JLabel titleLabel = new JLabel("Paused");
-        titleLabel.setForeground(WidgetTheme.NORMAL_TEXT);
+        titleLabel.setForeground(WidgetTheme.normalText());
         titleLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
         titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         return titleLabel;

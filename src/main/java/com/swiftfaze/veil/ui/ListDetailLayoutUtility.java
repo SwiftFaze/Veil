@@ -1,13 +1,20 @@
 package com.swiftfaze.veil.ui;
 
 import com.swiftfaze.veil.ui.widget.TableWidget;
-import com.swiftfaze.veil.ui.widget.TerminalScrollBarUI;
+import com.swiftfaze.veil.ui.widget.TerminalScrollBarUi;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.Border;
-import java.awt.*;
-import java.util.List;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
 
 /**
  * Shared utilities for list/detail split-pane layouts (Codex, Inventory).
@@ -26,7 +33,7 @@ public final class ListDetailLayoutUtility {
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        scrollPane.getVerticalScrollBar().setUI(new TerminalScrollBarUI());
+        scrollPane.getVerticalScrollBar().setUI(new TerminalScrollBarUi());
         scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
         return scrollPane;
     }
@@ -37,7 +44,7 @@ public final class ListDetailLayoutUtility {
      */
     public static JPanel buildBody(JComponent left, JComponent right) {
         JPanel body = new JPanel(new GridLayout(1, 2, 20, 0));
-        body.setBackground(WidgetTheme.BACKGROUND);
+        body.setBackground(WidgetTheme.background());
         body.setAlignmentX(Component.LEFT_ALIGNMENT);
         body.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         body.add(left);
@@ -50,7 +57,7 @@ public final class ListDetailLayoutUtility {
      */
     public static JLabel makeSectionLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setForeground(WidgetTheme.NORMAL_TEXT);
+        label.setForeground(WidgetTheme.normalText());
         label.setFont(new Font(Font.MONOSPACED, Font.BOLD, 16));
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         label.setBorder(BorderFactory.createEmptyBorder(10, 0, 4, 0));
@@ -61,9 +68,17 @@ public final class ListDetailLayoutUtility {
      * Builds the styled details panel with standard borders and layout (shared by Codex and Inventory).
      */
     public static JPanel buildDetailsPanel() {
-        Border detailsDivider = BorderFactory.createMatteBorder(0, 2, 0, 0, WidgetTheme.BORDER);
+        Border detailsDivider = BorderFactory.createMatteBorder(0, 2, 0, 0, WidgetTheme.border());
         Border detailsPadding = BorderFactory.createEmptyBorder(4, 10, 0, 0);
         return buildDetailsPanel(BorderFactory.createCompoundBorder(detailsDivider, detailsPadding));
+    }
+
+    private static JPanel buildDetailsPanel(Border border) {
+        JPanel detailsPanel = new JPanel();
+        detailsPanel.setBackground(WidgetTheme.background());
+        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
+        detailsPanel.setBorder(border);
+        return detailsPanel;
     }
 
     /**
@@ -73,14 +88,6 @@ public final class ListDetailLayoutUtility {
      */
     public static JPanel buildStandaloneDetailsPanel() {
         return buildDetailsPanel(BorderFactory.createEmptyBorder());
-    }
-
-    private static JPanel buildDetailsPanel(Border border) {
-        JPanel detailsPanel = new JPanel();
-        detailsPanel.setBackground(WidgetTheme.BACKGROUND);
-        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
-        detailsPanel.setBorder(border);
-        return detailsPanel;
     }
 
     /**

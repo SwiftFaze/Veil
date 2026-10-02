@@ -20,7 +20,7 @@ class PlayerTest {
     private static final Tile GRASS = new Tile("test:grass", ',', Color.GREEN, true);
     private static final Tile WATER = new Tile("test:water", '~', Color.BLUE, false);
 
-    private WorldScene sceneOf(int width, int height) {
+    private static WorldScene sceneOf(int width, int height) {
         return new WorldScene(width, height) {
         };
     }

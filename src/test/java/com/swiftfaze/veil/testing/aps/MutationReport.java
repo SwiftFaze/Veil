@@ -1,8 +1,8 @@
 package com.swiftfaze.veil.testing.aps;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /** What one acceptance-mutation run found. */
 public final class MutationReport {
@@ -28,6 +28,10 @@ public final class MutationReport {
         skipped.add(reason);
     }
 
+    public List<String> skipped() {
+        return List.copyOf(skipped);
+    }
+
     void failingOriginal(String scenario) {
         failingOriginals.add(scenario);
     }
@@ -42,10 +46,6 @@ public final class MutationReport {
 
     public List<Mutant> survivors() {
         return List.copyOf(survivors);
-    }
-
-    public List<String> skipped() {
-        return List.copyOf(skipped);
     }
 
     public List<String> failingOriginals() {
@@ -64,12 +64,12 @@ public final class MutationReport {
         return survivors.isEmpty() ? EXIT_CLEAN : EXIT_SURVIVORS;
     }
 
-    public void print(PrintStream out) {
-        skipped.forEach(s -> out.println("SKIPPED   " + s));
-        failingOriginals.forEach(s -> out.println("FAILS ON THE ORIGINAL   " + s));
-        errors.forEach(s -> out.println("ERROR   " + s));
-        survivors.forEach(m -> out.println("SURVIVED  " + m));
-        out.println("Acceptance mutation: " + mutantsRun.size() + " mutants run, "
+    public void print(Consumer<String> out) {
+        skipped.forEach(s -> out.accept("SKIPPED   " + s));
+        failingOriginals.forEach(s -> out.accept("FAILS ON THE ORIGINAL   " + s));
+        errors.forEach(s -> out.accept("ERROR   " + s));
+        survivors.forEach(m -> out.accept("SURVIVED  " + m));
+        out.accept("Acceptance mutation: " + mutantsRun.size() + " mutants run, "
                 + survivors.size() + " survived, exit " + exitCode());
     }
 }

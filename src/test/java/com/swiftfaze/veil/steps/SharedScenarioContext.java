@@ -13,7 +13,10 @@ import java.util.function.Consumer;
  * Shared state across step definition classes within a single scenario.
  * Uses ThreadLocal to store scenario-scoped state without requiring dependency injection.
  */
-public class SharedScenarioContext {
+public final class SharedScenarioContext {
+
+    private SharedScenarioContext() {
+    }
     private static final ThreadLocal<Camera> CAMERA = new ThreadLocal<>();
     private static final ThreadLocal<DevConsoleModel> DEV_CONSOLE_MODEL = new ThreadLocal<>();
     private static final ThreadLocal<DevConsolePanel> DEV_CONSOLE_PANEL = new ThreadLocal<>();

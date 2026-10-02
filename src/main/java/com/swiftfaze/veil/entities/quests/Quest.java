@@ -4,13 +4,14 @@ import com.swiftfaze.veil.component.DetailTable;
 import com.swiftfaze.veil.component.Inspectable;
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 public class Quest implements Inspectable {
 
-    public record Objective(String type, String target, int count) {
+    public record Objective(String type, @Nullable String target, int count) {
     }
 
-    public record Reward(String type, String id, Integer count, String calc) {
+    public record Reward(String type, @Nullable String id, @Nullable Integer count, @Nullable String calc) {
     }
 
     private final String id;

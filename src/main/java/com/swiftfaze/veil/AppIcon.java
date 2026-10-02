@@ -1,5 +1,6 @@
 package com.swiftfaze.veil;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public final class AppIcon {
      *
      * @return the image, or null if the stream is absent or not a readable image
      */
-    public static Image load(Supplier<InputStream> resourceSupplier) {
+    public static @Nullable Image load(Supplier<InputStream> resourceSupplier) {
         try (InputStream stream = resourceSupplier.get()) {
             if (stream == null) {
                 LOGGER.warn("Icon resource not found at classpath {}", RESOURCE_PATH);

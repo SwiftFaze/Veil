@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * The CRAP gate: scores every method in JaCoCo's report and fails when one exceeds
  * {@code crap.max} (quality-gates.properties) without a covering crap-baseline.txt entry.
@@ -27,6 +30,8 @@ import java.util.Properties;
  * a non-zero exit code is thrown as an exception, which fails the Maven build.
  */
 public final class CrapReport {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CrapReport.class);
 
     static final String JACOCO_XML = "target/site/jacoco/jacoco.xml";
     static final String CRAP_TXT = "target/crap/crap.txt";
@@ -53,7 +58,7 @@ public final class CrapReport {
     public static void main(String[] arguments) {
         boolean reportOnly = arguments.length > 0 && "--report-only".equals(arguments[0]);
         Result result = run(Paths.get("").toAbsolutePath(), reportOnly);
-        result.messages().forEach(System.out::println);
+        result.messages().forEach(LOGGER::info);
         if (result.exitCode() != PASS) {
             throw new IllegalStateException("CRAP gate failed with exit code " + result.exitCode());
         }

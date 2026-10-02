@@ -66,7 +66,7 @@ class CodexPanelTest {
         assertEquals(CodexPanel.Category.ITEMS, panel.getSelectedCategory());
     }
 
-    private Item itemNamed(String name) {
+    private static Item itemNamed(String name) {
         return new Item(
                 name.toLowerCase(Locale.ROOT),
                 name,

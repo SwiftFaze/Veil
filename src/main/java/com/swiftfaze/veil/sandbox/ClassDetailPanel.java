@@ -33,7 +33,7 @@ public class ClassDetailPanel extends JPanel {
         this.header = new HeaderWidget(className);
         this.statsTable = TableWidget.ofRows(buildColumnHeaders(), detailRows(model, className));
 
-        setBackground(WidgetTheme.BACKGROUND);
+        super.setBackground(WidgetTheme.background());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setFocusable(true);
 

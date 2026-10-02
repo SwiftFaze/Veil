@@ -2,6 +2,7 @@ package com.swiftfaze.veil.steps;
 
 import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.testing.approval.ApprovalCheck;
+import com.swiftfaze.veil.testing.approval.ApprovalReapprove;
 import com.swiftfaze.veil.world.PositionedGlyph;
 import com.swiftfaze.veil.world.Tile;
 import com.swiftfaze.veil.world.Viewport;
@@ -13,9 +14,17 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.And;
 
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -26,12 +35,13 @@ public class ApprovalTestsGlyphGridSteps {
     private static final Tile WATER = new Tile("test:water", '~', Color.BLUE, false);
 
     private WorldScene scene;
-    private char[][] renderedGrid;
+    private List<String> renderedGrid;
     private List<PositionedGlyph> entities;
     private String scenarioName;
     private boolean shouldFail;
+    private Path scenario3TempDir;
 
-    private char[][] renderScene() {
+    private List<String> renderScene() {
         Camera camera = SharedScenarioContext.getCamera();
         Viewport viewport = new Viewport(camera.getX(), camera.getY(),
                 camera.getViewportWidth(), camera.getViewportHeight());
@@ -57,7 +67,7 @@ public class ApprovalTestsGlyphGridSteps {
         // Add border of WALL for positional regression testing
         scene.createBorder(10, 10, WALL);
         // Add patch of WATER at specific position (3,3) to (4,4)
-        scene.fillRegion(new java.awt.Rectangle(3, 3, 2, 2), WATER);
+        scene.fillRegion(new Rectangle(3, 3, 2, 2), WATER);
         entities = new ArrayList<>();
         scenarioName = "fixed-test-scene";
         SharedScenarioContext.setCamera(new Camera(10, 10));
@@ -68,9 +78,9 @@ public class ApprovalTestsGlyphGridSteps {
         // Also leave a stale .received.txt behind, as a previous failing run would,
         // so the "no .received.txt file is written" scenario actually exercises
         // ApprovalCheck's cleanup-on-match path rather than trivially passing.
-        java.nio.file.Files.writeString(
-            java.nio.file.Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt"),
-            "stale\n", java.nio.charset.StandardCharsets.UTF_8
+        Files.writeString(
+            Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt"),
+            "stale\n", StandardCharsets.UTF_8
         );
     }
 
@@ -104,9 +114,9 @@ public class ApprovalTestsGlyphGridSteps {
 
     @And("no .received.txt file is written")
     public void noReceivedFileIsWritten() {
-        java.nio.file.Path receivedPath =
-            java.nio.file.Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt");
-        if (java.nio.file.Files.exists(receivedPath)) {
+        Path receivedPath =
+            Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt");
+        if (Files.exists(receivedPath)) {
             throw new AssertionError("Expected no .received.txt file, but found: " + receivedPath);
         }
     }
@@ -138,14 +148,18 @@ public class ApprovalTestsGlyphGridSteps {
             if (!errorMsg.contains("Approved:") || !errorMsg.contains("Received:")) {
                 throw new AssertionError("Error message should show both approved and received grids", e);
             }
-            // Clean up the .received.txt file created by the failing approval check
-            try {
-                java.nio.file.Files.deleteIfExists(
-                    java.nio.file.Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt")
-                );
-            } catch (java.io.IOException ioe) {
-                throw new RuntimeException("Failed to clean up test fixture", ioe);
-            }
+            deleteReceivedFile();
+        }
+    }
+
+    // Clean up the .received.txt file created by the failing approval check
+    private void deleteReceivedFile() {
+        try {
+            Files.deleteIfExists(
+                Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt")
+            );
+        } catch (IOException ioe) {
+            throw new UncheckedIOException("Failed to clean up test fixture", ioe);
         }
     }
 
@@ -170,21 +184,19 @@ public class ApprovalTestsGlyphGridSteps {
     }
 
     // Scenario 3: Re-approving a changed fixture is one explicit command, never automatic
-    private java.nio.file.Path scenario3TempDir;
-
     @Given("a <scenario-name>.received.txt file exists next to an approved fixture because the two differ")
     public void aReceivedFileExists() throws IOException {
-        scenario3TempDir = java.nio.file.Files.createTempDirectory("approval-test-reapprove");
-        java.nio.file.Path receivedFile = scenario3TempDir.resolve("fixture.received.txt");
-        java.nio.file.Path approvedFile = scenario3TempDir.resolve("fixture.approved.txt");
+        scenario3TempDir = Files.createTempDirectory("approval-test-reapprove");
+        Path receivedFile = scenario3TempDir.resolve("fixture.received.txt");
+        Path approvedFile = scenario3TempDir.resolve("fixture.approved.txt");
 
-        java.nio.file.Files.writeString(approvedFile, "original\n", java.nio.charset.StandardCharsets.UTF_8);
-        java.nio.file.Files.writeString(receivedFile, "updated\n", java.nio.charset.StandardCharsets.UTF_8);
+        Files.writeString(approvedFile, "original\n", StandardCharsets.UTF_8);
+        Files.writeString(receivedFile, "updated\n", StandardCharsets.UTF_8);
     }
 
     @When("`mvn compile exec:java -Dexec.mainClass=...` is run for the approval re-approve tool")
     public void theMavenReapproveCommandIsRun() throws IOException {
-        int count = com.swiftfaze.veil.testing.approval.ApprovalReapprove.reapproveAll(scenario3TempDir);
+        int count = ApprovalReapprove.reapproveAll(scenario3TempDir);
         if (count != 1) {
             throw new AssertionError("Expected 1 fixture to be re-approved");
         }
@@ -192,9 +204,9 @@ public class ApprovalTestsGlyphGridSteps {
 
     @Then("the approved fixture is replaced with the received content")
     public void theApprovedFixtureIsReplaced() throws IOException {
-        String content = java.nio.file.Files.readString(
+        String content = Files.readString(
             scenario3TempDir.resolve("fixture.approved.txt"),
-            java.nio.charset.StandardCharsets.UTF_8
+            StandardCharsets.UTF_8
         );
         if (!content.equals("updated\n")) {
             throw new AssertionError("Approved should have been updated to 'updated\\n'");
@@ -203,21 +215,22 @@ public class ApprovalTestsGlyphGridSteps {
 
     @And("the .received.txt file is removed")
     public void theReceivedFileIsRemoved() throws IOException {
-        java.nio.file.Path receivedFile = scenario3TempDir.resolve("fixture.received.txt");
-        if (java.nio.file.Files.exists(receivedFile)) {
+        Path receivedFile = scenario3TempDir.resolve("fixture.received.txt");
+        if (Files.exists(receivedFile)) {
             throw new AssertionError("Received file should be deleted");
         }
 
         // Clean up
-        java.nio.file.Files.walk(scenario3TempDir)
-            .sorted(java.util.Comparator.reverseOrder())
-            .forEach(path -> {
-                try {
-                    java.nio.file.Files.delete(path);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+        try (Stream<Path> paths = Files.walk(scenario3TempDir)) {
+            paths.sorted(Comparator.reverseOrder())
+                .forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
+        }
     }
 
     @And("a normal `mvn test` run never performs this replacement on its own")
@@ -252,10 +265,10 @@ public class ApprovalTestsGlyphGridSteps {
         scene = new WorldScene(20, 20) {};
         scene.fillAll(GRASS);
 
-        Tile[][] blueprint = {
-            {WALL, WALL},
-            {WALL, WALL}
-        };
+        List<List<Tile>> blueprint = List.of(
+            List.of(WALL, WALL),
+            List.of(WALL, WALL)
+        );
         Building building = new Building(blueprint);
         building.setWorldX(5);
         building.setWorldY(5);
@@ -295,7 +308,7 @@ public class ApprovalTestsGlyphGridSteps {
         ApprovalCheck.verify(scenarioName, gridAsText);
 
         // Verify the entity glyph is at the expected position
-        assertEquals('@', renderedGrid[5][5], "Entity glyph should be at position (5, 5)");
+        assertEquals('@', renderedGrid.get(5).charAt(5), "Entity glyph should be at position (5, 5)");
     }
 
     // Scenario 7: Viewport size boundaries render the correct number of columns and rows
@@ -317,18 +330,18 @@ public class ApprovalTestsGlyphGridSteps {
 
     @Then("the rendered grid is exactly {int} columns by {int} rows, matching an approved fixture")
     public void theGridIsExactlyTheViewportSize(int width, int height) {
-        assertEquals(height, renderedGrid.length, "Grid should have " + height + " rows");
-        assertEquals(width, renderedGrid[0].length, "Grid should have " + width + " columns");
+        assertEquals(height, renderedGrid.size(), "Grid should have " + height + " rows");
+        assertEquals(width, renderedGrid.get(0).length(), "Grid should have " + width + " columns");
 
         String gridAsText = gridToString(renderedGrid);
         ApprovalCheck.verify(scenarioName, gridAsText);
     }
 
     // Utility methods
-    private String gridToString(char[][] grid) {
+    private static String gridToString(List<String> grid) {
         StringBuilder sb = new StringBuilder();
-        for (char[] row : grid) {
-            sb.append(new String(row)).append("\n");
+        for (String row : grid) {
+            sb.append(row).append('\n');
         }
         return sb.toString();
     }

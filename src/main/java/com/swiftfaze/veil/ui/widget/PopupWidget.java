@@ -2,8 +2,13 @@ package com.swiftfaze.veil.ui.widget;
 
 import com.swiftfaze.veil.input.Keybindings;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BoxLayout;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 
 public class PopupWidget extends Widget {
@@ -18,7 +23,7 @@ public class PopupWidget extends Widget {
         setVisible(false);
 
         contentPanel = new JPanel();
-        contentPanel.setBackground(WidgetTheme.BACKGROUND);
+        contentPanel.setBackground(WidgetTheme.background());
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
         add(contentPanel, BorderLayout.CENTER);

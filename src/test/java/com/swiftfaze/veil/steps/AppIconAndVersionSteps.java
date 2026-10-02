@@ -1,10 +1,6 @@
 package com.swiftfaze.veil.steps;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.filter.LevelFilter;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.AppenderBase;
-import ch.qos.logback.core.spi.FilterReply;
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.AppIcon;
 import com.swiftfaze.veil.AppVersion;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
@@ -12,7 +8,6 @@ import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.JLabel;
 import java.awt.Image;
@@ -29,6 +24,7 @@ import java.util.function.Supplier;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -43,12 +39,14 @@ public class AppIconAndVersionSteps {
     private static final String VERSION_OPEN_TAG = "<version>";
     private static final int HINT_BAR_WIDTH = 800;
     private static final int HINT_BAR_HEIGHT = 60;
-    private static final Supplier<InputStream> BUNDLED_ICON =
-            () -> AppIcon.class.getResourceAsStream("/icons/veil.png");
 
     private AppVersion loadedAppVersion;
     private Image capturedIcon;
-    private Supplier<InputStream> iconResourceSupplier = BUNDLED_ICON;
+    private Supplier<InputStream> iconResourceSupplier = AppIconAndVersionSteps::bundledIcon;
+
+    private static InputStream bundledIcon() {
+        return AppIcon.class.getResourceAsStream("/icons/veil.png");
+    }
 
     // The hint bar belongs to UiComponentFrameworkSteps so the settings/in-game steps and these
     // steps drive the same widget.
@@ -110,7 +108,7 @@ public class AppIconAndVersionSteps {
 
     @Then("the version label's color is the theme's dimmed text color")
     public void theVersionLabelColorIsTheThemesDimmedTextColor() {
-        assertEquals(WidgetTheme.DIMMED_TEXT, versionLabel().getForeground());
+        assertEquals(WidgetTheme.dimmedText(), versionLabel().getForeground());
     }
 
     @When("version.properties is read from the classpath")
@@ -130,7 +128,7 @@ public class AppIconAndVersionSteps {
     }
 
     /** The first {@code <version>} after the project's own artifactId, or null if absent. */
-    private static String pomProjectVersion() throws IOException {
+    private static @Nullable String pomProjectVersion() throws IOException {
         Path pomPath = Path.of(System.getProperty("user.dir")).resolve("pom.xml");
         String pomContent = Files.readString(pomPath);
 
@@ -168,7 +166,7 @@ public class AppIconAndVersionSteps {
 
     @Then("a warning about the missing version is logged")
     public void aWarningAboutTheMissingVersionIsLogged() {
-        assertTrue(warnsWhile(AppVersion.class, () -> new AppVersion(() -> null)),
+        assertTrue(WarnLogProbe.warnsWhile(AppVersion.class, () -> new AppVersion(() -> null)),
                 "Should have logged a WARN event");
     }
 
@@ -203,49 +201,12 @@ public class AppIconAndVersionSteps {
     @Then("the game window has no custom icon")
     public void theGameWindowHasNoCustomIcon() {
         applyIcon();
-        org.junit.jupiter.api.Assertions.assertNull(capturedIcon, "Icon should be null when resource is absent");
+        assertNull(capturedIcon, "Icon should be null when resource is absent");
     }
 
     @Then("a warning about the missing icon is logged")
     public void aWarningAboutTheMissingIconIsLogged() {
-        assertTrue(warnsWhile(AppIcon.class, () -> AppIcon.load(() -> null)),
+        assertTrue(WarnLogProbe.warnsWhile(AppIcon.class, () -> AppIcon.load(() -> null)),
                 "Should have logged a WARN event for missing icon");
-    }
-
-    /** Runs {@code action} and reports whether {@code source}'s logger emitted a WARN meanwhile. */
-    private static boolean warnsWhile(Class<?> source, Runnable action) {
-        ch.qos.logback.classic.Logger logger =
-                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(source);
-        WarnDetector detector = new WarnDetector();
-        detector.start();
-        logger.addAppender(detector);
-        try {
-            action.run();
-        } finally {
-            logger.detachAppender(detector);
-        }
-        return detector.sawWarning();
-    }
-
-    private static final class WarnDetector extends AppenderBase<ILoggingEvent> {
-        private boolean sawWarning;
-
-        WarnDetector() {
-            LevelFilter warnOnly = new LevelFilter();
-            warnOnly.setLevel(Level.WARN);
-            warnOnly.setOnMatch(FilterReply.ACCEPT);
-            warnOnly.setOnMismatch(FilterReply.DENY);
-            warnOnly.start();
-            addFilter(warnOnly);
-        }
-
-        @Override
-        protected void append(ILoggingEvent event) {
-            sawWarning = true;
-        }
-
-        boolean sawWarning() {
-            return sawWarning;
-        }
     }
 }

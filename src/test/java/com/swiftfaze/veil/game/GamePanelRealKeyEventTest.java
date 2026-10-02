@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import javax.swing.JFrame;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.KeyEvent;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -54,10 +55,10 @@ class GamePanelRealKeyEventTest {
         }
     }
 
-    private void waitForFocus(GamePanel panel) throws InterruptedException {
+    private static void waitForFocus(GamePanel panel) throws InterruptedException {
         for (int i = 0; i < MAX_FOCUS_WAIT_ATTEMPTS && !panel.isFocusOwner(); i++) {
             panel.requestFocusInWindow();
-            Thread.sleep(FOCUS_POLL_INTERVAL_MS);
+            TimeUnit.MILLISECONDS.sleep(FOCUS_POLL_INTERVAL_MS);
         }
         Assumptions.assumeTrue(panel.isFocusOwner(),
                 "GamePanel never became the real focus owner; skipping rather than asserting on an unfocused window.");

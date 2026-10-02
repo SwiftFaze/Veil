@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.game;
 
+import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.render.DrawableAsciiEntity;
 import com.swiftfaze.veil.render.Positionable;
@@ -10,21 +11,26 @@ import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.world.TileTestScene2;
 import com.swiftfaze.veil.world.WorldScene;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import static com.swiftfaze.veil.GameConst.*;
 
-public class GamePanel extends JPanel {
+public final class GamePanel extends JPanel {
 
     private Player player;
     private WorldScene scene;
-    private final Camera camera = new Camera(GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
+    private final Camera camera = new Camera(GameConst.GAME_WINDOW_WIDTH, GameConst.GAME_WINDOW_HEIGHT);
     private final List<Positionable> entitiesToDraw = new ArrayList<>();
     private final List<GameListener> listeners = new ArrayList<>();
     private final GameEventLog eventLog;
@@ -35,15 +41,15 @@ public class GamePanel extends JPanel {
     }
 
     public GamePanel(GameEventLog eventLog) {
-        this(eventLog, new Player(DEFAULT_PLAYER_START_X, DEFAULT_PLAYER_START_Y),
-                new TileTestScene2(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT));
+        this(eventLog, new Player(GameConst.DEFAULT_PLAYER_START_X, GameConst.DEFAULT_PLAYER_START_Y),
+                new TileTestScene2(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT));
     }
 
     public GamePanel(GameEventLog eventLog, Player player, WorldScene scene) {
         this.player = player;
         this.scene = scene;
         this.eventLog = eventLog;
-        setPreferredSize(new Dimension(GAME_WINDOW_WIDTH * TILE_WIDTH, GAME_WINDOW_HEIGHT * TILE_HEIGHT));
+        setPreferredSize(new Dimension(GameConst.GAME_WINDOW_WIDTH * GameConst.TILE_WIDTH, GameConst.GAME_WINDOW_HEIGHT * GameConst.TILE_HEIGHT));
         setBackground(Color.BLACK);
         setFocusable(true);
 
@@ -119,8 +125,8 @@ public class GamePanel extends JPanel {
      * an in-place reset of just this panel's own state.
      */
     public void resetState() {
-        player = new Player(DEFAULT_PLAYER_START_X, DEFAULT_PLAYER_START_Y);
-        scene = new TileTestScene2(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT);
+        player = new Player(GameConst.DEFAULT_PLAYER_START_X, GameConst.DEFAULT_PLAYER_START_Y);
+        scene = new TileTestScene2(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT);
         entitiesToDraw.clear();
         addEntity(scene);
         addEntity(player);
@@ -131,16 +137,18 @@ public class GamePanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        camera.resizeViewport(getWidth() / TILE_WIDTH, getHeight() / TILE_HEIGHT);
+        camera.resizeViewport(getWidth() / GameConst.TILE_WIDTH, getHeight() / GameConst.TILE_HEIGHT);
         camera.centerOn(player.getX(), player.getY());
 
-        scene.renderWorld(g2d, TILE_WIDTH, TILE_HEIGHT, camera);
+        scene.renderWorld(g2d, GameConst.TILE_WIDTH, GameConst.TILE_HEIGHT, camera);
 
         for (Positionable entity : entitiesToDraw) {
-            if (Objects.equals(entity, scene)) continue;
+            if (Objects.equals(entity, scene)) {
+                continue;
+            }
 
             if (entity instanceof DrawableAsciiEntity ascii) {
-                ascii.render(g2d, TILE_WIDTH, TILE_HEIGHT, camera);
+                ascii.render(g2d, GameConst.TILE_WIDTH, GameConst.TILE_HEIGHT, camera);
             }
         }
     }

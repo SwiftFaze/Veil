@@ -4,6 +4,8 @@ import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
 
+import java.util.Locale;
+
 /**
  * Shared arbitrary generators for property-based testing of Veil game logic.
  * These arbitraries are used across multiple property test classes to ensure
@@ -62,7 +64,7 @@ public final class VeilArbitraries {
                     Arbitraries.just("level"),
                     Arbitraries.integers().between(1, 10).map(String::valueOf),
                     Arbitraries.doubles().between(0.5, 10.0)
-                            .map(d -> String.format(java.util.Locale.ROOT, "%.1f", d))
+                            .map(d -> String.format(Locale.ROOT, "%.1f", d))
             );
         }
 

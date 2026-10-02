@@ -56,7 +56,7 @@ public class PlayerFieldMutator implements DevConsoleFieldMutator {
         return OptionalInt.of(combine(field, verb, parsed.getAsInt(), stats));
     }
 
-    private int combine(PlayerField field, DevConsoleMutationVerb verb, int value, Stats stats) {
+    private static int combine(PlayerField field, DevConsoleMutationVerb verb, int value, Stats stats) {
         int current = field.get(stats);
         return switch (verb) {
             case SET -> value;
@@ -75,14 +75,14 @@ public class PlayerFieldMutator implements DevConsoleFieldMutator {
         return OptionalInt.of(field.get(baseStats));
     }
 
-    private int applyClamped(PlayerField field, Stats stats, int rawNewValue) {
+    private static int applyClamped(PlayerField field, Stats stats, int rawNewValue) {
         int floored = Math.max(field.floor(), rawNewValue);
         field.set(stats, floored);
         clampDependentCurrent(field, stats, floored);
         return floored;
     }
 
-    private void clampDependentCurrent(PlayerField field, Stats stats, int newMax) {
+    private static void clampDependentCurrent(PlayerField field, Stats stats, int newMax) {
         if (field == PlayerField.MAX_HP && stats.getCurrentHp() > newMax) {
             stats.setCurrentHp(newMax);
         } else if (field == PlayerField.MAX_MANA && stats.getCurrentMana() > newMax) {
@@ -90,7 +90,7 @@ public class PlayerFieldMutator implements DevConsoleFieldMutator {
         }
     }
 
-    private OptionalInt parseInt(String rawValue) {
+    private static OptionalInt parseInt(String rawValue) {
         try {
             return OptionalInt.of(Integer.parseInt(rawValue));
         } catch (NumberFormatException e) {

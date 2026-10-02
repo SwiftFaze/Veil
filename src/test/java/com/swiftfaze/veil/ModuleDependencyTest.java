@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import static com.tngtech.archunit.base.DescribedPredicate.not;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.equivalentTo;
-import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideOutsideOfPackage;
 import static com.tngtech.archunit.core.domain.properties.HasOwner.Predicates.With.owner;

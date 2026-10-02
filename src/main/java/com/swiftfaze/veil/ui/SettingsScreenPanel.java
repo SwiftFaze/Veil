@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.ui;
 
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.config.SettingsStore;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
@@ -7,14 +8,23 @@ import com.swiftfaze.veil.ui.widget.RadioGroupWidget;
 import com.swiftfaze.veil.ui.widget.SliderWidget;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.InputMap;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class SettingsScreenPanel extends JPanel implements HintAware {
+public final class SettingsScreenPanel extends JPanel implements HintAware {
     private static final Font ROW_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 16);
     private static final List<ControlsHintBarWidget.Hint> TAIL_HINTS =
             List.of(new ControlsHintBarWidget.Hint("enter", "Select"), new ControlsHintBarWidget.Hint("escape", "Back"));
@@ -31,10 +41,10 @@ public class SettingsScreenPanel extends JPanel implements HintAware {
     private String backTarget = "title";
 
     private static class SettingsRow {
-        String name;
-        Object widget; // SliderWidget, RadioGroupWidget<String>, or null for actions
+        final String name;
+        final Object widget; // SliderWidget, RadioGroupWidget<String>, or null for actions
 
-        SettingsRow(String name, Object widget) {
+        SettingsRow(String name, @Nullable Object widget) {
             this.name = name;
             this.widget = widget;
         }
@@ -56,20 +66,20 @@ public class SettingsScreenPanel extends JPanel implements HintAware {
         this.settingsStore = settingsStore;
         this.rows = new ArrayList<>();
 
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(WidgetTheme.BORDER, 2),
+                BorderFactory.createLineBorder(WidgetTheme.border(), 2),
                 BorderFactory.createEmptyBorder(20, 40, 20, 40)));
         setFocusable(true);
 
         JLabel header = new JLabel("Settings");
-        header.setForeground(WidgetTheme.NORMAL_TEXT);
+        header.setForeground(WidgetTheme.normalText());
         header.setFont(new Font(Font.MONOSPACED, Font.BOLD, 24));
         header.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         rowsPanel = new JPanel();
-        rowsPanel.setBackground(WidgetTheme.BACKGROUND);
+        rowsPanel.setBackground(WidgetTheme.background());
         rowsPanel.setLayout(new BoxLayout(rowsPanel, BoxLayout.Y_AXIS));
         rowsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -152,17 +162,17 @@ public class SettingsScreenPanel extends JPanel implements HintAware {
 
         rows.add(new SettingsRow("Brightness", new SliderWidget(0, 10, 1, config.getBrightness())));
 
-        RadioGroupWidget<String> fullscreenRadio = new RadioGroupWidget<>(s -> s, true);
+        RadioGroupWidget<String> fullscreenRadio = new RadioGroupWidget<>(s -> s, /* horizontal= */ true);
         fullscreenRadio.setOptions(List.of("Windowed", "Fullscreen"));
         fullscreenRadio.selectAndHighlightOption(List.of("Windowed", "Fullscreen").indexOf(config.getFullscreen()));
         rows.add(new SettingsRow("Fullscreen", fullscreenRadio));
 
-        RadioGroupWidget<String> fontRadio = new RadioGroupWidget<>(s -> s, true);
+        RadioGroupWidget<String> fontRadio = new RadioGroupWidget<>(s -> s, /* horizontal= */ true);
         fontRadio.setOptions(List.of("Monospaced", "Serif", "SansSerif"));
         fontRadio.selectAndHighlightOption(List.of("Monospaced", "Serif", "SansSerif").indexOf(config.getFont()));
         rows.add(new SettingsRow("Font", fontRadio));
 
-        RadioGroupWidget<String> themeRadio = new RadioGroupWidget<>(s -> s, true);
+        RadioGroupWidget<String> themeRadio = new RadioGroupWidget<>(s -> s, /* horizontal= */ true);
         themeRadio.setOptions(List.of("Default", "Midnight", "Sunrise"));
         themeRadio.selectAndHighlightOption(List.of("Default", "Midnight", "Sunrise").indexOf(config.getTheme()));
         rows.add(new SettingsRow("Theme", themeRadio));
@@ -246,6 +256,9 @@ public class SettingsScreenPanel extends JPanel implements HintAware {
                 // Placeholder action
             }
             case "Reset to Defaults" -> resetConfirmationPopup.open();
+            default -> {
+                // Slider and radio rows act on Left/Right, not confirm
+            }
         }
     }
 
@@ -306,8 +319,8 @@ public class SettingsScreenPanel extends JPanel implements HintAware {
             label.setFont(ROW_FONT);
             label.setAlignmentX(Component.CENTER_ALIGNMENT);
             label.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
-            label.setForeground(i == selectedIndex ? WidgetTheme.SELECTED_TEXT : WidgetTheme.NORMAL_TEXT);
-            label.setBackground(i == selectedIndex ? WidgetTheme.SELECTED_HIGHLIGHT : WidgetTheme.BACKGROUND);
+            label.setForeground(i == selectedIndex ? WidgetTheme.selectedText() : WidgetTheme.normalText());
+            label.setBackground(i == selectedIndex ? WidgetTheme.selectedHighlight() : WidgetTheme.background());
             label.setOpaque(true);
             labels.add(label);
             rowsPanel.add(label);

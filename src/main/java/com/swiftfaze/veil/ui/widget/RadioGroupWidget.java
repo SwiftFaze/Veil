@@ -1,11 +1,18 @@
 package com.swiftfaze.veil.ui.widget;
 
 import com.swiftfaze.veil.input.Keybindings;
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.InputMap;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Insets;
@@ -25,8 +32,8 @@ public class RadioGroupWidget<T> extends Widget {
     // label and squeezed its text down to an ellipsis whenever it flipped between them. A custom
     // Border fixes the insets at the line border's full thickness always, painting only the
     // bottom edge for the unconfirmed state and leaving the rest of that reserved space blank.
-    private static final Border CONFIRMED_BORDER = new RadioOptionBorder(true);
-    private static final Border UNCONFIRMED_BORDER = new RadioOptionBorder(false);
+    private static final Border CONFIRMED_BORDER = new RadioOptionBorder(/* confirmed= */ true);
+    private static final Border UNCONFIRMED_BORDER = new RadioOptionBorder(/* confirmed= */ false);
 
     private final Function<T, String> optionRenderer;
     private final boolean horizontal;
@@ -151,7 +158,9 @@ public class RadioGroupWidget<T> extends Widget {
     }
 
     public void moveVertical(boolean down) {
-        if (options.isEmpty()) return;
+        if (options.isEmpty()) {
+            return;
+        }
         highlightedIndex = down
             ? (wrapAround
                 ? (highlightedIndex + 1) % options.size()
@@ -163,7 +172,9 @@ public class RadioGroupWidget<T> extends Widget {
     }
 
     public void moveHorizontal(boolean right) {
-        if (options.isEmpty()) return;
+        if (options.isEmpty()) {
+            return;
+        }
         highlightedIndex = right
             ? (wrapAround
                 ? (highlightedIndex + 1) % options.size()
@@ -208,7 +219,9 @@ public class RadioGroupWidget<T> extends Widget {
                 // repaint anything.
                 refreshHighlight();
                 T option = getSelectedOption();
-                if (option != null) onConfirm.accept(option);
+                if (option != null) {
+                    onConfirm.accept(option);
+                }
             }
         });
     }
@@ -219,13 +232,17 @@ public class RadioGroupWidget<T> extends Widget {
         setLayout(buildLayout());
         createLabels();
         refreshHighlight();
-        if (!horizontal) uniformizeVerticalLabelWidths();
+        if (!horizontal) {
+            uniformizeVerticalLabelWidths();
+        }
         revalidate();
         repaint();
     }
 
     private LayoutManager buildLayout() {
-        if (fillWidth && horizontal) return new GridLayout(1, 0, 4, 0);
+        if (fillWidth && horizontal) {
+            return new GridLayout(1, 0, 4, 0);
+        }
         return new BoxLayout(this, horizontal ? BoxLayout.X_AXIS : BoxLayout.Y_AXIS);
     }
 
@@ -233,7 +250,7 @@ public class RadioGroupWidget<T> extends Widget {
         for (T option : options) {
             JLabel label = new JLabel(optionRenderer.apply(option));
             label.setOpaque(true);
-            label.setFont(new java.awt.Font(java.awt.Font.MONOSPACED, java.awt.Font.PLAIN, 16));
+            label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
             label.setHorizontalAlignment(horizontal ? SwingConstants.CENTER : SwingConstants.LEFT);
             label.setAlignmentX(LEFT_ALIGNMENT);
             labels.add(label);
@@ -280,7 +297,7 @@ public class RadioGroupWidget<T> extends Widget {
         @Override
         @SuppressWarnings("PMD.ExcessiveParameterList") // Required by Swing's Border interface
         public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-            g.setColor(confirmed ? WidgetTheme.VALID_HIGHLIGHT : WidgetTheme.BORDER);
+            g.setColor(confirmed ? WidgetTheme.validHighlight() : WidgetTheme.border());
             g.fillRect(x, y + height - THICKNESS, width, THICKNESS); // bottom, always drawn
             if (confirmed) {
                 g.fillRect(x, y, width, THICKNESS); // top

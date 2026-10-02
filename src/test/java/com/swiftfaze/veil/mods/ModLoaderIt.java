@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -19,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * repo's real mods/ directory, unlike the unit tests.
  * Runs only via {@code mvn verify} (Failsafe), not {@code mvn test}.
  */
-class ModLoaderIT {
+class ModLoaderIt {
 
     @Test
     void loadsCoreSmallHouseBlueprintFromDisk() {
@@ -28,12 +29,12 @@ class ModLoaderIT {
 
         assertNotNull(building, "core:small_house_01 should be loaded from mods/core/buildings/");
 
-        Tile[][] blueprint = building.getBlueprint();
+        List<List<Tile>> blueprint = building.getBlueprint();
 
-        assertEquals(7, blueprint.length, "fixture is 7 rows tall");
-        assertEquals(7, blueprint[0].length, "fixture is 7 columns wide");
-        assertEquals(registry.getTile("core:stone"), blueprint[0][0], "top-left corner is a stone wall");
-        assertEquals(registry.getTile("core:door"), blueprint[6][3], "door sits in the middle of the south wall");
+        assertEquals(7, blueprint.size(), "fixture is 7 rows tall");
+        assertEquals(7, blueprint.get(0).size(), "fixture is 7 columns wide");
+        assertEquals(registry.getTile("core:stone"), blueprint.get(0).get(0), "top-left corner is a stone wall");
+        assertEquals(registry.getTile("core:door"), blueprint.get(6).get(3), "door sits in the middle of the south wall");
     }
 
     @Test
@@ -98,7 +99,7 @@ class ModLoaderIT {
         assertEquals(new Color(0, 0, 0), theme.color("BACKGROUND"));
     }
 
-    private Stats statsAtLevel(PlayerClass playerClass, int level) {
+    private static Stats statsAtLevel(PlayerClass playerClass, int level) {
         Stats stats = new Stats();
         playerClass.applyStatsAtLevel(stats, level);
         return stats;

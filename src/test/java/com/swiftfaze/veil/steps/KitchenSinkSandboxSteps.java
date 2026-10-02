@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.steps;
 
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.sandbox.DevConsoleEntry;
@@ -99,13 +100,13 @@ public class KitchenSinkSandboxSteps {
     @Given("the marker stands on a walkable tile whose {word} neighbour is walkable")
     public void theMarkerStandsOnAWalkableTileWhoseNeighbourIsWalkable(String direction) {
         assertPreviewShown();
-        teleportToWalkableTileWithNeighbour(direction, true);
+        teleportToWalkableTileWithNeighbour(direction, /* neighbourWalkable= */ true);
     }
 
     @Given("the marker's {word} neighbour is unwalkable")
     public void theMarkerSNeighbourIsUnwalkable(String direction) {
         assertPreviewShown();
-        teleportToWalkableTileWithNeighbour(direction, false);
+        teleportToWalkableTileWithNeighbour(direction, /* neighbourWalkable= */ false);
     }
 
     @Then("the marker has moved one tile {word}")
@@ -183,7 +184,7 @@ public class KitchenSinkSandboxSteps {
         Assertions.assertFalse(model.isOverlayOn(), "Overlay is still on");
         BufferedImage now = render();
         BufferedImage overlayOff = renderWithOverlay(false);
-        Assertions.assertEquals(WidgetTheme.BACKGROUND.getRGB(), now.getRGB(1, 1), "A cell is still tinted");
+        Assertions.assertEquals(WidgetTheme.background().getRGB(), now.getRGB(1, 1), "A cell is still tinted");
         Assertions.assertEquals(overlayOff.getRGB(1, 1), now.getRGB(1, 1));
     }
 
@@ -314,12 +315,12 @@ public class KitchenSinkSandboxSteps {
         }
     }
 
-    private static Point backgroundPixelIn(BufferedImage image, int cellX, int cellY) {
+    private static @Nullable Point backgroundPixelIn(BufferedImage image, int cellX, int cellY) {
         for (int dy = 0; dy < GameConst.TILE_HEIGHT; dy++) {
             for (int dx = 0; dx < GameConst.TILE_WIDTH; dx++) {
                 int pixelX = cellX * GameConst.TILE_WIDTH + dx;
                 int pixelY = cellY * GameConst.TILE_HEIGHT + dy;
-                if (image.getRGB(pixelX, pixelY) == WidgetTheme.BACKGROUND.getRGB()) {
+                if (image.getRGB(pixelX, pixelY) == WidgetTheme.background().getRGB()) {
                     return new Point(pixelX, pixelY);
                 }
             }

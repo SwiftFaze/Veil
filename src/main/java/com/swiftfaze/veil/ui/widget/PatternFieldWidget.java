@@ -1,6 +1,10 @@
 package com.swiftfaze.veil.ui.widget;
 
-import javax.swing.*;
+import org.jspecify.annotations.Nullable;
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
@@ -11,7 +15,13 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.JTextComponent;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -69,19 +79,19 @@ public class PatternFieldWidget extends Widget {
         this(pattern, null);
     }
 
-    public PatternFieldWidget(String pattern, String fieldLabel) {
+    public PatternFieldWidget(String pattern, @Nullable String fieldLabel) {
         this.pattern = Pattern.compile(pattern);
         this.fieldLabel = fieldLabel;
         this.textField = new PlaceholderTextField();
         setFocusable(false); // the text field is the real focus target, not this outer panel
 
         textField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
-        textField.setForeground(WidgetTheme.NORMAL_TEXT);
-        textField.setBackground(WidgetTheme.BACKGROUND);
-        textField.setCaretColor(WidgetTheme.NORMAL_TEXT);
+        textField.setForeground(WidgetTheme.normalText());
+        textField.setBackground(WidgetTheme.background());
+        textField.setCaretColor(WidgetTheme.normalText());
         textField.setCaret(new BlockCaret());
-        textField.setSelectionColor(WidgetTheme.SELECTED_HIGHLIGHT);
-        textField.setSelectedTextColor(WidgetTheme.SELECTED_TEXT);
+        textField.setSelectionColor(WidgetTheme.selectedHighlight());
+        textField.setSelectedTextColor(WidgetTheme.selectedText());
         textField.setBorder(BorderFactory.createEmptyBorder());
         ((AbstractDocument) textField.getDocument()).setDocumentFilter(new AllowedCharacterFilter());
         textField.getDocument().addDocumentListener(new PatternFieldDocumentListener());
@@ -189,7 +199,7 @@ public class PatternFieldWidget extends Widget {
         }
     }
 
-    private boolean isAppendable(char c) {
+    private static boolean isAppendable(char c) {
         // Enter (\n, \r) satisfies Character.isWhitespace() just like a space does, so without
         // this exclusion it could be inserted as a literal newline — a character no single-line
         // pattern ever matches. Real Enter presses never reach here (see bindEnterToNextField),
@@ -200,17 +210,15 @@ public class PatternFieldWidget extends Widget {
         return Character.isLetterOrDigit(c) || Character.isWhitespace(c) || isPrintableSpecial(c);
     }
 
-    private boolean isPrintableSpecial(char c) {
+    private static boolean isPrintableSpecial(char c) {
         return c != '\t' && c >= 32 && c <= 126;
     }
 
     private void bindEnterToNextField() {
-        InputMap inputMap = textField.getInputMap(WHEN_FOCUSED);
-        ActionMap actionMap = textField.getActionMap();
         // Enter moves to the next field, like Tab, rather than JTextField's default (fire an
         // ActionEvent, no focus change) - standard single-line-field behavior.
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "next-field");
-        actionMap.put("next-field", new AbstractAction() {
+        textField.getInputMap(WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "next-field");
+        textField.getActionMap().put("next-field", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) { textField.transferFocus(); }
         });
@@ -218,16 +226,16 @@ public class PatternFieldWidget extends Widget {
 
     private void updateAppearance() {
         Color stateColor = stateColor();
-        textField.setForeground(getInput().isEmpty() ? WidgetTheme.NORMAL_TEXT : stateColor);
+        textField.setForeground(getInput().isEmpty() ? WidgetTheme.normalText() : stateColor);
         setBorder(buildBorder(stateColor));
         onInputChanged.accept(getInput());
     }
 
     private Color stateColor() {
         if (!validityColoringEnabled || getInput().isEmpty()) {
-            return WidgetTheme.NORMAL_TEXT;
+            return WidgetTheme.normalText();
         }
-        return patternIsValid() ? WidgetTheme.VALID_HIGHLIGHT : WidgetTheme.INVALID_HIGHLIGHT;
+        return patternIsValid() ? WidgetTheme.validHighlight() : WidgetTheme.invalidHighlight();
     }
 
     private Border buildBorder(Color color) {
@@ -262,7 +270,7 @@ public class PatternFieldWidget extends Widget {
             FontMetrics metrics = g.getFontMetrics(getFont());
             int x = getInsets().left;
             int y = (getHeight() - metrics.getHeight()) / 2 + metrics.getAscent();
-            g.setColor(WidgetTheme.DIMMED_TEXT);
+            g.setColor(WidgetTheme.dimmedText());
             g.setFont(getFont());
             g.drawString(placeholder, x, y);
         }
@@ -333,7 +341,7 @@ public class PatternFieldWidget extends Widget {
         }
     }
 
-    private class AllowedCharacterFilter extends DocumentFilter {
+    private static final class AllowedCharacterFilter extends DocumentFilter {
         @Override
         public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
                 throws BadLocationException {
@@ -347,7 +355,7 @@ public class PatternFieldWidget extends Widget {
             super.replace(fb, offset, length, filtered(text), attrs);
         }
 
-        private String filtered(String text) {
+        private static String filtered(String text) {
             if (text == null) {
                 return "";
             }

@@ -11,12 +11,12 @@ import java.awt.Rectangle;
  * A flat, black-track/solid-thumb scrollbar with no arrow buttons, matching
  * the terminal aesthetic instead of the platform look-and-feel's default.
  */
-public class TerminalScrollBarUI extends BasicScrollBarUI {
+public class TerminalScrollBarUi extends BasicScrollBarUI {
 
     @Override
     protected void configureScrollBarColors() {
-        this.thumbColor = WidgetTheme.SCROLLBAR_THUMB;
-        this.trackColor = WidgetTheme.BACKGROUND;
+        this.thumbColor = WidgetTheme.scrollbarThumb();
+        this.trackColor = WidgetTheme.background();
     }
 
     @Override
@@ -31,7 +31,7 @@ public class TerminalScrollBarUI extends BasicScrollBarUI {
 
     @Override
     protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds) {
-        g.setColor(WidgetTheme.BACKGROUND);
+        g.setColor(WidgetTheme.background());
         g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height);
     }
 
@@ -40,11 +40,11 @@ public class TerminalScrollBarUI extends BasicScrollBarUI {
         if (thumbBounds.isEmpty()) {
             return;
         }
-        g.setColor(WidgetTheme.SCROLLBAR_THUMB);
+        g.setColor(WidgetTheme.scrollbarThumb());
         g.fillRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height);
     }
 
-    private JButton zeroSizeButton() {
+    private static JButton zeroSizeButton() {
         JButton button = new JButton();
         Dimension zero = new Dimension(0, 0);
         button.setPreferredSize(zero);

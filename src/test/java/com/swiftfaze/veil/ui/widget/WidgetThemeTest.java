@@ -63,38 +63,38 @@ class WidgetThemeTest {
         return colors;
     }
 
-    private Color widgetThemeColor(String key) {
+    private static Color widgetThemeColor(String key) {
         return switch (key) {
-            case "SELECTED_HIGHLIGHT" -> WidgetTheme.SELECTED_HIGHLIGHT;
-            case "SELECTED_TEXT" -> WidgetTheme.SELECTED_TEXT;
-            case "NORMAL_TEXT" -> WidgetTheme.NORMAL_TEXT;
-            case "DIMMED_TEXT" -> WidgetTheme.DIMMED_TEXT;
-            case "BACKGROUND" -> WidgetTheme.BACKGROUND;
-            case "INVALID_HIGHLIGHT" -> WidgetTheme.INVALID_HIGHLIGHT;
-            case "VALID_HIGHLIGHT" -> WidgetTheme.VALID_HIGHLIGHT;
-            case "TABLE_HEADER_BACKGROUND" -> WidgetTheme.TABLE_HEADER_BACKGROUND;
-            case "BORDER" -> WidgetTheme.BORDER;
-            case "SCROLLBAR_THUMB" -> WidgetTheme.SCROLLBAR_THUMB;
-            case "ACCENT" -> WidgetTheme.ACCENT;
-            case "TABLE_HEADER_TEXT" -> WidgetTheme.TABLE_HEADER_TEXT;
+            case "SELECTED_HIGHLIGHT" -> WidgetTheme.selectedHighlight();
+            case "SELECTED_TEXT" -> WidgetTheme.selectedText();
+            case "NORMAL_TEXT" -> WidgetTheme.normalText();
+            case "DIMMED_TEXT" -> WidgetTheme.dimmedText();
+            case "BACKGROUND" -> WidgetTheme.background();
+            case "INVALID_HIGHLIGHT" -> WidgetTheme.invalidHighlight();
+            case "VALID_HIGHLIGHT" -> WidgetTheme.validHighlight();
+            case "TABLE_HEADER_BACKGROUND" -> WidgetTheme.tableHeaderBackground();
+            case "BORDER" -> WidgetTheme.border();
+            case "SCROLLBAR_THUMB" -> WidgetTheme.scrollbarThumb();
+            case "ACCENT" -> WidgetTheme.accent();
+            case "TABLE_HEADER_TEXT" -> WidgetTheme.tableHeaderText();
             default -> throw new IllegalArgumentException("Unknown WidgetTheme color key: " + key);
         };
     }
 
-    private Map<String, Color> currentColors() {
+    private static Map<String, Color> currentColors() {
         Map<String, Color> colors = new LinkedHashMap<>();
-        colors.put("SELECTED_HIGHLIGHT", WidgetTheme.SELECTED_HIGHLIGHT);
-        colors.put("SELECTED_TEXT", WidgetTheme.SELECTED_TEXT);
-        colors.put("NORMAL_TEXT", WidgetTheme.NORMAL_TEXT);
-        colors.put("DIMMED_TEXT", WidgetTheme.DIMMED_TEXT);
-        colors.put("BACKGROUND", WidgetTheme.BACKGROUND);
-        colors.put("INVALID_HIGHLIGHT", WidgetTheme.INVALID_HIGHLIGHT);
-        colors.put("VALID_HIGHLIGHT", WidgetTheme.VALID_HIGHLIGHT);
-        colors.put("TABLE_HEADER_BACKGROUND", WidgetTheme.TABLE_HEADER_BACKGROUND);
-        colors.put("BORDER", WidgetTheme.BORDER);
-        colors.put("SCROLLBAR_THUMB", WidgetTheme.SCROLLBAR_THUMB);
-        colors.put("ACCENT", WidgetTheme.ACCENT);
-        colors.put("TABLE_HEADER_TEXT", WidgetTheme.TABLE_HEADER_TEXT);
+        colors.put("SELECTED_HIGHLIGHT", WidgetTheme.selectedHighlight());
+        colors.put("SELECTED_TEXT", WidgetTheme.selectedText());
+        colors.put("NORMAL_TEXT", WidgetTheme.normalText());
+        colors.put("DIMMED_TEXT", WidgetTheme.dimmedText());
+        colors.put("BACKGROUND", WidgetTheme.background());
+        colors.put("INVALID_HIGHLIGHT", WidgetTheme.invalidHighlight());
+        colors.put("VALID_HIGHLIGHT", WidgetTheme.validHighlight());
+        colors.put("TABLE_HEADER_BACKGROUND", WidgetTheme.tableHeaderBackground());
+        colors.put("BORDER", WidgetTheme.border());
+        colors.put("SCROLLBAR_THUMB", WidgetTheme.scrollbarThumb());
+        colors.put("ACCENT", WidgetTheme.accent());
+        colors.put("TABLE_HEADER_TEXT", WidgetTheme.tableHeaderText());
         return colors;
     }
 }

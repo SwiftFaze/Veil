@@ -99,7 +99,7 @@ class ItemDetailPanelTest {
 
     @Test
     void usesTheThemeBackground() {
-        assertEquals(WidgetTheme.BACKGROUND, ironSwordPanel().getBackground());
+        assertEquals(WidgetTheme.background(), ironSwordPanel().getBackground());
     }
 
     @Test

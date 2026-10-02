@@ -2,6 +2,8 @@ package com.swiftfaze.veil.steps;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.swiftfaze.veil.Main;
+import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.sandbox.ClassSandbox;
@@ -16,6 +18,7 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.datatable.DataTable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
@@ -161,8 +164,8 @@ public class QuestSandboxSteps {
     @Given("the F1 in-game dev console is built")
     public void theF1InGameDevConsoleIsBuilt() {
         // Use Main.buildDevConsoleProviders to get the correct provider list
-        List<DevConsoleProvider> providers = com.swiftfaze.veil.Main.buildDevConsoleProviders(
-                () -> new com.swiftfaze.veil.entities.player.Player(0, 0)
+        List<DevConsoleProvider> providers = Main.buildDevConsoleProviders(
+                () -> new Player(0, 0)
         );
         model = new DevConsoleModel(providers);
     }
@@ -184,8 +187,8 @@ public class QuestSandboxSteps {
         Assertions.assertTrue(found, "Expected to find the " + providerName + " provider (no entries in " + providerName + " category)");
     }
 
-    private void writeFixtureQuest(String questName, String objectiveType, String objectiveTarget,
-                                    Integer objectiveCount, List<JsonObject> rewards) throws IOException {
+    private void writeFixtureQuest(String questName, String objectiveType, @Nullable String objectiveTarget,
+                                    @Nullable Integer objectiveCount, List<JsonObject> rewards) throws IOException {
         Path coreDir = modsRoot.resolve("core");
         Files.createDirectories(coreDir.resolve("quests"));
 

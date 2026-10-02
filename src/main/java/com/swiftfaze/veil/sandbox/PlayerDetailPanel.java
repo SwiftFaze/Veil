@@ -6,7 +6,6 @@ import com.swiftfaze.veil.entities.player.Stats;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.mods.ModLoader;
-import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.ui.widget.HeaderWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
@@ -29,7 +28,7 @@ import java.util.function.Supplier;
  * recomputation of Attack Power/Defense as their underlying attributes change.
  * Also supports editing the running player's X and Y position rows.
  */
-public class PlayerDetailPanel extends JPanel {
+public final class PlayerDetailPanel extends JPanel {
 
     private static final int EDITABLE_CLASS = 0;
     private static final int EDITABLE_STRENGTH = 1;
@@ -85,7 +84,7 @@ public class PlayerDetailPanel extends JPanel {
             buildRows()
         );
 
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setFocusable(true);
 
@@ -311,6 +310,9 @@ public class PlayerDetailPanel extends JPanel {
             case EDITABLE_INTELLIGENCE -> stats.setIntelligence(value);
             case EDITABLE_WISDOM -> stats.setWisdom(value);
             case EDITABLE_LUCK -> stats.setLuck(value);
+            default -> {
+                // Not an attribute row (class, HP and mana rows are adjusted elsewhere)
+            }
         }
     }
 
@@ -382,11 +384,11 @@ public class PlayerDetailPanel extends JPanel {
         return rowDataSuppliers.get(rowIndex).get();
     }
 
-    private String[] rowData(String fieldName, int value) {
+    private static String[] rowData(String fieldName, int value) {
         return new String[]{fieldName, String.valueOf(value)};
     }
 
-    private String[] rowData(String fieldName, String value) {
+    private static String[] rowData(String fieldName, String value) {
         return new String[]{fieldName, value};
     }
 
@@ -397,7 +399,7 @@ public class PlayerDetailPanel extends JPanel {
     }
 
     private void applyArmedStyle() {
-        statsTable.setSelectedRowAccentColor(WidgetTheme.VALID_HIGHLIGHT);
+        statsTable.setSelectedRowAccentColor(WidgetTheme.validHighlight());
         statsTable.setOtherRowsDimmed(true);
         getInputMap(WHEN_FOCUSED).put(Keybindings.MENU_CANCEL, Keybindings.ACTION_MENU_CANCEL);
     }

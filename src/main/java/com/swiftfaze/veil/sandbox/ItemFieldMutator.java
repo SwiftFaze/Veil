@@ -70,7 +70,7 @@ public class ItemFieldMutator implements DevConsoleFieldMutator {
         return OptionalInt.of(combine(verb, field.valueIn(currentDamage), parsed.getAsInt()));
     }
 
-    private int combine(DevConsoleMutationVerb verb, int current, int value) {
+    private static int combine(DevConsoleMutationVerb verb, int current, int value) {
         return switch (verb) {
             case SET -> value;
             case ADD -> current + value;
@@ -78,7 +78,7 @@ public class ItemFieldMutator implements DevConsoleFieldMutator {
         };
     }
 
-    private OptionalInt parseInt(String rawValue) {
+    private static OptionalInt parseInt(String rawValue) {
         try {
             return OptionalInt.of(Integer.parseInt(rawValue));
         } catch (NumberFormatException e) {

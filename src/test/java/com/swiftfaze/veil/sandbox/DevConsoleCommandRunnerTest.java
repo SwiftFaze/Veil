@@ -142,7 +142,7 @@ class DevConsoleCommandRunnerTest {
         return transcript.entries().get(transcript.entries().size() - 1);
     }
 
-    private DevConsoleProvider providerWithSnapshotter(String id, String localName, DevConsoleSnapshotter snapshotter) {
+    private static DevConsoleProvider providerWithSnapshotter(String id, String localName, DevConsoleSnapshotter snapshotter) {
         return new DevConsoleProvider() {
             @Override
             public List<DevConsoleEntry> entries() {

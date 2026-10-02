@@ -2,8 +2,14 @@ package com.swiftfaze.veil.ui.widget;
 
 import com.swiftfaze.veil.input.Keybindings;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.InputMap;
+import javax.swing.JLabel;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -115,7 +121,7 @@ public class ListWidget<T> extends Widget {
         for (T item : items) {
             JLabel label = new JLabel(itemRenderer.apply(item));
             label.setOpaque(true);
-            label.setFont(new java.awt.Font(java.awt.Font.MONOSPACED, java.awt.Font.PLAIN, 16));
+            label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
             label.setAlignmentX(LEFT_ALIGNMENT);
             label.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
             labels.add(label);

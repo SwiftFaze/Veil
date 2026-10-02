@@ -1,8 +1,12 @@
 package com.swiftfaze.veil.ui;
 
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.component.DetailTable;
 import com.swiftfaze.veil.component.Inspectable;
 import com.swiftfaze.veil.ui.widget.TableWidget;
+import com.swiftfaze.veil.ui.widget.WidgetTheme;
+import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +21,7 @@ import javax.swing.JScrollPane;
  * Package placement: com.swiftfaze.veil.ui (not .widget) — see ModuleDependencyTest
  * for ArchUnit constraints.
  */
-public class DetailsPaneWidget extends JPanel {
+public final class DetailsPaneWidget extends JPanel {
 
     private final JPanel detailsPanel;
     private final JScrollPane detailsScrollPane;
@@ -29,18 +33,18 @@ public class DetailsPaneWidget extends JPanel {
         this(ListDetailLayoutUtility.buildDetailsPanel());
     }
 
-    /** A details pane shown on its own, with no list beside it and so no divider. */
-    public static DetailsPaneWidget standalone() {
-        return new DetailsPaneWidget(ListDetailLayoutUtility.buildStandaloneDetailsPanel());
-    }
-
     private DetailsPaneWidget(JPanel detailsPanel) {
         this.detailsPanel = detailsPanel;
         detailsScrollPane = ListDetailLayoutUtility.buildScrollPane(detailsPanel);
         setOpaque(false);
-        setLayout(new java.awt.BorderLayout());
-        add(detailsScrollPane, java.awt.BorderLayout.CENTER);
+        setLayout(new BorderLayout());
+        add(detailsScrollPane, BorderLayout.CENTER);
         setFocusTraversalKeysEnabled(false);
+    }
+
+    /** A details pane shown on its own, with no list beside it and so no divider. */
+    public static DetailsPaneWidget standalone() {
+        return new DetailsPaneWidget(ListDetailLayoutUtility.buildStandaloneDetailsPanel());
     }
 
     public void showEntry(Inspectable entry) {
@@ -108,7 +112,7 @@ public class DetailsPaneWidget extends JPanel {
         return focusedIndex == index;
     }
 
-    public TableWidget<List<String>> getTable(int index) {
+    public @Nullable TableWidget<List<String>> getTable(int index) {
         return index < 0 || index >= tables.size() ? null : tables.get(index);
     }
 
@@ -139,11 +143,11 @@ public class DetailsPaneWidget extends JPanel {
         }
     }
 
-    private JLabel buildPlaceholderLabel(String text) {
+    private static JLabel buildPlaceholderLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setForeground(com.swiftfaze.veil.ui.widget.WidgetTheme.NORMAL_TEXT);
-        label.setFont(new java.awt.Font(java.awt.Font.MONOSPACED, java.awt.Font.PLAIN, 16));
-        label.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+        label.setForeground(WidgetTheme.normalText());
+        label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
+        label.setAlignmentX(LEFT_ALIGNMENT);
         return label;
     }
 }

@@ -5,6 +5,7 @@ import com.swiftfaze.veil.ui.widget.TranscriptWidget;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -112,7 +113,7 @@ public class DevConsoleCommandRunner {
     private void runMutation(DevConsoleMutationVerb verb, String argument) {
         String[] parts = argument.split("\\s+", MUTATION_MIN_PARTS);
         if (parts.length < MUTATION_MIN_PARTS) {
-            transcript.appendError("Usage: " + verb.name().toLowerCase(java.util.Locale.ROOT) + " <entry> <field> <value>");
+            transcript.appendError("Usage: " + verb.name().toLowerCase(Locale.ROOT) + " <entry> <field> <value>");
             return;
         }
         Optional<DevConsoleModel.SearchResult> found = model.findByEntryToken(parts[0]);
@@ -172,7 +173,7 @@ public class DevConsoleCommandRunner {
         action.accept(snapshotter.get(), parts[1]);
     }
 
-    private List<List<String>> resultRows(List<DevConsoleModel.SearchResult> results) {
+    private static List<List<String>> resultRows(List<DevConsoleModel.SearchResult> results) {
         List<List<String>> rows = new ArrayList<>();
         for (int i = 0; i < results.size(); i++) {
             rows.add(rowFor(results.get(i), i + 1));
@@ -180,17 +181,17 @@ public class DevConsoleCommandRunner {
         return rows;
     }
 
-    private List<String> rowFor(DevConsoleModel.SearchResult result, int rowNumber) {
+    private static List<String> rowFor(DevConsoleModel.SearchResult result, int rowNumber) {
         return List.of(String.valueOf(rowNumber), result.entry().id(), result.entry().name(),
                 result.entry().category(), result.entry().namespace());
     }
 
-    private String verbOf(String trimmed) {
+    private static String verbOf(String trimmed) {
         int spaceIndex = trimmed.indexOf(' ');
         return spaceIndex < 0 ? trimmed : trimmed.substring(0, spaceIndex);
     }
 
-    private String argumentOf(String trimmed) {
+    private static String argumentOf(String trimmed) {
         int spaceIndex = trimmed.indexOf(' ');
         return spaceIndex < 0 ? "" : trimmed.substring(spaceIndex + 1).trim();
     }

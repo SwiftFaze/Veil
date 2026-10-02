@@ -1,6 +1,5 @@
 package com.swiftfaze.veil.ui;
 
-import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.Action;
@@ -81,7 +80,7 @@ class PauseMenuPopupTest {
         assertTrue(selectedItems.contains(PauseMenuPopup.EXIT_TO_MAIN_MENU));
     }
 
-    private void fireAction(PauseMenuPopup popup, String actionName) {
+    private static void fireAction(PauseMenuPopup popup, String actionName) {
         Action action = popup.getActionMap().get(actionName);
         action.actionPerformed(new ActionEvent(popup, ActionEvent.ACTION_PERFORMED, actionName));
     }

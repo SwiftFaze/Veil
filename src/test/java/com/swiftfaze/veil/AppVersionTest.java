@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class AppVersionTest {
     private static final String VERSION_PROPERTIES = "version=1.2.3\n";

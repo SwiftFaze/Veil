@@ -11,7 +11,10 @@ import javax.swing.JLayeredPane;
  * above it, so a popup covers the settings view instead of living inside its
  * own layout. Mirrors {@link GameWindow}'s pattern for the game card.
  */
-public class SettingsWindow {
+public final class SettingsWindow {
+
+    private SettingsWindow() {
+    }
 
     public static JLayeredPane buildContentArea(SettingsScreenPanel settingsScreen) {
         JLayeredPane layeredPane = new JLayeredPane();

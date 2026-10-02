@@ -56,7 +56,7 @@ final class UmlIr {
 
     /** Rank of the id's top-level segment (its first dotted part), or -1 when unranked. */
     static int rank(String id, List<List<String>> levels) {
-        String top = id.split("\\.")[0];
+        String top = id.split("\\.", -1)[0];
         for (int rank = 0; rank < levels.size(); rank++) {
             if (levels.get(rank).contains(top)) {
                 return rank;

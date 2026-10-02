@@ -5,14 +5,20 @@ import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.widget.ListWidget;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.InputMap;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.Locale;
 
-public class ClassSandboxPanel extends JPanel {
+public final class ClassSandboxPanel extends JPanel {
 
     private final ClassSandboxModel model;
     private final List<String> names;
@@ -26,7 +32,7 @@ public class ClassSandboxPanel extends JPanel {
         this.listWidget = new ListWidget<>(s -> s);
         this.labels = new JLabel[names.size()];
 
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setFocusable(true);
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -80,9 +86,9 @@ public class ClassSandboxPanel extends JPanel {
         });
     }
 
-    private JLabel makeLabel(String text) {
+    private static JLabel makeLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setForeground(WidgetTheme.NORMAL_TEXT);
+        label.setForeground(WidgetTheme.normalText());
         label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
@@ -91,7 +97,7 @@ public class ClassSandboxPanel extends JPanel {
     private void refresh() {
         int selectedIndex = listWidget.getSelectedIndex();
         for (int i = 0; i < labels.length; i++) {
-            labels[i].setForeground(i == selectedIndex ? WidgetTheme.ACCENT : WidgetTheme.NORMAL_TEXT);
+            labels[i].setForeground(i == selectedIndex ? WidgetTheme.accent() : WidgetTheme.normalText());
         }
         Stats stats = model.computedStats(names.get(selectedIndex));
         statsLabel.setText(String.format(
