@@ -27,7 +27,7 @@ public final class WidgetTheme {
             Color tableHeaderText
     ) {}
 
-    private static final AtomicReference<Palette> palette = new AtomicReference<>(
+    private static final AtomicReference<Palette> PALETTE = new AtomicReference<>(
             new Palette(
                     Color.LIGHT_GRAY,
                     Color.BLACK,
@@ -53,55 +53,55 @@ public final class WidgetTheme {
 
     // Public static accessors for each color
     public static Color selectedHighlight() {
-        return palette.get().selectedHighlight;
+        return PALETTE.get().selectedHighlight;
     }
 
     public static Color selectedText() {
-        return palette.get().selectedText;
+        return PALETTE.get().selectedText;
     }
 
     public static Color normalText() {
-        return palette.get().normalText;
+        return PALETTE.get().normalText;
     }
 
     public static Color dimmedText() {
-        return palette.get().dimmedText;
+        return PALETTE.get().dimmedText;
     }
 
     public static Color background() {
-        return palette.get().background;
+        return PALETTE.get().background;
     }
 
     public static Color invalidHighlight() {
-        return palette.get().invalidHighlight;
+        return PALETTE.get().invalidHighlight;
     }
 
     public static Color validHighlight() {
-        return palette.get().validHighlight;
+        return PALETTE.get().validHighlight;
     }
 
     public static Color tableHeaderBackground() {
-        return palette.get().tableHeaderBackground;
+        return PALETTE.get().tableHeaderBackground;
     }
 
     public static Color border() {
-        return palette.get().border;
+        return PALETTE.get().border;
     }
 
     public static Color scrollbarThumb() {
-        return palette.get().scrollbarThumb;
+        return PALETTE.get().scrollbarThumb;
     }
 
     public static Color accent() {
-        return palette.get().accent;
+        return PALETTE.get().accent;
     }
 
     public static Color windowBorder() {
-        return palette.get().windowBorder;
+        return PALETTE.get().windowBorder;
     }
 
     public static Color tableHeaderText() {
-        return palette.get().tableHeaderText;
+        return PALETTE.get().tableHeaderText;
     }
 
     /**
@@ -110,7 +110,7 @@ public final class WidgetTheme {
      * {@code WidgetColorTheme.REQUIRED_KEYS} for the key set this reads.
      */
     public static void applyTheme(WidgetColorTheme theme) {
-        palette.set(new Palette(
+        PALETTE.set(new Palette(
                 theme.color("SELECTED_HIGHLIGHT"),
                 theme.color("SELECTED_TEXT"),
                 theme.color("NORMAL_TEXT"),

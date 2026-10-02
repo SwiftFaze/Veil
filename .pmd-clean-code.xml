@@ -179,16 +179,9 @@ force the reader to reconstruct meaning from use.
          repo already follows; PMD's constant pattern would rename it to LOGGER
          in every new file. Excluded by name rather than by loosening the
          constant pattern, so `Player.symbol` and friends are still flagged. -->
-    <!-- staticFieldPattern matches constantPattern: WidgetTheme's fields are
-         `public static Color` (not `final`) so applyTheme() can repopulate
-         them from a mod-loaded theme, but they are conceptually fixed named
-         color slots (each name mirrors a theme JSON key 1:1) - PMD's default
-         camelCase staticFieldPattern would rename e.g. NORMAL_TEXT to
-         normalText, breaking that 1:1 mapping for no benefit. -->
     <rule ref="category/java/codestyle.xml/FieldNamingConventions">
         <properties>
             <property name="constantPattern" value="[A-Z][A-Z_0-9]*|logger|log"/>
-            <property name="staticFieldPattern" value="[A-Z][A-Z_0-9]*"/>
         </properties>
     </rule>
     <!-- GenericsNaming is deliberately absent: PMD 7.17 reports it as
@@ -637,7 +630,7 @@ literal in an expression forces the reader to infer its meaning from context.
     <!-- Rules the issue's audit flagged CONFLICT against existing code,
          resolved ADD by the human on 2026-09-12 (intent doc Clarifications) -
          the conflicts they surface are impacts.md findings, not exclusions. -->
-    <!-- Previously excluded to accommodate WidgetTheme's mutable public static Color slots; now included per #215's governing principle. See impacts.md. -->
+    <!-- Previously excluded to accommodate WidgetTheme's mutable public static Color slots; now included per #215's governing principle. Those slots are gone since #219 (WidgetTheme reads an immutable palette through accessors). -->
     <rule ref="category/java/design.xml/MutableStaticState"/>
     <!-- Previously excluded; will flag pure entity/config holders with no behaviour. Now included per #215's governing principle. See impacts.md. -->
     <rule ref="category/java/design.xml/DataClass"/>
