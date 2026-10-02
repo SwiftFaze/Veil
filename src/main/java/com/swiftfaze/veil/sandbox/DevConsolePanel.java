@@ -34,7 +34,7 @@ import java.util.List;
  * refresh from mods/ and rebuilds the entry list. Escape returns from a detail panel to
  * the transcript.
  */
-public class DevConsolePanel extends JPanel {
+public final class DevConsolePanel extends JPanel {
 
     private static final String SEARCH_CARD = "search";
     private static final String PROVIDER_CARD = "provider";

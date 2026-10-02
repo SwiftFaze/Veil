@@ -107,16 +107,12 @@ public class CalcExpressionParser {
             if (currentToken == null) {
                 throw new IllegalArgumentException("Unexpected end of expression");
             }
-            if (currentToken.equals("-")) {
-                return parseNegation();
-            }
-            if (currentToken.equals("(")) {
-                return parseParenthesizedExpression();
-            }
-            if (currentToken.equals("level")) {
-                return parseLevel();
-            }
-            return parseNumber();
+            return switch (currentToken) {
+                case "-" -> parseNegation();
+                case "(" -> parseParenthesizedExpression();
+                case "level" -> parseLevel();
+                default -> parseNumber();
+            };
         }
 
         private double parseNegation() {
@@ -127,7 +123,7 @@ public class CalcExpressionParser {
         private double parseParenthesizedExpression() {
             currentToken = tokenizer.nextToken();
             double result = parseExpression();
-            if (!currentToken.equals(")")) {
+            if (!")".equals(currentToken)) {
                 throw new IllegalArgumentException("Expected ')'");
             }
             currentToken = tokenizer.nextToken();

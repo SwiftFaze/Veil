@@ -28,7 +28,7 @@ import java.util.function.Supplier;
  * recomputation of Attack Power/Defense as their underlying attributes change.
  * Also supports editing the running player's X and Y position rows.
  */
-public class PlayerDetailPanel extends JPanel {
+public final class PlayerDetailPanel extends JPanel {
 
     private static final int EDITABLE_CLASS = 0;
     private static final int EDITABLE_STRENGTH = 1;
@@ -100,7 +100,7 @@ public class PlayerDetailPanel extends JPanel {
 
     /**
      * Refreshes every row's displayed text from the live {@link Stats}/
-     * {@link PlayerInfo} object â€” for a caller that mutated those directly
+     * {@link PlayerInfo} object — for a caller that mutated those directly
      * (bypassing this panel's own arm/adjust interaction) and needs the
      * table's cached cell text to catch up, e.g. Cucumber step definitions
      * setting up a scenario's initial values.

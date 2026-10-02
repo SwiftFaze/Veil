@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 public abstract class Widget extends JPanel {
 
     public Widget() {
-        setBackground(WidgetTheme.background());
+        super.setBackground(WidgetTheme.background());
         setFocusable(true);
     }
 }

@@ -18,7 +18,7 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.Locale;
 
-public class ClassSandboxPanel extends JPanel {
+public final class ClassSandboxPanel extends JPanel {
 
     private final ClassSandboxModel model;
     private final List<String> names;
@@ -37,7 +37,7 @@ public class ClassSandboxPanel extends JPanel {
         setFocusable(true);
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        add(makeLabel("Class Sandbox â€” Up/Down to select"));
+        add(makeLabel("Class Sandbox — Up/Down to select"));
 
         for (int i = 0; i < names.size(); i++) {
             labels[i] = makeLabel(names.get(i));

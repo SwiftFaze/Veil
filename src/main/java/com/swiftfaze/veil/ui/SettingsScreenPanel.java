@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class SettingsScreenPanel extends JPanel implements HintAware {
+public final class SettingsScreenPanel extends JPanel implements HintAware {
     private static final Font ROW_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 16);
     private static final List<ControlsHintBarWidget.Hint> TAIL_HINTS =
             List.of(new ControlsHintBarWidget.Hint("enter", "Select"), new ControlsHintBarWidget.Hint("escape", "Back"));

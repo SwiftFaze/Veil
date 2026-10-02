@@ -70,12 +70,18 @@ public class ModLoaderSteps {
     }
 
     record BaseStatsFixture(Map<String, StatEntry> stats) {
+        BaseStatsFixture {
+            stats = Map.copyOf(stats);
+        }
     }
 
     record ObjectiveFixture(String type, String target, int count) {
     }
 
     record RewardsFixture(List<QuestRewardFixture> rewards) {
+        RewardsFixture {
+            rewards = List.copyOf(rewards);
+        }
     }
 
     record ItemLookFixture(char glyph, String type, String slot, int baseDamageMin, int baseDamageMax) {
@@ -1087,7 +1093,8 @@ public class ModLoaderSteps {
         for (TileFixture fixture : fixtures) {
             String json = tileJson(fixture.id(), fixture.symbol(), fixture.r(), fixture.g(), fixture.b(),
                     fixture.walkable(), fixture.overrides());
-            Files.writeString(tilesDir.resolve("tile_" + i++ + ".json"), json);
+            Files.writeString(tilesDir.resolve("tile_" + i + ".json"), json);
+            i++;
         }
     }
 
@@ -1136,7 +1143,8 @@ public class ModLoaderSteps {
                 building.addProperty("overrides", fixture.overrides());
             }
 
-            Files.writeString(buildingsDir.resolve("building_" + i++ + ".json"), building.toString());
+            Files.writeString(buildingsDir.resolve("building_" + i + ".json"), building.toString());
+            i++;
         }
     }
 
@@ -1150,7 +1158,8 @@ public class ModLoaderSteps {
         int i = 0;
         for (ClassFixture fixture : fixtures) {
             String json = classJson(fixture);
-            Files.writeString(classesDir.resolve("class_" + i++ + ".json"), json);
+            Files.writeString(classesDir.resolve("class_" + i + ".json"), json);
+            i++;
         }
     }
 
@@ -1188,7 +1197,8 @@ public class ModLoaderSteps {
 
         int i = 0;
         for (ItemFixture fixture : fixtures) {
-            Files.writeString(itemsDir.resolve("item_" + i++ + ".json"), itemJson(fixture));
+            Files.writeString(itemsDir.resolve("item_" + i + ".json"), itemJson(fixture));
+            i++;
         }
     }
 
@@ -1200,21 +1210,10 @@ public class ModLoaderSteps {
         item.addProperty("type", fixture.type() != null ? fixture.type() : "misc");
         item.addProperty("slot", fixture.slot() != null ? fixture.slot() : "none");
 
-        JsonObject baseDamage = new JsonObject();
-        baseDamage.addProperty("min", fixture.baseDamageMin() != null ? fixture.baseDamageMin() : 0);
-        baseDamage.addProperty("max", fixture.baseDamageMax() != null ? fixture.baseDamageMax() : 0);
-        item.add("baseDamage", baseDamage);
+        item.add("baseDamage", baseDamageJson(fixture));
 
         if (fixture.effects() != null && !fixture.effects().isEmpty()) {
-            JsonArray effects = new JsonArray();
-            for (ItemEffectFixture effect : fixture.effects()) {
-                JsonObject effectObj = new JsonObject();
-                effectObj.addProperty("type", effect.type());
-                effectObj.addProperty("stat", effect.stat());
-                effectObj.addProperty("calc", effect.calc());
-                effects.add(effectObj);
-            }
-            item.add("effects", effects);
+            item.add("effects", effectsJson(fixture.effects()));
         }
 
         if (fixture.overrides() != null) {
@@ -1222,6 +1221,25 @@ public class ModLoaderSteps {
         }
 
         return item.toString();
+    }
+
+    private static JsonObject baseDamageJson(ItemFixture fixture) {
+        JsonObject baseDamage = new JsonObject();
+        baseDamage.addProperty("min", fixture.baseDamageMin() != null ? fixture.baseDamageMin() : 0);
+        baseDamage.addProperty("max", fixture.baseDamageMax() != null ? fixture.baseDamageMax() : 0);
+        return baseDamage;
+    }
+
+    private static JsonArray effectsJson(List<ItemEffectFixture> fixtureEffects) {
+        JsonArray effects = new JsonArray();
+        for (ItemEffectFixture effect : fixtureEffects) {
+            JsonObject effectObj = new JsonObject();
+            effectObj.addProperty("type", effect.type());
+            effectObj.addProperty("stat", effect.stat());
+            effectObj.addProperty("calc", effect.calc());
+            effects.add(effectObj);
+        }
+        return effects;
     }
 
     private static void writeQuests(Path modDir, List<QuestFixture> fixtures) throws IOException {
@@ -1233,7 +1251,8 @@ public class ModLoaderSteps {
 
         int i = 0;
         for (QuestFixture fixture : fixtures) {
-            Files.writeString(questsDir.resolve("quest_" + i++ + ".json"), questJson(fixture));
+            Files.writeString(questsDir.resolve("quest_" + i + ".json"), questJson(fixture));
+            i++;
         }
     }
 
@@ -1253,22 +1272,7 @@ public class ModLoaderSteps {
         quest.add("objective", objective);
 
         if (fixture.rewards() != null && !fixture.rewards().isEmpty()) {
-            JsonArray rewards = new JsonArray();
-            for (QuestRewardFixture reward : fixture.rewards()) {
-                JsonObject rewardObj = new JsonObject();
-                rewardObj.addProperty("type", reward.type());
-                if (reward.itemId() != null) {
-                    rewardObj.addProperty("id", reward.itemId());
-                }
-                if (reward.count() != null) {
-                    rewardObj.addProperty("count", reward.count());
-                }
-                if (reward.calc() != null) {
-                    rewardObj.addProperty("calc", reward.calc());
-                }
-                rewards.add(rewardObj);
-            }
-            quest.add("rewards", rewards);
+            quest.add("rewards", rewardsJson(fixture.rewards()));
         }
 
         if (fixture.overrides() != null) {
@@ -1276,6 +1280,25 @@ public class ModLoaderSteps {
         }
 
         return quest.toString();
+    }
+
+    private static JsonArray rewardsJson(List<QuestRewardFixture> fixtureRewards) {
+        JsonArray rewards = new JsonArray();
+        for (QuestRewardFixture reward : fixtureRewards) {
+            JsonObject rewardObj = new JsonObject();
+            rewardObj.addProperty("type", reward.type());
+            if (reward.itemId() != null) {
+                rewardObj.addProperty("id", reward.itemId());
+            }
+            if (reward.count() != null) {
+                rewardObj.addProperty("count", reward.count());
+            }
+            if (reward.calc() != null) {
+                rewardObj.addProperty("calc", reward.calc());
+            }
+            rewards.add(rewardObj);
+        }
+        return rewards;
     }
 
     private static void writeThemes(Path modDir, List<ThemeFixture> fixtures) throws IOException {
@@ -1287,7 +1310,8 @@ public class ModLoaderSteps {
 
         int i = 0;
         for (ThemeFixture fixture : fixtures) {
-            Files.writeString(themesDir.resolve("theme_" + i++ + ".json"), themeJson(fixture));
+            Files.writeString(themesDir.resolve("theme_" + i + ".json"), themeJson(fixture));
+            i++;
         }
     }
 

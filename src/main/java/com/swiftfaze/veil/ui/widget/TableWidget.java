@@ -30,7 +30,7 @@ import java.util.function.Function;
  * terminal-rendered markdown table), an optional header row, and an optional
  * non-selectable mode for purely static/display data.
  */
-public class TableWidget<T> extends Widget {
+public final class TableWidget<T> extends Widget {
     private final List<String> columnHeaders;
     private final List<Function<T, String>> columnRenderers;
     private final List<T> rows = new ArrayList<>();
@@ -86,7 +86,7 @@ public class TableWidget<T> extends Widget {
 
     /**
      * A non-selectable table renders every cell in NORMAL_TEXT, with no row-highlight
-     * indication â€” for a table that isn't currently the keyboard-navigation target (either
+     * indication — for a table that isn't currently the keyboard-navigation target (either
      * purely static data, or momentarily not the active pane in a multi-table details view).
      */
     public void setSelectable(boolean selectable) {
@@ -306,7 +306,7 @@ public class TableWidget<T> extends Widget {
         for (String text : cellText) {
             rowPanel.add(buildCellLabel(text, isHeader));
         }
-        // Computed after the cells are added â€” an empty panel's preferred height is ~0, which
+        // Computed after the cells are added — an empty panel's preferred height is ~0, which
         // would otherwise clamp every row (including the header) to zero visible height.
         rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, rowPanel.getPreferredSize().height));
         return rowPanel;
@@ -364,12 +364,12 @@ public class TableWidget<T> extends Widget {
 
     /**
      * Paints an optional accent outline INSIDE the wrapped inner border's existing padding
-     * instead of adding new space for it â€” insets are always exactly the inner border's own
+     * instead of adding new space for it — insets are always exactly the inner border's own
      * insets, accented or not. An earlier version reserved extra thickness around every
      * cell so insets wouldn't change on selection, which did stop the whole table resizing
      * but shifted the inner border's grid lines inward by that same thickness, opening a
      * visible gap between adjacent rows/columns that used to sit flush. Drawing within the
-     * existing padding avoids both problems at once â€” nothing about the layout ever changes.
+     * existing padding avoids both problems at once — nothing about the layout ever changes.
      */
     private static class AccentableCellBorder extends AbstractBorder {
         private static final int OFFSET = 1;

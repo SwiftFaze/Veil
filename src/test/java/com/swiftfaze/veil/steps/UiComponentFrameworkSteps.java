@@ -4,17 +4,14 @@ import com.swiftfaze.veil.config.SettingsConfig;
 import com.swiftfaze.veil.config.SettingsRepository;
 import com.swiftfaze.veil.config.SettingsStore;
 import com.swiftfaze.veil.entities.items.Item;
-import com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel;
 import com.swiftfaze.veil.ui.CodexPanel;
 import com.swiftfaze.veil.ui.InventoryPanel;
-import com.swiftfaze.veil.ui.ResetConfirmationPopup;
 import com.swiftfaze.veil.ui.SettingsKeybindsPanel;
 import com.swiftfaze.veil.ui.SettingsScreenPanel;
 import com.swiftfaze.veil.ui.TitleScreenPanel;
 import com.swiftfaze.veil.ui.widget.ButtonWidget;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
 import com.swiftfaze.veil.ui.widget.ListWidget;
-import com.swiftfaze.veil.ui.widget.PopupWidget;
 import com.swiftfaze.veil.ui.widget.RadioGroupWidget;
 import com.swiftfaze.veil.ui.widget.SliderWidget;
 import com.swiftfaze.veil.ui.widget.TableWidget;
@@ -23,6 +20,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import javax.swing.Action;
+import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,14 +43,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * deliberately rather than reintroducing a reset hook.
  */
 public class UiComponentFrameworkSteps {
-
-    public UiComponentFrameworkSteps() {
-        SharedScenarioContext.setUiSteps(this);
-    }
-
-    ControlsHintBarWidget getHintBar() {
-        return hintBar;
-    }
 
     private ListWidget<String> listWidget;
     private ButtonWidget buttonWidget;
@@ -89,6 +79,15 @@ public class UiComponentFrameworkSteps {
     private SettingsStore settingsStore;
     private String lastWindowMode;
     private SettingsConfig loadedConfig;
+
+    public UiComponentFrameworkSteps() {
+        SharedScenarioContext.setUiSteps(this);
+    }
+
+    ControlsHintBarWidget getHintBar() {
+        return hintBar;
+    }
+
 
     @Given("a list widget with items {string}, {string}, {string} and {string} selected")
     public void aListWidgetWithItems(String first, String second, String third, String selected) {
@@ -145,9 +144,9 @@ public class UiComponentFrameworkSteps {
         } else if (keybindsPanel != null) {
             keybindsPanel.moveUp();
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
-            firePopupAction(inventoryPanel, "popup-up");
+            fireAction(inventoryPanel, "popup-up");
         } else if (codexPanel != null && codexPanel.isVisible()) {
-            firePopupAction(codexPanel, "popup-up");
+            fireAction(codexPanel, "popup-up");
         } else if (settingsScreenPanel != null) {
             settingsScreenPanel.moveUp();
         } else if (titleScreenPanel != null) {
@@ -167,9 +166,9 @@ public class UiComponentFrameworkSteps {
         } else if (keybindsPanel != null) {
             keybindsPanel.moveDown();
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
-            firePopupAction(inventoryPanel, "popup-down");
+            fireAction(inventoryPanel, "popup-down");
         } else if (codexPanel != null && codexPanel.isVisible()) {
-            firePopupAction(codexPanel, "popup-down");
+            fireAction(codexPanel, "popup-down");
         } else if (settingsScreenPanel != null) {
             settingsScreenPanel.moveDown();
         } else if (titleScreenPanel != null) {
@@ -189,9 +188,9 @@ public class UiComponentFrameworkSteps {
         } else if (confirmationPopupIsOpen()) {
             fireResetChoiceAction("radio-left");
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
-            firePopupAction(inventoryPanel, "popup-left");
+            fireAction(inventoryPanel, "popup-left");
         } else if (codexPanel != null && codexPanel.isVisible()) {
-            firePopupAction(codexPanel, "popup-left");
+            fireAction(codexPanel, "popup-left");
         } else if (settingsScreenPanel != null) {
             settingsScreenPanel.moveLeft();
         } else if (sliderWidget != null) {
@@ -209,9 +208,9 @@ public class UiComponentFrameworkSteps {
         } else if (confirmationPopupIsOpen()) {
             fireResetChoiceAction("radio-right");
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
-            firePopupAction(inventoryPanel, "popup-right");
+            fireAction(inventoryPanel, "popup-right");
         } else if (codexPanel != null && codexPanel.isVisible()) {
-            firePopupAction(codexPanel, "popup-right");
+            fireAction(codexPanel, "popup-right");
         } else if (settingsScreenPanel != null) {
             settingsScreenPanel.moveRight();
         } else if (sliderWidget != null) {
@@ -225,9 +224,9 @@ public class UiComponentFrameworkSteps {
 
     private void fireEnterKey() {
         if (keybindsPanel != null && keybindsPanel.getDiscardConfirmationPopup().isVisible()) {
-            fireRadioGroupAction(keybindsPanel.getDiscardConfirmationPopup().getChoiceWidget(), "radio-confirm");
+            fireAction(keybindsPanel.getDiscardConfirmationPopup().getChoiceWidget(), "radio-confirm");
         } else if (keybindsPanel != null && keybindsPanel.getResetConfirmationPopup().isVisible()) {
-            fireRadioGroupAction(keybindsPanel.getResetConfirmationPopup().getChoiceWidget(), "radio-confirm");
+            fireAction(keybindsPanel.getResetConfirmationPopup().getChoiceWidget(), "radio-confirm");
         } else if (keybindsPanel != null) {
             keybindsPanel.confirm();
         } else if (confirmationPopupIsOpen()) {
@@ -262,40 +261,26 @@ public class UiComponentFrameworkSteps {
 
     private void fireResetChoiceAction(String actionName) {
         RadioGroupWidget<String> choice = settingsScreenPanel.getResetConfirmationPopup().getChoiceWidget();
-        fireRadioGroupAction(choice, actionName);
+        fireAction(choice, actionName);
     }
 
-    private static void fireRadioGroupAction(RadioGroupWidget<String> widget, String actionName) {
-        Action action = widget.getActionMap().get(actionName);
+    private static void fireAction(JComponent component, String actionName) {
+        Action action = component.getActionMap().get(actionName);
         if (action != null) {
-            action.actionPerformed(new ActionEvent(widget, ActionEvent.ACTION_PERFORMED, actionName));
+            action.actionPerformed(new ActionEvent(component, ActionEvent.ACTION_PERFORMED, actionName));
         }
     }
 
     private static void firePreviewPanelKey(String actionName) {
-        KitchenSinkPreviewPanel panel = SharedScenarioContext.getKitchenSinkPreviewPanel();
+        JComponent panel = SharedScenarioContext.getKitchenSinkPreviewPanel();
         if (panel == null) {
             return;
         }
-        Action action = panel.getActionMap().get(actionName);
-        if (action != null) {
-            action.actionPerformed(new ActionEvent(panel, ActionEvent.ACTION_PERFORMED, actionName));
-        }
+        fireAction(panel, actionName);
     }
 
     private void fireResetAction(String actionName) {
-        ResetConfirmationPopup popup = settingsScreenPanel.getResetConfirmationPopup();
-        Action action = popup.getActionMap().get(actionName);
-        if (action != null) {
-            action.actionPerformed(new ActionEvent(popup, ActionEvent.ACTION_PERFORMED, actionName));
-        }
-    }
-
-    private static void firePopupAction(PopupWidget popup, String actionName) {
-        Action action = popup.getActionMap().get(actionName);
-        if (action != null) {
-            action.actionPerformed(new ActionEvent(popup, ActionEvent.ACTION_PERFORMED, actionName));
-        }
+        fireAction(settingsScreenPanel.getResetConfirmationPopup(), actionName);
     }
 
     private void fireToggleInventoryKey() {
@@ -316,9 +301,9 @@ public class UiComponentFrameworkSteps {
         } else if (confirmationPopupIsOpen()) {
             fireResetAction("popup-dismiss");
         } else if (inventoryPanel != null && inventoryPanel.isVisible()) {
-            firePopupAction(inventoryPanel, "popup-dismiss");
+            fireAction(inventoryPanel, "popup-dismiss");
         } else if (codexPanel != null && codexPanel.isVisible()) {
-            firePopupAction(codexPanel, "popup-dismiss");
+            fireAction(codexPanel, "popup-dismiss");
         } else if (settingsScreenPanel != null) {
             settingsScreenPanel.back();
         }
@@ -1039,7 +1024,7 @@ public class UiComponentFrameworkSteps {
         RadioGroupWidget<String> choice = keybindsPanel.getDiscardConfirmationPopup().getChoiceWidget();
         int guard = 0;
         while (!option.equals(choice.getHighlightedOption()) && guard < 10) {
-            fireRadioGroupAction(choice, "radio-left");
+            fireAction(choice, "radio-left");
             guard++;
         }
         assertEquals(option, choice.getHighlightedOption());
@@ -1060,7 +1045,7 @@ public class UiComponentFrameworkSteps {
         RadioGroupWidget<String> choice = keybindsPanel.getResetConfirmationPopup().getChoiceWidget();
         int guard = 0;
         while (!option.equals(choice.getHighlightedOption()) && guard < 10) {
-            fireRadioGroupAction(choice, "radio-right");
+            fireAction(choice, "radio-right");
             guard++;
         }
         assertEquals(option, choice.getHighlightedOption());

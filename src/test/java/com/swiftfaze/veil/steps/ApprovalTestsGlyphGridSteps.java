@@ -39,6 +39,7 @@ public class ApprovalTestsGlyphGridSteps {
     private List<PositionedGlyph> entities;
     private String scenarioName;
     private boolean shouldFail;
+    private Path scenario3TempDir;
 
     private List<String> renderScene() {
         Camera camera = SharedScenarioContext.getCamera();
@@ -147,14 +148,18 @@ public class ApprovalTestsGlyphGridSteps {
             if (!errorMsg.contains("Approved:") || !errorMsg.contains("Received:")) {
                 throw new AssertionError("Error message should show both approved and received grids", e);
             }
-            // Clean up the .received.txt file created by the failing approval check
-            try {
-                Files.deleteIfExists(
-                    Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt")
-                );
-            } catch (IOException ioe) {
-                throw new UncheckedIOException("Failed to clean up test fixture", ioe);
-            }
+            deleteReceivedFile();
+        }
+    }
+
+    // Clean up the .received.txt file created by the failing approval check
+    private void deleteReceivedFile() {
+        try {
+            Files.deleteIfExists(
+                Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt")
+            );
+        } catch (IOException ioe) {
+            throw new UncheckedIOException("Failed to clean up test fixture", ioe);
         }
     }
 
@@ -179,8 +184,6 @@ public class ApprovalTestsGlyphGridSteps {
     }
 
     // Scenario 3: Re-approving a changed fixture is one explicit command, never automatic
-    private Path scenario3TempDir;
-
     @Given("a <scenario-name>.received.txt file exists next to an approved fixture because the two differ")
     public void aReceivedFileExists() throws IOException {
         scenario3TempDir = Files.createTempDirectory("approval-test-reapprove");
@@ -338,7 +341,7 @@ public class ApprovalTestsGlyphGridSteps {
     private static String gridToString(List<String> grid) {
         StringBuilder sb = new StringBuilder();
         for (String row : grid) {
-            sb.append(row).append("\n");
+            sb.append(row).append('\n');
         }
         return sb.toString();
     }

@@ -25,7 +25,7 @@ import java.util.function.Function;
 
 public class RadioGroupWidget<T> extends Widget {
     // Same "bottom border by default, full outline once committed" pattern as PatternFieldWidget
-    // (there: unfocused/focused; here: unconfirmed/confirmed) â€” but unlike that widget, these
+    // (there: unfocused/focused; here: unconfirmed/confirmed) — but unlike that widget, these
     // labels get a *fixed* width (see the vertical-alignment block in refresh() below), so the
     // two states must reserve identical insets regardless of what they actually paint - a plain
     // line border (4 sides) vs. a matte border (bottom only) don't, which visibly shifted the
@@ -77,7 +77,7 @@ public class RadioGroupWidget<T> extends Widget {
 
     /**
      * Re-highlights the first option and clears any confirmed selection, without discarding the
-     * option list â€” for a popup that reopens with the same fixed options each time (e.g. a
+     * option list — for a popup that reopens with the same fixed options each time (e.g. a
      * Yes/No confirmation) and shouldn't carry over the previous confirmation's green outline or
      * highlight into the next time it's shown.
      */
@@ -107,7 +107,7 @@ public class RadioGroupWidget<T> extends Widget {
     }
 
     /**
-     * Sets both the highlighted and selected option to the same index â€” for restoring a
+     * Sets both the highlighted and selected option to the same index — for restoring a
      * previously-confirmed choice (e.g. loaded from a settings file) as the initial display.
      * selectOption() alone only marks an option confirmed without moving the highlight/display
      * cursor to it, so a non-default restored value would be selected internally but still show
@@ -127,8 +127,8 @@ public class RadioGroupWidget<T> extends Widget {
 
     /**
      * Without this, the group's maximumSize defaults to unbounded (no child label sets one for
-     * the horizontal case), so a vertical BoxLayout parent â€” e.g. a compact popup's content pane
-     * â€” stretches it to the parent's full width and packs the options against the left edge
+     * the horizontal case), so a vertical BoxLayout parent — e.g. a compact popup's content pane
+     * — stretches it to the parent's full width and packs the options against the left edge
      * instead of leaving room for the parent's own alignmentX to center them. A fillWidth group
      * is the deliberate exception: it's supposed to stretch to the parent's width, just evenly
      * split across options (see refresh()) rather than packed at one edge.
@@ -271,7 +271,7 @@ public class RadioGroupWidget<T> extends Widget {
             JLabel label = labels.get(i);
             WidgetTheme.applySelection(label, i == highlightedIndex);
             // The confirmed option (Enter pressed) gets a green border distinct from the
-            // highlighted/cursor background above â€” they can be different options at once (you've
+            // highlighted/cursor background above — they can be different options at once (you've
             // confirmed one, then arrowed elsewhere without confirming again).
             Border outline = i == selectedIndex ? CONFIRMED_BORDER : UNCONFIRMED_BORDER;
             label.setBorder(BorderFactory.createCompoundBorder(outline, BorderFactory.createEmptyBorder(2, 4, 2, 4)));
@@ -283,7 +283,7 @@ public class RadioGroupWidget<T> extends Widget {
 
     /**
      * Always reserves the same 2px insets on every side, whether it's currently painting a full
-     * outline (confirmed) or just the bottom edge (unconfirmed) â€” see the field comment above on
+     * outline (confirmed) or just the bottom edge (unconfirmed) — see the field comment above on
      * why the insets can't be allowed to differ between the two states here.
      */
     private static class RadioOptionBorder extends AbstractBorder {

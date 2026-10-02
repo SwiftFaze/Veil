@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class TitleScreenPanel extends JPanel implements HintAware {
+public final class TitleScreenPanel extends JPanel implements HintAware {
     private static final Logger logger = LoggerFactory.getLogger(TitleScreenPanel.class);
     private static final List<ControlsHintBarWidget.Hint> HINTS = List.of(new ControlsHintBarWidget.Hint("enter", "Select"));
 

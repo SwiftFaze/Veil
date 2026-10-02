@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class SettingsKeybindsPanel extends JPanel implements HintAware {
+public final class SettingsKeybindsPanel extends JPanel implements HintAware {
     private static final Font ROW_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 16);
     private static final List<String> FOOTER_ACTIONS = List.of("Go back", "Reset to Defaults", "Cancel", "Apply");
     private static final List<ControlsHintBarWidget.Hint> TABLE_HINTS =

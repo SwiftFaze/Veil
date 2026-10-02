@@ -497,13 +497,11 @@ public final class ModLoader {
     private static Quest.Reward readQuestReward(JsonObject rewardObj, String questId, Path file,
                                                   Map<String, Item> itemsById) {
         String type = rewardObj.get("type").getAsString();
-        if ("item".equals(type)) {
-            return parseItemReward(rewardObj, questId, file, itemsById);
-        }
-        if ("xp".equals(type)) {
-            return parseXpReward(rewardObj, questId, file);
-        }
-        throw new ModLoadException("Quest '" + questId + "' has unsupported reward type '" + type + "' in file: " + file);
+        return switch (type) {
+            case "item" -> parseItemReward(rewardObj, questId, file, itemsById);
+            case "xp" -> parseXpReward(rewardObj, questId, file);
+            default -> throw new ModLoadException("Quest '" + questId + "' has unsupported reward type '" + type + "' in file: " + file);
+        };
     }
 
     private static Quest.Reward parseItemReward(JsonObject rewardObj, String questId, Path file, Map<String, Item> itemsById) {

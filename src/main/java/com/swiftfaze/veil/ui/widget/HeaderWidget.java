@@ -8,7 +8,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 
 /**
- * A bordered, full-width title bar â€” for a screen that needs a heading (e.g.
+ * A bordered, full-width title bar — for a screen that needs a heading (e.g.
  * "Mage" atop a detail view) styled consistently with the rest of the widget
  * framework rather than a bare {@link JLabel}.
  */

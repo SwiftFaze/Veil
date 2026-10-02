@@ -2,9 +2,7 @@ package com.swiftfaze.veil.ui.widget;
 
 import org.jspecify.annotations.Nullable;
 import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
-import javax.swing.InputMap;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.Border;
@@ -44,17 +42,17 @@ import java.util.regex.Pattern;
  * rather than a hand-rolled StringBuilder + KeyListener, so cursor placement,
  * Left/Right movement, Home/End, Ctrl+A select-all, click-to-position, and
  * selection-replace-on-type all come from Swing's own well-tested text
- * component for free â€” a {@link DocumentFilter} is the only custom piece,
+ * component for free — a {@link DocumentFilter} is the only custom piece,
  * restricting what characters can actually land in the field.
  */
 public class PatternFieldWidget extends Widget {
     private static final int UNFOCUSED_BORDER_WIDTH = 1;
     // Swing line/matte borders only take integer pixel widths, so 1px is as thin as either state
-    // can get â€” focus is conveyed by the outline shape (full box vs. bottom-only) and color, not
+    // can get — focus is conveyed by the outline shape (full box vs. bottom-only) and color, not
     // by extra thickness.
     private static final int FOCUSED_BORDER_WIDTH = 1;
     private static final Font LABEL_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 12);
-    // Fixed and generous, not derived from any child's own metrics â€” border width and whether a
+    // Fixed and generous, not derived from any child's own metrics — border width and whether a
     // TitledBorder's reserved label space is present both vary with state, and a tightly-computed
     // height left no slack for that, squeezing the content label's area toward zero.
     private static final int FIELD_HEIGHT = 40;
@@ -105,7 +103,7 @@ public class PatternFieldWidget extends Widget {
         add(textField, BorderLayout.CENTER);
         updateAppearance();
 
-        // Stretches to fill whatever width its container offers â€” matches every other widget's
+        // Stretches to fill whatever width its container offers — matches every other widget's
         // "full width" treatment (ListWidget's rows, TableWidget's row panels).
         int height = fieldLabel != null ? LABELED_FIELD_HEIGHT : FIELD_HEIGHT;
         setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
@@ -140,7 +138,7 @@ public class PatternFieldWidget extends Widget {
 
     /**
      * Gray hint text shown in place of the real value while the field is empty (e.g.
-     * "Search by name, category, or mod...") â€” cleared automatically the moment any real
+     * "Search by name, category, or mod...") — cleared automatically the moment any real
      * input is typed, same as a browser's native placeholder.
      */
     public void setPlaceholder(String placeholder) {
@@ -149,7 +147,7 @@ public class PatternFieldWidget extends Widget {
     }
 
     /**
-     * Disables the red/green valid/invalid border and text coloring â€” for a consumer reusing
+     * Disables the red/green valid/invalid border and text coloring — for a consumer reusing
      * this widget's outlined-field look for free-text input that has no pattern to validate
      * against (e.g. a search box), where "invalid" has no meaning. Enabled by default.
      */
@@ -163,7 +161,7 @@ public class PatternFieldWidget extends Widget {
     }
 
     /**
-     * Inserts at the current cursor position, replacing any active selection â€” same as real
+     * Inserts at the current cursor position, replacing any active selection — same as real
      * typing. Existing callers that type into a fresh/empty field (the common case) see the same
      * append-at-the-end result as before, since the cursor naturally sits at the end there.
      */
@@ -177,7 +175,7 @@ public class PatternFieldWidget extends Widget {
     }
 
     /**
-     * Deletes the selection if one is active, else the character immediately before the cursor â€”
+     * Deletes the selection if one is active, else the character immediately before the cursor —
      * same as a real Backspace press. Called "deleteLastCharacter" for its original meaning
      * (nothing had moved the cursor away from the end, so backspace-at-cursor and delete-the-
      * actual-last-character were the same operation); now that the cursor can move, it deletes at
@@ -203,7 +201,7 @@ public class PatternFieldWidget extends Widget {
 
     private static boolean isAppendable(char c) {
         // Enter (\n, \r) satisfies Character.isWhitespace() just like a space does, so without
-        // this exclusion it could be inserted as a literal newline â€” a character no single-line
+        // this exclusion it could be inserted as a literal newline — a character no single-line
         // pattern ever matches. Real Enter presses never reach here (see bindEnterToNextField),
         // but the filter guards direct/programmatic insertion too.
         if (c == '\n' || c == '\r') {
@@ -217,12 +215,10 @@ public class PatternFieldWidget extends Widget {
     }
 
     private void bindEnterToNextField() {
-        InputMap inputMap = textField.getInputMap(WHEN_FOCUSED);
-        ActionMap actionMap = textField.getActionMap();
         // Enter moves to the next field, like Tab, rather than JTextField's default (fire an
         // ActionEvent, no focus change) - standard single-line-field behavior.
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "next-field");
-        actionMap.put("next-field", new AbstractAction() {
+        textField.getInputMap(WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "next-field");
+        textField.getActionMap().put("next-field", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) { textField.transferFocus(); }
         });
@@ -244,7 +240,7 @@ public class PatternFieldWidget extends Widget {
 
     private Border buildBorder(Color color) {
         // Unfocused: bottom line only. Focused: full outline. TitledBorder reserves the same
-        // label space either way, but only visibly "breaks" a line that's actually drawn there â€”
+        // label space either way, but only visibly "breaks" a line that's actually drawn there —
         // so the label just floats above the field when unfocused (no top line to interrupt),
         // and sits on the top edge, breaking it, once focused. Exactly the Material "outlined
         // field" look, with no custom border-painting/gap-cutting logic needed.
@@ -261,7 +257,7 @@ public class PatternFieldWidget extends Widget {
 
     /**
      * A plain {@link JTextField} that also paints gray placeholder text over itself while
-     * empty â€” a minimal override rather than a separate overlaid label, since a label would
+     * empty — a minimal override rather than a separate overlaid label, since a label would
      * need its own positioning kept in sync with the field's insets/font.
      */
     private class PlaceholderTextField extends JTextField {
@@ -282,7 +278,7 @@ public class PatternFieldWidget extends Widget {
 
     /**
      * A solid block cursor (like a terminal/console) instead of Swing's default thin vertical
-     * line â€” a different paint shape, otherwise using {@link DefaultCaret}'s own blink-timer
+     * line — a different paint shape, otherwise using {@link DefaultCaret}'s own blink-timer
      * machinery as-is.
      */
     private static class BlockCaret extends DefaultCaret {
@@ -317,7 +313,7 @@ public class PatternFieldWidget extends Widget {
                 g.fillRect(x, y, charWidth, (int) caretBounds.getHeight());
 
                 // A solid block would otherwise paint straight over whatever character sits at
-                // the cursor position â€” redraw it on top, in the field's background color, so it
+                // the cursor position — redraw it on top, in the field's background color, so it
                 // stays readable against the block (the usual terminal-cursor "invert" look).
                 if (dot < component.getDocument().getLength()) {
                     String charUnderCursor = component.getDocument().getText(dot, 1);
@@ -345,7 +341,7 @@ public class PatternFieldWidget extends Widget {
         }
     }
 
-    private static class AllowedCharacterFilter extends DocumentFilter {
+    private static final class AllowedCharacterFilter extends DocumentFilter {
         @Override
         public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
                 throws BadLocationException {

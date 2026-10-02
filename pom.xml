@@ -1,4 +1,4 @@
-﻿<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.swiftfaze</groupId>
     <artifactId>Veil</artifactId>
@@ -183,7 +183,7 @@
                  mismatches, mutable statics, reference-equality on boxed types. NullAway enforces
                  non-null-by-default on every @NullMarked package (see docs/testing-quality-gates.md for
                  full rationale and how to extend coverage). This machine runs Maven on JDK 24, newer than
-                 the project's JDK 17 compile target, which is OK â€” the jdk.compiler internal packages
+                 the project's JDK 17 compile target, which is OK — the jdk.compiler internal packages
                  these flags reach into have been stable since JDK 9. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -410,7 +410,7 @@
                     <!-- Same pure layout/wiring classes the PMD and JaCoCo exclusion
                          lists below carry, for the same reason: no branching logic to
                          mutate, so they would only report a wall of untested mutants.
-                         InventoryPanel is deliberately NOT here â€” JaCoCo excludes it but
+                         InventoryPanel is deliberately NOT here — JaCoCo excludes it but
                          it has real logic and a PIT target predating this list. -->
                     <excludedClasses>
                         <param>com.swiftfaze.veil.ui.widget.ButtonWidget</param>
@@ -572,7 +572,7 @@
                         <configuration>
                             <!-- Class-file globs excluded from the coverage ratio below. This must
                                  live here (the check goal's own top-level excludes), not as
-                                 <rule><excludes> with dotted FQNs â€” that form is silently a no-op
+                                 <rule><excludes> with dotted FQNs — that form is silently a no-op
                                  for an element=BUNDLE rule (verified: with only the FQN list, the
                                  check still failed at raw ~81% instead of the ~86% the exclusions
                                  should have produced). -->

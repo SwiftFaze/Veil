@@ -8,25 +8,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public final class WidgetTheme {
 
-    // Immutable record holding all 13 theme colors. The defaults below remain as fallback
-    // values so any widget built without ModLoader ever running (e.g. a unit test) still
-    // gets sane colors.
-    private record Palette(
-            Color selectedHighlight,
-            Color selectedText,
-            Color normalText,
-            Color dimmedText,
-            Color background,
-            Color invalidHighlight,
-            Color validHighlight,
-            Color tableHeaderBackground,
-            Color border,
-            Color scrollbarThumb,
-            Color accent,
-            Color windowBorder,
-            Color tableHeaderText
-    ) {}
-
     private static final AtomicReference<Palette> PALETTE = new AtomicReference<>(
             new Palette(
                     Color.LIGHT_GRAY,
@@ -50,6 +31,25 @@ public final class WidgetTheme {
     public static final Color WALKABLE_TINT = new Color(111, 207, 125, 80);
     public static final Color UNWALKABLE_TINT = new Color(224, 90, 78, 80);
     public static final Color PREVIEW_MARKER = Color.decode("#ef481f");
+
+    // Immutable record holding all 13 theme colors. The defaults in PALETTE above remain as fallback
+    // values so any widget built without ModLoader ever running (e.g. a unit test) still
+    // gets sane colors.
+    private record Palette(
+            Color selectedHighlight,
+            Color selectedText,
+            Color normalText,
+            Color dimmedText,
+            Color background,
+            Color invalidHighlight,
+            Color validHighlight,
+            Color tableHeaderBackground,
+            Color border,
+            Color scrollbarThumb,
+            Color accent,
+            Color windowBorder,
+            Color tableHeaderText
+    ) {}
 
     // Public static accessors for each color
     public static Color selectedHighlight() {

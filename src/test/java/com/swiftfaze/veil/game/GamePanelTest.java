@@ -9,6 +9,7 @@ import javax.swing.Action;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -24,8 +25,7 @@ class GamePanelTest {
     void constructorInitializes() {
         GamePanel panel = new GamePanel();
 
-        assertEquals(GameConst.DEFAULT_PLAYER_START_X, panel.getPlayer().getX());
-        assertEquals(GameConst.DEFAULT_PLAYER_START_Y, panel.getPlayer().getY());
+        assertPlayerAtDefaultStart(panel::getPlayer);
     }
 
     /**
@@ -126,8 +126,7 @@ class GamePanelTest {
 
         panel.resetState();
 
-        assertEquals(GameConst.DEFAULT_PLAYER_START_X, panel.getPlayer().getX());
-        assertEquals(GameConst.DEFAULT_PLAYER_START_Y, panel.getPlayer().getY());
+        assertPlayerAtDefaultStart(panel::getPlayer);
         assertFalse(panel.isPaused());
     }
 
@@ -162,6 +161,12 @@ class GamePanelTest {
         fireAction(panel, Keybindings.ACTION_TOGGLE_DEV_CONSOLE);
 
         assertTrue(listenerCalled[0]);
+    }
+
+    private static void assertPlayerAtDefaultStart(Supplier<Player> playerSource) {
+        Player player = playerSource.get();
+        assertEquals(GameConst.DEFAULT_PLAYER_START_X, player.getX());
+        assertEquals(GameConst.DEFAULT_PLAYER_START_Y, player.getY());
     }
 
     private static void fireAction(GamePanel panel, String actionName) {

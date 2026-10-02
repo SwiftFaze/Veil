@@ -1,12 +1,6 @@
 package com.swiftfaze.veil.steps;
 
 import org.jspecify.annotations.Nullable;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.filter.LevelFilter;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.AppenderBase;
-import ch.qos.logback.core.spi.FilterReply;
 import com.swiftfaze.veil.AppIcon;
 import com.swiftfaze.veil.AppVersion;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
@@ -14,7 +8,6 @@ import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.JLabel;
 import java.awt.Image;
@@ -173,7 +166,7 @@ public class AppIconAndVersionSteps {
 
     @Then("a warning about the missing version is logged")
     public void aWarningAboutTheMissingVersionIsLogged() {
-        assertTrue(warnsWhile(AppVersion.class, () -> new AppVersion(() -> null)),
+        assertTrue(WarnLogProbe.warnsWhile(AppVersion.class, () -> new AppVersion(() -> null)),
                 "Should have logged a WARN event");
     }
 
@@ -213,44 +206,7 @@ public class AppIconAndVersionSteps {
 
     @Then("a warning about the missing icon is logged")
     public void aWarningAboutTheMissingIconIsLogged() {
-        assertTrue(warnsWhile(AppIcon.class, () -> AppIcon.load(() -> null)),
+        assertTrue(WarnLogProbe.warnsWhile(AppIcon.class, () -> AppIcon.load(() -> null)),
                 "Should have logged a WARN event for missing icon");
-    }
-
-    /** Runs {@code action} and reports whether {@code source}'s logger emitted a WARN meanwhile. */
-    private static boolean warnsWhile(Class<?> source, Runnable action) {
-        Logger logger =
-                (Logger) LoggerFactory.getLogger(source);
-        WarnDetector detector = new WarnDetector();
-        detector.start();
-        logger.addAppender(detector);
-        try {
-            action.run();
-        } finally {
-            logger.detachAppender(detector);
-        }
-        return detector.sawWarning();
-    }
-
-    private static final class WarnDetector extends AppenderBase<ILoggingEvent> {
-        private boolean sawWarning;
-
-        WarnDetector() {
-            LevelFilter warnOnly = new LevelFilter();
-            warnOnly.setLevel(Level.WARN);
-            warnOnly.setOnMatch(FilterReply.ACCEPT);
-            warnOnly.setOnMismatch(FilterReply.DENY);
-            warnOnly.start();
-            addFilter(warnOnly);
-        }
-
-        @Override
-        protected void append(ILoggingEvent event) {
-            sawWarning = true;
-        }
-
-        boolean sawWarning() {
-            return sawWarning;
-        }
     }
 }

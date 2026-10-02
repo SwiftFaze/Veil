@@ -6,7 +6,6 @@ import com.swiftfaze.veil.component.Inspectable;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -19,10 +18,10 @@ import javax.swing.JScrollPane;
  * A shared details-pane widget that renders however many DetailTables an
  * Inspectable returns and routes Up/Down/Left/Right keyboard focus across them.
  * Replaces the hand-duplicated focus-routing logic in InventoryPanel and CodexPanel.
- * Package placement: com.swiftfaze.veil.ui (not .widget) â€” see ModuleDependencyTest
+ * Package placement: com.swiftfaze.veil.ui (not .widget) — see ModuleDependencyTest
  * for ArchUnit constraints.
  */
-public class DetailsPaneWidget extends JPanel {
+public final class DetailsPaneWidget extends JPanel {
 
     private final JPanel detailsPanel;
     private final JScrollPane detailsScrollPane;
@@ -148,7 +147,7 @@ public class DetailsPaneWidget extends JPanel {
         JLabel label = new JLabel(text);
         label.setForeground(WidgetTheme.normalText());
         label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
-        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        label.setAlignmentX(LEFT_ALIGNMENT);
         return label;
     }
 }

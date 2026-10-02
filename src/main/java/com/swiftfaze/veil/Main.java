@@ -164,7 +164,7 @@ public final class Main {
         return gamePanel;
     }
 
-    // Minimal stopgap wiring so the I/X toggles keep working with EastPanel gone â€” no
+    // Minimal stopgap wiring so the I/X toggles keep working with EastPanel gone — no
     // sidebar, no player-info display, just enough plumbing for the two popups to open/close/exclude
     // each other and hand focus back to the game on dismiss, same as EastPanel used to.
     private static void wirePopups(GamePanel gamePanel, PopupPanels popups, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
