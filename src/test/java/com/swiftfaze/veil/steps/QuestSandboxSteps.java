@@ -18,6 +18,7 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.datatable.DataTable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
@@ -186,8 +187,8 @@ public class QuestSandboxSteps {
         Assertions.assertTrue(found, "Expected to find the " + providerName + " provider (no entries in " + providerName + " category)");
     }
 
-    private void writeFixtureQuest(String questName, String objectiveType, String objectiveTarget,
-                                    Integer objectiveCount, List<JsonObject> rewards) throws IOException {
+    private void writeFixtureQuest(String questName, String objectiveType, @Nullable String objectiveTarget,
+                                    @Nullable Integer objectiveCount, List<JsonObject> rewards) throws IOException {
         Path coreDir = modsRoot.resolve("core");
         Files.createDirectories(coreDir.resolve("quests"));
 

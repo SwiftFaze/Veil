@@ -17,6 +17,7 @@ import io.cucumber.java.ParameterType;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.jspecify.annotations.Nullable;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -44,10 +45,10 @@ public class ModLoaderSteps {
     private record BuildingFixture(String id, String overrides, String explicitTileId) {
     }
 
-    record TileFixture(String id, char symbol, int r, int g, int b, boolean walkable, String overrides) {
+    record TileFixture(String id, char symbol, int r, int g, int b, boolean walkable, @Nullable String overrides) {
     }
 
-    record StatEntry(Integer base, String growthCalc) {
+    record StatEntry(@Nullable Integer base, @Nullable String growthCalc) {
     }
 
     private record ClassFixture(String id, String name, Map<String, StatEntry> stats, String overrides) {
@@ -61,7 +62,7 @@ public class ModLoaderSteps {
                                 List<ItemEffectFixture> effects, String overrides) {
     }
 
-    record QuestRewardFixture(String type, String itemId, Integer count, String calc) {
+    record QuestRewardFixture(String type, @Nullable String itemId, @Nullable Integer count, @Nullable String calc) {
     }
 
     private record QuestFixture(String id, String name, String objectiveType, String target, Integer count,
@@ -965,27 +966,27 @@ public class ModLoaderSteps {
         return getters.get(statName).apply(stats);
     }
 
-    private void addClass(String modId, String classId, String name, Map<String, StatEntry> stats, String overrides) {
+    private void addClass(String modId, String classId, String name, Map<String, StatEntry> stats, @Nullable String overrides) {
         dependsOnByMod.computeIfAbsent(modId, k -> new ArrayList<>());
         classesByMod.computeIfAbsent(modId, k -> new ArrayList<>())
                 .add(new ClassFixture(classId, name, stats, overrides));
     }
 
-    private void addItem(String modId, String itemId, String name, Character glyph, String type, String slot,
-                          Integer baseDamageMin, Integer baseDamageMax, List<ItemEffectFixture> effects, String overrides) {
+    private void addItem(String modId, String itemId, @Nullable String name, @Nullable Character glyph, @Nullable String type, @Nullable String slot,
+                          @Nullable Integer baseDamageMin, @Nullable Integer baseDamageMax, @Nullable List<ItemEffectFixture> effects, @Nullable String overrides) {
         dependsOnByMod.computeIfAbsent(modId, k -> new ArrayList<>());
         itemsByMod.computeIfAbsent(modId, k -> new ArrayList<>())
                 .add(new ItemFixture(itemId, name, glyph, type, slot, baseDamageMin, baseDamageMax, effects, overrides));
     }
 
-    private void addQuest(String modId, String questId, String name, String objectiveType, String target,
-                           Integer count, List<QuestRewardFixture> rewards, String overrides) {
+    private void addQuest(String modId, String questId, @Nullable String name, String objectiveType, String target,
+                           Integer count, List<QuestRewardFixture> rewards, @Nullable String overrides) {
         dependsOnByMod.computeIfAbsent(modId, k -> new ArrayList<>());
         questsByMod.computeIfAbsent(modId, k -> new ArrayList<>())
                 .add(new QuestFixture(questId, name, objectiveType, target, count, rewards, overrides));
     }
 
-    private void addBuilding(String modId, String buildingId, String overriddenId, String explicitTileId) {
+    private void addBuilding(String modId, String buildingId, @Nullable String overriddenId, @Nullable String explicitTileId) {
         dependsOnByMod.computeIfAbsent(modId, k -> new ArrayList<>());
         buildingsByMod.computeIfAbsent(modId, k -> new ArrayList<>())
                 .add(new BuildingFixture(buildingId, overriddenId, explicitTileId));
@@ -994,13 +995,13 @@ public class ModLoaderSteps {
         }
     }
 
-    private void addTile(String modId, String tileId, char symbol, int r, int g, int b, boolean walkable, String overrides) {
+    private void addTile(String modId, String tileId, char symbol, int r, int g, int b, boolean walkable, @Nullable String overrides) {
         dependsOnByMod.computeIfAbsent(modId, k -> new ArrayList<>());
         tilesByMod.computeIfAbsent(modId, k -> new ArrayList<>())
                 .add(new TileFixture(tileId, symbol, r, g, b, walkable, overrides));
     }
 
-    private void addTheme(String modId, String themeId, Map<String, ThemeColorFixture> colors, String overrides) {
+    private void addTheme(String modId, String themeId, Map<String, ThemeColorFixture> colors, @Nullable String overrides) {
         dependsOnByMod.computeIfAbsent(modId, k -> new ArrayList<>());
         themesByMod.computeIfAbsent(modId, k -> new ArrayList<>())
                 .add(new ThemeFixture(themeId, colors, overrides));
@@ -1090,7 +1091,7 @@ public class ModLoaderSteps {
         }
     }
 
-    private static String tileJson(String id, char symbol, int r, int g, int b, boolean walkable, String overrides) {
+    private static String tileJson(String id, char symbol, int r, int g, int b, boolean walkable, @Nullable String overrides) {
         JsonObject tile = new JsonObject();
         tile.addProperty("id", id);
         tile.addProperty("symbol", String.valueOf(symbol));
