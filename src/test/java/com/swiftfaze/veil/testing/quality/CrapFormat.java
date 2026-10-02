@@ -1,7 +1,7 @@
 package com.swiftfaze.veil.testing.quality;
 
 import java.math.BigDecimal;
-import java.util.Locale;
+import Locale;
 
 /** Locale-independent number formatting shared by the gate messages and output files. */
 final class CrapFormat {

@@ -1,7 +1,7 @@
 package com.swiftfaze.veil.steps;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.awt.Rectangle;
+import StandardCharsets;
+import Paths;
+import Rectangle;
 
 import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.testing.approval.ApprovalCheck;
@@ -18,8 +18,8 @@ import io.cucumber.java.en.And;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import Files;
+import Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -112,7 +112,7 @@ public class ApprovalTestsGlyphGridSteps {
 
     @And("no .received.txt file is written")
     public void noReceivedFileIsWritten() {
-        java.nio.file.Path receivedPath =
+        Path receivedPath =
             Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt");
         if (Files.exists(receivedPath)) {
             throw new AssertionError("Expected no .received.txt file, but found: " + receivedPath);
@@ -178,13 +178,13 @@ public class ApprovalTestsGlyphGridSteps {
     }
 
     // Scenario 3: Re-approving a changed fixture is one explicit command, never automatic
-    private java.nio.file.Path scenario3TempDir;
+    private Path scenario3TempDir;
 
     @Given("a <scenario-name>.received.txt file exists next to an approved fixture because the two differ")
     public void aReceivedFileExists() throws IOException {
         scenario3TempDir = Files.createTempDirectory("approval-test-reapprove");
-        java.nio.file.Path receivedFile = scenario3TempDir.resolve("fixture.received.txt");
-        java.nio.file.Path approvedFile = scenario3TempDir.resolve("fixture.approved.txt");
+        Path receivedFile = scenario3TempDir.resolve("fixture.received.txt");
+        Path approvedFile = scenario3TempDir.resolve("fixture.approved.txt");
 
         Files.writeString(approvedFile, "original\n", StandardCharsets.UTF_8);
         Files.writeString(receivedFile, "updated\n", StandardCharsets.UTF_8);
@@ -211,7 +211,7 @@ public class ApprovalTestsGlyphGridSteps {
 
     @And("the .received.txt file is removed")
     public void theReceivedFileIsRemoved() throws IOException {
-        java.nio.file.Path receivedFile = scenario3TempDir.resolve("fixture.received.txt");
+        Path receivedFile = scenario3TempDir.resolve("fixture.received.txt");
         if (Files.exists(receivedFile)) {
             throw new AssertionError("Received file should be deleted");
         }

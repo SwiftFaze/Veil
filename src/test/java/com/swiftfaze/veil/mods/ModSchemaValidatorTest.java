@@ -3,10 +3,10 @@ package com.swiftfaze.veil.mods;
 import com.google.gson.JsonParser;
 import com.swiftfaze.veil.exceptions.ModLoadException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Locale;
+import Files;
+import Path;
+import Paths;
+import Locale;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

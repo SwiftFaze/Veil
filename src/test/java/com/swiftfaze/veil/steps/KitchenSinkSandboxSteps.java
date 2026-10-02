@@ -1,7 +1,7 @@
 package com.swiftfaze.veil.steps;
 
 import org.jspecify.annotations.Nullable;
-import com.swiftfaze.veil.GameConst;
+import GameConst;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.sandbox.DevConsoleEntry;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
@@ -23,11 +23,11 @@ import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.nio.file.Paths;
+import Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
+import Locale;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -184,7 +184,7 @@ public class KitchenSinkSandboxSteps {
         Assertions.assertFalse(model.isOverlayOn(), "Overlay is still on");
         BufferedImage now = render();
         BufferedImage overlayOff = renderWithOverlay(false);
-        Assertions.assertEquals(WidgetTheme.BACKGROUND.getRGB(), now.getRGB(1, 1), "A cell is still tinted");
+        Assertions.assertEquals(WidgetTheme.background().getRGB(), now.getRGB(1, 1), "A cell is still tinted");
         Assertions.assertEquals(overlayOff.getRGB(1, 1), now.getRGB(1, 1));
     }
 
@@ -320,7 +320,7 @@ public class KitchenSinkSandboxSteps {
             for (int dx = 0; dx < GameConst.TILE_WIDTH; dx++) {
                 int pixelX = cellX * GameConst.TILE_WIDTH + dx;
                 int pixelY = cellY * GameConst.TILE_HEIGHT + dy;
-                if (image.getRGB(pixelX, pixelY) == WidgetTheme.BACKGROUND.getRGB()) {
+                if (image.getRGB(pixelX, pixelY) == WidgetTheme.background().getRGB()) {
                     return new Point(pixelX, pixelY);
                 }
             }

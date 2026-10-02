@@ -13,10 +13,10 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import java.awt.Color;
-import java.awt.Rectangle;
+import Rectangle;
 import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import Files;
+import Paths;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

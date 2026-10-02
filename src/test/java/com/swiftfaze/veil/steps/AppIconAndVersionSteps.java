@@ -20,9 +20,9 @@ import java.awt.Image;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import StandardCharsets;
+import Files;
+import Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
@@ -113,7 +113,7 @@ public class AppIconAndVersionSteps {
 
     @Then("the version label's color is the theme's dimmed text color")
     public void theVersionLabelColorIsTheThemesDimmedTextColor() {
-        assertEquals(WidgetTheme.DIMMED_TEXT, versionLabel().getForeground());
+        assertEquals(WidgetTheme.dimmedText(), versionLabel().getForeground());
     }
 
     @When("version.properties is read from the classpath")

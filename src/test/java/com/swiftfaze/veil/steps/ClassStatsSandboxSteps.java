@@ -14,8 +14,8 @@ import io.cucumber.java.en.When;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import Files;
+import Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;

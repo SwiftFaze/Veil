@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.List;
 

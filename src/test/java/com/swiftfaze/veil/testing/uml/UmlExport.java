@@ -6,8 +6,8 @@ import com.tngtech.archunit.core.importer.ImportOption;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import Files;
+import Path;
 import java.util.Collection;
 import java.util.function.Consumer;
 

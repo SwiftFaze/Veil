@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import Rectangle;
 import java.awt.image.BufferedImage;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

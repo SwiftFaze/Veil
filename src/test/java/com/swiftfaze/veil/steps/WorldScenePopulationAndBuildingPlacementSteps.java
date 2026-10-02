@@ -9,7 +9,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import java.awt.Color;
-import java.awt.Rectangle;
+import Rectangle;
 import java.util.List;
 import java.util.Map;
 

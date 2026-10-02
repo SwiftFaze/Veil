@@ -5,7 +5,7 @@ import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.nio.file.Path;
+import Path;
 import java.util.ArrayList;
 import java.util.List;
 

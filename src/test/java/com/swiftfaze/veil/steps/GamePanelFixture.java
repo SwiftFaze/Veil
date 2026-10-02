@@ -1,6 +1,6 @@
 package com.swiftfaze.veil.steps;
 
-import com.swiftfaze.veil.GameConst;
+import GameConst;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.GamePanel;
 import com.swiftfaze.veil.game.event.GameEventLog;
@@ -14,7 +14,7 @@ import com.swiftfaze.veil.world.TileTestScene2;
 import com.swiftfaze.veil.world.WorldScene;
 
 import java.awt.Color;
-import java.awt.Rectangle;
+import Rectangle;
 import java.awt.event.ActionEvent;
 
 /**

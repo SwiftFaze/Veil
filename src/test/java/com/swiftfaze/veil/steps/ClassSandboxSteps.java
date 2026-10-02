@@ -12,7 +12,7 @@ import javax.swing.Action;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.Locale;
+import Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

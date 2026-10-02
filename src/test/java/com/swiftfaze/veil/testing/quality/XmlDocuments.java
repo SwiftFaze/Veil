@@ -6,7 +6,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.nio.file.Path;
+import Path;
 
 /** DOM parsing without fetching external DTDs (jacoco.xml declares one). */
 final class XmlDocuments {

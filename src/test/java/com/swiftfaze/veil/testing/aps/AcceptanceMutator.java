@@ -4,8 +4,8 @@ import com.swiftfaze.veil.testing.aps.ScenarioRunner.RunResult;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import Files;
+import Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -12,7 +12,7 @@ import javax.swing.InputMap;
 import javax.swing.JComponent;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.nio.file.Paths;
+import Paths;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -99,7 +99,7 @@ class ItemDetailPanelTest {
 
     @Test
     void usesTheThemeBackground() {
-        assertEquals(WidgetTheme.BACKGROUND, ironSwordPanel().getBackground());
+        assertEquals(WidgetTheme.background(), ironSwordPanel().getBackground());
     }
 
     @Test

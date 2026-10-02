@@ -1,6 +1,6 @@
 package com.swiftfaze.veil.sandbox;
 
-import com.swiftfaze.veil.GameConst;
+import GameConst;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import com.swiftfaze.veil.world.KitchenSinkScene;
@@ -50,7 +50,7 @@ class KitchenSinkPreviewPanelTest {
     private static int tintedBackground(Color tint) {
         BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
-        g.setColor(WidgetTheme.BACKGROUND);
+        g.setColor(WidgetTheme.background());
         g.fillRect(0, 0, 1, 1);
         g.setColor(tint);
         g.fillRect(0, 0, 1, 1);
@@ -114,7 +114,7 @@ class KitchenSinkPreviewPanelTest {
 
         JLabel label = (JLabel) panel.getComponent(0);
 
-        assertEquals(WidgetTheme.NORMAL_TEXT, label.getForeground());
+        assertEquals(WidgetTheme.normalText(), label.getForeground());
         assertEquals(16, label.getFont().getSize());
     }
 
@@ -136,8 +136,8 @@ class KitchenSinkPreviewPanelTest {
 
         BufferedImage image = paint(panel, 12 * TILE, 4 * TILE);
 
-        assertEquals(WidgetTheme.BACKGROUND.getRGB(), image.getRGB(10 * TILE + 1, 1));
-        assertEquals(WidgetTheme.BACKGROUND.getRGB(), image.getRGB(1, 2 * TILE + 1));
+        assertEquals(WidgetTheme.background().getRGB(), image.getRGB(10 * TILE + 1, 1));
+        assertEquals(WidgetTheme.background().getRGB(), image.getRGB(1, 2 * TILE + 1));
     }
 
     @Test

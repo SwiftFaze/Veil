@@ -8,7 +8,7 @@ import com.swiftfaze.veil.world.Tile;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
-import java.nio.file.Paths;
+import Paths;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
