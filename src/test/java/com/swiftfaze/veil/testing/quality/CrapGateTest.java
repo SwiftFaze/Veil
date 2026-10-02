@@ -3,8 +3,8 @@ package com.swiftfaze.veil.testing.quality;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import Files;
-import Path;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 

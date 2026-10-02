@@ -5,7 +5,7 @@ import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.mods.ModRegistry;
 import org.junit.jupiter.api.Test;
 
-import Paths;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 

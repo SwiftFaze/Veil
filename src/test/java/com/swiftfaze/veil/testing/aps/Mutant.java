@@ -1,6 +1,6 @@
 package com.swiftfaze.veil.testing.aps;
 
-import Path;
+import java.nio.file.Path;
 
 /**
  * One change to one literal in a feature file.

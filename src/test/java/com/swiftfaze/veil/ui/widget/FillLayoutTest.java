@@ -3,7 +3,7 @@ package com.swiftfaze.veil.ui.widget;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.JPanel;
-import Rectangle;
+import java.awt.Rectangle;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

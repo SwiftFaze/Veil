@@ -3,11 +3,11 @@ package com.swiftfaze.veil.testing.qa;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import Files;
-import Path;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import Locale;
+import java.util.Locale;
 
 /**
  * Parses a {@code .keys} file: one key name per line ({@code ENTER}, {@code RIGHT},

@@ -54,8 +54,8 @@ class ControlsHintBarWidgetTest {
     @Test
     void versionLabelUsesDimmedTextOnTheBarBackground() {
         JLabel label = versionLabelOf(new ControlsHintBarWidget());
-        assertEquals(WidgetTheme.dimmedText(), label.getForeground());
-        assertEquals(WidgetTheme.background(), label.getBackground());
+        assertEquals(WidgetTheme.DIMMED_TEXT, label.getForeground());
+        assertEquals(WidgetTheme.BACKGROUND, label.getBackground());
         assertTrue(label.isOpaque());
     }
 
@@ -87,7 +87,7 @@ class ControlsHintBarWidgetTest {
         JPanel hintsPanel = hintsPanelOf(bar);
         assertEquals(0, hintsPanel.getX());
         assertEquals(versionLabelOf(bar).getX(), hintsPanel.getX() + hintsPanel.getWidth());
-        assertEquals(WidgetTheme.background(), hintsPanel.getBackground());
+        assertEquals(WidgetTheme.BACKGROUND, hintsPanel.getBackground());
     }
 
     private static ControlsHintBarWidget laidOutBar() {

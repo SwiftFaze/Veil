@@ -21,14 +21,14 @@ import io.cucumber.java.en.When;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import Files;
-import Path;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import Locale;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -574,19 +574,19 @@ public class ModLoaderSteps {
 
     private static Color widgetThemeColor(String key) {
         return switch (key) {
-            case "SELECTED_HIGHLIGHT" -> WidgetTheme.selectedHighlight();
-            case "SELECTED_TEXT" -> WidgetTheme.selectedText();
-            case "NORMAL_TEXT" -> WidgetTheme.normalText();
-            case "DIMMED_TEXT" -> WidgetTheme.dimmedText();
-            case "BACKGROUND" -> WidgetTheme.background();
-            case "INVALID_HIGHLIGHT" -> WidgetTheme.invalidHighlight();
-            case "VALID_HIGHLIGHT" -> WidgetTheme.validHighlight();
-            case "TABLE_HEADER_BACKGROUND" -> WidgetTheme.tableHeaderBackground();
-            case "BORDER" -> WidgetTheme.border();
-            case "SCROLLBAR_THUMB" -> WidgetTheme.scrollbarThumb();
-            case "ACCENT" -> WidgetTheme.accent();
-            case "WINDOW_BORDER" -> WidgetTheme.windowBorder();
-            case "TABLE_HEADER_TEXT" -> WidgetTheme.tableHeaderText();
+            case "SELECTED_HIGHLIGHT" -> WidgetTheme.SELECTED_HIGHLIGHT;
+            case "SELECTED_TEXT" -> WidgetTheme.SELECTED_TEXT;
+            case "NORMAL_TEXT" -> WidgetTheme.NORMAL_TEXT;
+            case "DIMMED_TEXT" -> WidgetTheme.DIMMED_TEXT;
+            case "BACKGROUND" -> WidgetTheme.BACKGROUND;
+            case "INVALID_HIGHLIGHT" -> WidgetTheme.INVALID_HIGHLIGHT;
+            case "VALID_HIGHLIGHT" -> WidgetTheme.VALID_HIGHLIGHT;
+            case "TABLE_HEADER_BACKGROUND" -> WidgetTheme.TABLE_HEADER_BACKGROUND;
+            case "BORDER" -> WidgetTheme.BORDER;
+            case "SCROLLBAR_THUMB" -> WidgetTheme.SCROLLBAR_THUMB;
+            case "ACCENT" -> WidgetTheme.ACCENT;
+            case "WINDOW_BORDER" -> WidgetTheme.WINDOW_BORDER;
+            case "TABLE_HEADER_TEXT" -> WidgetTheme.TABLE_HEADER_TEXT;
             default -> throw new IllegalArgumentException("Unknown WidgetTheme color key: " + key);
         };
     }

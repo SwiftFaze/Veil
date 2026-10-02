@@ -1,5 +1,5 @@
 package com.swiftfaze.veil.sandbox;
-import Locale;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 

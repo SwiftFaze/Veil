@@ -1,8 +1,8 @@
 package com.swiftfaze.veil.testing.quality;
 
 import java.io.IOException;
-import Files;
-import Path;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;

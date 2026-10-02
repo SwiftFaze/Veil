@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
-import Rectangle;
+import java.awt.Rectangle;
 import java.lang.reflect.Field;
 import java.util.List;
 

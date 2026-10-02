@@ -16,7 +16,7 @@ import io.cucumber.messages.types.TableRow;
 import io.cucumber.messages.types.Tag;
 
 import java.io.IOException;
-import Path;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;

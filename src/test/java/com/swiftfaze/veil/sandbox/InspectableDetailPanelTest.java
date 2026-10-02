@@ -66,7 +66,7 @@ class InspectableDetailPanelTest {
         InspectableDetailPanel panel = new InspectableDetailPanel(TITLE, entry());
 
         assertTrue(panel.isFocusable());
-        assertEquals(WidgetTheme.background(), panel.getBackground());
+        assertEquals(WidgetTheme.BACKGROUND, panel.getBackground());
         assertInstanceOf(BoxLayout.class, panel.getLayout());
     }
 

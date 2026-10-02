@@ -20,11 +20,11 @@ import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import Files;
-import Path;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
-import Locale;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
 

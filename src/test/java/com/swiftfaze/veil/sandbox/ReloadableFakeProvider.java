@@ -6,7 +6,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.List;
-import Locale;
+import java.util.Locale;
 
 /** Test double: an in-memory provider whose entries can change and whose reload() can be made to fail. */
 public class ReloadableFakeProvider implements DevConsoleProvider {

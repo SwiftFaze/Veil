@@ -1,12 +1,12 @@
 package com.swiftfaze.veil.testing.quality;
 
 import java.io.IOException;
-import Files;
-import Path;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import Locale;
+import java.util.Locale;
 
 /**
  * Writes the CRAP gate's two outputs: {@code target/crap/crap.txt}, a worst-first table
