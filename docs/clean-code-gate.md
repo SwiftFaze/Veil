@@ -163,11 +163,6 @@ Each of these was measured against this repo, not assumed:
   *concept* per test.
 - **`GenericsNaming` and `AvoidLosingExceptionInformation` are absent.** PMD
   7.17 reports both as scheduled for removal in PMD 8.
-- **`FieldNamingConventions`'s `staticFieldPattern` matches `constantPattern`
-  (UPPER_SNAKE).** `WidgetTheme`'s color fields are `public static` (not
-  `final`, so `applyTheme()` can repopulate them from a mod-loaded theme) but
-  each name mirrors a theme JSON key 1:1 — the default camelCase pattern would
-  rename `NORMAL_TEXT` to `normalText`, breaking that mapping for no benefit.
 - **PMD bumped from 7.17.0 to 7.27.0 (#215).** 18 of the 196 native rules the
   full-catalogue audit found only exist from PMD 7.2x onward. Overridden via
   `pmd.version` in `pom.xml`; also shifted `ExcessiveParameterList`'s

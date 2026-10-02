@@ -91,7 +91,7 @@ key calls `TableWidget.updateRow()` to refresh just that row's Key cell
 without disturbing the selected row - `setRows()` would have reset selection
 to the first row on every keypress. The armed action row gets a green accent
 border via `TableWidget.setSelectedRowAccentColor()` (the same
-`WidgetTheme.VALID_HIGHLIGHT` convention `RadioGroupWidget`'s confirmed-option
+`WidgetTheme.validHighlight()` convention `RadioGroupWidget`'s confirmed-option
 border already uses), and every other row dims via
 `TableWidget.setOtherRowsDimmed()`, so the armed row reads as the only
 currently-active thing, like a modal dimming its backdrop. Rebind edits

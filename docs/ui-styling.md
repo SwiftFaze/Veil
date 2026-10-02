@@ -93,10 +93,11 @@ theming" section — this is the short version as a rule to follow:
 
 - **Never introduce a hardcoded `java.awt.Color` literal** in `ui/`,
   `ui/widget/`, or `sandbox/`. Every color a component needs must resolve
-  to one of `WidgetTheme`'s static fields (`SELECTED_HIGHLIGHT`,
+  to one of `WidgetTheme`'s theme keys (`SELECTED_HIGHLIGHT`,
   `SELECTED_TEXT`, `NORMAL_TEXT`, `DIMMED_TEXT`, `BACKGROUND`,
   `INVALID_HIGHLIGHT`, `VALID_HIGHLIGHT`, `TABLE_HEADER_BACKGROUND`,
-  `BORDER`, `SCROLLBAR_THUMB`, `ACCENT`, `WINDOW_BORDER`). Gameplay/world rendering
+  `BORDER`, `SCROLLBAR_THUMB`, `ACCENT`, `WINDOW_BORDER`), read through its
+  accessor (`SELECTED_HIGHLIGHT` → `WidgetTheme.selectedHighlight()`). Gameplay/world rendering
   (`Player`, `WorldScene`, `GamePanel`) is exempt — that's game content, not
   UI chrome.
 - **Check for an existing fit before adding a key.** Most new UI needs a
@@ -112,8 +113,8 @@ theming" section — this is the short version as a rule to follow:
   across more than one widget/screen — not a one-off literal needed by a
   single component. The theme is a small, curated set of roles, not a
   swatch book; resist adding `SOME_PANEL_SPECIFIC_BLUE` for one caller.
-- **Adding a key touches three places in the same change:** the static
-  `Color` field + `applyTheme` mapping in `WidgetTheme.java`, the key's name
+- **Adding a key touches three places in the same change:** the `Palette`
+  component, its accessor and its `applyTheme` mapping in `WidgetTheme.java`, the key's name
   in `WidgetColorTheme.REQUIRED_KEYS`, and the actual color value in
   `mods/core/themes/default.json`. A theme missing a required key throws
   `ModLoadException` at load time, so these three can't drift out of sync.
