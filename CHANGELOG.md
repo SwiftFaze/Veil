@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.43](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.42...v0.5.0-beta.43) (2026-10-02)
+
+
+### Features
+
+* expand Error Prone beyond its default check set ([#262](https://github.com/SwiftFaze/Veil/issues/262)) ([0af4769](https://github.com/SwiftFaze/Veil/commit/0af4769c5e4e0332667f4e2565b7914fecee197a))
+
 ## [0.5.0-beta.42](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.41...v0.5.0-beta.42) (2026-10-01)
 
 
