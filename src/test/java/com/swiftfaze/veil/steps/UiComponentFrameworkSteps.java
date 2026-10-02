@@ -1,5 +1,7 @@
 package com.swiftfaze.veil.steps;
 
+import com.swiftfaze.veil.config.SettingsConfig;
+import com.swiftfaze.veil.config.SettingsRepository;
 import com.swiftfaze.veil.config.SettingsStore;
 import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel;
@@ -86,7 +88,7 @@ public class UiComponentFrameworkSteps {
     private Path tempDir;
     private SettingsStore settingsStore;
     private String lastWindowMode;
-    private com.swiftfaze.veil.config.SettingsConfig loadedConfig;
+    private SettingsConfig loadedConfig;
 
     @Given("a list widget with items {string}, {string}, {string} and {string} selected")
     public void aListWidgetWithItems(String first, String second, String third, String selected) {
@@ -914,7 +916,7 @@ public class UiComponentFrameworkSteps {
             settingsStore = new SettingsStore(tempDir);
         }
         // Write to settings.json
-        com.swiftfaze.veil.config.SettingsConfig config = settingsStore.config();
+        SettingsConfig config = settingsStore.config();
         switch (key) {
             case "Brightness" -> config.setBrightness(value);
             case "Volume" -> config.setVolume(value);
@@ -927,7 +929,7 @@ public class UiComponentFrameworkSteps {
 
     @When("the settings file is loaded")
     public void theSettingsFileIsLoaded() throws Exception {
-        com.swiftfaze.veil.config.SettingsRepository repo = new com.swiftfaze.veil.config.SettingsRepository(tempDir);
+        SettingsRepository repo = new SettingsRepository(tempDir);
         loadedConfig = repo.load();
     }
 
@@ -949,7 +951,7 @@ public class UiComponentFrameworkSteps {
             settingsStore = new SettingsStore(tempDir);
         }
         // Write to settings.json
-        com.swiftfaze.veil.config.SettingsConfig config = settingsStore.config();
+        SettingsConfig config = settingsStore.config();
         switch (key) {
             case "Fullscreen" -> config.setFullscreen(value);
             case "Font" -> config.setFont(value);
@@ -962,8 +964,8 @@ public class UiComponentFrameworkSteps {
     @Then("the settings file now has {string} set to {int}")
     public void assertSettingsFileHasSetToInt(String key, int value) throws Exception {
         // Re-load from disk to verify persistence
-        com.swiftfaze.veil.config.SettingsRepository repo = new com.swiftfaze.veil.config.SettingsRepository(tempDir);
-        com.swiftfaze.veil.config.SettingsConfig config = repo.load();
+        SettingsRepository repo = new SettingsRepository(tempDir);
+        SettingsConfig config = repo.load();
         switch (key) {
             case "Brightness" -> assertEquals(value, config.getBrightness());
             case "Volume" -> assertEquals(value, config.getVolume());
@@ -974,8 +976,8 @@ public class UiComponentFrameworkSteps {
     @Then("the settings file now has {string} set to {string}")
     public void assertSettingsFileHasSetToString(String key, String value) throws Exception {
         // Re-load from disk to verify persistence
-        com.swiftfaze.veil.config.SettingsRepository repo = new com.swiftfaze.veil.config.SettingsRepository(tempDir);
-        com.swiftfaze.veil.config.SettingsConfig config = repo.load();
+        SettingsRepository repo = new SettingsRepository(tempDir);
+        SettingsConfig config = repo.load();
         switch (key) {
             case "Fullscreen" -> assertEquals(value, config.getFullscreen());
             case "Font" -> assertEquals(value, config.getFont());
@@ -1000,7 +1002,7 @@ public class UiComponentFrameworkSteps {
         if (settingsStore == null) {
             settingsStore = new SettingsStore(tempDir);
         }
-        com.swiftfaze.veil.config.SettingsConfig config = settingsStore.config();
+        SettingsConfig config = settingsStore.config();
         config.getKeybinds().put(action, key);
         settingsStore.persist();
     }
@@ -1008,8 +1010,8 @@ public class UiComponentFrameworkSteps {
     @Then("the settings file now has {string} bound to {string}")
     public void assertSettingsFileHasKeybindSetToString(String action, String key) throws Exception {
         // Re-load from disk to verify persistence
-        com.swiftfaze.veil.config.SettingsRepository repo = new com.swiftfaze.veil.config.SettingsRepository(tempDir);
-        com.swiftfaze.veil.config.SettingsConfig config = repo.load();
+        SettingsRepository repo = new SettingsRepository(tempDir);
+        SettingsConfig config = repo.load();
         assertEquals(key, config.getKeybinds().get(action));
     }
 
