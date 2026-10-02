@@ -61,15 +61,15 @@ public class DevConsolePanel extends JPanel {
         this.transcript = new TranscriptWidget();
         this.commandRunner = new DevConsoleCommandRunner(model, transcript, this::showProvider);
         this.providerContainer = new JPanel(new BorderLayout());
-        providerContainer.setBackground(WidgetTheme.BACKGROUND);
+        providerContainer.setBackground(WidgetTheme.background());
         this.completion = new DevConsoleCompletion(model);
         this.history = new DevConsoleCommandHistory();
 
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BorderLayout());
         setFocusable(false);
         setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(WidgetTheme.WINDOW_BORDER, 2),
+                BorderFactory.createLineBorder(WidgetTheme.windowBorder(), 2),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
         setPreferredSize(DEFAULT_SIZE);
 
@@ -140,7 +140,7 @@ public class DevConsolePanel extends JPanel {
 
     private JPanel buildSearchView() {
         JPanel searchView = new JPanel(new BorderLayout());
-        searchView.setBackground(WidgetTheme.BACKGROUND);
+        searchView.setBackground(WidgetTheme.background());
         searchView.add(new HeaderWidget(TITLE), BorderLayout.NORTH);
         searchView.add(buildTranscriptScrollPane(), BorderLayout.CENTER);
         searchView.add(buildCommandField(), BorderLayout.SOUTH);

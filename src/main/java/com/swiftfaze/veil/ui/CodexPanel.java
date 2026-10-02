@@ -71,7 +71,7 @@ public class CodexPanel extends PopupWidget {
 
     public CodexPanel(ControlsHintBarWidget hintBar) {
         this.hintBar = hintBar;
-        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.BORDER);
+        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.border());
         Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         setBorder(BorderFactory.createCompoundBorder(bottomLine, padding));
 
@@ -272,9 +272,9 @@ public class CodexPanel extends PopupWidget {
     private JPanel buildTabRow() {
         Category[] categories = Category.values();
         JPanel row = new JPanel(new GridLayout(1, categories.length));
-        row.setBackground(WidgetTheme.BACKGROUND);
+        row.setBackground(WidgetTheme.background());
         row.setAlignmentX(Component.LEFT_ALIGNMENT);
-        row.setBorder(BorderFactory.createLineBorder(WidgetTheme.BORDER, 1));
+        row.setBorder(BorderFactory.createLineBorder(WidgetTheme.border(), 1));
         for (int i = 0; i < categories.length; i++) {
             boolean isLast = i == categories.length - 1;
             JLabel label = new JLabel(categories[i].getLabel(), SwingConstants.CENTER);
@@ -282,7 +282,7 @@ public class CodexPanel extends PopupWidget {
             label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
             Border padding = BorderFactory.createEmptyBorder(6, 8, 6, 8);
             label.setBorder(isLast ? padding : BorderFactory.createCompoundBorder(
-                    BorderFactory.createMatteBorder(0, 0, 0, 1, WidgetTheme.BORDER), padding));
+                    BorderFactory.createMatteBorder(0, 0, 0, 1, WidgetTheme.border()), padding));
             tabLabels.put(categories[i], label);
             row.add(label);
         }

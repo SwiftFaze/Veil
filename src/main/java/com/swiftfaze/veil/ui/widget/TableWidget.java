@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.ui.widget;
 
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.input.Keybindings;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -13,9 +14,11 @@ import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +53,7 @@ public class TableWidget<T> extends Widget {
         this.columnRenderers = columnRenderers;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setAlignmentX(LEFT_ALIGNMENT);
-        setBorder(BorderFactory.createMatteBorder(1, 1, 0, 0, WidgetTheme.BORDER));
+        setBorder(BorderFactory.createMatteBorder(1, 1, 0, 0, WidgetTheme.border()));
         buildHeaderRow();
         bindKeys();
     }
@@ -83,7 +86,7 @@ public class TableWidget<T> extends Widget {
 
     /**
      * A non-selectable table renders every cell in NORMAL_TEXT, with no row-highlight
-     * indication — for a table that isn't currently the keyboard-navigation target (either
+     * indication â€” for a table that isn't currently the keyboard-navigation target (either
      * purely static data, or momentarily not the active pane in a multi-table details view).
      */
     public void setSelectable(boolean selectable) {
@@ -115,7 +118,7 @@ public class TableWidget<T> extends Widget {
     }
 
     /**
-     * When true, every row except the selected one renders in WidgetTheme.DIMMED_TEXT
+     * When true, every row except the selected one renders in WidgetTheme.dimmedText()
      * instead of NORMAL_TEXT - pairs with setSelectedRowAccentBorder() to make the
      * accented row read as the only currently-active thing, like a modal dimming its
      * backdrop. False (the default) leaves every consumer's existing look unchanged.
@@ -299,11 +302,11 @@ public class TableWidget<T> extends Widget {
         int columnCount = Math.max(1, cellText.size());
         JPanel rowPanel = new JPanel(new GridLayout(1, columnCount));
         rowPanel.setAlignmentX(LEFT_ALIGNMENT);
-        rowPanel.setBackground(isHeader ? WidgetTheme.TABLE_HEADER_BACKGROUND : WidgetTheme.BACKGROUND);
+        rowPanel.setBackground(isHeader ? WidgetTheme.tableHeaderBackground() : WidgetTheme.background());
         for (String text : cellText) {
             rowPanel.add(buildCellLabel(text, isHeader));
         }
-        // Computed after the cells are added — an empty panel's preferred height is ~0, which
+        // Computed after the cells are added â€” an empty panel's preferred height is ~0, which
         // would otherwise clamp every row (including the header) to zero visible height.
         rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, rowPanel.getPreferredSize().height));
         return rowPanel;
@@ -312,15 +315,15 @@ public class TableWidget<T> extends Widget {
     private static JLabel buildCellLabel(String text, boolean isHeader) {
         JLabel label = new JLabel(text);
         label.setOpaque(true);
-        label.setBackground(isHeader ? WidgetTheme.TABLE_HEADER_BACKGROUND : WidgetTheme.BACKGROUND);
-        label.setForeground(WidgetTheme.NORMAL_TEXT);
-        label.setFont(new java.awt.Font(java.awt.Font.MONOSPACED, isHeader ? java.awt.Font.BOLD : java.awt.Font.PLAIN, 16));
+        label.setBackground(isHeader ? WidgetTheme.tableHeaderBackground() : WidgetTheme.background());
+        label.setForeground(WidgetTheme.normalText());
+        label.setFont(new Font(Font.MONOSPACED, isHeader ? Font.BOLD : Font.PLAIN, 16));
         label.setBorder(new AccentableCellBorder(baseCellBorder(), null));
         return label;
     }
 
     private static Border baseCellBorder() {
-        Border cellLine = BorderFactory.createMatteBorder(0, 0, 1, 1, WidgetTheme.BORDER);
+        Border cellLine = BorderFactory.createMatteBorder(0, 0, 1, 1, WidgetTheme.border());
         Border padding = BorderFactory.createEmptyBorder(4, 8, 4, 8);
         return BorderFactory.createCompoundBorder(cellLine, padding);
     }
@@ -339,7 +342,7 @@ public class TableWidget<T> extends Widget {
             WidgetTheme.applySelection(cell, highlighted);
             cell.setBorder(new AccentableCellBorder(baseCellBorder(), accented ? selectedRowAccentColor : null));
             if (otherRowsDimmed && !highlighted) {
-                cell.setForeground(WidgetTheme.DIMMED_TEXT);
+                cell.setForeground(WidgetTheme.dimmedText());
             }
         }
     }
@@ -351,7 +354,7 @@ public class TableWidget<T> extends Widget {
             // it knows nothing about, so scrolling to reveal row 0 alone can (and did, in
             // practice) leave the header scrolled just out of view above it. Unioning the
             // header's bounds into the target whenever row 0 is selected forces the header along.
-            java.awt.Rectangle target = rowCells.get(selectedRowIndex).get(0).getParent().getBounds();
+            Rectangle target = rowCells.get(selectedRowIndex).get(0).getParent().getBounds();
             if (selectedRowIndex == 0 && headerPanel != null) {
                 target = target.union(headerPanel.getBounds());
             }
@@ -361,12 +364,12 @@ public class TableWidget<T> extends Widget {
 
     /**
      * Paints an optional accent outline INSIDE the wrapped inner border's existing padding
-     * instead of adding new space for it — insets are always exactly the inner border's own
+     * instead of adding new space for it â€” insets are always exactly the inner border's own
      * insets, accented or not. An earlier version reserved extra thickness around every
      * cell so insets wouldn't change on selection, which did stop the whole table resizing
      * but shifted the inner border's grid lines inward by that same thickness, opening a
      * visible gap between adjacent rows/columns that used to sit flush. Drawing within the
-     * existing padding avoids both problems at once — nothing about the layout ever changes.
+     * existing padding avoids both problems at once â€” nothing about the layout ever changes.
      */
     private static class AccentableCellBorder extends AbstractBorder {
         private static final int OFFSET = 1;
@@ -374,7 +377,7 @@ public class TableWidget<T> extends Widget {
         private final Border inner;
         private final Color accentColor;
 
-        AccentableCellBorder(Border inner, Color accentColor) {
+        AccentableCellBorder(Border inner, @Nullable Color accentColor) {
             this.inner = inner;
             this.accentColor = accentColor;
         }

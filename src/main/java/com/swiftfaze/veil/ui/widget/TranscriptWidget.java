@@ -41,27 +41,27 @@ public class TranscriptWidget extends Widget {
     }
 
     public void appendCommand(String text) {
-        append(Level.COMMAND, text, WidgetTheme.DIMMED_TEXT);
+        append(Level.COMMAND, text, WidgetTheme.dimmedText());
     }
 
     public void appendInfo(String text) {
-        append(Level.INFO, text, WidgetTheme.NORMAL_TEXT);
+        append(Level.INFO, text, WidgetTheme.normalText());
     }
 
     public void appendError(String text) {
-        append(Level.ERROR, text, WidgetTheme.INVALID_HIGHLIGHT);
+        append(Level.ERROR, text, WidgetTheme.invalidHighlight());
     }
 
     public void appendSuccess(String text) {
-        append(Level.SUCCESS, text, WidgetTheme.VALID_HIGHLIGHT);
+        append(Level.SUCCESS, text, WidgetTheme.validHighlight());
     }
 
     public void appendResultTable(List<String> headers, List<List<String>> rows) {
         lastResultTable = rows;
         int[] columnWidths = columnWidths(headers, rows);
-        add(fullWidth(buildTableLine(headers, columnWidths, WidgetTheme.TABLE_HEADER_TEXT)));
+        add(fullWidth(buildTableLine(headers, columnWidths, WidgetTheme.tableHeaderText())));
         for (List<String> row : rows) {
-            add(fullWidth(buildTableLine(row, columnWidths, WidgetTheme.NORMAL_TEXT)));
+            add(fullWidth(buildTableLine(row, columnWidths, WidgetTheme.normalText())));
         }
         scrollToBottom();
     }

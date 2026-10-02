@@ -31,7 +31,7 @@ public class PauseMenuPopup extends PopupWidget {
     private Consumer<String> onMenuSelect = item -> { };
 
     public PauseMenuPopup() {
-        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.BORDER);
+        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.border());
         Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         setBorder(BorderFactory.createCompoundBorder(bottomLine, padding));
 
@@ -87,7 +87,7 @@ public class PauseMenuPopup extends PopupWidget {
 
     private static JLabel makeTitleLabel() {
         JLabel titleLabel = new JLabel("Paused");
-        titleLabel.setForeground(WidgetTheme.NORMAL_TEXT);
+        titleLabel.setForeground(WidgetTheme.normalText());
         titleLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
         titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         return titleLabel;

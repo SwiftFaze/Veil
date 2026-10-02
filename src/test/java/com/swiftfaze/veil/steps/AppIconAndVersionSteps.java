@@ -206,7 +206,7 @@ public class AppIconAndVersionSteps {
     @Then("the game window has no custom icon")
     public void theGameWindowHasNoCustomIcon() {
         applyIcon();
-        org.junit.jupiter.api.Assertions.assertNull(capturedIcon, "Icon should be null when resource is absent");
+        Assertions.assertNull(capturedIcon, "Icon should be null when resource is absent");
     }
 
     @Then("a warning about the missing icon is logged")
@@ -217,8 +217,8 @@ public class AppIconAndVersionSteps {
 
     /** Runs {@code action} and reports whether {@code source}'s logger emitted a WARN meanwhile. */
     private static boolean warnsWhile(Class<?> source, Runnable action) {
-        ch.qos.logback.classic.Logger logger =
-                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(source);
+        Logger logger =
+                (Logger) LoggerFactory.getLogger(source);
         WarnDetector detector = new WarnDetector();
         detector.start();
         logger.addAppender(detector);

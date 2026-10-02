@@ -164,7 +164,7 @@ public final class Main {
         return gamePanel;
     }
 
-    // Minimal stopgap wiring so the I/X toggles keep working with EastPanel gone — no
+    // Minimal stopgap wiring so the I/X toggles keep working with EastPanel gone â€” no
     // sidebar, no player-info display, just enough plumbing for the two popups to open/close/exclude
     // each other and hand focus back to the game on dismiss, same as EastPanel used to.
     private static void wirePopups(GamePanel gamePanel, PopupPanels popups, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
@@ -310,7 +310,7 @@ public final class Main {
         // flush against the true window edge and shows on every card (title/settings/
         // keybinds/game) uniformly rather than only around whichever panel drew its own.
         ((JComponent) frame.getContentPane()).setBorder(
-                BorderFactory.createLineBorder(WidgetTheme.WINDOW_BORDER, 2));
+                BorderFactory.createLineBorder(WidgetTheme.windowBorder(), 2));
         frame.setLayout(new BorderLayout());
         deck.addTo(frame);
         frame.add(hintBar, BorderLayout.SOUTH);

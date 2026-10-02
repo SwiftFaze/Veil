@@ -34,7 +34,7 @@ public final class ItemDetailPanel extends JPanel {
         this.details = new InspectableDetailPanel(item.getName(), item);
         this.fieldMutator = fieldMutator;
 
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BorderLayout());
         setFocusable(true);
         add(details, BorderLayout.CENTER);
@@ -119,7 +119,7 @@ public final class ItemDetailPanel extends JPanel {
 
     private void arm(ItemField field) {
         armedField = Optional.of(field);
-        fieldTable().setSelectedRowAccentColor(WidgetTheme.VALID_HIGHLIGHT);
+        fieldTable().setSelectedRowAccentColor(WidgetTheme.validHighlight());
         fieldTable().setOtherRowsDimmed(true);
         getInputMap(WHEN_FOCUSED).put(Keybindings.MENU_CANCEL, Keybindings.ACTION_MENU_CANCEL);
     }

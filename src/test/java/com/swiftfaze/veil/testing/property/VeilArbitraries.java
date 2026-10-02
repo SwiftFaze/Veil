@@ -62,7 +62,7 @@ public final class VeilArbitraries {
                     Arbitraries.just("level"),
                     Arbitraries.integers().between(1, 10).map(String::valueOf),
                     Arbitraries.doubles().between(0.5, 10.0)
-                            .map(d -> String.format(java.util.Locale.ROOT, "%.1f", d))
+                            .map(d -> String.format(Locale.ROOT, "%.1f", d))
             );
         }
 

@@ -84,7 +84,7 @@ public class PlayerDetailPanel extends JPanel {
             buildRows()
         );
 
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setFocusable(true);
 
@@ -100,7 +100,7 @@ public class PlayerDetailPanel extends JPanel {
 
     /**
      * Refreshes every row's displayed text from the live {@link Stats}/
-     * {@link PlayerInfo} object — for a caller that mutated those directly
+     * {@link PlayerInfo} object â€” for a caller that mutated those directly
      * (bypassing this panel's own arm/adjust interaction) and needs the
      * table's cached cell text to catch up, e.g. Cucumber step definitions
      * setting up a scenario's initial values.
@@ -399,7 +399,7 @@ public class PlayerDetailPanel extends JPanel {
     }
 
     private void applyArmedStyle() {
-        statsTable.setSelectedRowAccentColor(WidgetTheme.VALID_HIGHLIGHT);
+        statsTable.setSelectedRowAccentColor(WidgetTheme.validHighlight());
         statsTable.setOtherRowsDimmed(true);
         getInputMap(WHEN_FOCUSED).put(Keybindings.MENU_CANCEL, Keybindings.ACTION_MENU_CANCEL);
     }

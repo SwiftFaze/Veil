@@ -62,15 +62,15 @@ public class SettingsKeybindsPanel extends JPanel implements HintAware {
         this.keyBindings = new LinkedHashMap<>(settingsStore.config().getKeybinds());
         this.committedBindings = new LinkedHashMap<>(settingsStore.config().getKeybinds());
 
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(WidgetTheme.BORDER, 2),
+                BorderFactory.createLineBorder(WidgetTheme.border(), 2),
                 BorderFactory.createEmptyBorder(20, 40, 20, 40)));
         setFocusable(true);
 
         JLabel header = new JLabel("Keybinds");
-        header.setForeground(WidgetTheme.NORMAL_TEXT);
+        header.setForeground(WidgetTheme.normalText());
         header.setFont(new Font(Font.MONOSPACED, Font.BOLD, 24));
         header.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -79,7 +79,7 @@ public class SettingsKeybindsPanel extends JPanel implements HintAware {
         actionsTable.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         footerPanel = new JPanel();
-        footerPanel.setBackground(WidgetTheme.BACKGROUND);
+        footerPanel.setBackground(WidgetTheme.background());
         footerPanel.setLayout(new BoxLayout(footerPanel, BoxLayout.X_AXIS));
         footerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         footerPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
@@ -281,7 +281,7 @@ public class SettingsKeybindsPanel extends JPanel implements HintAware {
     }
 
     private void applyArmedStyle() {
-        actionsTable.setSelectedRowAccentColor(popupOpen ? WidgetTheme.VALID_HIGHLIGHT : null);
+        actionsTable.setSelectedRowAccentColor(popupOpen ? WidgetTheme.validHighlight() : null);
         actionsTable.setOtherRowsDimmed(popupOpen);
     }
 
@@ -292,8 +292,8 @@ public class SettingsKeybindsPanel extends JPanel implements HintAware {
             label.setFont(ROW_FONT);
             label.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
             boolean highlighted = footerFocused && i == footerIndex;
-            label.setForeground(highlighted ? WidgetTheme.SELECTED_TEXT : WidgetTheme.NORMAL_TEXT);
-            label.setBackground(highlighted ? WidgetTheme.SELECTED_HIGHLIGHT : WidgetTheme.BACKGROUND);
+            label.setForeground(highlighted ? WidgetTheme.selectedText() : WidgetTheme.normalText());
+            label.setBackground(highlighted ? WidgetTheme.selectedHighlight() : WidgetTheme.background());
             label.setOpaque(true);
             footerPanel.add(label);
             if (i < FOOTER_ACTIONS.size() - 1) {

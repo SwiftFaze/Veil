@@ -31,7 +31,7 @@ public class InventoryPanel extends PopupWidget {
 
     public InventoryPanel(ControlsHintBarWidget hintBar) {
         this.hintBar = hintBar;
-        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.BORDER);
+        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.border());
         Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         setBorder(BorderFactory.createCompoundBorder(bottomLine, padding));
 

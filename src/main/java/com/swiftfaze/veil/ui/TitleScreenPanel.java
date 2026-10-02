@@ -45,14 +45,14 @@ public class TitleScreenPanel extends JPanel implements HintAware {
         this.onMenuSelect = onMenuSelect;
         this.hintBar = hintBar;
         this.eventLog = eventLog;
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setFocusable(true);
 
         // Title
         titleLabel = new JLabel("VEIL");
         titleLabel.setFont(loadTitleFont());
-        titleLabel.setForeground(WidgetTheme.NORMAL_TEXT);
+        titleLabel.setForeground(WidgetTheme.normalText());
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Menu

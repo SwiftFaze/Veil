@@ -32,7 +32,7 @@ public final class InspectableDetailPanel extends JPanel {
         this.detailsPane.showEntry(entry);
         this.detailsPane.focusFirstTable();
 
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setFocusable(true);
 

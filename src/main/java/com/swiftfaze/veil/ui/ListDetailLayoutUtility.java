@@ -44,7 +44,7 @@ public final class ListDetailLayoutUtility {
      */
     public static JPanel buildBody(JComponent left, JComponent right) {
         JPanel body = new JPanel(new GridLayout(1, 2, 20, 0));
-        body.setBackground(WidgetTheme.BACKGROUND);
+        body.setBackground(WidgetTheme.background());
         body.setAlignmentX(Component.LEFT_ALIGNMENT);
         body.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         body.add(left);
@@ -57,7 +57,7 @@ public final class ListDetailLayoutUtility {
      */
     public static JLabel makeSectionLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setForeground(WidgetTheme.NORMAL_TEXT);
+        label.setForeground(WidgetTheme.normalText());
         label.setFont(new Font(Font.MONOSPACED, Font.BOLD, 16));
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         label.setBorder(BorderFactory.createEmptyBorder(10, 0, 4, 0));
@@ -68,14 +68,14 @@ public final class ListDetailLayoutUtility {
      * Builds the styled details panel with standard borders and layout (shared by Codex and Inventory).
      */
     public static JPanel buildDetailsPanel() {
-        Border detailsDivider = BorderFactory.createMatteBorder(0, 2, 0, 0, WidgetTheme.BORDER);
+        Border detailsDivider = BorderFactory.createMatteBorder(0, 2, 0, 0, WidgetTheme.border());
         Border detailsPadding = BorderFactory.createEmptyBorder(4, 10, 0, 0);
         return buildDetailsPanel(BorderFactory.createCompoundBorder(detailsDivider, detailsPadding));
     }
 
     private static JPanel buildDetailsPanel(Border border) {
         JPanel detailsPanel = new JPanel();
-        detailsPanel.setBackground(WidgetTheme.BACKGROUND);
+        detailsPanel.setBackground(WidgetTheme.background());
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
         detailsPanel.setBorder(border);
         return detailsPanel;

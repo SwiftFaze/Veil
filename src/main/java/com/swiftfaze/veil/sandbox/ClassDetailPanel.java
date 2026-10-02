@@ -18,7 +18,7 @@ import java.util.function.Function;
 
 /**
  * A single class's full computed stats, pre-selected to exactly the class a
- * dev-console search opened — no browsable list of every other class, unlike
+ * dev-console search opened â€” no browsable list of every other class, unlike
  * {@link ClassSandboxPanel} (which stays as-is: it's a proof case the
  * pre-existing ui-component-framework.feature depends on, not part of the
  * dev console anymore).
@@ -33,7 +33,7 @@ public class ClassDetailPanel extends JPanel {
         this.header = new HeaderWidget(className);
         this.statsTable = TableWidget.ofRows(buildColumnHeaders(), detailRows(model, className));
 
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setFocusable(true);
 

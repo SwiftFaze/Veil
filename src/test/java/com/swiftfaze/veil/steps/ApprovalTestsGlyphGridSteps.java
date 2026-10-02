@@ -1,4 +1,7 @@
 package com.swiftfaze.veil.steps;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.awt.Rectangle;
 
 import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.testing.approval.ApprovalCheck;
@@ -62,7 +65,7 @@ public class ApprovalTestsGlyphGridSteps {
         // Add border of WALL for positional regression testing
         scene.createBorder(10, 10, WALL);
         // Add patch of WATER at specific position (3,3) to (4,4)
-        scene.fillRegion(new java.awt.Rectangle(3, 3, 2, 2), WATER);
+        scene.fillRegion(new Rectangle(3, 3, 2, 2), WATER);
         entities = new ArrayList<>();
         scenarioName = "fixed-test-scene";
         SharedScenarioContext.setCamera(new Camera(10, 10));
@@ -73,9 +76,9 @@ public class ApprovalTestsGlyphGridSteps {
         // Also leave a stale .received.txt behind, as a previous failing run would,
         // so the "no .received.txt file is written" scenario actually exercises
         // ApprovalCheck's cleanup-on-match path rather than trivially passing.
-        java.nio.file.Files.writeString(
-            java.nio.file.Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt"),
-            "stale\n", java.nio.charset.StandardCharsets.UTF_8
+        Files.writeString(
+            Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt"),
+            "stale\n", StandardCharsets.UTF_8
         );
     }
 
@@ -110,8 +113,8 @@ public class ApprovalTestsGlyphGridSteps {
     @And("no .received.txt file is written")
     public void noReceivedFileIsWritten() {
         java.nio.file.Path receivedPath =
-            java.nio.file.Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt");
-        if (java.nio.file.Files.exists(receivedPath)) {
+            Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt");
+        if (Files.exists(receivedPath)) {
             throw new AssertionError("Expected no .received.txt file, but found: " + receivedPath);
         }
     }
@@ -145,8 +148,8 @@ public class ApprovalTestsGlyphGridSteps {
             }
             // Clean up the .received.txt file created by the failing approval check
             try {
-                java.nio.file.Files.deleteIfExists(
-                    java.nio.file.Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt")
+                Files.deleteIfExists(
+                    Paths.get("src/test/resources/approved/" + scenarioName + ".received.txt")
                 );
             } catch (IOException ioe) {
                 throw new UncheckedIOException("Failed to clean up test fixture", ioe);
@@ -179,12 +182,12 @@ public class ApprovalTestsGlyphGridSteps {
 
     @Given("a <scenario-name>.received.txt file exists next to an approved fixture because the two differ")
     public void aReceivedFileExists() throws IOException {
-        scenario3TempDir = java.nio.file.Files.createTempDirectory("approval-test-reapprove");
+        scenario3TempDir = Files.createTempDirectory("approval-test-reapprove");
         java.nio.file.Path receivedFile = scenario3TempDir.resolve("fixture.received.txt");
         java.nio.file.Path approvedFile = scenario3TempDir.resolve("fixture.approved.txt");
 
-        java.nio.file.Files.writeString(approvedFile, "original\n", java.nio.charset.StandardCharsets.UTF_8);
-        java.nio.file.Files.writeString(receivedFile, "updated\n", java.nio.charset.StandardCharsets.UTF_8);
+        Files.writeString(approvedFile, "original\n", StandardCharsets.UTF_8);
+        Files.writeString(receivedFile, "updated\n", StandardCharsets.UTF_8);
     }
 
     @When("`mvn compile exec:java -Dexec.mainClass=...` is run for the approval re-approve tool")
@@ -197,9 +200,9 @@ public class ApprovalTestsGlyphGridSteps {
 
     @Then("the approved fixture is replaced with the received content")
     public void theApprovedFixtureIsReplaced() throws IOException {
-        String content = java.nio.file.Files.readString(
+        String content = Files.readString(
             scenario3TempDir.resolve("fixture.approved.txt"),
-            java.nio.charset.StandardCharsets.UTF_8
+            StandardCharsets.UTF_8
         );
         if (!content.equals("updated\n")) {
             throw new AssertionError("Approved should have been updated to 'updated\\n'");
@@ -209,7 +212,7 @@ public class ApprovalTestsGlyphGridSteps {
     @And("the .received.txt file is removed")
     public void theReceivedFileIsRemoved() throws IOException {
         java.nio.file.Path receivedFile = scenario3TempDir.resolve("fixture.received.txt");
-        if (java.nio.file.Files.exists(receivedFile)) {
+        if (Files.exists(receivedFile)) {
             throw new AssertionError("Received file should be deleted");
         }
 

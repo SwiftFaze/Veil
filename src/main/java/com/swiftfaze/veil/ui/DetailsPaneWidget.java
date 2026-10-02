@@ -4,6 +4,10 @@ import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.component.DetailTable;
 import com.swiftfaze.veil.component.Inspectable;
 import com.swiftfaze.veil.ui.widget.TableWidget;
+import com.swiftfaze.veil.ui.widget.WidgetTheme;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +19,7 @@ import javax.swing.JScrollPane;
  * A shared details-pane widget that renders however many DetailTables an
  * Inspectable returns and routes Up/Down/Left/Right keyboard focus across them.
  * Replaces the hand-duplicated focus-routing logic in InventoryPanel and CodexPanel.
- * Package placement: com.swiftfaze.veil.ui (not .widget) — see ModuleDependencyTest
+ * Package placement: com.swiftfaze.veil.ui (not .widget) â€” see ModuleDependencyTest
  * for ArchUnit constraints.
  */
 public class DetailsPaneWidget extends JPanel {
@@ -34,8 +38,8 @@ public class DetailsPaneWidget extends JPanel {
         this.detailsPanel = detailsPanel;
         detailsScrollPane = ListDetailLayoutUtility.buildScrollPane(detailsPanel);
         setOpaque(false);
-        setLayout(new java.awt.BorderLayout());
-        add(detailsScrollPane, java.awt.BorderLayout.CENTER);
+        setLayout(new BorderLayout());
+        add(detailsScrollPane, BorderLayout.CENTER);
         setFocusTraversalKeysEnabled(false);
     }
 
@@ -142,9 +146,9 @@ public class DetailsPaneWidget extends JPanel {
 
     private static JLabel buildPlaceholderLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setForeground(com.swiftfaze.veil.ui.widget.WidgetTheme.NORMAL_TEXT);
-        label.setFont(new java.awt.Font(java.awt.Font.MONOSPACED, java.awt.Font.PLAIN, 16));
-        label.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+        label.setForeground(WidgetTheme.normalText());
+        label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
     }
 }

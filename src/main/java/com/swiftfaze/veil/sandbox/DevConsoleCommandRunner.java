@@ -5,6 +5,7 @@ import com.swiftfaze.veil.ui.widget.TranscriptWidget;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -112,7 +113,7 @@ public class DevConsoleCommandRunner {
     private void runMutation(DevConsoleMutationVerb verb, String argument) {
         String[] parts = argument.split("\\s+", MUTATION_MIN_PARTS);
         if (parts.length < MUTATION_MIN_PARTS) {
-            transcript.appendError("Usage: " + verb.name().toLowerCase(java.util.Locale.ROOT) + " <entry> <field> <value>");
+            transcript.appendError("Usage: " + verb.name().toLowerCase(Locale.ROOT) + " <entry> <field> <value>");
             return;
         }
         Optional<DevConsoleModel.SearchResult> found = model.findByEntryToken(parts[0]);

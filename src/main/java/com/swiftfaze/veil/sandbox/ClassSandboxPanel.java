@@ -32,12 +32,12 @@ public class ClassSandboxPanel extends JPanel {
         this.listWidget = new ListWidget<>(s -> s);
         this.labels = new JLabel[names.size()];
 
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setFocusable(true);
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        add(makeLabel("Class Sandbox — Up/Down to select"));
+        add(makeLabel("Class Sandbox â€” Up/Down to select"));
 
         for (int i = 0; i < names.size(); i++) {
             labels[i] = makeLabel(names.get(i));
@@ -88,7 +88,7 @@ public class ClassSandboxPanel extends JPanel {
 
     private static JLabel makeLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setForeground(WidgetTheme.NORMAL_TEXT);
+        label.setForeground(WidgetTheme.normalText());
         label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
@@ -97,7 +97,7 @@ public class ClassSandboxPanel extends JPanel {
     private void refresh() {
         int selectedIndex = listWidget.getSelectedIndex();
         for (int i = 0; i < labels.length; i++) {
-            labels[i].setForeground(i == selectedIndex ? WidgetTheme.ACCENT : WidgetTheme.NORMAL_TEXT);
+            labels[i].setForeground(i == selectedIndex ? WidgetTheme.accent() : WidgetTheme.normalText());
         }
         Stats stats = model.computedStats(names.get(selectedIndex));
         statsLabel.setText(String.format(

@@ -23,8 +23,8 @@ class GamePanelTest {
     void constructorInitializes() {
         GamePanel panel = new GamePanel();
 
-        assertEquals(com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_X, panel.getPlayer().getX());
-        assertEquals(com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_Y, panel.getPlayer().getY());
+        assertEquals(GameConst.DEFAULT_PLAYER_START_X, panel.getPlayer().getX());
+        assertEquals(GameConst.DEFAULT_PLAYER_START_Y, panel.getPlayer().getY());
     }
 
     /**
@@ -125,8 +125,8 @@ class GamePanelTest {
 
         panel.resetState();
 
-        assertEquals(com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_X, panel.getPlayer().getX());
-        assertEquals(com.swiftfaze.veil.GameConst.DEFAULT_PLAYER_START_Y, panel.getPlayer().getY());
+        assertEquals(GameConst.DEFAULT_PLAYER_START_X, panel.getPlayer().getX());
+        assertEquals(GameConst.DEFAULT_PLAYER_START_Y, panel.getPlayer().getY());
         assertFalse(panel.isPaused());
     }
 

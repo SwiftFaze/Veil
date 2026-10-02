@@ -1,4 +1,5 @@
 package com.swiftfaze.veil.sandbox;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
@@ -144,7 +145,7 @@ class DevConsoleModelTest {
             @Override
             public List<DevConsoleEntry> entries() {
                 return List.of(names).stream()
-                        .map(name -> new DevConsoleEntry("core", "core:" + name.toLowerCase(java.util.Locale.ROOT), category, name))
+                        .map(name -> new DevConsoleEntry("core", "core:" + name.toLowerCase(Locale.ROOT), category, name))
                         .toList();
             }
 

@@ -48,15 +48,15 @@ public final class ControlsHintBarWidget extends JPanel {
     }
 
     public ControlsHintBarWidget() {
-        setBackground(WidgetTheme.BACKGROUND);
-        setBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, WidgetTheme.BORDER));
+        setBackground(WidgetTheme.background());
+        setBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, WidgetTheme.border()));
         setLayout(new BorderLayout());
 
-        hintsPanel.setBackground(WidgetTheme.BACKGROUND);
+        hintsPanel.setBackground(WidgetTheme.background());
         add(hintsPanel, BorderLayout.CENTER);
 
-        versionLabel.setForeground(WidgetTheme.DIMMED_TEXT);
-        versionLabel.setBackground(WidgetTheme.BACKGROUND);
+        versionLabel.setForeground(WidgetTheme.dimmedText());
+        versionLabel.setBackground(WidgetTheme.background());
         versionLabel.setOpaque(true);
         versionLabel.setFont(HINT_FONT);
         versionLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -111,21 +111,21 @@ public final class ControlsHintBarWidget extends JPanel {
 
     private static JPanel buildCell(Hint hint, int keyWidth, int keyHeight) {
         JPanel cell = new JPanel(new FlowLayout(FlowLayout.LEFT, CELL_GAP, 0));
-        cell.setBackground(WidgetTheme.BACKGROUND);
+        cell.setBackground(WidgetTheme.background());
         if (hint == null) {
             return cell;
         }
 
         JLabel key = new JLabel(keycapText(hint.key()));
         key.setOpaque(true);
-        key.setBackground(WidgetTheme.NORMAL_TEXT);
-        key.setForeground(WidgetTheme.BACKGROUND);
+        key.setBackground(WidgetTheme.normalText());
+        key.setForeground(WidgetTheme.background());
         key.setFont(HINT_FONT);
         key.setHorizontalAlignment(SwingConstants.LEFT);
         key.setPreferredSize(new Dimension(keyWidth, keyHeight));
 
         JLabel action = new JLabel(hint.action());
-        action.setForeground(WidgetTheme.NORMAL_TEXT);
+        action.setForeground(WidgetTheme.normalText());
         action.setFont(HINT_FONT);
 
         cell.add(key);

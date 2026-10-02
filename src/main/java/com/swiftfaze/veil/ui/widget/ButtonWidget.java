@@ -7,6 +7,7 @@ import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
 import javax.swing.InputMap;
 import javax.swing.JLabel;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 
 public class ButtonWidget extends Widget {
@@ -19,8 +20,8 @@ public class ButtonWidget extends Widget {
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
         label = new JLabel(text);
-        label.setForeground(WidgetTheme.NORMAL_TEXT);
-        label.setFont(new java.awt.Font(java.awt.Font.MONOSPACED, java.awt.Font.PLAIN, 16));
+        label.setForeground(WidgetTheme.normalText());
+        label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
         label.setAlignmentX(LEFT_ALIGNMENT);
         add(label);
 

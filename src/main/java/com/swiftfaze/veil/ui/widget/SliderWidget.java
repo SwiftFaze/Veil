@@ -7,6 +7,7 @@ import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JLabel;
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 
 public class SliderWidget extends Widget {
@@ -26,8 +27,8 @@ public class SliderWidget extends Widget {
 
         setLayout(new BorderLayout());
         display = new JLabel(renderBar());
-        display.setForeground(WidgetTheme.NORMAL_TEXT);
-        display.setFont(new java.awt.Font(java.awt.Font.MONOSPACED, java.awt.Font.PLAIN, 16));
+        display.setForeground(WidgetTheme.normalText());
+        display.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
         add(display, BorderLayout.CENTER);
 
         bindKeys();

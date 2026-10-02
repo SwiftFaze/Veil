@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.ui;
 
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.config.SettingsStore;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
@@ -43,7 +44,7 @@ public class SettingsScreenPanel extends JPanel implements HintAware {
         final String name;
         final Object widget; // SliderWidget, RadioGroupWidget<String>, or null for actions
 
-        SettingsRow(String name, Object widget) {
+        SettingsRow(String name, @Nullable Object widget) {
             this.name = name;
             this.widget = widget;
         }
@@ -65,20 +66,20 @@ public class SettingsScreenPanel extends JPanel implements HintAware {
         this.settingsStore = settingsStore;
         this.rows = new ArrayList<>();
 
-        setBackground(WidgetTheme.BACKGROUND);
+        setBackground(WidgetTheme.background());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(WidgetTheme.BORDER, 2),
+                BorderFactory.createLineBorder(WidgetTheme.border(), 2),
                 BorderFactory.createEmptyBorder(20, 40, 20, 40)));
         setFocusable(true);
 
         JLabel header = new JLabel("Settings");
-        header.setForeground(WidgetTheme.NORMAL_TEXT);
+        header.setForeground(WidgetTheme.normalText());
         header.setFont(new Font(Font.MONOSPACED, Font.BOLD, 24));
         header.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         rowsPanel = new JPanel();
-        rowsPanel.setBackground(WidgetTheme.BACKGROUND);
+        rowsPanel.setBackground(WidgetTheme.background());
         rowsPanel.setLayout(new BoxLayout(rowsPanel, BoxLayout.Y_AXIS));
         rowsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -318,8 +319,8 @@ public class SettingsScreenPanel extends JPanel implements HintAware {
             label.setFont(ROW_FONT);
             label.setAlignmentX(Component.CENTER_ALIGNMENT);
             label.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
-            label.setForeground(i == selectedIndex ? WidgetTheme.SELECTED_TEXT : WidgetTheme.NORMAL_TEXT);
-            label.setBackground(i == selectedIndex ? WidgetTheme.SELECTED_HIGHLIGHT : WidgetTheme.BACKGROUND);
+            label.setForeground(i == selectedIndex ? WidgetTheme.selectedText() : WidgetTheme.normalText());
+            label.setBackground(i == selectedIndex ? WidgetTheme.selectedHighlight() : WidgetTheme.background());
             label.setOpaque(true);
             labels.add(label);
             rowsPanel.add(label);

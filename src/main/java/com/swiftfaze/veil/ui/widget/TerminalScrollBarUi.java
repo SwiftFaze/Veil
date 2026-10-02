@@ -15,8 +15,8 @@ public class TerminalScrollBarUi extends BasicScrollBarUI {
 
     @Override
     protected void configureScrollBarColors() {
-        this.thumbColor = WidgetTheme.SCROLLBAR_THUMB;
-        this.trackColor = WidgetTheme.BACKGROUND;
+        this.thumbColor = WidgetTheme.scrollbarThumb();
+        this.trackColor = WidgetTheme.background();
     }
 
     @Override
@@ -31,7 +31,7 @@ public class TerminalScrollBarUi extends BasicScrollBarUI {
 
     @Override
     protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds) {
-        g.setColor(WidgetTheme.BACKGROUND);
+        g.setColor(WidgetTheme.background());
         g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height);
     }
 
@@ -40,7 +40,7 @@ public class TerminalScrollBarUi extends BasicScrollBarUI {
         if (thumbBounds.isEmpty()) {
             return;
         }
-        g.setColor(WidgetTheme.SCROLLBAR_THUMB);
+        g.setColor(WidgetTheme.scrollbarThumb());
         g.fillRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height);
     }
 

@@ -134,8 +134,8 @@ public class SuggestionOverlayWidget {
 
     private void restyleRow(int index, boolean isHighlighted) {
         JLabel row = rowLabels.get(index);
-        row.setBackground(isHighlighted ? WidgetTheme.SELECTED_HIGHLIGHT : WidgetTheme.BACKGROUND);
-        row.setForeground(isHighlighted ? WidgetTheme.SELECTED_TEXT : WidgetTheme.NORMAL_TEXT);
+        row.setBackground(isHighlighted ? WidgetTheme.selectedHighlight() : WidgetTheme.background());
+        row.setForeground(isHighlighted ? WidgetTheme.selectedText() : WidgetTheme.normalText());
     }
 
     private static @Nullable JLayeredPane layeredPaneOf(JComponent owner) {
@@ -149,8 +149,8 @@ public class SuggestionOverlayWidget {
         }
         content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-        content.setBackground(WidgetTheme.BACKGROUND);
-        content.setBorder(BorderFactory.createLineBorder(WidgetTheme.WINDOW_BORDER, BORDER_WIDTH));
+        content.setBackground(WidgetTheme.background());
+        content.setBorder(BorderFactory.createLineBorder(WidgetTheme.windowBorder(), BORDER_WIDTH));
         this.layeredPane = pane;
         pane.add(content, JLayeredPane.POPUP_LAYER);
     }
@@ -189,8 +189,8 @@ public class SuggestionOverlayWidget {
         label.setFont(ROW_FONT);
         label.setOpaque(true);
         label.setFocusable(false);
-        label.setBackground(isHighlighted ? WidgetTheme.SELECTED_HIGHLIGHT : WidgetTheme.BACKGROUND);
-        label.setForeground(isHighlighted ? WidgetTheme.SELECTED_TEXT : WidgetTheme.NORMAL_TEXT);
+        label.setBackground(isHighlighted ? WidgetTheme.selectedHighlight() : WidgetTheme.background());
+        label.setForeground(isHighlighted ? WidgetTheme.selectedText() : WidgetTheme.normalText());
         label.setBorder(BorderFactory.createEmptyBorder(ROW_PADDING_V, ROW_PADDING_H, ROW_PADDING_V, ROW_PADDING_H));
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
