@@ -445,7 +445,7 @@ literal in an expression forces the reader to infer its meaning from context.
     <rule ref="category/java/bestpractices.xml/MethodReturnsInternalArray"/>
     <rule ref="category/java/bestpractices.xml/OneDeclarationPerLine"/>
     <rule ref="category/java/bestpractices.xml/PrimitiveWrapperInstantiation"/>
-    <rule ref="category/java/bestpractices.xml/RelianceOnDefaultCharset"/>
+    <!-- RelianceOnDefaultCharset: superseded by forbiddenapis gate (#218) -->
     <rule ref="category/java/bestpractices.xml/ReplaceEnumerationWithIterator"/>
     <rule ref="category/java/bestpractices.xml/ReplaceHashtableWithMap"/>
     <rule ref="category/java/bestpractices.xml/ReplaceVectorWithList"/>
@@ -641,11 +641,7 @@ literal in an expression forces the reader to infer its meaning from context.
     <rule ref="category/java/design.xml/MutableStaticState"/>
     <!-- Previously excluded; will flag pure entity/config holders with no behaviour. Now included per #215's governing principle. See impacts.md. -->
     <rule ref="category/java/design.xml/DataClass"/>
-    <!-- UseLocaleWithCaseConversions: conflicts with the StringCaseLocaleUsage
-         Error Prone check's existing WARN demotion ("ASCII content types") - that
-         demotion is itself reversed by this issue (see the Error Prone section
-         below), so the conflict is resolved, not merely accommodated. -->
-    <rule ref="category/java/errorprone.xml/UseLocaleWithCaseConversions"/>
+    <!-- UseLocaleWithCaseConversions: superseded by forbiddenapis gate (#218) -->
     <!-- LawOfDemeter: measured at 73 violations across 21 files (11 in
          src/main, mostly Swing panels; 10 in src/test, mostly Cucumber step
          definitions) before being added - see intent doc Clarification C2.

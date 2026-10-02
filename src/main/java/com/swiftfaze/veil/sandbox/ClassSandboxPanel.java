@@ -100,7 +100,8 @@ public class ClassSandboxPanel extends JPanel {
             labels[i].setForeground(i == selectedIndex ? WidgetTheme.ACCENT : WidgetTheme.NORMAL_TEXT);
         }
         Stats stats = model.computedStats(names.get(selectedIndex));
-        statsLabel.setText(String.format(Locale.ROOT,
+        statsLabel.setText(String.format(
+                Locale.ROOT,
                 "ATK %d  DEF %d  HP %d  MP %d",
                 stats.getAttackPower(), stats.getDefense(), stats.getMaxHp(), stats.getMaxMana()
         ));

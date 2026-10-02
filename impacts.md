@@ -188,3 +188,24 @@ native rules and 13 of the 19 vendored jPinpoint rules produced zero
 violations — the codebase already satisfies them. `UseLocaleWithCaseConversions`
 and the four restored Error Prone checks already landed clean as a required
 part of this change, so none of their would-be violations appear above.
+
+## forbidden-apis gate (#218)
+
+0 unfixable call sites; 4 call sites fixed by this change to satisfy the
+jdk-unsafe and jdk-deprecated signature bundles (Java 17 target).
+
+### Call sites fixed
+
+All violations were default-locale uses of `String.format()` where
+`String.format(Locale.ROOT, ...)` is the appropriate fix (non-user-visible
+formatting for logging, testing, and dev console display).
+
+| File | Line | Method | Call | Fix |
+|---|---|---|---|---|
+| `testing/approval/ApprovalCheck.java` | 39 | `failWithReceived` | `String.format("Approval test failed...")` | Add `Locale.ROOT` as first format argument |
+| `ui/widget/TranscriptWidget.java` | 107 | `padded` | `String.format("%-" + width + "s", text)` | Add `Locale.ROOT` as first format argument |
+| `sandbox/ClassSandboxPanel.java` | 96 | `refresh` | `String.format("ATK %d ...")` | Add `Locale.ROOT` as first format argument |
+| `steps/ClassSandboxSteps.java` | 79 | `assertStatsLabelShows` | `String.format("ATK %d ...")` | Add `Locale.ROOT` as first format argument |
+
+All 4 fixes are mechanical (add `Locale.ROOT` argument); no behavioral change —
+all existing inputs (ASCII/UTF-8 content) produce identical output.

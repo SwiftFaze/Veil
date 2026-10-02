@@ -10,6 +10,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -104,7 +105,7 @@ public class TranscriptWidget extends Widget {
     }
 
     private static String padded(String text, int width) {
-        return String.format("%-" + width + "s", text);
+        return String.format(Locale.ROOT, "%-" + width + "s", text);
     }
 
     private static JLabel plainLabel(String text, Color color) {

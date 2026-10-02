@@ -77,7 +77,8 @@ public class ClassSandboxSteps {
 
     private void assertStatsLabelShows(int index) {
         Stats stats = classModel.computedStats(classNames.get(index));
-        String expected = String.format(Locale.ROOT,
+        String expected = String.format(
+                Locale.ROOT,
                 "ATK %d  DEF %d  HP %d  MP %d",
                 stats.getAttackPower(), stats.getDefense(), stats.getMaxHp(), stats.getMaxMana()
         );
