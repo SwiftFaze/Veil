@@ -5,6 +5,7 @@ import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.world.Tile;
+import com.swiftfaze.veil.world.object.InteractableObject;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,7 +18,8 @@ public class ModRegistry {
             Map<String, PlayerClass> classesById,
             Map<String, Item> itemsById,
             Map<String, Quest> questsById,
-            Map<String, WidgetColorTheme> themesById
+            Map<String, WidgetColorTheme> themesById,
+            Map<String, InteractableObject> objectsById
     ) {
     }
     private final Map<String, Building> buildingsById = new LinkedHashMap<>();
@@ -26,6 +28,7 @@ public class ModRegistry {
     private final Map<String, Item> itemsById = new LinkedHashMap<>();
     private final Map<String, Quest> questsById = new LinkedHashMap<>();
     private final Map<String, WidgetColorTheme> themesById = new LinkedHashMap<>();
+    private final Map<String, InteractableObject> objectsById = new LinkedHashMap<>();
     private final List<String> modLoadOrder;
 
     ModRegistry(RegistryMaps maps, List<String> modLoadOrder) {
@@ -35,6 +38,7 @@ public class ModRegistry {
         this.itemsById.putAll(maps.itemsById());
         this.questsById.putAll(maps.questsById());
         this.themesById.putAll(maps.themesById());
+        this.objectsById.putAll(maps.objectsById());
         this.modLoadOrder = List.copyOf(modLoadOrder);
     }
 
@@ -80,6 +84,11 @@ public class ModRegistry {
 
     public List<WidgetColorTheme> getAllThemes() {
         return List.copyOf(themesById.values());
+    }
+
+    /** A template to copy with {@link InteractableObject#newInstance()} before placing it. */
+    public InteractableObject getObject(String id) {
+        return objectsById.get(id);
     }
 
     public List<String> getModLoadOrder() {

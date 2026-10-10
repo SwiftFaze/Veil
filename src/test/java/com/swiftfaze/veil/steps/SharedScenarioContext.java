@@ -27,6 +27,7 @@ public final class SharedScenarioContext {
     private static final ThreadLocal<List<Consumer<UiComponentFrameworkSteps>>> UI_STEPS_LISTENERS =
             ThreadLocal.withInitial(ArrayList::new);
     private static final ThreadLocal<KitchenSinkPreviewPanel> PREVIEW_PANEL_HOLDER = new ThreadLocal<>();
+    private static final ThreadLocal<GamePanelFixture> GAME_FIXTURE_HOLDER = new ThreadLocal<>();
 
     public static Camera getCamera() {
         return CAMERA.get();
@@ -95,6 +96,15 @@ public final class SharedScenarioContext {
         PREVIEW_PANEL_HOLDER.set(panel);
     }
 
+    /** The game panel the current scenario drives, or null when it drives none. */
+    public static GamePanelFixture getGameFixture() {
+        return GAME_FIXTURE_HOLDER.get();
+    }
+
+    static void setGameFixture(GamePanelFixture fixture) {
+        GAME_FIXTURE_HOLDER.set(fixture);
+    }
+
     public static void cleanup() {
         CAMERA.remove();
         DEV_CONSOLE_MODEL.remove();
@@ -104,5 +114,6 @@ public final class SharedScenarioContext {
         UI_STEPS_HOLDER.remove();
         UI_STEPS_LISTENERS.remove();
         PREVIEW_PANEL_HOLDER.remove();
+        GAME_FIXTURE_HOLDER.remove();
     }
 }

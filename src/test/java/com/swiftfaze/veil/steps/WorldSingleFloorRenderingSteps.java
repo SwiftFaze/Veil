@@ -61,7 +61,12 @@ public class WorldSingleFloorRenderingSteps {
 
     @When("the player moves up")
     public void thePlayerMovesUp() {
-        player.moveUp(scene);
+        GamePanelFixture game = SharedScenarioContext.getGameFixture();
+        if (game != null) {
+            game.pressMoveUp();
+        } else {
+            player.moveUp(scene);
+        }
     }
 
     @When("the player moves right")

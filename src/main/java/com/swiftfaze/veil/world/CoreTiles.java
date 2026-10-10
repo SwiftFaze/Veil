@@ -8,7 +8,6 @@ public final class CoreTiles {
     public static final String DIRT = "core:dirt";
     public static final String WATER = "core:water";
     public static final String STONE = "core:stone";
-    public static final String DOOR = "core:door";
     public static final String WOOD = "core:wood";
     public static final String SAND = "core:sand";
     public static final String MUD = "core:mud";
@@ -21,7 +20,6 @@ public final class CoreTiles {
     public static final String TREE = "core:tree";
     public static final String ROCK = "core:rock";
     public static final String BUSH = "core:bush";
-    public static final String CHEST = "core:chest";
     public static final String PORTAL = "core:portal";
     public static final String LAVA = "core:lava";
     public static final String PLACEHOLDER = "core:placeholder";

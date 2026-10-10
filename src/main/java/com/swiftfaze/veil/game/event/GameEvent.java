@@ -24,6 +24,10 @@ public sealed interface GameEvent {
     record PopupToggled(String name, boolean open) implements GameEvent {
     }
 
+    /** An interact key press found an object in range that refused to change state. */
+    record InteractionRefused(String reason) implements GameEvent {
+    }
+
     static GameEvent screenChanged(String from, String to) {
         return new ScreenChanged(from, to);
     }
@@ -38,5 +42,9 @@ public sealed interface GameEvent {
 
     static GameEvent popupToggled(String name, boolean open) {
         return new PopupToggled(name, open);
+    }
+
+    static GameEvent interactionRefused(String reason) {
+        return new InteractionRefused(reason);
     }
 }

@@ -2,6 +2,7 @@ package com.swiftfaze.veil.steps;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.swiftfaze.veil.entities.buildings.Building;
 import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.entities.player.Stats;
 import com.swiftfaze.veil.entities.quests.Quest;
@@ -11,6 +12,9 @@ import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.mods.WidgetColorTheme;
 import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import com.swiftfaze.veil.world.Tile;
+import com.swiftfaze.veil.world.object.Chest;
+import com.swiftfaze.veil.world.object.Door;
+import com.swiftfaze.veil.world.object.InteractableObject;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.ParameterType;
@@ -24,20 +28,25 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ModLoaderSteps {
@@ -1354,5 +1363,169 @@ public class ModLoaderSteps {
         registry.add("stats", statNames);
 
         Files.writeString(coreDir.resolve("stats.json"), registry.toString());
+    }
+
+    // Object definitions and building placements. Test mods are written straight to disk:
+    // the object steps need only one or two files each, unlike the fixture maps above.
+
+    private static final String TEST_MOD = "test";
+    private static final String TEST_COLOR = "\"color\":{\"r\":160,\"g\":110,\"b\":60}";
+    private static final String DOOR_SYMBOLS = "\"symbolOpen\":\"/\",\"symbolClosed\":\"+\"";
+    private static final String CORE_WOOD = "core:wood";
+    private String lastBuildingId;
+    private InteractableObject lastPlacedObject;
+
+    @Given("the {string} mod is loaded")
+    public void theModIsLoaded(String modId) throws IOException {
+        Path source = Paths.get("mods").resolve(modId);
+        List<Path> sourcePaths;
+        try (Stream<Path> paths = Files.walk(source)) {
+            sourcePaths = paths.toList();
+        }
+        for (Path sourcePath : sourcePaths) {
+            Path target = modsRoot.resolve(modId).resolve(source.relativize(sourcePath).toString());
+            if (Files.isDirectory(sourcePath)) {
+                Files.createDirectories(target);
+            } else {
+                Files.copy(sourcePath, target);
+            }
+        }
+    }
+
+    @Given("a mod declaring a door object {string} with no {string} field")
+    public void aModDeclaringADoorObjectWithNoField(String objectId, String absentField) throws IOException {
+        assertEquals("open", absentField, "this step writes a door without its optional open field");
+        writeObject(objectId, "{\"id\":\"" + objectId + "\",\"type\":\"door\"," + TEST_COLOR + "," + DOOR_SYMBOLS + "}");
+    }
+
+    @Given("the mod declares a chest object {string} with {int} slots containing {string}")
+    public void theModDeclaresAChestObject(String objectId, int slots, String itemId) throws IOException {
+        writeChest(objectId, slots, List.of(itemId));
+    }
+
+    @Given("a mod declaring a chest {string} with {int} slot containing {string} and {string}")
+    public void aModDeclaringAChestWithTwoItemsInOneSlot(String objectId, int slots, String first, String second) throws IOException {
+        writeChest(objectId, slots, List.of(first, second));
+    }
+
+    @Given("a mod declaring a chest {string} with {int} slots containing {string}")
+    public void aModDeclaringAChestWithItems(String objectId, int slots, String itemId) throws IOException {
+        writeChest(objectId, slots, List.of(itemId));
+    }
+
+    @Given("a mod declaring an object {string} with type {string}")
+    public void aModDeclaringAnObjectWithType(String objectId, String type) throws IOException {
+        writeObject(objectId, "{\"id\":\"" + objectId + "\",\"type\":\"" + type + "\"," + TEST_COLOR + "}");
+    }
+
+    @Given("a mod declaring a building placing object {string}")
+    public void aModDeclaringABuildingPlacingObject(String objectId) throws IOException {
+        writeBuilding(1, 1, objectId, 0, 0);
+    }
+
+    @Given("a mod declaring a building placing an object outside its blueprint")
+    public void aModDeclaringABuildingPlacingAnObjectOutsideItsBlueprint() throws IOException {
+        writeBuilding(2, 2, "core:wooden_door", 5, 5);
+    }
+
+    @Then("object {string} is a door that starts closed")
+    public void objectIsADoorThatStartsClosed(String objectId) {
+        Door door = assertInstanceOf(Door.class, requireRegistry().getObject(objectId));
+        assertFalse(door.isOpen());
+    }
+
+    @Then("object {string} is a chest with {int} slots containing {string}")
+    public void objectIsAChestWithSlotsContaining(String objectId, int slots, String itemId) {
+        Chest chest = assertInstanceOf(Chest.class, requireRegistry().getObject(objectId));
+        assertEquals(slots, chest.getSlots().size());
+        List<String> itemIds = chest.getSlots().stream().flatMap(Optional::stream).map(Item::getId).toList();
+        assertEquals(List.of(itemId), itemIds);
+    }
+
+    @Then("loading fails with a ModLoadException naming {string} and its slot count")
+    public void loadingFailsNamingAndItsSlotCount(String objectId) {
+        assertLoadFailureNames("1 slot", objectId);
+    }
+
+    @Then("loading fails with a ModLoadException naming {string}")
+    public void loadingFailsNaming(String name) {
+        assertLoadFailureNames(name);
+    }
+
+    @Then("loading fails with a ModLoadException naming the unknown type {string}")
+    public void loadingFailsNamingTheUnknownType(String type) {
+        assertLoadFailureNames(type);
+    }
+
+    @Then("loading fails with a ModLoadException naming the building and the position")
+    public void loadingFailsNamingTheBuildingAndThePosition() {
+        assertLoadFailureNames("test:hut", "(5, 5)");
+    }
+
+    @Then("building {string} places a door object at \\({int}, {int})")
+    public void buildingPlacesADoorObjectAt(String buildingId, int x, int y) {
+        lastBuildingId = buildingId;
+        lastPlacedObject = requireRegistry().getBuilding(buildingId).getObjects().stream()
+                .filter(placement -> placement.x() == x && placement.y() == y)
+                .map(Building.ObjectPlacement::object)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("no object placed at (" + x + ", " + y + ") in " + buildingId));
+        assertInstanceOf(Door.class, lastPlacedObject);
+    }
+
+    @Then("that door starts closed")
+    public void thatDoorStartsClosed() {
+        assertFalse(assertInstanceOf(Door.class, lastPlacedObject).isOpen());
+    }
+
+    @Then("the blueprint tile at \\({int}, {int}) is {string}")
+    public void theBlueprintTileAtIs(int x, int y, String tileId) {
+        Tile placed = requireRegistry().getBuilding(lastBuildingId).getBlueprint().get(y).get(x);
+        assertEquals(requireRegistry().getTile(tileId), placed);
+    }
+
+    @Then("no tile with ID {string} is available")
+    public void noTileWithIdIsAvailable(String tileId) {
+        assertNull(requireRegistry().getTile(tileId), "tile '" + tileId + "' should no longer exist");
+    }
+
+    private ModRegistry requireRegistry() {
+        assertNotNull(registry, "loading did not complete: " + (thrown == null ? "unknown" : thrown.getMessage()));
+        return registry;
+    }
+
+    private void assertLoadFailureNames(String... fragments) {
+        assertNotNull(thrown, "expected loading to fail");
+        for (String fragment : fragments) {
+            assertTrue(thrown.getMessage().contains(fragment), "message should name " + fragment + ": " + thrown.getMessage());
+        }
+    }
+
+    private Path testModDir() throws IOException {
+        Path modDir = modsRoot.resolve(TEST_MOD);
+        Files.createDirectories(modDir);
+        Files.writeString(modDir.resolve("mod.json"), "{\"id\":\"" + TEST_MOD + "\",\"dependsOn\":[]}");
+        return modDir;
+    }
+
+    private void writeObject(String objectId, String json) throws IOException {
+        Path objectsDir = testModDir().resolve("objects");
+        Files.createDirectories(objectsDir);
+        Files.writeString(objectsDir.resolve(objectId.replace(':', '_') + ".json"), json);
+    }
+
+    private void writeChest(String objectId, int slots, List<String> itemIds) throws IOException {
+        String contents = String.join(",", itemIds.stream().map(id -> "\"" + id + "\"").toList());
+        writeObject(objectId, "{\"id\":\"" + objectId + "\",\"type\":\"chest\"," + TEST_COLOR + ",\"symbol\":\"C\","
+                + "\"slots\":" + slots + ",\"contents\":[" + contents + "]}");
+    }
+
+    private void writeBuilding(int width, int height, String objectId, int x, int y) throws IOException {
+        String row = "[" + String.join(",", Collections.nCopies(width, "\"" + CORE_WOOD + "\"")) + "]";
+        String rows = String.join(",", Collections.nCopies(height, row));
+        Path buildingsDir = testModDir().resolve("buildings");
+        Files.createDirectories(buildingsDir);
+        Files.writeString(buildingsDir.resolve("hut.json"), "{\"id\":\"test:hut\",\"tiles\":[" + rows + "],"
+                + "\"objects\":[{\"id\":\"" + objectId + "\",\"x\":" + x + ",\"y\":" + y + "}]}");
     }
 }

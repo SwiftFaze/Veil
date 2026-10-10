@@ -10,6 +10,7 @@ import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.exceptions.ModLoadException;
 import com.swiftfaze.veil.world.Tile;
+import com.swiftfaze.veil.world.object.InteractableObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +62,8 @@ public final class ModLoader {
         Map<String, String> owningClassModById = new LinkedHashMap<>();
         Map<String, Item> itemsById = new LinkedHashMap<>();
         Map<String, String> owningItemModById = new LinkedHashMap<>();
+        Map<String, InteractableObject> objectsById = new LinkedHashMap<>();
+        Map<String, String> owningObjectModById = new LinkedHashMap<>();
         Map<String, Quest> questsById = new LinkedHashMap<>();
         Map<String, String> owningQuestModById = new LinkedHashMap<>();
         Map<String, WidgetColorTheme> themesById = new LinkedHashMap<>();
@@ -68,13 +71,16 @@ public final class ModLoader {
         RegistryTarget<Building> buildings = new RegistryTarget<>(buildingsById, owningBuildingModById);
         RegistryTarget<PlayerClass> classes = new RegistryTarget<>(classesById, owningClassModById);
         RegistryTarget<Item> items = new RegistryTarget<>(itemsById, owningItemModById);
+        RegistryTarget<InteractableObject> objects = new RegistryTarget<>(objectsById, owningObjectModById);
         RegistryTarget<Quest> quests = new RegistryTarget<>(questsById, owningQuestModById);
         List<String> modLoadOrder = new ArrayList<>();
+        Lookups lookups = new Lookups(tilesById, objectsById);
         for (ModManifest manifest : loadOrder) {
             modLoadOrder.add(manifest.id());
-            loadBuildings(modsRoot, manifest, tilesById, buildings);
             loadClasses(modsRoot, manifest, validStatNames, classes);
             loadItems(modsRoot, manifest, validStatNames, items);
+            loadObjects(modsRoot, manifest, itemsById, objects);
+            loadBuildings(modsRoot, manifest, lookups, buildings);
             loadQuests(modsRoot, manifest, itemsById, quests);
             loadThemes(modsRoot, manifest, themesById, owningThemeModById);
         }
@@ -83,7 +89,7 @@ public final class ModLoader {
                 modLoadOrder.size(), String.join(", ", modLoadOrder), tilesById.size(), buildingsById.size(),
                 classesById.size(), itemsById.size(), questsById.size(), themesById.size());
 
-        ModRegistry.RegistryMaps maps = new ModRegistry.RegistryMaps(buildingsById, tilesById, classesById, itemsById, questsById, themesById);
+        ModRegistry.RegistryMaps maps = new ModRegistry.RegistryMaps(buildingsById, tilesById, classesById, itemsById, questsById, themesById, objectsById);
         return new ModRegistry(maps, modLoadOrder);
     }
 
@@ -195,12 +201,15 @@ public final class ModLoader {
         }
     }
 
-    private static Color readColor(JsonObject color) {
+    static Color readColor(JsonObject color) {
         return new Color(color.get("r").getAsInt(), color.get("g").getAsInt(), color.get("b").getAsInt());
     }
 
+    private record Lookups(Map<String, Tile> tilesById, Map<String, InteractableObject> objectsById) {
+    }
+
     private static void loadBuildings(Path modsRoot, ModManifest manifest,
-                                       Map<String, Tile> tilesById,
+                                       Lookups lookups,
                                        RegistryTarget<Building> buildings) {
         Path buildingsDir = modsRoot.resolve(manifest.id()).resolve("buildings");
         if (!Files.isDirectory(buildingsDir)) {
@@ -209,7 +218,7 @@ public final class ModLoader {
 
         try (DirectoryStream<Path> files = Files.newDirectoryStream(buildingsDir, "*.json")) {
             for (Path file : files) {
-                loadBuilding(file, manifest.id(), tilesById, buildings);
+                loadBuilding(file, manifest.id(), lookups, buildings);
             }
         } catch (IOException e) {
             throw new ModLoadException("Failed to scan buildings for mod: " + manifest.id(), e);
@@ -217,16 +226,18 @@ public final class ModLoader {
     }
 
     private static void loadBuilding(Path file, String modId,
-                                      Map<String, Tile> tilesById,
+                                      Lookups lookups,
                                       RegistryTarget<Building> buildings) {
         try (Reader reader = Files.newBufferedReader(file)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             ModSchemaValidator.validate("building", json, file);
             String id = json.get("id").getAsString();
-            List<List<Tile>> blueprint = readBlueprint(json.getAsJsonArray("tiles"), tilesById, id, file);
+            List<List<Tile>> blueprint = readBlueprint(json.getAsJsonArray("tiles"), lookups.tilesById(), id, file);
+            List<Building.ObjectPlacement> placements = ObjectReader.readPlacements(json, id, file, lookups.objectsById());
+            ObjectReader.checkPlacementsInBlueprint(placements, blueprint, id, file);
 
             RegistrationContext<Building> buildingContext = new RegistrationContext<>(buildings.registry(), buildings.owningModById(), json.has("overrides"), "Building");
-            registerWithCollisionCheck(id, new Building(blueprint), modId, buildingContext);
+            registerWithCollisionCheck(id, new Building(blueprint, placements), modId, buildingContext);
         } catch (ModLoadException e) {
             throw e;
         } catch (JsonSyntaxException | IOException e) {
@@ -392,6 +403,40 @@ public final class ModLoader {
             throw e;
         } catch (JsonSyntaxException | IOException e) {
             throw new ModLoadException("Failed to load item from file: " + file, e);
+        }
+    }
+
+    private static void loadObjects(Path modsRoot, ModManifest manifest,
+                                     Map<String, Item> itemsById,
+                                     RegistryTarget<InteractableObject> objects) {
+        Path objectsDir = modsRoot.resolve(manifest.id()).resolve("objects");
+        if (!Files.isDirectory(objectsDir)) {
+            return;
+        }
+
+        try (DirectoryStream<Path> files = Files.newDirectoryStream(objectsDir, "*.json")) {
+            for (Path file : files) {
+                loadObject(file, manifest.id(), itemsById, objects);
+            }
+        } catch (IOException e) {
+            throw new ModLoadException("Failed to scan objects for mod: " + manifest.id(), e);
+        }
+    }
+
+    private static void loadObject(Path file, String modId,
+                                    Map<String, Item> itemsById,
+                                    RegistryTarget<InteractableObject> objects) {
+        try (Reader reader = Files.newBufferedReader(file)) {
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            ModSchemaValidator.validate("object", json, file);
+            String id = json.get("id").getAsString();
+            InteractableObject object = ObjectReader.readObject(json, id, file, itemsById);
+            RegistrationContext<InteractableObject> objectContext = new RegistrationContext<>(objects.registry(), objects.owningModById(), json.has("overrides"), "Object");
+            registerWithCollisionCheck(id, object, modId, objectContext);
+        } catch (ModLoadException e) {
+            throw e;
+        } catch (JsonSyntaxException | IOException e) {
+            throw new ModLoadException("Failed to load object from file: " + file, e);
         }
     }
 

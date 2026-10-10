@@ -37,6 +37,29 @@
       "type": "integer",
       "description": "Height of the building blueprint (optional, used by test rendering)"
     },
+    "objects": {
+      "type": "array",
+      "description": "World objects (chests, doors) placed on blueprint tiles when the building is placed",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "x", "y"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Id of an object defined in a mod's objects/ folder (e.g., 'core:wooden_door')"
+          },
+          "x": {
+            "type": "integer",
+            "description": "Column within the blueprint, 0 = leftmost"
+          },
+          "y": {
+            "type": "integer",
+            "description": "Row within the blueprint, 0 = top"
+          }
+        }
+      }
+    },
     "overrides": {
       "type": "string",
       "description": "If present, this building overrides another building with the same id"

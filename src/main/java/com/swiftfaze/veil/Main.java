@@ -8,6 +8,8 @@ import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.mods.WidgetColorTheme;
+import com.swiftfaze.veil.ui.ChestPanel;
+import com.swiftfaze.veil.ui.ChestPanelListener;
 import com.swiftfaze.veil.ui.CodexPanel;
 import com.swiftfaze.veil.ui.GameWindow;
 import com.swiftfaze.veil.ui.InventoryPanel;
@@ -117,7 +119,13 @@ public final class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static final List<ControlsHintBarWidget.Hint> GAME_HINTS = List.of(
             new ControlsHintBarWidget.Hint("i", "Inventory"),
-            new ControlsHintBarWidget.Hint("x", "Codex"));
+            new ControlsHintBarWidget.Hint("x", "Codex"),
+            new ControlsHintBarWidget.Hint("e", "Interact"));
+    /** The static controls hints shown on the world screen. */
+    public static List<ControlsHintBarWidget.Hint> gameHints() {
+        return GAME_HINTS;
+    }
+
     private static final boolean DEV_CONSOLE_ENABLED = Boolean.getBoolean("veil.devConsole");
 
     public static void main(String[] args) {
@@ -150,12 +158,14 @@ public final class Main {
         CodexPanel codexPanel = new CodexPanel(hintBar);
         PauseMenuPopup pauseMenuPopup = new PauseMenuPopup();
         cards.put("pause", pauseMenuPopup);
-        wirePopups(gamePanel, new PopupPanels(inventoryPanel, codexPanel, pauseMenuPopup), hintBar, eventLog);
+        ChestPanel chestPanel = new ChestPanel(hintBar);
+        wirePopups(gamePanel, new PopupPanels(inventoryPanel, codexPanel, pauseMenuPopup, chestPanel), hintBar, eventLog);
 
         JLayeredPane gameContentArea = GameWindow.buildContentArea(gamePanel);
         gameContentArea.add(inventoryPanel, JLayeredPane.POPUP_LAYER);
         gameContentArea.add(codexPanel, JLayeredPane.POPUP_LAYER);
         gameContentArea.add(pauseMenuPopup, JLayeredPane.POPUP_LAYER);
+        gameContentArea.add(chestPanel, JLayeredPane.POPUP_LAYER);
         gameContentArea.add(inventoryPanel.getDropConfirmationPopup(), JLayeredPane.DRAG_LAYER);
 
         JPanel gameCardPanel = new JPanel(new BorderLayout());
@@ -173,6 +183,7 @@ public final class Main {
         InventoryPanel inventoryPanel = popups.inventory();
         CodexPanel codexPanel = popups.codex();
         PauseMenuPopup pauseMenuPopup = popups.pause();
+        ChestPanel chestPanel = popups.chest();
 
         inventoryPanel.setFocusManager(focusManager);
         inventoryPanel.showItems(mods.getAllItems());
@@ -190,6 +201,9 @@ public final class Main {
             restoreGameFocus(gamePanel, hintBar);
         });
 
+        chestPanel.setFocusManager(focusManager);
+        chestPanel.setOnDismiss(() -> restoreGameFocus(gamePanel, hintBar));
+        gamePanel.addGameListener(new ChestPanelListener(chestPanel));
         gamePanel.addGameListener(new PopupToggleListener(inventoryPanel, codexPanel, eventLog));
         gamePanel.addGameListener(new PauseToggleListener(gamePanel, pauseMenuPopup));
     }

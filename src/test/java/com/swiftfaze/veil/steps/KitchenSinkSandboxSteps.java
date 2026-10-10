@@ -1,6 +1,7 @@
 package com.swiftfaze.veil.steps;
 
 import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.sandbox.DevConsoleEntry;
@@ -206,16 +207,37 @@ public class KitchenSinkSandboxSteps {
     @Then("the marker is at its start position")
     public void theMarkerIsAtItsStartPosition() {
         assertPreviewShown();
-        // The start position is the first walkable tile, scanning row by row.
+        // The start position is the first walkable tile with a walkable neighbour, scanning row by row
+        // (KitchenSinkModel.initializeMarkerPosition); with none, the first walkable tile.
+        int[] start = findStart(true);
+        if (start == null) {
+            start = findStart(false);
+        }
+        Assertions.assertNotNull(start, "No walkable tile to start on");
+        Assertions.assertEquals(start[0], model.getMarkerX(), "Marker X not at start");
+        Assertions.assertEquals(start[1], model.getMarkerY(), "Marker Y not at start");
+    }
+
+    private int @Nullable [] findStart(boolean needsWalkableNeighbour) {
         for (int y = 0; y < scene.getHeight(); y++) {
             for (int x = 0; x < scene.getWidth(); x++) {
-                if (scene.isWalkable(x, y)) {
-                    Assertions.assertEquals(x, model.getMarkerX(), "Marker X not at start");
-                    Assertions.assertEquals(y, model.getMarkerY(), "Marker Y not at start");
-                    return;
+                if (scene.isWalkable(x, y) && (!needsWalkableNeighbour || hasWalkableNeighbour(x, y))) {
+                    return new int[] {x, y};
                 }
             }
         }
+        return null;
+    }
+
+    private boolean hasWalkableNeighbour(int x, int y) {
+        for (int dy = -1; dy <= 1; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                if ((dx != 0 || dy != 0) && scene.isWalkable(x + dx, y + dy)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Then("the opened detail panel shows {string}")

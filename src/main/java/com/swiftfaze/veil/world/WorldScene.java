@@ -4,6 +4,7 @@ import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.render.DrawableAsciiEntity;
 import com.swiftfaze.veil.entities.buildings.Building;
+import com.swiftfaze.veil.world.object.InteractableObject;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -14,6 +15,7 @@ import java.util.List;
 
 public abstract class WorldScene implements DrawableAsciiEntity {
     private final Tile[][] tiles;
+    private final InteractableObject[][] objects;
     private final int width;
     private final int height;
     private static final Font font = new Font(Font.MONOSPACED, Font.PLAIN, 15);
@@ -22,6 +24,7 @@ public abstract class WorldScene implements DrawableAsciiEntity {
         this.width = width;
         this.height = height;
         this.tiles = new Tile[width][height];
+        this.objects = new InteractableObject[width][height];
     }
 
     public void fillAll(Tile type) {
@@ -51,6 +54,21 @@ public abstract class WorldScene implements DrawableAsciiEntity {
                 tiles[building.getWorldX() + x][building.getWorldY() + y] = row.get(x);
             }
         }
+        for (Building.ObjectPlacement placement : building.getObjects()) {
+            placeObject(building.getWorldX() + placement.x(), building.getWorldY() + placement.y(), placement.object().newInstance());
+        }
+    }
+
+    /** Puts an object on a tile, replacing any object already there. */
+    public void placeObject(int x, int y, InteractableObject object) {
+        objects[x][y] = object;
+    }
+
+    public @Nullable InteractableObject getObject(int x, int y) {
+        if (x < 0 || x >= width || y < 0 || y >= height) {
+            return null;
+        }
+        return objects[x][y];
     }
 
     public void createBorder(int width, int height, Tile type) {
@@ -60,12 +78,14 @@ public abstract class WorldScene implements DrawableAsciiEntity {
         fillRegion(new Rectangle(width - 1, 0, 1, height), type);
     }
 
+    /** A tile is walkable when it is walkable and no object on it blocks movement. */
     public boolean isWalkable(int x, int y) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return false;
         }
         Tile type = tiles[x][y];
-        return type != null && type.isWalkable();
+        InteractableObject object = objects[x][y];
+        return type != null && type.isWalkable() && (object == null || object.isWalkable());
     }
 
     public @Nullable Tile getTile(int x, int y) {
@@ -113,18 +133,19 @@ public abstract class WorldScene implements DrawableAsciiEntity {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
+                InteractableObject object = objects[x][y];
                 Tile type = tiles[x][y];
 
-                if (type == null) {
+                if (object == null && type == null) {
                     continue;
                 }
 
                 int screenX = (x - camera.getX()) * tileWidth;
                 int screenY = (y - camera.getY()) * tileHeight + tileHeight;
 
-                g2d.setColor(type.getColor());
+                g2d.setColor(object != null ? object.getColor() : type.getColor());
                 g2d.drawString(
-                        String.valueOf(type.getSymbol()),
+                        String.valueOf(object != null ? object.getSymbol() : type.getSymbol()),
                         screenX,
                         screenY
                 );
@@ -143,10 +164,19 @@ public abstract class WorldScene implements DrawableAsciiEntity {
     private void fillTileLayer(char[][] grid, Viewport viewport) {
         for (int row = 0; row < viewport.height(); row++) {
             for (int col = 0; col < viewport.width(); col++) {
-                Tile tile = getTile(viewport.cameraX() + col, viewport.cameraY() + row);
-                grid[row][col] = tile != null ? tile.getSymbol() : ' ';
+                grid[row][col] = glyphAt(viewport.cameraX() + col, viewport.cameraY() + row);
             }
         }
+    }
+
+    /** The object's glyph where one stands, otherwise the tile's, otherwise blank. */
+    private char glyphAt(int x, int y) {
+        InteractableObject object = getObject(x, y);
+        if (object != null) {
+            return object.getSymbol();
+        }
+        Tile tile = getTile(x, y);
+        return tile != null ? tile.getSymbol() : ' ';
     }
 
     private static void overlayEntities(char[][] grid, Viewport viewport, List<? extends PositionedGlyph> entities) {

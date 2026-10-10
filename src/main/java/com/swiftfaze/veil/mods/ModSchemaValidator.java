@@ -35,6 +35,7 @@ public final class ModSchemaValidator {
 			Map.entry("class", "class.schema.json"),
 			Map.entry("item", "item.schema.json"),
 			Map.entry("quest", "quest.schema.json"),
+			Map.entry("object", "object.schema.json"),
 			Map.entry("theme", "theme.schema.json")
 	);
 
