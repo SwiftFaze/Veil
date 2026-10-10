@@ -42,6 +42,9 @@ registered mid-tick first runs next turn. `WorldPause` is the single source of t
 Each popup holds its id when it opens and releases it from `PopupWidget.addDismissListener`
 on any dismiss (wired in `PopupToggleListener` / `PauseToggleListener`), so closing one
 screen cannot unpause the world while another is open. `GamePanel.resetState()` resets both.
+`resetState()` also generates a fresh world (new seed from `WorldSeeds`) and a new `Player` at its spawn point.
+`GamePanel.regenerateWorld(seed)` swaps in a world for a given seed while keeping the same `Player`
+(stats, class, inventory) and pause state, moving it to the new spawn point; the dev console's `regen` uses it.
 
 **Player movement** (`entities/player/Player.java`): each directional move
 checks whether the target tile is walkable and, if so, moves onto it —
