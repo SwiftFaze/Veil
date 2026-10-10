@@ -107,6 +107,11 @@ public class TurnTickEngineSteps {
         assertFalse(isOpen(screen), "expected the " + screen + " screen to be closed");
     }
 
+    @Then("^the (inventory|codex|pause menu) screen is no longer open$")
+    public void theScreenIsNoLongerOpen(String screen) {
+        assertFalse(isOpen(screen), "expected the " + screen + " screen to be closed");
+    }
+
     @Then("the world is paused")
     public void theWorldIsPaused() {
         assertTrue(game.panel().getWorldPause().isPaused(), "expected the world to be paused");

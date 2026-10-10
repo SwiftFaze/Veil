@@ -98,7 +98,7 @@ Feature: Turn/tick engine advances the world one turn per successful player move
   Scenario: Switching directly between screens keeps the world paused
     Given the inventory screen is open
     When the codex screen is opened
-    Then the inventory screen is closed
+    Then the inventory screen is no longer open
     And the world is paused
 
   Scenario: Exiting to the main menu clears the turn scheduler
