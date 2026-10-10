@@ -7,11 +7,21 @@ import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.world.Tile;
 import com.swiftfaze.veil.world.object.InteractableObject;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ModRegistry {
+    private final Map<String, Building> buildingsById = new LinkedHashMap<>();
+    private final Map<String, Tile> tilesById = new LinkedHashMap<>();
+    private final Map<String, PlayerClass> classesById = new LinkedHashMap<>();
+    private final Map<String, Item> itemsById = new LinkedHashMap<>();
+    private final Map<String, Quest> questsById = new LinkedHashMap<>();
+    private final Map<String, WidgetColorTheme> themesById = new LinkedHashMap<>();
+    private final Map<String, InteractableObject> objectsById = new LinkedHashMap<>();
+    private final List<String> modLoadOrder;
+
     public record RegistryMaps(
             Map<String, Building> buildingsById,
             Map<String, Tile> tilesById,
@@ -21,15 +31,21 @@ public class ModRegistry {
             Map<String, WidgetColorTheme> themesById,
             Map<String, InteractableObject> objectsById
     ) {
+        public RegistryMaps {
+            buildingsById = copyOfOrdered(buildingsById);
+            tilesById = copyOfOrdered(tilesById);
+            classesById = copyOfOrdered(classesById);
+            itemsById = copyOfOrdered(itemsById);
+            questsById = copyOfOrdered(questsById);
+            themesById = copyOfOrdered(themesById);
+            objectsById = copyOfOrdered(objectsById);
+        }
     }
-    private final Map<String, Building> buildingsById = new LinkedHashMap<>();
-    private final Map<String, Tile> tilesById = new LinkedHashMap<>();
-    private final Map<String, PlayerClass> classesById = new LinkedHashMap<>();
-    private final Map<String, Item> itemsById = new LinkedHashMap<>();
-    private final Map<String, Quest> questsById = new LinkedHashMap<>();
-    private final Map<String, WidgetColorTheme> themesById = new LinkedHashMap<>();
-    private final Map<String, InteractableObject> objectsById = new LinkedHashMap<>();
-    private final List<String> modLoadOrder;
+
+
+    private static <V> Map<String, V> copyOfOrdered(Map<String, V> source) {
+        return Collections.unmodifiableMap(new LinkedHashMap<>(source));
+    }
 
     ModRegistry(RegistryMaps maps, List<String> modLoadOrder) {
         this.buildingsById.putAll(maps.buildingsById());

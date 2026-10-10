@@ -33,6 +33,11 @@ final class GamePanelFixture {
     private static final Tile WALL = new Tile("test:wall", '#', Color.WHITE, false);
     private static final int FLAT_FLOOR_SIZE = 20;
 
+    private final GamePanel panel;
+    private final Player player;
+    private final WorldScene scene;
+    private final ChestPanel chestPanel;
+
     /** An entity that is not the player, standing on a tile. */
     record Occupant(int x, int y) implements Positionable {
         @Override
@@ -46,11 +51,6 @@ final class GamePanelFixture {
         }
     }
 
-    private final GamePanel panel;
-    private final Player player;
-    private final WorldScene scene;
-    private final ChestPanel chestPanel;
-
     /** A game panel wired to {@code log} alone. */
     GamePanelFixture(GameEventLog log) {
         this(log, new Player(GameConst.DEFAULT_PLAYER_START_X, GameConst.DEFAULT_PLAYER_START_Y),
@@ -61,8 +61,8 @@ final class GamePanelFixture {
         this.player = player;
         this.scene = scene;
         this.panel = new GamePanel(log, player, scene);
-        this.chestPanel = new ChestPanel(new ControlsHintBarWidget());
-        panel.addGameListener(new ChestPanelListener(chestPanel));
+        this.chestPanel = new ChestPanel(new ControlsHintBarWidget()::setHints);
+        panel.addGameListener(new ChestPanelListener(chestPanel::show));
     }
 
     /** A game panel on an open floor with the player at (5, 5), wired to {@code log} and a chest panel. */

@@ -4,12 +4,14 @@ import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.GameListener;
 import com.swiftfaze.veil.world.object.Chest;
 
+import java.util.function.Consumer;
+
 /** Shows the chest panel when the player interacts with a chest. */
 public class ChestPanelListener implements GameListener {
-    private final ChestPanel chestPanel;
+    private final Consumer<Chest> onOpen;
 
-    public ChestPanelListener(ChestPanel chestPanel) {
-        this.chestPanel = chestPanel;
+    public ChestPanelListener(Consumer<Chest> onOpen) {
+        this.onOpen = onOpen;
     }
 
     @Override
@@ -19,6 +21,6 @@ public class ChestPanelListener implements GameListener {
 
     @Override
     public void openChest(Chest chest) {
-        chestPanel.show(chest);
+        onOpen.accept(chest);
     }
 }

@@ -158,8 +158,9 @@ public final class Main {
         CodexPanel codexPanel = new CodexPanel(hintBar);
         PauseMenuPopup pauseMenuPopup = new PauseMenuPopup();
         cards.put("pause", pauseMenuPopup);
-        ChestPanel chestPanel = new ChestPanel(hintBar);
-        wirePopups(gamePanel, new PopupPanels(inventoryPanel, codexPanel, pauseMenuPopup, chestPanel), hintBar, eventLog);
+        ChestPanel chestPanel = new ChestPanel(hintBar::setHints);
+        FocusManager focusManager = wirePopups(gamePanel, new PopupPanels(inventoryPanel, codexPanel, pauseMenuPopup), hintBar, eventLog);
+        wireChestPanel(gamePanel, chestPanel, focusManager, hintBar);
 
         JLayeredPane gameContentArea = GameWindow.buildContentArea(gamePanel);
         gameContentArea.add(inventoryPanel, JLayeredPane.POPUP_LAYER);
@@ -177,13 +178,12 @@ public final class Main {
     // Minimal stopgap wiring so the I/X toggles keep working with EastPanel gone — no
     // sidebar, no player-info display, just enough plumbing for the two popups to open/close/exclude
     // each other and hand focus back to the game on dismiss, same as EastPanel used to.
-    private static void wirePopups(GamePanel gamePanel, PopupPanels popups, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
+    private static FocusManager wirePopups(GamePanel gamePanel, PopupPanels popups, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
         ModRegistry mods = ModLoader.load(Paths.get("mods"));
         FocusManager focusManager = new FocusManager();
         InventoryPanel inventoryPanel = popups.inventory();
         CodexPanel codexPanel = popups.codex();
         PauseMenuPopup pauseMenuPopup = popups.pause();
-        ChestPanel chestPanel = popups.chest();
 
         inventoryPanel.setFocusManager(focusManager);
         inventoryPanel.showItems(mods.getAllItems());
@@ -201,11 +201,15 @@ public final class Main {
             restoreGameFocus(gamePanel, hintBar);
         });
 
-        chestPanel.setFocusManager(focusManager);
-        chestPanel.setOnDismiss(() -> restoreGameFocus(gamePanel, hintBar));
-        gamePanel.addGameListener(new ChestPanelListener(chestPanel));
         gamePanel.addGameListener(new PopupToggleListener(inventoryPanel, codexPanel, eventLog));
         gamePanel.addGameListener(new PauseToggleListener(gamePanel, pauseMenuPopup));
+        return focusManager;
+    }
+
+    private static void wireChestPanel(GamePanel gamePanel, ChestPanel chestPanel, FocusManager focusManager, ControlsHintBarWidget hintBar) {
+        chestPanel.setFocusManager(focusManager);
+        chestPanel.setOnDismiss(() -> restoreGameFocus(gamePanel, hintBar));
+        gamePanel.addGameListener(new ChestPanelListener(chestPanel::show));
     }
 
     private static void restoreGameFocus(GamePanel gamePanel, ControlsHintBarWidget hintBar) {

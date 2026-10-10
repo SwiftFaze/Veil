@@ -1,7 +1,6 @@
 package com.swiftfaze.veil.steps;
 
 import org.jspecify.annotations.Nullable;
-import org.jspecify.annotations.Nullable;
 import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.sandbox.DevConsoleEntry;
@@ -29,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -209,24 +209,21 @@ public class KitchenSinkSandboxSteps {
         assertPreviewShown();
         // The start position is the first walkable tile with a walkable neighbour, scanning row by row
         // (KitchenSinkModel.initializeMarkerPosition); with none, the first walkable tile.
-        int[] start = findStart(true);
-        if (start == null) {
-            start = findStart(false);
-        }
-        Assertions.assertNotNull(start, "No walkable tile to start on");
-        Assertions.assertEquals(start[0], model.getMarkerX(), "Marker X not at start");
-        Assertions.assertEquals(start[1], model.getMarkerY(), "Marker Y not at start");
+        Point start = findStart(true).or(() -> findStart(false))
+                .orElseThrow(() -> new AssertionError("No walkable tile to start on"));
+        Assertions.assertEquals(start.x, model.getMarkerX(), "Marker X not at start");
+        Assertions.assertEquals(start.y, model.getMarkerY(), "Marker Y not at start");
     }
 
-    private int @Nullable [] findStart(boolean needsWalkableNeighbour) {
+    private Optional<Point> findStart(boolean needsWalkableNeighbour) {
         for (int y = 0; y < scene.getHeight(); y++) {
             for (int x = 0; x < scene.getWidth(); x++) {
                 if (scene.isWalkable(x, y) && (!needsWalkableNeighbour || hasWalkableNeighbour(x, y))) {
-                    return new int[] {x, y};
+                    return Optional.of(new Point(x, y));
                 }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private boolean hasWalkableNeighbour(int x, int y) {

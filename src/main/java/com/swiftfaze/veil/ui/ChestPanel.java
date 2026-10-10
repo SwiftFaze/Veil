@@ -12,24 +12,26 @@ import com.swiftfaze.veil.world.object.Chest;
 import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
-import java.awt.Component;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /** Lists a chest's slots, one per row: the item's name, or "empty". Display only. */
-public class ChestPanel extends PopupWidget {
+public final class ChestPanel extends PopupWidget {
 
+    private static final int PADDING = 10;
     private static final List<ControlsHintBarWidget.Hint> HINTS =
             List.of(new ControlsHintBarWidget.Hint("escape", "Close"));
 
     private final ListWidget<Optional<Item>> slotList;
-    private final ControlsHintBarWidget hintBar;
+    private final Consumer<List<ControlsHintBarWidget.Hint>> hintSink;
     private List<Optional<Item>> slots = List.of();
 
-    public ChestPanel(ControlsHintBarWidget hintBar) {
-        this.hintBar = hintBar;
+    /** @param hintSink receives the controls hints to show while the panel is open */
+    public ChestPanel(Consumer<List<ControlsHintBarWidget.Hint>> hintSink) {
+        this.hintSink = hintSink;
         Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.border());
-        Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+        Border padding = BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING);
         setBorder(BorderFactory.createCompoundBorder(bottomLine, padding));
 
         addContent(new HeaderWidget("Chest"));
@@ -39,7 +41,7 @@ public class ChestPanel extends PopupWidget {
         slotList.setFocusTraversalKeysEnabled(false);
         JScrollPane slotScroll = ListDetailLayoutUtility.buildScrollPane(slotList);
         // A BoxLayout column needs one alignment for all children; the header is LEFT_ALIGNMENT.
-        slotScroll.setAlignmentX(Component.LEFT_ALIGNMENT);
+        slotScroll.setAlignmentX(LEFT_ALIGNMENT);
         addContent(slotScroll);
 
         // E closes the panel the same way Esc does. The popup's own binding wins over the
@@ -50,7 +52,7 @@ public class ChestPanel extends PopupWidget {
     public void show(Chest chest) {
         slots = chest.getSlots();
         slotList.setItems(slots);
-        hintBar.setHints(HINTS);
+        hintSink.accept(HINTS);
         open();
     }
 

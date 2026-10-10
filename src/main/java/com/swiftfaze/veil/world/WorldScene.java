@@ -60,7 +60,7 @@ public abstract class WorldScene implements DrawableAsciiEntity {
     }
 
     /** Puts an object on a tile, replacing any object already there. */
-    public void placeObject(int x, int y, InteractableObject object) {
+    public final void placeObject(int x, int y, InteractableObject object) {
         objects[x][y] = object;
     }
 
@@ -133,19 +133,16 @@ public abstract class WorldScene implements DrawableAsciiEntity {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                InteractableObject object = objects[x][y];
-                Tile type = tiles[x][y];
-
-                if (object == null && type == null) {
+                if (objects[x][y] == null && tiles[x][y] == null) {
                     continue;
                 }
 
                 int screenX = (x - camera.getX()) * tileWidth;
                 int screenY = (y - camera.getY()) * tileHeight + tileHeight;
 
-                g2d.setColor(object != null ? object.getColor() : type.getColor());
+                g2d.setColor(colorAt(x, y));
                 g2d.drawString(
-                        String.valueOf(object != null ? object.getSymbol() : type.getSymbol()),
+                        String.valueOf(glyphAt(x, y)),
                         screenX,
                         screenY
                 );
@@ -177,6 +174,15 @@ public abstract class WorldScene implements DrawableAsciiEntity {
         }
         Tile tile = getTile(x, y);
         return tile != null ? tile.getSymbol() : ' ';
+    }
+
+    /** The colour of the object where one stands, otherwise of the tile; only called for a non-empty cell. */
+    private Color colorAt(int x, int y) {
+        InteractableObject object = objects[x][y];
+        if (object != null) {
+            return object.getColor();
+        }
+        return tiles[x][y].getColor();
     }
 
     private static void overlayEntities(char[][] grid, Viewport viewport, List<? extends PositionedGlyph> entities) {

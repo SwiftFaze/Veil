@@ -164,7 +164,7 @@ public final class GamePanel extends JPanel {
     private record Offset(int dx, int dy) {
     }
 
-    private class InteractAction extends AbstractAction {
+    private final class InteractAction extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (paused) {

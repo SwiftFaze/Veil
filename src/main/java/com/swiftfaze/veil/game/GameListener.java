@@ -20,5 +20,6 @@ public interface GameListener {
 
     /** The player interacted with a chest and its contents should be shown. */
     default void openChest(Chest chest) {
+        // Most listeners have no chest UI.
     }
 }

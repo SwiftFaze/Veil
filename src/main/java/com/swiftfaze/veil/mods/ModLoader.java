@@ -85,9 +85,9 @@ public final class ModLoader {
             loadThemes(modsRoot, manifest, themesById, owningThemeModById);
         }
 
-        logger.info("Loaded {} mod(s) [{}]: {} tiles, {} buildings, {} classes, {} items, {} quests, {} themes",
+        logger.info("Loaded {} mod(s) [{}]: {} tiles, {} buildings, {} classes, {} items, {} objects, {} quests, {} themes",
                 modLoadOrder.size(), String.join(", ", modLoadOrder), tilesById.size(), buildingsById.size(),
-                classesById.size(), itemsById.size(), questsById.size(), themesById.size());
+                classesById.size(), itemsById.size(), objectsById.size(), questsById.size(), themesById.size());
 
         ModRegistry.RegistryMaps maps = new ModRegistry.RegistryMaps(buildingsById, tilesById, classesById, itemsById, questsById, themesById, objectsById);
         return new ModRegistry(maps, modLoadOrder);
@@ -205,7 +205,23 @@ public final class ModLoader {
         return new Color(color.get("r").getAsInt(), color.get("g").getAsInt(), color.get("b").getAsInt());
     }
 
-    private record Lookups(Map<String, Tile> tilesById, Map<String, InteractableObject> objectsById) {
+    /** What a building file may refer to by id; live views, filled as mods load. */
+    private static final class Lookups {
+        private final Map<String, Tile> tilesById;
+        private final Map<String, InteractableObject> objectsById;
+
+        Lookups(Map<String, Tile> tilesById, Map<String, InteractableObject> objectsById) {
+            this.tilesById = tilesById;
+            this.objectsById = objectsById;
+        }
+
+        List<List<Tile>> blueprint(JsonObject json, String buildingId, Path file) {
+            return readBlueprint(json.getAsJsonArray("tiles"), tilesById, buildingId, file);
+        }
+
+        List<Building.ObjectPlacement> placements(JsonObject json, String buildingId, Path file) {
+            return ObjectReader.readPlacements(json, buildingId, file, objectsById);
+        }
     }
 
     private static void loadBuildings(Path modsRoot, ModManifest manifest,
@@ -232,8 +248,8 @@ public final class ModLoader {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             ModSchemaValidator.validate("building", json, file);
             String id = json.get("id").getAsString();
-            List<List<Tile>> blueprint = readBlueprint(json.getAsJsonArray("tiles"), lookups.tilesById(), id, file);
-            List<Building.ObjectPlacement> placements = ObjectReader.readPlacements(json, id, file, lookups.objectsById());
+            List<List<Tile>> blueprint = lookups.blueprint(json, id, file);
+            List<Building.ObjectPlacement> placements = lookups.placements(json, id, file);
             ObjectReader.checkPlacementsInBlueprint(placements, blueprint, id, file);
 
             RegistrationContext<Building> buildingContext = new RegistrationContext<>(buildings.registry(), buildings.owningModById(), json.has("overrides"), "Building");
@@ -433,8 +449,6 @@ public final class ModLoader {
             InteractableObject object = ObjectReader.readObject(json, id, file, itemsById);
             RegistrationContext<InteractableObject> objectContext = new RegistrationContext<>(objects.registry(), objects.owningModById(), json.has("overrides"), "Object");
             registerWithCollisionCheck(id, object, modId, objectContext);
-        } catch (ModLoadException e) {
-            throw e;
         } catch (JsonSyntaxException | IOException e) {
             throw new ModLoadException("Failed to load object from file: " + file, e);
         }

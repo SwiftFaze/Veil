@@ -6,10 +6,6 @@ import java.util.List;
 
 public class Building {
 
-    /** An object template placed at a position relative to the building's top-left tile. */
-    public record ObjectPlacement(int x, int y, InteractableObject object) {
-    }
-
     private int worldX;
     private int worldY;
 
@@ -28,6 +24,10 @@ public class Building {
     public Building(List<List<Tile>> blueprint, List<ObjectPlacement> objects) {
         this.blueprint = blueprint.stream().map(List::copyOf).toList();
         this.objects = List.copyOf(objects);
+    }
+
+    /** An object template placed at a position relative to the building's top-left tile. */
+    public record ObjectPlacement(int x, int y, InteractableObject object) {
     }
 
     /** Rows of tiles, top row first: {@code getBlueprint().get(y).get(x)}. Unmodifiable. */

@@ -1,6 +1,7 @@
 package com.swiftfaze.veil.mods;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.swiftfaze.veil.entities.buildings.Building;
 import com.swiftfaze.veil.entities.items.Item;
@@ -50,7 +51,7 @@ final class ObjectReader {
                     + " contents entries in file: " + file);
         }
         List<Item> contents = new ArrayList<>();
-        for (var element : contentIds) {
+        for (JsonElement element : contentIds) {
             String itemId = element.getAsString();
             Item item = itemsById.get(itemId);
             if (item == null) {
@@ -68,7 +69,7 @@ final class ObjectReader {
         if (!json.has("objects")) {
             return placements;
         }
-        for (var element : json.getAsJsonArray("objects")) {
+        for (JsonElement element : json.getAsJsonArray("objects")) {
             JsonObject entry = element.getAsJsonObject();
             String objectId = entry.get("id").getAsString();
             InteractableObject template = objectsById.get(objectId);

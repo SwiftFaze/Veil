@@ -51,6 +51,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ModLoaderSteps {
 
+    private static final String TEST_MOD = "test";
+    private static final String TEST_COLOR = "\"color\":{\"r\":160,\"g\":110,\"b\":60}";
+    private static final String DOOR_SYMBOLS = "\"symbolOpen\":\"/\",\"symbolClosed\":\"+\"";
+    private static final String CORE_WOOD = "core:wood";
+
+    private String lastBuildingId;
+    private InteractableObject lastPlacedObject;
+
     private record BuildingFixture(String id, String overrides, String explicitTileId) {
     }
 
@@ -1367,13 +1375,6 @@ public class ModLoaderSteps {
 
     // Object definitions and building placements. Test mods are written straight to disk:
     // the object steps need only one or two files each, unlike the fixture maps above.
-
-    private static final String TEST_MOD = "test";
-    private static final String TEST_COLOR = "\"color\":{\"r\":160,\"g\":110,\"b\":60}";
-    private static final String DOOR_SYMBOLS = "\"symbolOpen\":\"/\",\"symbolClosed\":\"+\"";
-    private static final String CORE_WOOD = "core:wood";
-    private String lastBuildingId;
-    private InteractableObject lastPlacedObject;
 
     @Given("the {string} mod is loaded")
     public void theModIsLoaded(String modId) throws IOException {

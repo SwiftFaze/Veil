@@ -22,7 +22,11 @@ class DoorTest {
 
         assertTrue(door.isOpen());
         assertTrue(door.isWalkable());
-        assertEquals('/', door.getSymbol());
+    }
+
+    @Test
+    void anOpenDoorShowsItsOpenGlyph() {
+        assertEquals('/', door(true).getSymbol());
     }
 
     @Test
@@ -33,7 +37,11 @@ class DoorTest {
 
         assertFalse(door.isOpen());
         assertFalse(door.isWalkable());
-        assertEquals('+', door.getSymbol());
+    }
+
+    @Test
+    void aClosedDoorShowsItsClosedGlyph() {
+        assertEquals('+', door(false).getSymbol());
     }
 
     @Test
@@ -48,10 +56,10 @@ class DoorTest {
     @Test
     void newInstancesStartInTheDefinitionsStateAndDoNotShareState() {
         Door template = door(false);
-        Door placed = (Door) template.newInstance();
+        Door placed = template.newInstance();
         placed.interact(false);
 
         assertTrue(placed.isOpen());
-        assertFalse(((Door) template.newInstance()).isOpen());
+        assertFalse(template.newInstance().isOpen());
     }
 }

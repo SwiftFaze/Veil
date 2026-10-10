@@ -4,22 +4,20 @@ import java.awt.Color;
 
 public final class Door implements InteractableObject {
 
+    private final Definition definition;
+    private boolean open;
+
+    public Door(String id, Color color, Glyphs glyphs, boolean open) {
+        this.definition = new Definition(id, color, glyphs, open);
+        this.open = open;
+    }
+
     /** The glyph drawn while the door is open, and while it is closed. */
     public record Glyphs(char open, char closed) {
     }
 
-    private final String id;
-    private final Color color;
-    private final Glyphs glyphs;
-    private final boolean initiallyOpen;
-    private boolean open;
-
-    public Door(String id, Color color, Glyphs glyphs, boolean open) {
-        this.id = id;
-        this.color = color;
-        this.glyphs = glyphs;
-        this.initiallyOpen = open;
-        this.open = open;
+    /** What a mod file defines; fixed for the door's lifetime, and enough to make a fresh copy. */
+    private record Definition(String id, Color color, Glyphs glyphs, boolean initiallyOpen) {
     }
 
     public boolean isOpen() {
@@ -28,17 +26,17 @@ public final class Door implements InteractableObject {
 
     @Override
     public String getId() {
-        return id;
+        return definition.id();
     }
 
     @Override
     public char getSymbol() {
-        return open ? glyphs.open() : glyphs.closed();
+        return open ? definition.glyphs().open() : definition.glyphs().closed();
     }
 
     @Override
     public Color getColor() {
-        return color;
+        return definition.color();
     }
 
     @Override
@@ -57,6 +55,6 @@ public final class Door implements InteractableObject {
 
     @Override
     public Door newInstance() {
-        return new Door(id, color, glyphs, initiallyOpen);
+        return new Door(definition.id(), definition.color(), definition.glyphs(), definition.initiallyOpen());
     }
 }

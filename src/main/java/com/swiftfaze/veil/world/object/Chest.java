@@ -9,6 +9,18 @@ import java.util.Optional;
 
 public final class Chest implements InteractableObject {
 
+    private final String id;
+    private final Color color;
+    private final char symbol;
+    private final Contents contents;
+
+    public Chest(String id, Color color, char symbol, Contents contents) {
+        this.id = id;
+        this.color = color;
+        this.symbol = symbol;
+        this.contents = contents;
+    }
+
     /**
      * How many slots a chest has, and the items that start in its first slots, in order.
      *
@@ -21,18 +33,6 @@ public final class Chest implements InteractableObject {
             }
             items = List.copyOf(items);
         }
-    }
-
-    private final String id;
-    private final Color color;
-    private final char symbol;
-    private final Contents contents;
-
-    public Chest(String id, Color color, char symbol, Contents contents) {
-        this.id = id;
-        this.color = color;
-        this.symbol = symbol;
-        this.contents = contents;
     }
 
     /** One entry per slot: the item in it, or empty. */
