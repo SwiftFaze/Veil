@@ -185,12 +185,9 @@ public final class Main {
         codexPanel.setOnDismiss(() -> restoreGameFocus(gamePanel, hintBar));
 
         pauseMenuPopup.setFocusManager(focusManager);
-        pauseMenuPopup.setOnDismiss(() -> {
-            gamePanel.setPaused(false);
-            restoreGameFocus(gamePanel, hintBar);
-        });
+        pauseMenuPopup.setOnDismiss(() -> restoreGameFocus(gamePanel, hintBar));
 
-        gamePanel.addGameListener(new PopupToggleListener(inventoryPanel, codexPanel, eventLog));
+        gamePanel.addGameListener(new PopupToggleListener(inventoryPanel, codexPanel, gamePanel.getWorldPause(), eventLog));
         gamePanel.addGameListener(new PauseToggleListener(gamePanel, pauseMenuPopup));
     }
 

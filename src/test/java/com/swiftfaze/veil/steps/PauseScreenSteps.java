@@ -33,7 +33,6 @@ public class PauseScreenSteps {
         menuSelectNotifications = new ArrayList<>();
 
         pauseMenuPopup.setOnMenuSelect(item -> menuSelectNotifications.add(item));
-        pauseMenuPopup.setOnDismiss(() -> gamePanel.setPaused(false));
 
         PauseToggleListener listener = new PauseToggleListener(gamePanel, pauseMenuPopup);
         gamePanel.addGameListener(listener);

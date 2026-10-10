@@ -34,7 +34,8 @@ public final class GamePanel extends JPanel {
     private final List<Positionable> entitiesToDraw = new ArrayList<>();
     private final List<GameListener> listeners = new ArrayList<>();
     private final GameEventLog eventLog;
-    private boolean paused = false;
+    private final WorldPause worldPause = new WorldPause();
+    private final TurnScheduler turnScheduler = new TurnScheduler();
 
     public GamePanel() {
         this(GameEventLog.noOp());
@@ -109,12 +110,16 @@ public final class GamePanel extends JPanel {
         return player;
     }
 
-    public void setPaused(boolean paused) {
-        this.paused = paused;
+    public WorldPause getWorldPause() {
+        return worldPause;
+    }
+
+    public TurnScheduler getTurnScheduler() {
+        return turnScheduler;
     }
 
     public boolean isPaused() {
-        return paused;
+        return worldPause.isPaused();
     }
 
     /**
@@ -130,7 +135,8 @@ public final class GamePanel extends JPanel {
         entitiesToDraw.clear();
         addEntity(scene);
         addEntity(player);
-        paused = false;
+        turnScheduler.reset();
+        worldPause.clear();
     }
 
     @Override
@@ -162,7 +168,7 @@ public final class GamePanel extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (paused) {
+            if (worldPause.isPaused()) {
                 return;
             }
             int beforeX = player.getX();
@@ -172,6 +178,7 @@ public final class GamePanel extends JPanel {
             int afterY = player.getY();
             if (beforeX != afterX || beforeY != afterY) {
                 eventLog.recordEvent(GameEvent.playerMoved(afterX, afterY));
+                turnScheduler.advance();
             }
             notifyPlayerUpdated();
         }

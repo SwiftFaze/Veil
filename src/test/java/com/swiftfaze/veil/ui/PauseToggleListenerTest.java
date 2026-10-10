@@ -44,6 +44,18 @@ class PauseToggleListenerTest {
     }
 
     @Test
+    void dismissingThePauseMenuResumesTheWorld() {
+        GamePanel gamePanel = new GamePanel();
+        PauseMenuPopup pauseMenuPopup = new PauseMenuPopup();
+        PauseToggleListener listener = new PauseToggleListener(gamePanel, pauseMenuPopup);
+        listener.togglePause();
+
+        pauseMenuPopup.dismiss();
+
+        assertFalse(gamePanel.isPaused());
+    }
+
+    @Test
     void updatePlayerDoesNotThrow() {
         GamePanel gamePanel = new GamePanel();
         PauseMenuPopup pauseMenuPopup = new PauseMenuPopup();
