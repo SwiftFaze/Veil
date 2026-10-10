@@ -17,6 +17,7 @@ mods/<mod-id>/
 ├── buildings/            # Building blueprints (optional)
 ├── classes/              # Player class definitions (optional)
 ├── items/                # Item definitions (optional)
+├── objects/              # Interactable world objects: chests, doors (optional)
 ├── quests/               # Quest definitions (optional)
 └── themes/               # UI color themes (optional)
 ```
@@ -30,6 +31,7 @@ Each file type has a corresponding JSON Schema under `docs/schemas/`:
 - **Tile files** — [`tile.schema.json`](../schemas/tile.schema.json): Individual tile definitions under `tiles/`
 - **Building files** — [`building.schema.json`](../schemas/building.schema.json): Building blueprints under `buildings/`
 - **Class files** — [`class.schema.json`](../schemas/class.schema.json): Player class definitions under `classes/`
+- **Object files** — [`object.schema.json`](../schemas/object.schema.json): Chests (`"type": "chest"`) and doors (`"type": "door"`) under `objects/`; a building places them through its `"objects"` list of `{"id", "x", "y"}`
 - **Item files** — [`item.schema.json`](../schemas/item.schema.json): Item definitions under `items/`
 - **Quest files** — [`quest.schema.json`](../schemas/quest.schema.json): Quest definitions under `quests/`
 - **Theme files** — [`theme.schema.json`](../schemas/theme.schema.json): UI color themes under `themes/`

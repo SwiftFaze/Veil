@@ -34,6 +34,17 @@ all buildings from `buildings/*.json` with tile references resolved against
 the tile registry. This is phase 2 of a larger data-driven-mod-content
 initiative.
 
+**Interactable objects** (`world/object/`): `InteractableObject` is the
+abstraction for anything on a tile the player triggers with E (`Chest`,
+`Door`); each new object *type* is a Java class, only instance data is JSON
+(`mods/<mod>/objects/*.json`, read by `ObjectReader`). `ModLoader` loads
+objects after items (chests reference items) and before buildings, which
+place them via `Building.ObjectPlacement`; `WorldScene.placeBuilding` stamps
+a fresh `newInstance()` per placement so state is never shared between
+buildings. `GamePanel` checks the four neighbours N, E, S, W and calls the
+first object's `interact`; a chest's `SHOW_CONTENTS` result is routed to the
+UI through `GameListener.openChest`.
+
 **Player RPG data** (`entities/player/`): `PlayerInfo` composes `Level`,
 `Stats`, and a `PlayerClass`. `PlayerClass` is a plain data holder (name +
 base stat values + optional per-level growth curves) loaded from JSON via
