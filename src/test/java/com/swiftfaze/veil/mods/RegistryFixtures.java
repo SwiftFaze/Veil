@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 /** Test-only registries holding hand-made content, built through the package-private constructor. */
-public final class TestRegistries {
+public final class RegistryFixtures {
 
-    private TestRegistries() {
+    private RegistryFixtures() {
     }
 
     /** A registry with exactly these buildings (by id) and no tiles, classes, items, quests or themes. */

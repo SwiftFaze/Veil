@@ -25,13 +25,23 @@ class BuildingTest {
     }
 
     @Test
-    void doesNotCoverTilesJustBeyondAnyEdge() {
-        Building building = footprintAt(ORIGIN_X, ORIGIN_Y);
+    void doesNotCoverTheTileJustLeftOfTheFootprint() {
+        assertFalse(footprintAt(ORIGIN_X, ORIGIN_Y).covers(ORIGIN_X - 1, ORIGIN_Y));
+    }
 
-        assertFalse(building.covers(ORIGIN_X - 1, ORIGIN_Y));
-        assertFalse(building.covers(ORIGIN_X + WIDTH, ORIGIN_Y));
-        assertFalse(building.covers(ORIGIN_X, ORIGIN_Y - 1));
-        assertFalse(building.covers(ORIGIN_X, ORIGIN_Y + HEIGHT));
+    @Test
+    void doesNotCoverTheTileJustRightOfTheFootprint() {
+        assertFalse(footprintAt(ORIGIN_X, ORIGIN_Y).covers(ORIGIN_X + WIDTH, ORIGIN_Y));
+    }
+
+    @Test
+    void doesNotCoverTheTileJustAboveTheFootprint() {
+        assertFalse(footprintAt(ORIGIN_X, ORIGIN_Y).covers(ORIGIN_X, ORIGIN_Y - 1));
+    }
+
+    @Test
+    void doesNotCoverTheTileJustBelowTheFootprint() {
+        assertFalse(footprintAt(ORIGIN_X, ORIGIN_Y).covers(ORIGIN_X, ORIGIN_Y + HEIGHT));
     }
 
     private static Building footprintAt(int worldX, int worldY) {

@@ -2,7 +2,7 @@ package com.swiftfaze.veil.game.worldgen;
 
 import com.swiftfaze.veil.entities.buildings.Building;
 import com.swiftfaze.veil.mods.ModRegistry;
-import com.swiftfaze.veil.mods.TestRegistries;
+import com.swiftfaze.veil.mods.RegistryFixtures;
 import com.swiftfaze.veil.world.CoreTiles;
 import com.swiftfaze.veil.world.WorldScene;
 import org.junit.jupiter.api.Test;
@@ -161,7 +161,7 @@ class BuildingScatterTest {
     }
 
     private static ModRegistry registryOf(Building building) {
-        return TestRegistries.withBuildings(Map.of("test:building", building));
+        return RegistryFixtures.withBuildings(Map.of("test:building", building));
     }
 
     /** Counts every bounded draw, which is how the scatter asks for a blueprint or a position. */
