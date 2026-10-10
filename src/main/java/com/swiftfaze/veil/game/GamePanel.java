@@ -4,10 +4,13 @@ import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.render.DrawableAsciiEntity;
 import com.swiftfaze.veil.render.Positionable;
+import com.swiftfaze.veil.entities.npc.Npc;
+import com.swiftfaze.veil.entities.npc.NpcDefinition;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.event.GameEvent;
 import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.input.Keybindings;
+import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.world.TileTestScene2;
 import com.swiftfaze.veil.world.WorldScene;
 
@@ -36,6 +39,7 @@ public final class GamePanel extends JPanel {
     private final GameEventLog eventLog;
     private final WorldPause worldPause = new WorldPause();
     private final TurnScheduler turnScheduler = new TurnScheduler();
+    private final List<Npc> npcs = new ArrayList<>();
 
     public GamePanel() {
         this(GameEventLog.noOp());
@@ -98,6 +102,36 @@ public final class GamePanel extends JPanel {
         entitiesToDraw.add(entity);
     }
 
+    /** Spawns every NPC in {@code registry} at its spawn tile, in load order. Call at world setup and after resetState(). */
+    public void spawnNpcs(ModRegistry registry) {
+        for (NpcDefinition definition : registry.getAllNpcs()) {
+            spawnNpc(definition);
+        }
+    }
+
+    /** Spawns one NPC: draws it, and registers it with the turn scheduler after any earlier NPCs. */
+    public void spawnNpc(NpcDefinition definition) {
+        Npc npc = new Npc(definition, this::canNpcEnter);
+        npcs.add(npc);
+        addEntity(npc);
+        turnScheduler.register(npc::onTurn);
+    }
+
+    public List<Npc> getNpcs() {
+        return List.copyOf(npcs);
+    }
+
+    public List<Positionable> getEntitiesToDraw() {
+        return List.copyOf(entitiesToDraw);
+    }
+
+    /** NPCs may step on a walkable tile that holds neither the player nor another NPC. */
+    private boolean canNpcEnter(int x, int y) {
+        boolean occupiedByPlayer = player.getX() == x && player.getY() == y;
+        boolean occupiedByNpc = npcs.stream().anyMatch(npc -> npc.getX() == x && npc.getY() == y);
+        return scene.isWalkable(x, y) && !occupiedByPlayer && !occupiedByNpc;
+    }
+
     public void startGameLoop() {
         requestFocusInWindow();
     }
@@ -133,6 +167,7 @@ public final class GamePanel extends JPanel {
         player = new Player(GameConst.DEFAULT_PLAYER_START_X, GameConst.DEFAULT_PLAYER_START_Y);
         scene = new TileTestScene2(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT);
         entitiesToDraw.clear();
+        npcs.clear();
         addEntity(scene);
         addEntity(player);
         turnScheduler.reset();

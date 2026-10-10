@@ -34,6 +34,13 @@ final class GamePanelFixture {
     private CodexPanel codexPanel;
     private PauseMenuPopup pauseMenuPopup;
 
+    /** A game panel with every tile walkable, so a scenario can place NPCs freely. */
+    static GamePanelFixture withAllWalkableMap() {
+        GamePanelFixture fixture = withAllScreens(GameEventLog.noOp());
+        fixture.scene.fillAll(FLOOR);
+        return fixture;
+    }
+
     /** A game panel wired to {@code log} alone. */
     GamePanelFixture(GameEventLog log) {
         this.player = new Player(GameConst.DEFAULT_PLAYER_START_X, GameConst.DEFAULT_PLAYER_START_Y);

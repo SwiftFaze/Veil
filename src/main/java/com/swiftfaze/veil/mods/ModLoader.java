@@ -6,6 +6,10 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.swiftfaze.veil.entities.buildings.Building;
 import com.swiftfaze.veil.entities.items.Item;
+import com.swiftfaze.veil.entities.npc.NpcDefinition;
+import com.swiftfaze.veil.entities.npc.Patrol;
+import com.swiftfaze.veil.entities.npc.PatrolMode;
+import com.swiftfaze.veil.entities.npc.TileCoord;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.exceptions.ModLoadException;
@@ -65,10 +69,13 @@ public final class ModLoader {
         Map<String, String> owningQuestModById = new LinkedHashMap<>();
         Map<String, WidgetColorTheme> themesById = new LinkedHashMap<>();
         Map<String, String> owningThemeModById = new LinkedHashMap<>();
+        Map<String, NpcDefinition> npcsById = new LinkedHashMap<>();
+        Map<String, String> owningNpcModById = new LinkedHashMap<>();
         RegistryTarget<Building> buildings = new RegistryTarget<>(buildingsById, owningBuildingModById);
         RegistryTarget<PlayerClass> classes = new RegistryTarget<>(classesById, owningClassModById);
         RegistryTarget<Item> items = new RegistryTarget<>(itemsById, owningItemModById);
         RegistryTarget<Quest> quests = new RegistryTarget<>(questsById, owningQuestModById);
+        RegistryTarget<NpcDefinition> npcs = new RegistryTarget<>(npcsById, owningNpcModById);
         List<String> modLoadOrder = new ArrayList<>();
         for (ModManifest manifest : loadOrder) {
             modLoadOrder.add(manifest.id());
@@ -77,13 +84,14 @@ public final class ModLoader {
             loadItems(modsRoot, manifest, validStatNames, items);
             loadQuests(modsRoot, manifest, itemsById, quests);
             loadThemes(modsRoot, manifest, themesById, owningThemeModById);
+            loadNpcs(modsRoot, manifest, npcs);
         }
 
-        logger.info("Loaded {} mod(s) [{}]: {} tiles, {} buildings, {} classes, {} items, {} quests, {} themes",
+        logger.info("Loaded {} mod(s) [{}]: {} tiles, {} buildings, {} classes, {} items, {} quests, {} themes, {} NPCs",
                 modLoadOrder.size(), String.join(", ", modLoadOrder), tilesById.size(), buildingsById.size(),
-                classesById.size(), itemsById.size(), questsById.size(), themesById.size());
+                classesById.size(), itemsById.size(), questsById.size(), themesById.size(), npcsById.size());
 
-        ModRegistry.RegistryMaps maps = new ModRegistry.RegistryMaps(buildingsById, tilesById, classesById, itemsById, questsById, themesById);
+        ModRegistry.RegistryMaps maps = new ModRegistry.RegistryMaps(buildingsById, tilesById, classesById, itemsById, questsById, themesById, npcsById);
         return new ModRegistry(maps, modLoadOrder);
     }
 
@@ -568,6 +576,97 @@ public final class ModLoader {
             colorsByKey.put(key, readColor(colorsJson.getAsJsonObject(key)));
         }
         return colorsByKey;
+    }
+
+    private static void loadNpcs(Path modsRoot, ModManifest manifest, RegistryTarget<NpcDefinition> npcs) {
+        Path npcsDir = modsRoot.resolve(manifest.id()).resolve("npcs");
+        if (!Files.isDirectory(npcsDir)) {
+            return;
+        }
+
+        try (DirectoryStream<Path> files = Files.newDirectoryStream(npcsDir, "*.json")) {
+            for (Path file : files) {
+                loadNpc(file, manifest.id(), npcs);
+            }
+        } catch (IOException e) {
+            throw new ModLoadException("Failed to scan npcs for mod: " + manifest.id(), e);
+        }
+    }
+
+    private static void loadNpc(Path file, String modId, RegistryTarget<NpcDefinition> npcs) {
+        try (Reader reader = Files.newBufferedReader(file)) {
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            validateNpc(json, file);
+            String id = json.get("id").getAsString();
+            NpcDefinition definition = readNpcDefinition(json, id, file);
+            RegistrationContext<NpcDefinition> npcContext = new RegistrationContext<>(npcs.registry(), npcs.owningModById(), json.has("overrides"), "NPC");
+            registerWithCollisionCheck(id, definition, modId, npcContext);
+        } catch (ModLoadException e) {
+            throw e;
+        } catch (JsonSyntaxException | IOException e) {
+            throw new ModLoadException("Failed to load NPC from file: " + file, e);
+        }
+    }
+
+    /** Schema failures are re-thrown with the NPC id prepended, so the message names the NPC as well as the file. */
+    private static void validateNpc(JsonObject json, Path file) {
+        try {
+            ModSchemaValidator.validate("npc", json, file);
+        } catch (ModLoadException e) {
+            String id = json.has("id") ? json.get("id").toString() : "(unknown)";
+            throw new ModLoadException("NPC " + id + " is invalid: " + e.getMessage(), e);
+        }
+    }
+
+    private static NpcDefinition readNpcDefinition(JsonObject json, String id, Path file) {
+        String name = json.get("name").getAsString();
+        char symbol = json.get("symbol").getAsString().charAt(0);
+        Color color = readColor(json.getAsJsonObject("color"));
+        TileCoord spawn = readTileCoord(json.getAsJsonObject("spawn"));
+        Patrol patrol = json.has("patrol") ? readPatrol(json.getAsJsonObject("patrol"), id, spawn, file) : null;
+        return new NpcDefinition(id, name, symbol, color, spawn, patrol);
+    }
+
+    private static TileCoord readTileCoord(JsonObject coord) {
+        return new TileCoord(coord.get("x").getAsInt(), coord.get("y").getAsInt());
+    }
+
+    private static Patrol readPatrol(JsonObject patrolObj, String npcId, TileCoord spawn, Path file) {
+        String mode = patrolObj.has("mode") ? patrolObj.get("mode").getAsString() : "ping_pong";
+        PatrolMode patrolMode = PatrolMode.fromJson(mode);
+        List<TileCoord> waypoints = new ArrayList<>();
+        for (var element : patrolObj.getAsJsonArray("waypoints")) {
+            waypoints.add(readTileCoord(element.getAsJsonObject()));
+        }
+        validateRoute(npcId, spawn, waypoints, file);
+        if (patrolMode == PatrolMode.LOOP) {
+            requireOrthogonalLeg(npcId, waypoints.get(waypoints.size() - 1), waypoints.get(0), file);
+        }
+        return new Patrol(patrolMode, waypoints);
+    }
+
+    /** The route must start on the spawn tile, and each waypoint-to-waypoint leg must be straight. */
+    private static void validateRoute(String npcId, TileCoord spawn, List<TileCoord> waypoints, Path file) {
+        if (!waypoints.get(0).equals(spawn)) {
+            throw new ModLoadException("NPC '" + npcId + "' patrol must start at its spawn " + describe(spawn)
+                    + " but its first waypoint is " + describe(waypoints.get(0)) + " in file: " + file);
+        }
+        for (int i = 0; i + 1 < waypoints.size(); i++) {
+            requireOrthogonalLeg(npcId, waypoints.get(i), waypoints.get(i + 1), file);
+        }
+    }
+
+    private static void requireOrthogonalLeg(String npcId, TileCoord from, TileCoord to, Path file) {
+        boolean sameColumn = from.x() == to.x();
+        boolean sameRow = from.y() == to.y();
+        if (sameColumn == sameRow) {
+            throw new ModLoadException("NPC '" + npcId + "' patrol leg from " + describe(from) + " to " + describe(to)
+                    + " must be a straight horizontal or vertical line in file: " + file);
+        }
+    }
+
+    private static String describe(TileCoord coord) {
+        return "(" + coord.x() + ", " + coord.y() + ")";
     }
 
     private record ModManifest(String id, List<String> dependsOn) {
