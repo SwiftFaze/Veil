@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.44](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.43...v0.5.0-beta.44) (2026-10-10)
+
+
+### Features
+
+* add run-milestone orchestrator and one-at-a-time mutation lock ([#268](https://github.com/SwiftFaze/Veil/issues/268)) ([4959721](https://github.com/SwiftFaze/Veil/commit/49597210bdd51910138e458b3a85aaeeabdfb81d))
+
 ## [0.5.0-beta.43](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.42...v0.5.0-beta.43) (2026-10-02)
 
 
