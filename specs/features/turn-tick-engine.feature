@@ -22,31 +22,31 @@ Feature: Turn/tick engine advances the world one turn per successful player move
   inventory-toggle).
 
   Background:
-    Given a game panel is running with a player at position (5, 5)
+    Given a turn-ticking game with the player at (5, 5)
     And a counting tick consumer is registered with the turn scheduler
 
   Scenario: A successful move advances the world by one turn
-    Given tile (6, 5) is walkable
-    When the player moves right
+    Given map tile (6, 5) is walkable
+    When the player steps right
     Then the turn counter is 1
     And the counting tick consumer has been stepped 1 time
 
   Scenario: Every registered entity acts once per turn, in registration order
     Given a second counting tick consumer is registered with the turn scheduler
-    And tile (6, 5) is walkable
-    When the player moves right
+    And map tile (6, 5) is walkable
+    When the player steps right
     Then each counting tick consumer has been stepped 1 time
     And the first consumer was stepped before the second
 
   Scenario: Several successful moves advance one turn each
-    Given tiles (6, 5), (7, 5) and (8, 5) are walkable
-    When the player moves right 3 times
+    Given map tiles (6, 5), (7, 5) and (8, 5) are walkable
+    When the player steps right 3 times
     Then the turn counter is 3
     And the counting tick consumer has been stepped 3 times
 
   Scenario: A blocked move does not advance a turn
-    Given tile (6, 5) is not walkable
-    When the player moves right
+    Given map tile (6, 5) is not walkable
+    When the player steps right
     Then the player is at position (5, 5)
     And the turn counter is 0
     And the counting tick consumer has been stepped 0 times
@@ -58,7 +58,7 @@ Feature: Turn/tick engine advances the world one turn per successful player move
     And the counting tick consumer has been stepped 0 times
 
   Scenario Outline: Opening a screen pauses the world
-    When the <screen> is opened
+    When the <screen> screen is opened
     Then the world is paused
 
     Examples:
@@ -68,9 +68,9 @@ Feature: Turn/tick engine advances the world one turn per successful player move
       | pause menu |
 
   Scenario Outline: Movement input is ignored while a screen is open
-    Given tile (6, 5) is walkable
-    And the <screen> is open
-    When the player moves right
+    Given map tile (6, 5) is walkable
+    And the <screen> screen is open
+    When the player steps right
     Then the player is at position (5, 5)
     And the turn counter is 0
     And the counting tick consumer has been stepped 0 times
@@ -82,10 +82,10 @@ Feature: Turn/tick engine advances the world one turn per successful player move
       | pause menu |
 
   Scenario Outline: Closing the last open screen resumes ticking
-    Given tile (6, 5) is walkable
-    And the <screen> is open
-    When the <screen> is closed
-    And the player moves right
+    Given map tile (6, 5) is walkable
+    And the <screen> screen is open
+    When the <screen> screen is closed
+    And the player steps right
     Then the world is not paused
     And the turn counter is 1
 
@@ -96,14 +96,14 @@ Feature: Turn/tick engine advances the world one turn per successful player move
       | pause menu |
 
   Scenario: Switching directly between screens keeps the world paused
-    Given the inventory is open
-    When the codex is opened
-    Then the inventory is closed
+    Given the inventory screen is open
+    When the codex screen is opened
+    Then the inventory screen is closed
     And the world is paused
 
   Scenario: Exiting to the main menu clears the turn scheduler
-    Given tile (6, 5) is walkable
-    And the player has moved right
+    Given map tile (6, 5) is walkable
+    And the player has stepped right
     When the game state is reset by exiting to the main menu
     Then the turn counter is 0
     And no tick consumers are registered
