@@ -6,6 +6,7 @@ import com.swiftfaze.veil.entities.buildings.Building;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ final class DoorApproaches {
     private DoorApproaches() {
     }
 
-    static List<Point> of(Building building) {
+    static List<Point> outsideDoorsOf(Building building) {
         List<Point> approaches = new ArrayList<>();
         for (int y = 0; y < building.getHeight(); y++) {
             for (int x = 0; x < building.getWidth(); x++) {
@@ -29,7 +30,7 @@ final class DoorApproaches {
         return approaches;
     }
 
-    private static void addOutsideEdges(Building building, int x, int y, List<Point> approaches) {
+    private static void addOutsideEdges(Building building, int x, int y, Collection<Point> approaches) {
         int worldX = building.getWorldX() + x;
         int worldY = building.getWorldY() + y;
         if (y == 0) {

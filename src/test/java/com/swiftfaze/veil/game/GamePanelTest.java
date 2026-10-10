@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.game;
 
+import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.game.worldgen.GeneratedWorldScene;
@@ -15,6 +16,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -27,6 +29,8 @@ class GamePanelTest {
     private static final int PAINT_HEIGHT = 225;
     private static final int START_X = 5;
     private static final int START_Y = 5;
+    /** A seed whose generated world leaves the tile above the spawn point walkable (asserted by the test that uses it). */
+    private static final long OPEN_ABOVE_SPAWN_SEED = 1L;
     private static final int TILE_RIGHT_X = START_X + 1;
     private static final int ELSEWHERE = 8;
     private static final Tile FLOOR = new Tile("test:floor", '.', Color.GRAY, true);
@@ -211,16 +215,38 @@ class GamePanelTest {
 
     @Test
     void movementStillWorksAfterResetState() {
-        GamePanel panel = new GamePanel();
+        GeneratedWorldScene expectedWorld = worldFromSeed(OPEN_ABOVE_SPAWN_SEED);
+        assertTrue(expectedWorld.isWalkable(expectedWorld.getSpawnX(), expectedWorld.getSpawnY() - 1),
+                "fixture seed must leave the tile above the spawn open, or this test asserts nothing");
+        GamePanel panel = new GamePanel(GameEventLog.noOp(), () -> OPEN_ABOVE_SPAWN_SEED);
         panel.resetState();
-        Player player = panel.getPlayer();
+        Player player = playerOf(panel);
         int startY = player.getY();
-        // Generated terrain may block the tile above the spawn, so expect the move only when it is open.
-        boolean upIsOpen = panel.getScene().isWalkable(player.getX(), startY - 1);
 
         fireAction(panel, Keybindings.ACTION_MOVE_UP);
 
-        assertEquals(upIsOpen ? startY - 1 : startY, player.getY());
+        assertEquals(startY - 1, player.getY());
+    }
+
+    @Test
+    void regeneratingTheWorldNotifiesListenersOfTheMovedPlayer() {
+        GamePanel panel = FlatFloorWorld.panel();
+        Player[] notified = {null};
+        panel.addGameListener(new GameListener() {
+            @Override
+            public void updatePlayer(Player player) {
+                notified[0] = player;
+            }
+
+            @Override
+            public void toggleDevConsole() {
+                // Not needed for this test
+            }
+        });
+
+        panel.regenerateWorld(OPEN_ABOVE_SPAWN_SEED);
+
+        assertEquals(playerOf(panel), notified[0]);
     }
 
     @Test
@@ -245,10 +271,19 @@ class GamePanelTest {
         assertTrue(listenerCalled[0]);
     }
 
+    private static GeneratedWorldScene worldFromSeed(long seed) {
+        return new GeneratedWorldScene(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT, seed);
+    }
+
     private static void assertPlayerOnSpawn(GamePanel panel) {
-        GeneratedWorldScene world = (GeneratedWorldScene) panel.getScene();
-        assertEquals(world.getSpawnX(), panel.getPlayer().getX());
-        assertEquals(world.getSpawnY(), panel.getPlayer().getY());
+        assertPlayerOnSpawn(panel::getPlayer, panel::getScene);
+    }
+
+    private static void assertPlayerOnSpawn(Supplier<Player> playerSource, Supplier<WorldScene> sceneSource) {
+        Player player = playerSource.get();
+        GeneratedWorldScene world = (GeneratedWorldScene) sceneSource.get();
+        assertEquals(world.getSpawnX(), player.getX());
+        assertEquals(world.getSpawnY(), player.getY());
     }
 
     /** A panel with the player at (START_X, START_Y) on floor, and {@code tileToTheRight} beside it. */

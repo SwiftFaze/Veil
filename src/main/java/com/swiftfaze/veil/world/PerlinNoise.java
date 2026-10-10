@@ -13,6 +13,8 @@ import java.util.Random;
 public final class PerlinNoise {
 
     private static final double DEFAULT_SIZE = 35;
+    private static final int TABLE_SIZE = 256;
+    private static final int TABLE_MASK = TABLE_SIZE - 1;
 
     private static final int[] PERMUTATION = {
         151, 160, 137, 91, 90, 15, 131, 13, 201,
@@ -37,16 +39,18 @@ public final class PerlinNoise {
         215, 61, 156, 180
     };
 
-    private final int[] p = new int[512];
+    private final int[] p = new int[TABLE_SIZE * 2];
 
     public PerlinNoise(long seed) {
-        List<Integer> table = new ArrayList<>();
+        List<Integer> table = new ArrayList<>(PERMUTATION.length);
         for (int value : PERMUTATION) {
             table.add(value);
         }
         Collections.shuffle(table, new Random(seed));
-        for (int i = 0; i < 256; i++) {
-            p[256 + i] = p[i] = table.get(i);
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            int value = table.get(i);
+            p[i] = value;
+            p[TABLE_SIZE + i] = value;
         }
     }
 
@@ -61,8 +65,8 @@ public final class PerlinNoise {
 
     /** The z = 0 slice of the reference 3D lookup; the coordinate offset is deliberately absent. */
     private double smoothNoise(double x, double y) {
-        int cellX = (int) Math.floor(x) & 255;
-        int cellY = (int) Math.floor(y) & 255;
+        int cellX = (int) Math.floor(x) & TABLE_MASK;
+        int cellY = (int) Math.floor(y) & TABLE_MASK;
         double fx = x - Math.floor(x);
         double fy = y - Math.floor(y);
 

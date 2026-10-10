@@ -27,6 +27,7 @@ import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
 import com.swiftfaze.veil.sandbox.TileSandboxProvider;
 import com.swiftfaze.veil.sandbox.WorldRegenerator;
 import com.swiftfaze.veil.sandbox.ReloadableFakeProvider;
+import com.swiftfaze.veil.testing.FlatFloorWorld;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.TranscriptWidget;
 import io.cucumber.datatable.DataTable;
@@ -86,7 +87,7 @@ public class DevConsoleSteps {
     private ReloadableFakeProvider secondProvider;
     private int transcriptSizeWhenItemRowArmed;
     private GamePanel gameForRegen;
-    private Player playerBeforeRegen;
+    private Player runningPlayer;
     private long nextFreshWorldSeed = 1L;
 
     @Given("the dev console is running with the {string} provider registered")
@@ -675,7 +676,8 @@ public class DevConsoleSteps {
 
     @Given("the dev console is attached to a running game")
     public void theDevConsoleIsAttachedToARunningGame() {
-        gameForRegen = new GamePanel(GameEventLog.noOp(), () -> 1L);
+        runningPlayer = new Player(0, 0);
+        gameForRegen = new GamePanel(GameEventLog.noOp(), runningPlayer, FlatFloorWorld.create());
         startConsole(new DevConsoleModel(List.of()), gameRegenerator());
     }
 
@@ -707,28 +709,27 @@ public class DevConsoleSteps {
 
     @Given("the running player has {int} Strength and is at a position other than the new world's spawn")
     public void theRunningPlayerHasStrengthAndIsAwayFromSpawn(int strength) {
-        playerBeforeRegen = gameForRegen.getPlayer();
-        playerBeforeRegen.getStats().setStrength(strength);
-        playerBeforeRegen.setPosition(0, 0);
+        Optional.of(runningPlayer).map(Player::getStats).ifPresent(stats -> stats.setStrength(strength));
+        runningPlayer.setPosition(0, 0);
     }
 
     @Then("the running game's world matches a world generated from seed {int}")
     public void theRunningGameSWorldMatchesAWorldGeneratedFromSeed(int seed) {
-        SeededWorldGenerationSteps.assertSameWorld(SeededWorldGenerationSteps.worldFromSeed(seed),
-                (GeneratedWorldScene) gameForRegen.getScene());
+        WorldComparison.assertSameWorld(SeededWorldGenerationSteps.worldFromSeed(seed),
+                gameForRegen::getScene);
     }
 
     @Then("the running player is the same player with {int} Strength")
     public void theRunningPlayerIsTheSamePlayerWithStrength(int strength) {
-        assertSame(playerBeforeRegen, gameForRegen.getPlayer());
-        assertEquals(strength, gameForRegen.getPlayer().getStats().getStrength());
+        assertSame(runningPlayer, gameForRegen.getPlayer());
+        assertEquals(Optional.of(strength), Optional.of(runningPlayer).map(Player::getStats).map(Stats::getStrength));
     }
 
     @Then("the running player is at the spawn point of a world generated from seed {int}")
     public void theRunningPlayerIsAtTheSpawnPointOfAWorldGeneratedFromSeed(int seed) {
         GeneratedWorldScene expected = SeededWorldGenerationSteps.worldFromSeed(seed);
-        assertEquals(expected.getSpawnX(), gameForRegen.getPlayer().getX());
-        assertEquals(expected.getSpawnY(), gameForRegen.getPlayer().getY());
+        assertEquals(expected.getSpawnX(), runningPlayer.getX());
+        assertEquals(expected.getSpawnY(), runningPlayer.getY());
     }
 
     @When("the command bar is set to {string}")

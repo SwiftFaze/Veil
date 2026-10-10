@@ -4,6 +4,7 @@ import com.swiftfaze.veil.world.WorldScene;
 
 import com.swiftfaze.veil.entities.buildings.Building;
 
+import java.awt.Point;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,25 +20,25 @@ final class SpawnFinder {
 
     private SpawnFinder(WorldScene scene, List<Building> buildings) {
         this.scene = scene;
-        this.buildings = buildings;
+        this.buildings = List.copyOf(buildings);
     }
 
-    /** {@code [x, y]}. Falls back to the centre when nothing in the map is walkable and free. */
-    static int[] nearestWalkableOutsideBuildings(WorldScene scene, List<Building> buildings) {
+    /** Falls back to the centre when nothing in the map is walkable and free. */
+    static Point nearestWalkableOutsideBuildings(WorldScene scene, List<Building> buildings) {
         SpawnFinder finder = new SpawnFinder(scene, buildings);
         int centreX = scene.getWidth() / 2;
         int centreY = scene.getHeight() / 2;
         int maxRadius = Math.max(scene.getWidth(), scene.getHeight());
         for (int radius = 0; radius <= maxRadius; radius++) {
-            Optional<int[]> found = finder.firstInRing(centreX, centreY, radius);
+            Optional<Point> found = finder.firstInRing(centreX, centreY, radius);
             if (found.isPresent()) {
                 return found.get();
             }
         }
-        return new int[] {centreX, centreY};
+        return new Point(centreX, centreY);
     }
 
-    private Optional<int[]> firstInRing(int centreX, int centreY, int radius) {
+    private Optional<Point> firstInRing(int centreX, int centreY, int radius) {
         for (int dy = -radius; dy <= radius; dy++) {
             for (int dx = -radius; dx <= radius; dx++) {
                 if (Math.max(Math.abs(dx), Math.abs(dy)) != radius) {
@@ -46,7 +47,7 @@ final class SpawnFinder {
                 int x = centreX + dx;
                 int y = centreY + dy;
                 if (scene.isWalkable(x, y) && buildings.stream().noneMatch(b -> b.covers(x, y))) {
-                    return Optional.of(new int[] {x, y});
+                    return Optional.of(new Point(x, y));
                 }
             }
         }

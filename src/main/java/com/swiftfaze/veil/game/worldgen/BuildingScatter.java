@@ -80,7 +80,7 @@ final class BuildingScatter {
                 }
             }
         }
-        return DoorApproaches.of(candidate).stream().allMatch(this::isFreeApproachTile);
+        return DoorApproaches.outsideDoorsOf(candidate).stream().allMatch(this::isFreeApproachTile);
     }
 
     /** Walkable, not already footprint, and not a door approach kept clear for another building. */
@@ -99,7 +99,7 @@ final class BuildingScatter {
                 footprint[building.getWorldX() + x][building.getWorldY() + y] = true;
             }
         }
-        for (Point tile : DoorApproaches.of(building)) {
+        for (Point tile : DoorApproaches.outsideDoorsOf(building)) {
             doorApproach[tile.x][tile.y] = true;
         }
         scene.placeBuilding(building);

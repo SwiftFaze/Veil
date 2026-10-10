@@ -35,10 +35,6 @@ public final class GamePanel extends JPanel {
 
     private static final Logger logger = LoggerFactory.getLogger(GamePanel.class);
 
-    /** What a new game starts with: the player on the scene's spawn point, and the scene. */
-    private record NewGame(Player player, GeneratedWorldScene scene) {
-    }
-
     private Player player;
     private WorldScene scene;
     private final LongSupplier worldSeeds;
@@ -48,6 +44,10 @@ public final class GamePanel extends JPanel {
     private final GameEventLog eventLog;
     private final WorldPause worldPause = new WorldPause();
     private final TurnScheduler turnScheduler = new TurnScheduler();
+
+    /** What a new game starts with: the player on the scene's spawn point, and the scene. */
+    private record NewGame(Player player, GeneratedWorldScene scene) {
+    }
 
     public GamePanel() {
         this(GameEventLog.noOp());
