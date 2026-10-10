@@ -17,6 +17,10 @@ Feature: Turn/tick engine advances the world one turn per successful player move
   counter); real-time or timed ticking; dev-console repositioning advancing
   turns; the dev console pausing the world.
 
+  QA: none - ticks are not player-visible yet, so a key replay cannot observe
+  them; movement and inventory replays already exist (map-movement,
+  inventory-toggle).
+
   Background:
     Given a game panel is running with a player at position (5, 5)
     And a counting tick consumer is registered with the turn scheduler
