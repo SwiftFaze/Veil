@@ -55,7 +55,8 @@ With `--from-hardener`, do steps 4-5 only; every hardener verification still run
   made. UI work: include `docs/ui-styling.md` itself, not a summary. Fork only
   when the material is too sprawling to excerpt for less than forking costs.
 - **Parallel tickets:** one coder per ticket in its own git worktree; that
-  ticket's hardener runs in the same worktree.
+  ticket's hardener runs in the same worktree. A whole milestone at once:
+  `run-milestone`, which schedules the hardeners one at a time.
 
 ## Verifying what comes back
 

@@ -10,8 +10,8 @@ tunable constants. Overview and layering: [`architecture.md`](architecture.md).
 `NorthPanel`/`SouthPanel`/`EastPanel` shell around them was removed as
 early scaffolding pending a proper reimplementation, replaced by minimal
 inline wiring in `Main.buildGameCard`/`wirePopups` (see `docs/screens.md`'s
-"UI shell" note). There is no game loop/ticker — the world only repaints
-in response to key events (see `GamePanel.bindKeys`).
+"UI shell" note). There is no real-time game loop/ticker: the world repaints in response to key events
+(see `GamePanel.bindKeys`) and time advances in discrete turns (see "Turn scheduler and world pause" below).
 
 `Main` also sets the window icon (`AppIcon`, from `/icons/veil.png`) on the
 game frame and the dev console frame; if the resource is missing the
@@ -31,6 +31,17 @@ via `resizeViewport(width, height)`, tracking `GamePanel`'s live pixel size
 each paint so a resizable Windowed frame reveals more or less of the map
 around the player as it's resized; resizing below a 5-tile-per-dimension
 minimum clamps to that floor rather than shrinking to zero or negative tiles.
+
+**Turn scheduler and world pause** (`game/TurnScheduler.java`, `Tickable.java`,
+`WorldPause.java`): `TurnScheduler` owns the turn counter and a list of `Tickable`s.
+`GamePanel`'s `MoveAction` calls `advance()` once per *successful* move (blocked moves,
+moves while paused, and direct `Player.setPosition` calls do not), which bumps the turn and
+calls each `Tickable.onTurn(turn)` in registration order over a snapshot, so a tickable
+registered mid-tick first runs next turn. `WorldPause` is the single source of truth for
+"the world is paused": a set of held screen ids (`INVENTORY`, `CODEX`, `PAUSE_MENU`).
+Each popup holds its id when it opens and releases it from `PopupWidget.addDismissListener`
+on any dismiss (wired in `PopupToggleListener` / `PauseToggleListener`), so closing one
+screen cannot unpause the world while another is open. `GamePanel.resetState()` resets both.
 
 **Player movement** (`entities/player/Player.java`): each directional move
 checks whether the target tile is walkable and, if so, moves onto it —
