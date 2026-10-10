@@ -42,6 +42,11 @@ public class ModRegistry {
         return buildingsById.get(id);
     }
 
+    /** Every registered building id, sorted, so choices don't depend on mod load order. */
+    public List<String> getBuildingIds() {
+        return buildingsById.keySet().stream().sorted().toList();
+    }
+
     public Tile getTile(String id) {
         return tilesById.get(id);
     }

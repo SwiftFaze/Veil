@@ -8,8 +8,11 @@ import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.event.GameEvent;
 import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.input.Keybindings;
-import com.swiftfaze.veil.world.TileTestScene2;
+import com.swiftfaze.veil.game.worldgen.GeneratedWorldScene;
 import com.swiftfaze.veil.world.WorldScene;
+import com.swiftfaze.veil.world.WorldSeeds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -23,13 +26,22 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.LongSupplier;
 
 
 public final class GamePanel extends JPanel {
 
+    private static final Logger logger = LoggerFactory.getLogger(GamePanel.class);
+
+    /** What a new game starts with: the player on the scene's spawn point, and the scene. */
+    private record NewGame(Player player, GeneratedWorldScene scene) {
+    }
+
     private Player player;
     private WorldScene scene;
+    private final LongSupplier worldSeeds;
     private final Camera camera = new Camera(GameConst.GAME_WINDOW_WIDTH, GameConst.GAME_WINDOW_HEIGHT);
     private final List<Positionable> entitiesToDraw = new ArrayList<>();
     private final List<GameListener> listeners = new ArrayList<>();
@@ -41,13 +53,26 @@ public final class GamePanel extends JPanel {
     }
 
     public GamePanel(GameEventLog eventLog) {
-        this(eventLog, new Player(GameConst.DEFAULT_PLAYER_START_X, GameConst.DEFAULT_PLAYER_START_Y),
-                new TileTestScene2(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT));
+        this(eventLog, WorldSeeds.fromSystemProperty(new Random()::nextLong));
+    }
+
+    /** @param worldSeeds supplies the seed for each new game (and each {@link #resetState()}) */
+    public GamePanel(GameEventLog eventLog, LongSupplier worldSeeds) {
+        this(eventLog, worldSeeds, newGame(worldSeeds));
     }
 
     public GamePanel(GameEventLog eventLog, Player player, WorldScene scene) {
+        this(eventLog, WorldSeeds.fromSystemProperty(new Random()::nextLong), player, scene);
+    }
+
+    private GamePanel(GameEventLog eventLog, LongSupplier worldSeeds, NewGame game) {
+        this(eventLog, worldSeeds, game.player(), game.scene());
+    }
+
+    private GamePanel(GameEventLog eventLog, LongSupplier worldSeeds, Player player, WorldScene scene) {
         this.player = player;
         this.scene = scene;
+        this.worldSeeds = worldSeeds;
         this.eventLog = eventLog;
         setPreferredSize(new Dimension(GameConst.GAME_WINDOW_WIDTH * GameConst.TILE_WIDTH, GameConst.GAME_WINDOW_HEIGHT * GameConst.TILE_HEIGHT));
         setBackground(Color.BLACK);
@@ -109,6 +134,18 @@ public final class GamePanel extends JPanel {
         return player;
     }
 
+    public WorldScene getScene() {
+        return scene;
+    }
+
+    /** Builds a fresh world from the next seed and spawns the player on its spawn point. */
+    private static NewGame newGame(LongSupplier worldSeeds) {
+        long seed = worldSeeds.getAsLong();
+        GeneratedWorldScene scene = new GeneratedWorldScene(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT, seed);
+        logger.info("World generated from seed {}", seed);
+        return new NewGame(new Player(scene.getSpawnX(), scene.getSpawnY()), scene);
+    }
+
     public void setPaused(boolean paused) {
         this.paused = paused;
     }
@@ -125,8 +162,9 @@ public final class GamePanel extends JPanel {
      * an in-place reset of just this panel's own state.
      */
     public void resetState() {
-        player = new Player(GameConst.DEFAULT_PLAYER_START_X, GameConst.DEFAULT_PLAYER_START_Y);
-        scene = new TileTestScene2(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT);
+        NewGame game = newGame(worldSeeds);
+        player = game.player();
+        scene = game.scene();
         entitiesToDraw.clear();
         addEntity(scene);
         addEntity(player);
