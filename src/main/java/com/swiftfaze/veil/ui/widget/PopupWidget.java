@@ -10,12 +10,15 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PopupWidget extends Widget {
 
     private final JPanel contentPanel;
     private Runnable onDismiss = () -> {
     };
+    private final List<Runnable> dismissListeners = new ArrayList<>();
     private FocusManager focusManager;
 
     public PopupWidget() {
@@ -46,6 +49,14 @@ public class PopupWidget extends Widget {
 
     public void setOnDismiss(Runnable onDismiss) {
         this.onDismiss = onDismiss;
+    }
+
+    /**
+     * Adds a listener run on every dismiss, after {@link #setOnDismiss}'s callback. Unlike
+     * that single callback, several can be added, so a wiring layer can't overwrite another's.
+     */
+    public void addDismissListener(Runnable listener) {
+        dismissListeners.add(listener);
     }
 
     public void addContent(JComponent component) {
@@ -79,6 +90,9 @@ public class PopupWidget extends Widget {
             focusManager.restoreFocus();
         }
         onDismiss.run();
+        for (Runnable listener : dismissListeners) {
+            listener.run();
+        }
     }
 
     /**

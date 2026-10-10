@@ -2,20 +2,21 @@ package com.swiftfaze.veil.ui;
 
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.GameListener;
-import com.swiftfaze.veil.game.GamePanel;
+import com.swiftfaze.veil.game.WorldPause;
 
 /**
- * Wires ESC to open/dismiss the pause menu overlay and freezes GamePanel's
- * movement input while it's open, mirroring PopupToggleListener's role for
- * Inventory/Codex.
+ * Wires ESC to open/dismiss the pause menu overlay. Opening holds the pause menu's id
+ * in the shared {@link WorldPause}, and any dismiss of the popup releases it, mirroring
+ * PopupToggleListener's role for Inventory/Codex.
  */
 public class PauseToggleListener implements GameListener {
-    private final GamePanel gamePanel;
+    private final WorldPause worldPause;
     private final PauseMenuPopup pauseMenuPopup;
 
-    public PauseToggleListener(GamePanel gamePanel, PauseMenuPopup pauseMenuPopup) {
-        this.gamePanel = gamePanel;
+    public PauseToggleListener(WorldPause worldPause, PauseMenuPopup pauseMenuPopup) {
+        this.worldPause = worldPause;
         this.pauseMenuPopup = pauseMenuPopup;
+        pauseMenuPopup.addDismissListener(() -> worldPause.release(WorldPause.PAUSE_MENU));
     }
 
     @Override
@@ -28,7 +29,7 @@ public class PauseToggleListener implements GameListener {
         if (pauseMenuPopup.isVisible()) {
             pauseMenuPopup.dismiss();
         } else {
-            gamePanel.setPaused(true);
+            worldPause.hold(WorldPause.PAUSE_MENU);
             pauseMenuPopup.open();
         }
     }
