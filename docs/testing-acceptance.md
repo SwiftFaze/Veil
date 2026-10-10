@@ -103,7 +103,7 @@ to fail. Spec: `specs/features/acceptance-mutation.feature`. It is test-scope
 like PIT, not a CI gate.
 
 ```
-mvn -q exec:java -Dexec.classpathScope=test \
+bash .claude/tools/pit-lock.sh mvn -q exec:java -Dexec.classpathScope=test \
   -Dexec.mainClass=com.swiftfaze.veil.testing.aps.AcceptanceMutator \
   -Dexec.args="--feature <slug>"
 ```
