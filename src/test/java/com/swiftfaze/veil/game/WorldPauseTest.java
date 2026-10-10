@@ -16,7 +16,7 @@ class WorldPauseTest {
     void holdingAScreenPausesTheWorld() {
         WorldPause pause = new WorldPause();
 
-        pause.hold("inventory");
+        pause.hold(WorldPause.INVENTORY);
 
         assertTrue(pause.isPaused());
     }
@@ -24,9 +24,9 @@ class WorldPauseTest {
     @Test
     void releasingTheOnlyHeldScreenResumesTheWorld() {
         WorldPause pause = new WorldPause();
-        pause.hold("inventory");
+        pause.hold(WorldPause.INVENTORY);
 
-        pause.release("inventory");
+        pause.release(WorldPause.INVENTORY);
 
         assertFalse(pause.isPaused());
     }
@@ -34,10 +34,10 @@ class WorldPauseTest {
     @Test
     void worldStaysPausedWhileAnotherScreenIsStillHeld() {
         WorldPause pause = new WorldPause();
-        pause.hold("inventory");
+        pause.hold(WorldPause.INVENTORY);
         pause.hold("codex");
 
-        pause.release("inventory");
+        pause.release(WorldPause.INVENTORY);
         assertTrue(pause.isPaused());
 
         pause.release("codex");
@@ -57,10 +57,10 @@ class WorldPauseTest {
     @Test
     void clearResumesTheWorldWhateverIsHeld() {
         WorldPause pause = new WorldPause();
-        pause.hold("inventory");
+        pause.hold(WorldPause.INVENTORY);
         pause.hold("pause");
 
-        pause.clear();
+        pause.releaseAll();
 
         assertFalse(pause.isPaused());
     }

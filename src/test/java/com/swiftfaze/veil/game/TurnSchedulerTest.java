@@ -8,6 +8,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TurnSchedulerTest {
+    private static final String SPAWNER = "spawner";
 
     @Test
     void newSchedulerHasNoTurnsAndNoRegistrations() {
@@ -31,7 +32,7 @@ class TurnSchedulerTest {
     void advanceStepsEveryRegisteredTickableWithTheNewTurnNumber() {
         TurnScheduler scheduler = new TurnScheduler();
         List<Integer> turnsSeen = new ArrayList<>();
-        scheduler.register(turn -> turnsSeen.add(turn));
+        scheduler.register(turnsSeen::add);
 
         scheduler.advance();
         scheduler.advance();
@@ -56,17 +57,17 @@ class TurnSchedulerTest {
         TurnScheduler scheduler = new TurnScheduler();
         List<String> order = new ArrayList<>();
         scheduler.register(turn -> {
-            order.add("spawner");
+            order.add(SPAWNER);
             if (turn == 1) {
                 scheduler.register(later -> order.add("spawned@" + later));
             }
         });
 
         scheduler.advance();
-        assertEquals(List.of("spawner"), order);
+        assertEquals(List.of(SPAWNER), order);
 
         scheduler.advance();
-        assertEquals(List.of("spawner", "spawner", "spawned@2"), order);
+        assertEquals(List.of(SPAWNER, SPAWNER, "spawned@2"), order);
     }
 
     @Test
@@ -95,7 +96,7 @@ class TurnSchedulerTest {
     void afterResetNothingIsSteppedOnTheNextAdvance() {
         TurnScheduler scheduler = new TurnScheduler();
         List<Integer> turnsSeen = new ArrayList<>();
-        scheduler.register(turn -> turnsSeen.add(turn));
+        scheduler.register(turnsSeen::add);
         scheduler.reset();
 
         scheduler.advance();

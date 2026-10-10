@@ -188,7 +188,7 @@ public final class Main {
         pauseMenuPopup.setOnDismiss(() -> restoreGameFocus(gamePanel, hintBar));
 
         gamePanel.addGameListener(new PopupToggleListener(inventoryPanel, codexPanel, gamePanel.getWorldPause(), eventLog));
-        gamePanel.addGameListener(new PauseToggleListener(gamePanel, pauseMenuPopup));
+        gamePanel.addGameListener(new PauseToggleListener(gamePanel.getWorldPause(), pauseMenuPopup));
     }
 
     private static void restoreGameFocus(GamePanel gamePanel, ControlsHintBarWidget hintBar) {

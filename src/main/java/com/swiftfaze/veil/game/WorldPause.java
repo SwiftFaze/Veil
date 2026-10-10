@@ -28,7 +28,7 @@ public final class WorldPause {
         return !heldBy.isEmpty();
     }
 
-    public void clear() {
+    public void releaseAll() {
         heldBy.clear();
     }
 }

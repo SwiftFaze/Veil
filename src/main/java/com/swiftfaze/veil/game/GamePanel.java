@@ -136,7 +136,7 @@ public final class GamePanel extends JPanel {
         addEntity(scene);
         addEntity(player);
         turnScheduler.reset();
-        worldPause.clear();
+        worldPause.releaseAll();
     }
 
     @Override

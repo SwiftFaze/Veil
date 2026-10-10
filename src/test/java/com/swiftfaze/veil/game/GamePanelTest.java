@@ -25,6 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GamePanelTest {
     private static final int PAINT_WIDTH = 300;
     private static final int PAINT_HEIGHT = 225;
+    private static final int START_X = 5;
+    private static final int START_Y = 5;
+    private static final int TILE_RIGHT_X = START_X + 1;
+    private static final int ELSEWHERE = 8;
     private static final Tile FLOOR = new Tile("test:floor", '.', Color.GRAY, true);
     private static final Tile WALL = new Tile("test:wall", '#', Color.WHITE, false);
 
@@ -92,11 +96,12 @@ class GamePanelTest {
     @Test
     void heldWorldPausePreventsMovement() {
         GamePanel panel = new GamePanel();
-        Player player = panel.getPlayer();
+        Player player = playerOf(panel);
         int originalX = player.getX();
         int originalY = player.getY();
 
-        panel.getWorldPause().hold("inventory");
+        WorldPause worldPause = worldPauseOf(panel);
+        worldPause.hold("inventory");
         fireAction(panel, Keybindings.ACTION_MOVE_UP);
 
         assertEquals(originalX, player.getX());
@@ -106,45 +111,53 @@ class GamePanelTest {
     @Test
     void successfulMoveAdvancesTheTurnByOne() {
         GamePanel panel = panelWithTileToTheRight(FLOOR);
+        TurnScheduler scheduler = schedulerOf(panel);
         CountingTickable counter = new CountingTickable();
-        panel.getTurnScheduler().register(counter);
+        scheduler.register(counter);
 
         fireAction(panel, Keybindings.ACTION_MOVE_RIGHT);
 
-        assertEquals(1, panel.getTurnScheduler().getTurn());
+        assertEquals(1, scheduler.getTurn());
         assertEquals(1, counter.steps);
     }
 
     @Test
     void blockedMoveDoesNotAdvanceTheTurn() {
         GamePanel panel = panelWithTileToTheRight(WALL);
+        TurnScheduler scheduler = schedulerOf(panel);
         CountingTickable counter = new CountingTickable();
-        panel.getTurnScheduler().register(counter);
+        scheduler.register(counter);
 
         fireAction(panel, Keybindings.ACTION_MOVE_RIGHT);
 
-        assertEquals(0, panel.getTurnScheduler().getTurn());
+        assertEquals(0, scheduler.getTurn());
         assertEquals(0, counter.steps);
     }
 
     @Test
     void movementWhilePausedDoesNotAdvanceTheTurn() {
         GamePanel panel = panelWithTileToTheRight(FLOOR);
-        panel.getWorldPause().hold("pause");
+        Player player = playerOf(panel);
+        TurnScheduler scheduler = schedulerOf(panel);
+        WorldPause worldPause = worldPauseOf(panel);
+        worldPause.hold("pause");
 
         fireAction(panel, Keybindings.ACTION_MOVE_RIGHT);
 
-        assertEquals(5, panel.getPlayer().getX());
-        assertEquals(0, panel.getTurnScheduler().getTurn());
+        assertEquals(START_X, player.getX());
+        assertEquals(0, scheduler.getTurn());
     }
 
     @Test
     void repositioningThePlayerDirectlyDoesNotAdvanceTheTurn() {
         GamePanel panel = panelWithTileToTheRight(FLOOR);
 
-        panel.getPlayer().setPosition(8, 8);
+        Player player = playerOf(panel);
+        TurnScheduler scheduler = schedulerOf(panel);
 
-        assertEquals(0, panel.getTurnScheduler().getTurn());
+        player.setPosition(ELSEWHERE, ELSEWHERE);
+
+        assertEquals(0, scheduler.getTurn());
     }
 
     @Test
@@ -172,8 +185,10 @@ class GamePanelTest {
     @Test
     void resetStateRestoresDefaultPlayerPositionAndUnpauses() {
         GamePanel panel = new GamePanel();
-        panel.getPlayer().setPosition(1, 1);
-        panel.getWorldPause().hold("pause");
+        Player player = playerOf(panel);
+        WorldPause worldPause = worldPauseOf(panel);
+        player.setPosition(1, 1);
+        worldPause.hold("pause");
 
         panel.resetState();
 
@@ -184,13 +199,14 @@ class GamePanelTest {
     @Test
     void resetStateClearsTheTurnSchedulerAndItsRegistrations() {
         GamePanel panel = panelWithTileToTheRight(FLOOR);
-        panel.getTurnScheduler().register(new CountingTickable());
+        TurnScheduler scheduler = schedulerOf(panel);
+        scheduler.register(new CountingTickable());
         fireAction(panel, Keybindings.ACTION_MOVE_RIGHT);
 
         panel.resetState();
 
-        assertEquals(0, panel.getTurnScheduler().getTurn());
-        assertEquals(0, panel.getTurnScheduler().registeredCount());
+        assertEquals(0, scheduler.getTurn());
+        assertEquals(0, scheduler.registeredCount());
     }
 
     @Test
@@ -226,12 +242,12 @@ class GamePanelTest {
         assertTrue(listenerCalled[0]);
     }
 
-    /** A panel with the player at (5, 5) on floor, and {@code tileToTheRight} at (6, 5). */
+    /** A panel with the player at (START_X, START_Y) on floor, and {@code tileToTheRight} beside it. */
     private static GamePanel panelWithTileToTheRight(Tile tileToTheRight) {
         TileTestScene2 scene = new TileTestScene2(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT);
         scene.fillRegion(new Rectangle(0, 0, GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT), FLOOR);
-        scene.fillRegion(new Rectangle(6, 5, 1, 1), tileToTheRight);
-        return new GamePanel(GameEventLog.noOp(), new Player(5, 5), scene);
+        scene.fillRegion(new Rectangle(TILE_RIGHT_X, START_Y, 1, 1), tileToTheRight);
+        return new GamePanel(GameEventLog.noOp(), new Player(START_X, START_Y), scene);
     }
 
     private static final class CountingTickable implements Tickable {
@@ -247,6 +263,18 @@ class GamePanelTest {
         Player player = playerSource.get();
         assertEquals(GameConst.DEFAULT_PLAYER_START_X, player.getX());
         assertEquals(GameConst.DEFAULT_PLAYER_START_Y, player.getY());
+    }
+
+    private static Player playerOf(GamePanel panel) {
+        return panel.getPlayer();
+    }
+
+    private static TurnScheduler schedulerOf(GamePanel panel) {
+        return panel.getTurnScheduler();
+    }
+
+    private static WorldPause worldPauseOf(GamePanel panel) {
+        return panel.getWorldPause();
     }
 
     private static void fireAction(GamePanel panel, String actionName) {

@@ -52,11 +52,11 @@ final class GamePanelFixture {
         return fixture;
     }
 
-    /** A game panel wired as Main wires it: inventory, codex and pause menu all toggle the shared world pause. */
+    /** A game panel wired as Main wires it: all three screens toggle the shared world pause. */
     static GamePanelFixture withAllScreens(GameEventLog log) {
         GamePanelFixture fixture = withInventory(log);
         fixture.pauseMenuPopup = new PauseMenuPopup();
-        fixture.panel.addGameListener(new PauseToggleListener(fixture.panel, fixture.pauseMenuPopup));
+        fixture.panel.addGameListener(new PauseToggleListener(fixture.panel.getWorldPause(), fixture.pauseMenuPopup));
         return fixture;
     }
 
@@ -77,7 +77,8 @@ final class GamePanelFixture {
     }
 
     int playerX() {
-        return panel.getPlayer().getX();
+        Player livePlayer = playerOf(panel);
+        return livePlayer.getX();
     }
 
     void pressMoveRight() {
@@ -103,7 +104,16 @@ final class GamePanelFixture {
 
     /** Reads the live player, so it is still right after {@code GamePanel.resetState()} swaps it. */
     int playerY() {
-        return panel.getPlayer().getY();
+        Player livePlayer = playerOf(panel);
+        return livePlayer.getY();
+    }
+
+    private static Player playerOf(GamePanel gamePanel) {
+        return gamePanel.getPlayer();
+    }
+
+    boolean worldPaused() {
+        return panel.isPaused();
     }
 
     GamePanel panel() {

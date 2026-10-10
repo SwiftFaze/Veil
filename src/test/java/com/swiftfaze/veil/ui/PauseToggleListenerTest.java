@@ -13,7 +13,7 @@ class PauseToggleListenerTest {
     void togglePauseOpensThePopup() {
         GamePanel gamePanel = new GamePanel();
         PauseMenuPopup pauseMenuPopup = new PauseMenuPopup();
-        PauseToggleListener listener = new PauseToggleListener(gamePanel, pauseMenuPopup);
+        PauseToggleListener listener = new PauseToggleListener(gamePanel.getWorldPause(), pauseMenuPopup);
 
         listener.togglePause();
 
@@ -24,7 +24,7 @@ class PauseToggleListenerTest {
     void togglePauseSetsGamePanelPausedFlag() {
         GamePanel gamePanel = new GamePanel();
         PauseMenuPopup pauseMenuPopup = new PauseMenuPopup();
-        PauseToggleListener listener = new PauseToggleListener(gamePanel, pauseMenuPopup);
+        PauseToggleListener listener = new PauseToggleListener(gamePanel.getWorldPause(), pauseMenuPopup);
 
         listener.togglePause();
 
@@ -35,7 +35,7 @@ class PauseToggleListenerTest {
     void togglingPauseTwiceClosesThePopup() {
         GamePanel gamePanel = new GamePanel();
         PauseMenuPopup pauseMenuPopup = new PauseMenuPopup();
-        PauseToggleListener listener = new PauseToggleListener(gamePanel, pauseMenuPopup);
+        PauseToggleListener listener = new PauseToggleListener(gamePanel.getWorldPause(), pauseMenuPopup);
 
         listener.togglePause();
         listener.togglePause();
@@ -47,7 +47,7 @@ class PauseToggleListenerTest {
     void dismissingThePauseMenuResumesTheWorld() {
         GamePanel gamePanel = new GamePanel();
         PauseMenuPopup pauseMenuPopup = new PauseMenuPopup();
-        PauseToggleListener listener = new PauseToggleListener(gamePanel, pauseMenuPopup);
+        PauseToggleListener listener = new PauseToggleListener(gamePanel.getWorldPause(), pauseMenuPopup);
         listener.togglePause();
 
         pauseMenuPopup.dismiss();
@@ -59,7 +59,7 @@ class PauseToggleListenerTest {
     void updatePlayerDoesNotThrow() {
         GamePanel gamePanel = new GamePanel();
         PauseMenuPopup pauseMenuPopup = new PauseMenuPopup();
-        PauseToggleListener listener = new PauseToggleListener(gamePanel, pauseMenuPopup);
+        PauseToggleListener listener = new PauseToggleListener(gamePanel.getWorldPause(), pauseMenuPopup);
 
         assertDoesNotThrow(() -> listener.updatePlayer(null));
     }

@@ -56,10 +56,10 @@ public class TurnTickEngineSteps {
     }
 
     @Given("map tiles \\({int}, {int}\\), \\({int}, {int}\\) and \\({int}, {int}\\) are walkable")
-    public void mapTilesAreWalkable(int x1, int y1, int x2, int y2, int x3, int y3) {
-        game.openFloorAt(x1, y1);
-        game.openFloorAt(x2, y2);
-        game.openFloorAt(x3, y3);
+    public void mapTilesAreWalkable(int firstX, int firstY, int secondX, int secondY, int thirdX, int thirdY) {
+        game.openFloorAt(firstX, firstY);
+        game.openFloorAt(secondX, secondY);
+        game.openFloorAt(thirdX, thirdY);
     }
 
     @Given("the player has stepped right")
@@ -114,12 +114,12 @@ public class TurnTickEngineSteps {
 
     @Then("the world is paused")
     public void theWorldIsPaused() {
-        assertTrue(game.panel().getWorldPause().isPaused(), "expected the world to be paused");
+        assertTrue(game.worldPaused(), "expected the world to be paused");
     }
 
     @Then("the world is not paused")
     public void theWorldIsNotPaused() {
-        assertFalse(game.panel().getWorldPause().isPaused(), "expected the world not to be paused");
+        assertFalse(game.worldPaused(), "expected the world not to be paused");
     }
 
     @Then("the turn counter is {int}")
@@ -158,9 +158,13 @@ public class TurnTickEngineSteps {
     }
 
     private void registerConsumer(String name) {
-        CountingTickConsumer consumer = new CountingTickConsumer(name, steppedOrder);
+        CountingTickConsumer consumer = new CountingTickConsumer(name);
         consumers.add(consumer);
         scheduler().register(consumer);
+    }
+
+    private void recordStepped(String name) {
+        steppedOrder.add(name);
     }
 
     private TurnScheduler scheduler() {
@@ -193,20 +197,18 @@ public class TurnTickEngineSteps {
     }
 
     /** A no-op tick consumer that counts how often it is stepped, and logs its name into a shared order. */
-    private static final class CountingTickConsumer implements Tickable {
+    private final class CountingTickConsumer implements Tickable {
         private final String name;
-        private final List<String> steppedOrder;
         private int steps;
 
-        CountingTickConsumer(String name, List<String> steppedOrder) {
+        CountingTickConsumer(String name) {
             this.name = name;
-            this.steppedOrder = steppedOrder;
         }
 
         @Override
         public void onTurn(int turn) {
             steps++;
-            steppedOrder.add(name);
+            recordStepped(name);
         }
     }
 }

@@ -5,6 +5,7 @@ import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -126,7 +127,7 @@ class PopupToggleListenerTest {
                 new InventoryPanel(new ControlsHintBarWidget()),
                 new CodexPanel(new ControlsHintBarWidget()), new WorldPause());
 
-        listener.updatePlayer(null);
+        assertDoesNotThrow(() -> listener.updatePlayer(null));
     }
 
     private static PopupToggleListener listenerFor(InventoryPanel inventoryPanel, CodexPanel codexPanel, WorldPause worldPause) {

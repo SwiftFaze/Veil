@@ -2,7 +2,6 @@ package com.swiftfaze.veil.ui;
 
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.GameListener;
-import com.swiftfaze.veil.game.GamePanel;
 import com.swiftfaze.veil.game.WorldPause;
 
 /**
@@ -11,13 +10,13 @@ import com.swiftfaze.veil.game.WorldPause;
  * PopupToggleListener's role for Inventory/Codex.
  */
 public class PauseToggleListener implements GameListener {
-    private final GamePanel gamePanel;
+    private final WorldPause worldPause;
     private final PauseMenuPopup pauseMenuPopup;
 
-    public PauseToggleListener(GamePanel gamePanel, PauseMenuPopup pauseMenuPopup) {
-        this.gamePanel = gamePanel;
+    public PauseToggleListener(WorldPause worldPause, PauseMenuPopup pauseMenuPopup) {
+        this.worldPause = worldPause;
         this.pauseMenuPopup = pauseMenuPopup;
-        pauseMenuPopup.addDismissListener(() -> gamePanel.getWorldPause().release(WorldPause.PAUSE_MENU));
+        pauseMenuPopup.addDismissListener(() -> worldPause.release(WorldPause.PAUSE_MENU));
     }
 
     @Override
@@ -30,7 +29,7 @@ public class PauseToggleListener implements GameListener {
         if (pauseMenuPopup.isVisible()) {
             pauseMenuPopup.dismiss();
         } else {
-            gamePanel.getWorldPause().hold(WorldPause.PAUSE_MENU);
+            worldPause.hold(WorldPause.PAUSE_MENU);
             pauseMenuPopup.open();
         }
     }
