@@ -1,6 +1,7 @@
 package com.swiftfaze.veil.mods;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -601,14 +602,12 @@ public final class ModLoader {
             NpcDefinition definition = readNpcDefinition(json, id, file);
             RegistrationContext<NpcDefinition> npcContext = new RegistrationContext<>(npcs.registry(), npcs.owningModById(), json.has("overrides"), "NPC");
             registerWithCollisionCheck(id, definition, modId, npcContext);
-        } catch (ModLoadException e) {
-            throw e;
         } catch (JsonSyntaxException | IOException e) {
             throw new ModLoadException("Failed to load NPC from file: " + file, e);
         }
     }
 
-    /** Schema failures are re-thrown with the NPC id prepended, so the message names the NPC as well as the file. */
+    /** Schema failures are re-thrown with the NPC id prepended, naming the NPC as well as the file. */
     private static void validateNpc(JsonObject json, Path file) {
         try {
             ModSchemaValidator.validate("npc", json, file);
@@ -627,15 +626,15 @@ public final class ModLoader {
         return new NpcDefinition(id, name, symbol, color, spawn, patrol);
     }
 
-    private static TileCoord readTileCoord(JsonObject coord) {
-        return new TileCoord(coord.get("x").getAsInt(), coord.get("y").getAsInt());
+    private static TileCoord readTileCoord(JsonObject tile) {
+        return new TileCoord(tile.get("x").getAsInt(), tile.get("y").getAsInt());
     }
 
     private static Patrol readPatrol(JsonObject patrolObj, String npcId, TileCoord spawn, Path file) {
         String mode = patrolObj.has("mode") ? patrolObj.get("mode").getAsString() : "ping_pong";
         PatrolMode patrolMode = PatrolMode.fromJson(mode);
         List<TileCoord> waypoints = new ArrayList<>();
-        for (var element : patrolObj.getAsJsonArray("waypoints")) {
+        for (JsonElement element : patrolObj.getAsJsonArray("waypoints")) {
             waypoints.add(readTileCoord(element.getAsJsonObject()));
         }
         validateRoute(npcId, spawn, waypoints, file);
@@ -656,17 +655,17 @@ public final class ModLoader {
         }
     }
 
-    private static void requireOrthogonalLeg(String npcId, TileCoord from, TileCoord to, Path file) {
-        boolean sameColumn = from.x() == to.x();
-        boolean sameRow = from.y() == to.y();
+    private static void requireOrthogonalLeg(String npcId, TileCoord start, TileCoord end, Path file) {
+        boolean sameColumn = start.x() == end.x();
+        boolean sameRow = start.y() == end.y();
         if (sameColumn == sameRow) {
-            throw new ModLoadException("NPC '" + npcId + "' patrol leg from " + describe(from) + " to " + describe(to)
+            throw new ModLoadException("NPC '" + npcId + "' patrol leg from " + describe(start) + " to " + describe(end)
                     + " must be a straight horizontal or vertical line in file: " + file);
         }
     }
 
-    private static String describe(TileCoord coord) {
-        return "(" + coord.x() + ", " + coord.y() + ")";
+    private static String describe(TileCoord tile) {
+        return "(" + tile.x() + ", " + tile.y() + ")";
     }
 
     private record ModManifest(String id, List<String> dependsOn) {

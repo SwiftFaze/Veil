@@ -4,7 +4,7 @@ import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.render.DrawableAsciiEntity;
 import com.swiftfaze.veil.render.Positionable;
-import com.swiftfaze.veil.entities.npc.Npc;
+import com.swiftfaze.veil.entities.npc.NonPlayerCharacter;
 import com.swiftfaze.veil.entities.npc.NpcDefinition;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.event.GameEvent;
@@ -39,7 +39,7 @@ public final class GamePanel extends JPanel {
     private final GameEventLog eventLog;
     private final WorldPause worldPause = new WorldPause();
     private final TurnScheduler turnScheduler = new TurnScheduler();
-    private final List<Npc> npcs = new ArrayList<>();
+    private final List<NonPlayerCharacter> npcs = new ArrayList<>();
 
     public GamePanel() {
         this(GameEventLog.noOp());
@@ -102,7 +102,7 @@ public final class GamePanel extends JPanel {
         entitiesToDraw.add(entity);
     }
 
-    /** Spawns every NPC in {@code registry} at its spawn tile, in load order. Call at world setup and after resetState(). */
+    /** Spawns every NPC in {@code registry}, in load order. Call at setup and after resetState(). */
     public void spawnNpcs(ModRegistry registry) {
         for (NpcDefinition definition : registry.getAllNpcs()) {
             spawnNpc(definition);
@@ -111,13 +111,13 @@ public final class GamePanel extends JPanel {
 
     /** Spawns one NPC: draws it, and registers it with the turn scheduler after any earlier NPCs. */
     public void spawnNpc(NpcDefinition definition) {
-        Npc npc = new Npc(definition, this::canNpcEnter);
+        NonPlayerCharacter npc = new NonPlayerCharacter(definition, this::canNpcEnter);
         npcs.add(npc);
         addEntity(npc);
         turnScheduler.register(npc::onTurn);
     }
 
-    public List<Npc> getNpcs() {
+    public List<NonPlayerCharacter> getNpcs() {
         return List.copyOf(npcs);
     }
 

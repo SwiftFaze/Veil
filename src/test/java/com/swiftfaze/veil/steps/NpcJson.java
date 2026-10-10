@@ -36,8 +36,8 @@ final class NpcJson {
         return this;
     }
 
-    NpcJson color(int r, int g, int b) {
-        json.add("color", colorJson(r, g, b));
+    NpcJson color(int red, int green, int blue) {
+        json.add("color", colorJson(red, green, blue));
         return this;
     }
 
@@ -51,7 +51,7 @@ final class NpcJson {
         return this;
     }
 
-    /** A patrol over {@code waypoints}; a null {@code mode} leaves the field out so the loader's default applies. */
+    /** A patrol over {@code waypoints}; a null {@code mode} is omitted so the loader's default applies. */
     NpcJson patrol(@Nullable String mode, TileCoord... waypoints) {
         JsonObject patrol = new JsonObject();
         if (mode != null) {
@@ -70,18 +70,18 @@ final class NpcJson {
         return json.deepCopy();
     }
 
-    private static JsonObject colorJson(int r, int g, int b) {
+    private static JsonObject colorJson(int red, int green, int blue) {
         JsonObject color = new JsonObject();
-        color.addProperty("r", r);
-        color.addProperty("g", g);
-        color.addProperty("b", b);
+        color.addProperty("r", red);
+        color.addProperty("g", green);
+        color.addProperty("b", blue);
         return color;
     }
 
-    private static JsonObject coordJson(TileCoord coord) {
-        JsonObject obj = new JsonObject();
-        obj.addProperty("x", coord.x());
-        obj.addProperty("y", coord.y());
-        return obj;
+    private static JsonObject coordJson(TileCoord tile) {
+        JsonObject tileJson = new JsonObject();
+        tileJson.addProperty("x", tile.x());
+        tileJson.addProperty("y", tile.y());
+        return tileJson;
     }
 }

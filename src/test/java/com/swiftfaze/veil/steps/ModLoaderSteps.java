@@ -46,6 +46,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ModLoaderSteps {
 
+    private static final String NPC_KIND = "npc";
+    private final Map<String, List<JsonObject>> npcsByMod = new LinkedHashMap<>();
+    private String lastCheckedNpcId;
+
     private record BuildingFixture(String id, String overrides, String explicitTileId) {
     }
 
@@ -135,9 +139,6 @@ public class ModLoaderSteps {
     private record ThemeColorFixture(int r, int g, int b) {
     }
 
-    record NpcLookFixture(String name, String symbol, int r, int g, int b, int spawnX, int spawnY) {
-    }
-
     private record ThemeFixture(String id, Map<String, ThemeColorFixture> colors, String overrides) {
     }
 
@@ -157,14 +158,12 @@ public class ModLoaderSteps {
     private final Map<String, List<ItemFixture>> itemsByMod = new LinkedHashMap<>();
     private final Map<String, List<QuestFixture>> questsByMod = new LinkedHashMap<>();
     private final Map<String, List<ThemeFixture>> themesByMod = new LinkedHashMap<>();
-    private final Map<String, List<JsonObject>> npcsByMod = new LinkedHashMap<>();
     private String overriddenBuildingId;
     private String lastCheckedTileId;
     private String lastCheckedClassId;
     private String lastCheckedItemId;
     private String lastCheckedQuestId;
     private String lastCheckedThemeId;
-    private String lastCheckedNpcId;
     private String lastCheckedEntityKind;
     private boolean needsMarkerTiles;
 
@@ -636,7 +635,7 @@ public class ModLoaderSteps {
         assertNotNull(registry, "loading did not complete: " + (thrown == null ? "unknown" : thrown.getMessage()));
         assertNotNull(registry.getNpc(id), "expected NPC '" + id + "' to be loaded");
         lastCheckedNpcId = id;
-        lastCheckedEntityKind = "npc";
+        lastCheckedEntityKind = NPC_KIND;
     }
 
     @Then("its symbol is {string} and its color is {int},{int},{int}")
@@ -877,7 +876,7 @@ public class ModLoaderSteps {
             assertEquals(expectedName, registry.getItem(lastCheckedItemId).getName());
         } else if ("quest".equals(lastCheckedEntityKind)) {
             assertEquals(expectedName, registry.getQuest(lastCheckedQuestId).getName());
-        } else if ("npc".equals(lastCheckedEntityKind)) {
+        } else if (NPC_KIND.equals(lastCheckedEntityKind)) {
             assertEquals(expectedName, registry.getNpc(lastCheckedNpcId).name());
         } else {
             assertEquals(expectedName, registry.getPlayerClass(lastCheckedClassId).getName());
@@ -1503,5 +1502,8 @@ public class ModLoaderSteps {
         registry.add("stats", statNames);
 
         Files.writeString(coreDir.resolve("stats.json"), registry.toString());
+    }
+
+    record NpcLookFixture(String name, String symbol, int r, int g, int b, int spawnX, int spawnY) {
     }
 }

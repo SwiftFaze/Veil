@@ -1,7 +1,7 @@
 package com.swiftfaze.veil.steps;
 
 import com.google.gson.JsonObject;
-import com.swiftfaze.veil.entities.npc.Npc;
+import com.swiftfaze.veil.entities.npc.NonPlayerCharacter;
 import com.swiftfaze.veil.entities.npc.TileCoord;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.mods.ModRegistry;
@@ -39,16 +39,16 @@ public class NpcPatrolSteps {
 
     /** Every NPC definition in this scenario, in the order they were defined or spawned. */
     private final List<JsonObject> definitions = new ArrayList<>();
-    private Path tempRoot;
+    private Path scenarioRoot;
 
     @Before
     public void createTempRoot() throws IOException {
-        tempRoot = Files.createTempDirectory("veil-npc-world");
+        scenarioRoot = Files.createTempDirectory("veil-npc-world");
     }
 
     @After
     public void deleteTempRoot() throws IOException {
-        try (Stream<Path> paths = Files.walk(tempRoot)) {
+        try (Stream<Path> paths = Files.walk(scenarioRoot)) {
             paths.sorted(Comparator.reverseOrder()).forEach(path -> {
                 try {
                     Files.deleteIfExists(path);
@@ -75,8 +75,8 @@ public class NpcPatrolSteps {
     }
 
     @Given("^an NPC \"([^\"]+)\" with symbol \"([^\"]+)\" and color (\\d+),(\\d+),(\\d+) is defined with spawn \\((\\d+), (\\d+)\\) and no patrol$")
-    public void anNpcIsDefinedWithSymbolAndColorAndSpawn(String id, String symbol, int r, int g, int b, int x, int y) {
-        definitions.add(NpcJson.npc(id).symbol(symbol).color(r, g, b).spawn(x, y).toJson());
+    public void anNpcIsDefinedWithSymbolAndColorAndSpawn(String id, String symbol, int red, int green, int blue, int x, int y) {
+        definitions.add(NpcJson.npc(id).symbol(symbol).color(red, green, blue).spawn(x, y).toJson());
     }
 
     @When("the NPCs are spawned into the game world")
@@ -85,8 +85,8 @@ public class NpcPatrolSteps {
     }
 
     @Then("the world draws an NPC at \\({int}, {int}\\) with symbol {string} and color {int},{int},{int}")
-    public void theWorldDrawsAnNpcAt(int x, int y, String symbol, int r, int g, int b) {
-        Color expectedColor = new Color(r, g, b);
+    public void theWorldDrawsAnNpcAt(int x, int y, String symbol, int red, int green, int blue) {
+        Color expectedColor = new Color(red, green, blue);
         boolean drawn = game().panel().getEntitiesToDraw().stream()
                 .anyMatch(entity -> entity instanceof DrawableAsciiEntity drawable
                         && drawable.getX() == x && drawable.getY() == y
@@ -97,7 +97,7 @@ public class NpcPatrolSteps {
 
     @Then("the NPC is registered with the turn scheduler")
     public void theNpcIsRegisteredWithTheTurnScheduler() {
-        assertEquals(1, game().panel().getTurnScheduler().registeredCount());
+        assertEquals(1, game().registeredTurnListeners());
     }
 
     @Given("^an NPC \"([^\"]+)\" with spawn \\((\\d+), (\\d+)\\) and no patrol is spawned$")
@@ -136,14 +136,14 @@ public class NpcPatrolSteps {
 
     @Then("the NPC is at \\({int}, {int}\\)")
     public void theNpcIsAt(int x, int y) {
-        List<Npc> npcs = game().panel().getNpcs();
+        List<NonPlayerCharacter> npcs = game().panel().getNpcs();
         assertEquals(1, npcs.size(), "expected exactly one NPC in the world");
         assertPosition(npcs.get(0), x, y);
     }
 
     @Then("the NPC {string} is at \\({int}, {int}\\)")
     public void theNpcNamedIsAt(String id, int x, int y) {
-        Npc npc = game().panel().getNpcs().stream()
+        NonPlayerCharacter npc = game().panel().getNpcs().stream()
                 .filter(candidate -> candidate.getId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("expected an NPC with ID " + id));
@@ -152,7 +152,7 @@ public class NpcPatrolSteps {
 
     @Then("exactly one NPC is registered with the turn scheduler")
     public void exactlyOneNpcIsRegisteredWithTheTurnScheduler() {
-        assertEquals(1, game().panel().getTurnScheduler().registeredCount());
+        assertEquals(1, game().registeredTurnListeners());
     }
 
     private static GamePanelFixture game() {
@@ -161,11 +161,11 @@ public class NpcPatrolSteps {
 
     private static void advanceTurns(int turns) {
         for (int i = 0; i < turns; i++) {
-            game().panel().getTurnScheduler().advance();
+            game().advanceTurn();
         }
     }
 
-    /** Records an NPC and spawns just that one, so each "is spawned" step adds exactly one NPC to the world. */
+    /** Records an NPC and spawns just that one, so each "is spawned" step adds exactly one. */
     private void spawnOne(JsonObject npc) throws IOException {
         definitions.add(npc);
         game().panel().spawnNpcs(registryOf(List.of(npc)));
@@ -176,9 +176,9 @@ public class NpcPatrolSteps {
         game().panel().spawnNpcs(registryOf(definitions));
     }
 
-    /** Writes the NPCs as a "core" mod under a fresh directory and loads it, so spawning goes through the real registry. */
+    /** Writes the NPCs as a "core" mod in a fresh directory and loads it through the real registry. */
     private ModRegistry registryOf(List<JsonObject> npcs) throws IOException {
-        Path modsRoot = Files.createTempDirectory(tempRoot, "mods");
+        Path modsRoot = Files.createTempDirectory(scenarioRoot, "mods");
         Path coreDir = modsRoot.resolve("core");
         Path npcsDir = Files.createDirectories(coreDir.resolve("npcs"));
         Files.writeString(coreDir.resolve("mod.json"), "{\"id\":\"core\",\"dependsOn\":[]}");
@@ -197,7 +197,7 @@ public class NpcPatrolSteps {
         return waypoints;
     }
 
-    private static void assertPosition(Npc npc, int x, int y) {
+    private static void assertPosition(NonPlayerCharacter npc, int x, int y) {
         assertEquals(new TileCoord(x, y), new TileCoord(npc.getX(), npc.getY()), "NPC " + npc.getId() + " position");
     }
 }

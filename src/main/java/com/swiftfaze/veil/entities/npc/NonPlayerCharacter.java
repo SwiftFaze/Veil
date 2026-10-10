@@ -11,13 +11,7 @@ import java.awt.Graphics2D;
  * A live NPC in the world. Steps one tile along its patrol per turn; when the next tile is
  * blocked it waits and retries the same step. Never skips a waypoint.
  */
-public final class Npc implements DrawableAsciiEntity {
-
-    /** Whether an NPC may step onto (x, y): walkable, and not occupied by the player or another NPC. */
-    @FunctionalInterface
-    public interface MoveRules {
-        boolean canEnter(int x, int y);
-    }
+public final class NonPlayerCharacter implements DrawableAsciiEntity {
 
     private static final Font FONT = new Font(Font.MONOSPACED, Font.PLAIN, 18);
 
@@ -28,7 +22,13 @@ public final class Npc implements DrawableAsciiEntity {
     private int targetIndex = 1;
     private int direction = 1;
 
-    public Npc(NpcDefinition definition, MoveRules rules) {
+    /** Whether an NPC may step onto (x, y): walkable, and not occupied by the player or another NPC. */
+    @FunctionalInterface
+    public interface MoveRules {
+        boolean canEnter(int x, int y);
+    }
+
+    public NonPlayerCharacter(NpcDefinition definition, MoveRules rules) {
         this.definition = definition;
         this.rules = rules;
         this.x = definition.spawn().x();
@@ -51,8 +51,8 @@ public final class Npc implements DrawableAsciiEntity {
         return definition.id();
     }
 
-    private boolean isAt(TileCoord coord) {
-        return x == coord.x() && y == coord.y();
+    private boolean isAt(TileCoord tile) {
+        return x == tile.x() && y == tile.y();
     }
 
     private void advanceTarget(Patrol patrol) {

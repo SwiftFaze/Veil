@@ -15,6 +15,8 @@ import java.util.function.Consumer;
  */
 public final class SharedScenarioContext {
 
+    private static final ThreadLocal<GamePanelFixture> TURN_GAME_HOLDER = new ThreadLocal<>();
+
     private SharedScenarioContext() {
     }
     private static final ThreadLocal<Camera> CAMERA = new ThreadLocal<>();
@@ -27,7 +29,6 @@ public final class SharedScenarioContext {
     private static final ThreadLocal<List<Consumer<UiComponentFrameworkSteps>>> UI_STEPS_LISTENERS =
             ThreadLocal.withInitial(ArrayList::new);
     private static final ThreadLocal<KitchenSinkPreviewPanel> PREVIEW_PANEL_HOLDER = new ThreadLocal<>();
-    private static final ThreadLocal<GamePanelFixture> TURN_GAME_HOLDER = new ThreadLocal<>();
 
     public static Camera getCamera() {
         return CAMERA.get();
