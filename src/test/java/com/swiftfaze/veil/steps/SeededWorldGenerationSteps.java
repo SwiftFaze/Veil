@@ -89,11 +89,47 @@ public class SeededWorldGenerationSteps {
     private Set<String> blueprintsRegistered = Set.of();
     private final Set<String> blueprintsSeen = new HashSet<>();
     private GamePanel panel;
-    private List<ILoggingEvent> captured = List.of();
+    /** Every log event from the scenario so far, from any logger. Filled by {@link #attachLogCapture()}. */
+    private final List<ILoggingEvent> captured = new ArrayList<>();
+    private AppenderBase<ILoggingEvent> logCapture;
 
     @Before
     public void clearSeedOverride() {
         System.clearProperty(WorldSeeds.PROPERTY);
+    }
+
+    @Before
+    public void attachLogCapture() {
+        logCapture = new AppenderBase<>() {
+            @Override
+            protected void append(ILoggingEvent event) {
+                captured.add(event);
+            }
+        };
+        logCapture.start();
+        rootLogger().addAppender(logCapture);
+    }
+
+    @After
+    public void detachLogCapture() {
+        rootLogger().detachAppender(logCapture);
+    }
+
+    private static Logger rootLogger() {
+        return (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    }
+
+    /** The world a fresh game generates for {@code seed} with the real mods. */
+    static GeneratedWorldScene worldFromSeed(long seed) {
+        return new GeneratedWorldScene(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT, seed);
+    }
+
+    /** Asserts two worlds match in terrain, building positions and spawn point. */
+    static void assertSameWorld(GeneratedWorldScene expected, GeneratedWorldScene actual) {
+        assertEquals(positions(expected), positions(actual));
+        assertEquals(expected.getSpawnX(), actual.getSpawnX());
+        assertEquals(expected.getSpawnY(), actual.getSpawnY());
+        assertTrue(tilesMatch(expected, actual), "terrain differs");
     }
 
     @After
@@ -346,15 +382,13 @@ public class SeededWorldGenerationSteps {
     @When("two new games are started")
     public void twoNewGamesAreStarted() {
         Random fresh = new Random(42);
-        captured = captureEvents(() -> {
-            newGame(fresh);
-            newGame(fresh);
-        });
+        newGame(fresh);
+        newGame(fresh);
     }
 
     @When("a new game is started")
     public void aNewGameIsStarted() {
-        captured = captureEvents(() -> panel = newGame(new Random(42)));
+        panel = newGame(new Random(42));
     }
 
     @Then("^each game logs \"World generated from seed <n>\" at INFO$")
@@ -382,11 +416,7 @@ public class SeededWorldGenerationSteps {
     @Then("^the world matches a world generated from seed (-?\\d+)$")
     public void theWorldMatchesAWorldGeneratedFromSeed(String seed) {
         GeneratedWorldScene actual = (GeneratedWorldScene) panel.getScene();
-        GeneratedWorldScene expected = generate(Long.parseLong(seed));
-        assertEquals(positions(expected), positions(actual));
-        assertEquals(expected.getSpawnX(), actual.getSpawnX());
-        assertEquals(expected.getSpawnY(), actual.getSpawnY());
-        assertTrue(tilesMatch(expected, actual), "terrain differs from seed " + seed);
+        assertSameWorld(generate(Long.parseLong(seed)), actual);
     }
 
     @Then("^a warning naming \"([^\"]*)\" is logged$")
@@ -536,26 +566,6 @@ public class SeededWorldGenerationSteps {
         return captured.stream()
                 .filter(e -> e.getFormattedMessage().startsWith(SEED_LOG_PREFIX))
                 .toList();
-    }
-
-    /** Records every log event emitted by {@code action}, from any logger. */
-    private static List<ILoggingEvent> captureEvents(Runnable action) {
-        List<ILoggingEvent> events = new ArrayList<>();
-        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        AppenderBase<ILoggingEvent> appender = new AppenderBase<>() {
-            @Override
-            protected void append(ILoggingEvent event) {
-                events.add(event);
-            }
-        };
-        appender.start();
-        root.addAppender(appender);
-        try {
-            action.run();
-        } finally {
-            root.detachAppender(appender);
-        }
-        return events;
     }
 
     /**

@@ -140,10 +140,26 @@ public final class GamePanel extends JPanel {
 
     /** Builds a fresh world from the next seed and spawns the player on its spawn point. */
     private static NewGame newGame(LongSupplier worldSeeds) {
-        long seed = worldSeeds.getAsLong();
+        GeneratedWorldScene scene = generateWorld(worldSeeds.getAsLong());
+        return new NewGame(new Player(scene.getSpawnX(), scene.getSpawnY()), scene);
+    }
+
+    private static GeneratedWorldScene generateWorld(long seed) {
         GeneratedWorldScene scene = new GeneratedWorldScene(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT, seed);
         logger.info("World generated from seed {}", seed);
-        return new NewGame(new Player(scene.getSpawnX(), scene.getSpawnY()), scene);
+        return scene;
+    }
+
+    /**
+     * Replaces the running world with one generated from {@code seed}. The same Player stays
+     * (stats, class, inventory untouched) and moves to the new spawn point; pause state is kept.
+     */
+    public void regenerateWorld(long seed) {
+        GeneratedWorldScene regenerated = generateWorld(seed);
+        entitiesToDraw.set(entitiesToDraw.indexOf(scene), regenerated);
+        scene = regenerated;
+        player.setPosition(regenerated.getSpawnX(), regenerated.getSpawnY());
+        notifyPlayerUpdated();
     }
 
     public void setPaused(boolean paused) {

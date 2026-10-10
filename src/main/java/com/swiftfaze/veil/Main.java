@@ -27,6 +27,7 @@ import com.swiftfaze.veil.ui.widget.WidgetTheme;
 import com.swiftfaze.veil.sandbox.DevConsolePanel;
 import com.swiftfaze.veil.sandbox.DevConsoleModel;
 import com.swiftfaze.veil.sandbox.DevConsoleProvider;
+import com.swiftfaze.veil.sandbox.WorldRegenerator;
 import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.sandbox.ClassSandboxProvider;
 import com.swiftfaze.veil.sandbox.ItemSandboxProvider;
@@ -61,6 +62,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -262,7 +265,20 @@ public final class Main {
 
         List<DevConsoleProvider> providers = buildDevConsoleProviders(gamePanel::getPlayer);
         DevConsoleModel model = new DevConsoleModel(providers);
-        DevConsolePanel console = new DevConsolePanel(model);
+        Random freshSeeds = new Random();
+        WorldRegenerator regenerator = new WorldRegenerator() {
+            @Override
+            public long freshSeed() {
+                return freshSeeds.nextLong();
+            }
+
+            @Override
+            public Optional<String> regenerate(long seed) {
+                gamePanel.regenerateWorld(seed);
+                return Optional.empty();
+            }
+        };
+        DevConsolePanel console = new DevConsolePanel(model, regenerator);
 
         JFrame consoleFrame = new JFrame("Veil - Dev Console");
         consoleFrame.add(console);
