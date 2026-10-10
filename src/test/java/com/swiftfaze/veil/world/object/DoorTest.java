@@ -62,4 +62,12 @@ class DoorTest {
         assertTrue(placed.isOpen());
         assertFalse(template.newInstance().isOpen());
     }
+
+    @Test
+    void aDoorReportsItsIdAndColour() {
+        Door door = door(false);
+
+        assertEquals("test:door", door.getId());
+        assertEquals(Color.ORANGE, door.getColor());
+    }
 }

@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 class ChestTest {
 
@@ -28,5 +29,24 @@ class ChestTest {
 
         assertFalse(chest.isWalkable());
         assertEquals(InteractionResult.SHOW_CONTENTS, chest.interact(false));
+    }
+
+    @Test
+    void aChestKeepsItsDefinitionInTheCopyThatGetsPlaced() {
+        Chest template = new Chest("test:chest", Color.YELLOW, 'C', new Chest.Contents(2, List.of(POTION)));
+
+        Chest placed = template.newInstance();
+
+        assertNotSame(template, placed);
+        assertEquals("test:chest", placed.getId());
+        assertEquals(template.getSlots(), placed.getSlots());
+    }
+
+    @Test
+    void aPlacedChestLooksLikeItsTemplate() {
+        Chest placed = new Chest("test:chest", Color.YELLOW, 'C', new Chest.Contents(2, List.of(POTION))).newInstance();
+
+        assertEquals('C', placed.getSymbol());
+        assertEquals(Color.YELLOW, placed.getColor());
     }
 }
