@@ -9,7 +9,10 @@ gates. See [`testing.md`](testing.md) for the test layers themselves.
 - Runner: PIT (`org.pitest:pitest-maven`, with `pitest-junit5-plugin` so it
   runs through the JUnit Platform and picks up both plain unit tests and
   Cucumber scenarios).
-- Run it: `mvn org.pitest:pitest-maven:mutationCoverage` — HTML report at
+- Run it: `bash .claude/tools/pit-lock.sh mvn org.pitest:pitest-maven:mutationCoverage`
+  — the lock allows one mutation run (PIT or the acceptance mutator) at a time
+  across all worktrees, since parallel runs overload the dev machine; the
+  `pit-guard.sh` hook in `.claude/settings.json` blocks a run without it. HTML report at
   `target/pit-reports/index.html` (per-package/per-class breakdowns,
   including a *line* coverage figure distinct from mutation score).
 - `<targetClasses>`/`<targetTests>` in `pom.xml` scope this to classes with
