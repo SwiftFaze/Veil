@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.45](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.44...v0.5.0-beta.45) (2026-10-10)
+
+
+### Features
+
+* add turn scheduler and shared world pause ([#269](https://github.com/SwiftFaze/Veil/issues/269)) ([e41f1e8](https://github.com/SwiftFaze/Veil/commit/e41f1e8d011c179b79670f5924fe1492ae7ba6b6))
+
 ## [0.5.0-beta.44](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.43...v0.5.0-beta.44) (2026-10-10)
 
 
