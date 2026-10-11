@@ -56,11 +56,7 @@ public final class ModLoader {
     public static ModRegistry load(Path modsRoot) {
         List<ModManifest> loadOrder = orderByDependencies(readManifests(modsRoot));
 
-        Map<String, Tile> tilesById = new LinkedHashMap<>();
-        Map<String, String> owningTileModById = new LinkedHashMap<>();
-        for (ModManifest manifest : loadOrder) {
-            loadTiles(modsRoot, manifest, tilesById, owningTileModById);
-        }
+        Map<String, Tile> tilesById = loadAllTiles(modsRoot, loadOrder);
 
         Map<String, Building> buildingsById = new LinkedHashMap<>();
         Map<String, String> owningBuildingModById = new LinkedHashMap<>();
@@ -103,6 +99,16 @@ public final class ModLoader {
 
         ModRegistry.RegistryMaps maps = new ModRegistry.RegistryMaps(buildingsById, tilesById, classesById, itemsById, questsById, themesById, objectsById, npcsById);
         return new ModRegistry(maps, modLoadOrder);
+    }
+
+    /** Tiles load first, across every mod, because buildings and objects resolve tile ids against them. */
+    private static Map<String, Tile> loadAllTiles(Path modsRoot, List<ModManifest> loadOrder) {
+        Map<String, Tile> tilesById = new LinkedHashMap<>();
+        Map<String, String> owningTileModById = new LinkedHashMap<>();
+        for (ModManifest manifest : loadOrder) {
+            loadTiles(modsRoot, manifest, tilesById, owningTileModById);
+        }
+        return tilesById;
     }
 
     /**
