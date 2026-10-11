@@ -94,3 +94,21 @@ the project yet (distinct from the settings-only persistence in
 per-installation config, not per-playthrough save data, different lifecycle).
 This is phase 5 of the data-driven-mod-content initiative.
 
+**NPCs** (`entities/npc/`): `NpcDefinition` (id, name, symbol, color, spawn tile, optional
+`Patrol`) is immutable registry content loaded from `mods/<mod>/npcs/*.json` by the same
+`ModLoader`/`ModRegistry` mechanism as the other types (`ModRegistry.getNpc` / `getAllNpcs`,
+which returns definitions in load order). `ModLoader` loads NPCs last within a mod's pass,
+validating each file against `npc.schema.json` and then checking what the schema cannot: a
+patrol's first waypoint must equal `spawn`, and every leg (including last-to-first for `loop`)
+must be a straight horizontal or vertical line. A failure throws `ModLoadException` naming the
+NPC id and file; a malformed file does the same. `patrol.mode` is `ping_pong` (default) or
+`loop` (`PatrolMode`). Definitions are not live entities: `Main` calls
+`GamePanel.spawnNpcs(registry)` after building the game card and again after
+`resetState()` (exit to main menu), which for each definition creates a fresh
+`NonPlayerCharacter`, adds it to `entitiesToDraw`, and registers its `onTurn` with the
+`TurnScheduler` after any earlier NPCs, so NPCs move in spawn order. Each turn an NPC takes
+one step toward its current waypoint. **Blocked-step rule:** `GamePanel.canNpcEnter` allows a
+step only onto a walkable tile holding neither the player nor another NPC; when the step is
+refused the NPC stays put and retries the same step next turn, never skipping or
+re-targeting a waypoint. An NPC with no patrol never moves. NPCs have no interaction,
+dialogue or collision effects on the player yet.

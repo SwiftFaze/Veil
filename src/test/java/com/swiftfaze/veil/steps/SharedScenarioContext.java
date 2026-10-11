@@ -15,6 +15,8 @@ import java.util.function.Consumer;
  */
 public final class SharedScenarioContext {
 
+    private static final ThreadLocal<GamePanelFixture> TURN_GAME_HOLDER = new ThreadLocal<>();
+
     private SharedScenarioContext() {
     }
     private static final ThreadLocal<Camera> CAMERA = new ThreadLocal<>();
@@ -87,6 +89,14 @@ public final class SharedScenarioContext {
         setup.accept(getUiSteps());
     }
 
+    public static GamePanelFixture getTurnGame() {
+        return TURN_GAME_HOLDER.get();
+    }
+
+    public static void setTurnGame(GamePanelFixture game) {
+        TURN_GAME_HOLDER.set(game);
+    }
+
     public static KitchenSinkPreviewPanel getKitchenSinkPreviewPanel() {
         return PREVIEW_PANEL_HOLDER.get();
     }
@@ -104,5 +114,6 @@ public final class SharedScenarioContext {
         UI_STEPS_HOLDER.remove();
         UI_STEPS_LISTENERS.remove();
         PREVIEW_PANEL_HOLDER.remove();
+        TURN_GAME_HOLDER.remove();
     }
 }
