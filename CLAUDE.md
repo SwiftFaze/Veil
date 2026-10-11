@@ -54,7 +54,7 @@ Re-audit monthly — checklist in `docs/instruction-files.md`.
   F1 dev console (live player-stat editing).
 - Run the class/stats sandbox: `mvn compile exec:java -Dexec.mainClass=com.swiftfaze.veil.sandbox.ClassSandbox`.
 - Re-approve changed approval-test fixtures: `mvn compile exec:java -Dexec.mainClass=com.swiftfaze.veil.testing.approval.ApprovalReapprove`.
-- Mutation testing: `bash .claude/tools/pit-lock.sh mvn org.pitest:pitest-maven:mutationCoverage` → `target/pit-reports/` (one run at a time, hook-enforced).
+- Mutation testing: `bash .claude/tools/pit-lock.sh mvn org.pitest:pitest-maven:mutationCoverage` → `target/pit-reports/` (one run at a time across worktrees, via the devflow plugin's lock).
 - `mvn package` → `target/Veil-<version>-app.jar` (runnable fat jar).
 - Test-layer rationale and troubleshooting: `docs/testing.md`.
 
