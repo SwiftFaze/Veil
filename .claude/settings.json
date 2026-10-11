@@ -1,15 +1,5 @@
 {
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash|PowerShell",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/tools/pit-guard.sh\""
-          }
-        ]
-      }
-    ]
+  "env": {
+    "DEVFLOW_MUTATION_GOAL_RE": "mutationCoverage|pitest|AcceptanceMutator"
   }
 }

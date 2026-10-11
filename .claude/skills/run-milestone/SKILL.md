@@ -25,8 +25,8 @@ how many spec/coder agents may run at once (default 2).
   worktrees yourself, never via `isolation: "worktree"`.
 - **Concurrency.** At most N spec/coder agents running. **Exactly one hardener
   at a time**, milestone-wide: start the next only after the previous one's
-  verification is done. `.claude/tools/pit-lock.sh` (enforced by the
-  `pit-guard.sh` hook) backs this up mechanically. A hardener reporting exit 75
+  verification is done. `.claude/tools/pit-lock.sh` (devflow's mutation lock, enforced by its
+  `mutation-guard` hook) backs this up mechanically. A hardener reporting exit 75
   from the lock means the schedule broke: find the other run, don't retry.
 - **One desktop.** `QaRunner` drives real keyboard input: run it yourself,
   one at a time, never while the user is playtesting.
