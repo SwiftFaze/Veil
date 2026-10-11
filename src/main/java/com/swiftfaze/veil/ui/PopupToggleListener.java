@@ -39,6 +39,9 @@ public class PopupToggleListener implements GameListener {
 
     @Override
     public void toggleInventory() {
+        if (modalPopupOpen()) {
+            return;
+        }
         if (inventoryPanel.isVisible()) {
             inventoryPanel.dismiss();
             eventLog.recordEvent(GameEvent.popupToggled(INVENTORY, /* open= */ false));
@@ -54,6 +57,9 @@ public class PopupToggleListener implements GameListener {
 
     @Override
     public void toggleCodex() {
+        if (modalPopupOpen()) {
+            return;
+        }
         if (codexPanel.isVisible()) {
             codexPanel.dismiss();
         } else {
@@ -63,5 +69,10 @@ public class PopupToggleListener implements GameListener {
             worldPause.hold(WorldPause.CODEX);
             codexPanel.open();
         }
+    }
+
+    /** The dialogue and chest popups take their keys from the focused panel, so I and X must not open over them. */
+    private boolean modalPopupOpen() {
+        return worldPause.isHeldBy(WorldPause.DIALOGUE) || worldPause.isHeldBy(WorldPause.CHEST);
     }
 }

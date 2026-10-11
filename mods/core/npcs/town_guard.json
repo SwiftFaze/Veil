@@ -4,6 +4,7 @@
   "symbol": "G",
   "color": { "r": 230, "g": 200, "b": 60 },
   "spawn": { "x": 121, "y": 122 },
+  "dialogue": "core:town_guard_chat",
   "patrol": {
     "mode": "ping_pong",
     "waypoints": [

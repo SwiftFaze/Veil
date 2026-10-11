@@ -3,6 +3,9 @@ package com.swiftfaze.veil.steps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.swiftfaze.veil.entities.buildings.Building;
+import com.swiftfaze.veil.entities.dialogue.Dialogue;
+import com.swiftfaze.veil.entities.dialogue.DialogueChoice;
+import com.swiftfaze.veil.entities.dialogue.DialogueNode;
 import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.entities.npc.NpcDefinition;
 import com.swiftfaze.veil.entities.npc.Patrol;
@@ -43,6 +46,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,11 +63,16 @@ public class ModLoaderSteps {
     private static final String TEST_COLOR = "\"color\":{\"r\":160,\"g\":110,\"b\":60}";
     private static final String DOOR_SYMBOLS = "\"symbolOpen\":\"/\",\"symbolClosed\":\"+\"";
     private static final String CORE_WOOD = "core:wood";
+    private static final Pattern CHOICE_IN_STEP = Pattern.compile("\"([^\"]*)\" (?:leading to \"([^\"]*)\"|ending the conversation)");
 
     private String lastBuildingId;
     private InteractableObject lastPlacedObject;
     private static final String NPC_KIND = "npc";
     private final Map<String, List<JsonObject>> npcsByMod = new LinkedHashMap<>();
+    private final Map<String, List<JsonObject>> dialoguesByMod = new LinkedHashMap<>();
+    private JsonObject currentDialogue = new JsonObject();
+    private String checkedDialogueId = "";
+    private String expectedErrorWord = "";
     private String lastCheckedNpcId;
 
     private record BuildingFixture(String id, String overrides, String explicitTileId) {
@@ -1162,6 +1172,7 @@ public class ModLoaderSteps {
         allMods.addAll(questsByMod.keySet());
         allMods.addAll(themesByMod.keySet());
         allMods.addAll(npcsByMod.keySet());
+        allMods.addAll(dialoguesByMod.keySet());
         allMods.addAll(dependsOnByMod.keySet());
 
         if (needsMarkerTiles) {
@@ -1183,6 +1194,7 @@ public class ModLoaderSteps {
             writeQuests(modDir, questsByMod.getOrDefault(modId, List.of()));
             writeThemes(modDir, themesByMod.getOrDefault(modId, List.of()));
             writeNpcs(modDir, npcsByMod.getOrDefault(modId, List.of()));
+            writeDialogues(modDir, dialoguesByMod.getOrDefault(modId, List.of()));
         }
     }
 
@@ -1677,5 +1689,251 @@ public class ModLoaderSteps {
     }
 
     record NpcLookFixture(String name, String symbol, int r, int g, int b, int spawnX, int spawnY) {
+    }
+
+    // ---- Dialogues (dialogue-tree.feature): written as mods/<mod>/dialogues/*.json and loaded for real ----
+
+    @Given("a mod declaring dialogue {string} starting at node {string}")
+    public void aModDeclaringDialogueStartingAtNode(String id, String start) {
+        currentDialogue = dialogueJson(id, start);
+        addDialogue(id, currentDialogue);
+    }
+
+    @Given("a mod declaring dialogue {string} with a valid tree")
+    public void aModDeclaringDialogueWithAValidTree(String id) {
+        currentDialogue = dialogueJson(id, "hello");
+        addDialogue(id, currentDialogue);
+        addNode("hello", "Well met.", choices(choice("Who are you?", "who"), choice("Goodbye.", null)));
+        addNode("who", "Nobody special.", choices(choice("Farewell.", null)));
+    }
+
+    @Given("^node \"([^\"]+)\" says \"([^\"]+)\" with choices? (.+)$")
+    public void nodeSaysWithChoices(String nodeId, String text, String choicesText) {
+        JsonArray choices = new JsonArray();
+        Matcher matcher = CHOICE_IN_STEP.matcher(choicesText);
+        while (matcher.find()) {
+            choices.add(choice(matcher.group(1), matcher.group(2)));
+        }
+        addNode(nodeId, text, choices);
+    }
+
+    @Given("^a mod declaring dialogue \"([^\"]+)\" whose (.+)$")
+    public void aModDeclaringDialogueWhoseDefectIs(String id, String defect) {
+        currentDialogue = dialogueJson(id, "hello");
+        addNode("hello", "Well met.", choices(choice("Goodbye.", null)));
+        expectedErrorWord = applyDefect(defect);
+        addDialogue(id, currentDialogue);
+    }
+
+    @Given("the mod declares an NPC {string} with dialogue {string}")
+    public void theModDeclaresAnNpcWithDialogue(String npcId, String dialogueId) {
+        addNpc(npcId.substring(0, npcId.indexOf(':')), NpcJson.npc(npcId).dialogue(dialogueId).toJson());
+    }
+
+    @Given("a mod declaring an NPC {string} with dialogue {string}")
+    public void aModDeclaringAnNpcWithDialogue(String npcId, String dialogueId) {
+        theModDeclaresAnNpcWithDialogue(npcId, dialogueId);
+    }
+
+    @Then("a dialogue with ID {string} is available")
+    public void aDialogueWithIdIsAvailable(String id) {
+        checkedDialogueId = id;
+        loadedDialogue();
+    }
+
+    @Then("dialogue {string} is available")
+    public void dialogueIsAvailable(String id) {
+        aDialogueWithIdIsAvailable(id);
+    }
+
+    @Then("its start node is {string}")
+    public void itsStartNodeIs(String nodeId) {
+        assertEquals(nodeId, loadedDialogue().start());
+    }
+
+    @Then("node {string} says {string} and has {int} choices")
+    public void nodeSaysAndHasChoices(String nodeId, String text, int count) {
+        DialogueNode node = loadedDialogue().node(nodeId);
+        assertEquals(text, node.text());
+        assertEquals(count, node.choices().size());
+    }
+
+    @Then("choice {int} of node {string} is {string} and leads to node {string}")
+    public void choiceOfNodeLeadsTo(int number, String nodeId, String text, String next) {
+        DialogueChoice choice = choiceOf(nodeId, number);
+        assertEquals(text, choice.text());
+        assertEquals(next, choice.next());
+    }
+
+    @Then("choice {int} of node {string} is {string} and ends the conversation")
+    public void choiceOfNodeEndsTheConversation(int number, String nodeId, String text) {
+        DialogueChoice choice = choiceOf(nodeId, number);
+        assertEquals(text, choice.text());
+        assertTrue(choice.endsConversation(), "expected choice " + number + " of " + nodeId + " to end the conversation");
+    }
+
+    @Then("loading fails with a ModLoadException naming dialogue {string}, the reason, and the file it came from")
+    public void loadingFailsNamingDialogueReasonAndFile(String id) {
+        assertNotNull(thrown, "expected a ModLoadException to be thrown");
+        assertTrue(thrown.getMessage().contains(id), "expected message to name dialogue: " + thrown.getMessage());
+        assertTrue(thrown.getMessage().contains(expectedErrorWord), "expected message to name the reason: " + thrown.getMessage());
+        assertTrue(thrown.getMessage().contains(".json"), "expected message to name the file: " + thrown.getMessage());
+    }
+
+    @Then("loading fails with a ModLoadException naming NPC {string} and the unknown dialogue {string}")
+    public void loadingFailsNamingNpcAndUnknownDialogue(String npcId, String dialogueId) {
+        assertNotNull(thrown, "expected a ModLoadException to be thrown");
+        assertTrue(thrown.getMessage().contains(npcId), "expected message to name NPC: " + thrown.getMessage());
+        assertTrue(thrown.getMessage().contains(dialogueId), "expected message to name dialogue: " + thrown.getMessage());
+    }
+
+    @Then("NPC {string} has dialogue {string}")
+    public void npcHasDialogue(String npcId, String dialogueId) {
+        assertNotNull(registry, "loading did not complete: " + (thrown == null ? "unknown" : thrown.getMessage()));
+        Dialogue dialogue = registry.getNpc(npcId).dialogue();
+        assertNotNull(dialogue, "expected NPC '" + npcId + "' to have a dialogue");
+        assertEquals(dialogueId, dialogue.id());
+    }
+
+    @Then("an NPC with no \"dialogue\" field has no dialogue")
+    public void anNpcWithNoDialogueFieldHasNoDialogue() throws IOException {
+        addNpc(TEST_MOD, NpcJson.npc("test:plain").toJson());
+        writeFixtures();
+        registry = ModLoader.load(modsRoot);
+        assertNull(registry.getNpc("test:plain").dialogue());
+    }
+
+    @Then("dialogue {string} has at least 3 levels from its start node")
+    public void dialogueHasAtLeastThreeLevels(String id) {
+        checkedDialogueId = id;
+        assertTrue(DialogueGraph.longestPath(loadedDialogue()).size() >= 3, "longest branch of " + id + " is too shallow");
+    }
+
+    @Then("its start node has at least 2 choices leading to different nodes")
+    public void itsStartNodeBranches() {
+        Dialogue dialogue = loadedDialogue();
+        assertTrue(DialogueGraph.distinctNextNodes(dialogue.node(dialogue.start())) >= 2);
+    }
+
+    @Then("some node reachable from the start node has choices leading to different further nodes")
+    public void someReachableNodeBranches() {
+        Dialogue dialogue = loadedDialogue();
+        assertTrue(DialogueGraph.reachable(dialogue).stream()
+                .anyMatch(nodeId -> DialogueGraph.distinctNextNodes(dialogue.node(nodeId)) >= 2));
+    }
+
+    @Then("at least one choice ends the conversation")
+    public void atLeastOneChoiceEndsTheConversation() {
+        Dialogue dialogue = loadedDialogue();
+        assertTrue(DialogueGraph.reachable(dialogue).stream()
+                .anyMatch(nodeId -> dialogue.node(nodeId).choices().stream().anyMatch(DialogueChoice::endsConversation)));
+    }
+
+    private Dialogue loadedDialogue() {
+        assertNotNull(registry, "loading did not complete: " + (thrown == null ? "unknown" : thrown.getMessage()));
+        Dialogue dialogue = registry.getDialogue(checkedDialogueId);
+        assertNotNull(dialogue, "expected dialogue '" + checkedDialogueId + "' to be loaded");
+        return dialogue;
+    }
+
+    private DialogueChoice choiceOf(String nodeId, int number) {
+        return loadedDialogue().node(nodeId).choices().get(number - 1);
+    }
+
+    /** Breaks the current dialogue the way {@code defect} describes; returns the word the load error must name. */
+    private String applyDefect(String defect) {
+        switch (defect) {
+            case "start node \"nowhere\" does not exist" -> {
+                currentDialogue.addProperty("start", "nowhere");
+                return "nowhere";
+            }
+            case "start field is missing" -> {
+                currentDialogue.remove("start");
+                return "start";
+            }
+            case "choice leads to \"missing\", which is not a node" -> {
+                addNode("hello", "Well met.", choices(choice("Go.", "missing")));
+                return "missing";
+            }
+            case "node \"dead_end\" has no choices" -> {
+                addNode("hello", "Well met.", choices(choice("Go.", "dead_end")));
+                addNode("dead_end", "Nowhere to go.", new JsonArray());
+                return "dead_end";
+            }
+            case "node \"crowded\" has 10 choices" -> {
+                addNode("hello", "Well met.", choices(choice("Go.", "crowded")));
+                addNode("crowded", "So many options.", endings(10));
+                return "crowded";
+            }
+            case "node \"orphan\" cannot be reached from the start node" -> {
+                addNode("orphan", "Lost.", choices(choice("Bye.", null)));
+                return "orphan";
+            }
+            case "node \"hello\" has empty text" -> {
+                addNode("hello", "", choices(choice("Goodbye.", null)));
+                return "hello";
+            }
+            case "a choice has empty text" -> {
+                addNode("hello", "Well met.", choices(choice("", null)));
+                return "hello";
+            }
+            default -> throw new IllegalArgumentException("unknown dialogue defect: " + defect);
+        }
+    }
+
+    private void addNode(String nodeId, String text, JsonArray choices) {
+        JsonObject node = new JsonObject();
+        node.addProperty("text", text);
+        node.add("choices", choices);
+        currentDialogue.getAsJsonObject("nodes").add(nodeId, node);
+    }
+
+    private void addDialogue(String id, JsonObject dialogue) {
+        String modId = id.substring(0, id.indexOf(':'));
+        dependsOnByMod.computeIfAbsent(modId, k -> new ArrayList<>());
+        dialoguesByMod.computeIfAbsent(modId, k -> new ArrayList<>()).add(dialogue);
+    }
+
+    private static JsonObject dialogueJson(String id, String start) {
+        JsonObject json = new JsonObject();
+        json.addProperty("id", id);
+        json.addProperty("start", start);
+        json.add("nodes", new JsonObject());
+        return json;
+    }
+
+    private static JsonObject choice(String text, @Nullable String next) {
+        JsonObject choice = new JsonObject();
+        choice.addProperty("text", text);
+        if (next != null) {
+            choice.addProperty("next", next);
+        }
+        return choice;
+    }
+
+    private static JsonArray choices(JsonObject... choices) {
+        JsonArray array = new JsonArray();
+        for (JsonObject choice : choices) {
+            array.add(choice);
+        }
+        return array;
+    }
+
+    private static JsonArray endings(int count) {
+        JsonArray array = new JsonArray();
+        for (int i = 1; i <= count; i++) {
+            array.add(choice("Option " + i, null));
+        }
+        return array;
+    }
+
+    private static void writeDialogues(Path modDir, List<JsonObject> dialogues) throws IOException {
+        if (dialogues.isEmpty()) {
+            return;
+        }
+        Path dialoguesDir = Files.createDirectories(modDir.resolve("dialogues"));
+        for (int i = 0; i < dialogues.size(); i++) {
+            Files.writeString(dialoguesDir.resolve("dialogue_" + i + ".json"), dialogues.get(i).toString());
+        }
     }
 }

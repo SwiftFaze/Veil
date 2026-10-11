@@ -14,6 +14,7 @@ public final class WorldPause {
     public static final String CODEX = "codex";
     public static final String PAUSE_MENU = "pause";
     public static final String CHEST = "chest";
+    public static final String DIALOGUE = "dialogue";
 
     private final Set<String> heldBy = new HashSet<>();
 
@@ -27,6 +28,10 @@ public final class WorldPause {
 
     public boolean isPaused() {
         return !heldBy.isEmpty();
+    }
+
+    public boolean isHeldBy(String screenId) {
+        return heldBy.contains(screenId);
     }
 
     public void releaseAll() {

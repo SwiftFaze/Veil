@@ -15,12 +15,15 @@ import com.swiftfaze.veil.world.object.InteractableObject;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.KeyStroke;
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -30,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** Interact key, doors and chests on a flat floor, and the chest panel, driven through GamePanel. */
 public class InteractableWorldObjectsSteps {
 
+    private static final Pattern DIGIT_KEY = Pattern.compile("[1-9]");
     private static final char OPEN_SYMBOL = '/';
     private static final char CLOSED_SYMBOL = '+';
     private static final char CHEST_SYMBOL = 'C';
@@ -40,6 +44,7 @@ public class InteractableWorldObjectsSteps {
     private static final int CHEST_Y = 5;
 
     private final GameEventLog eventLog = GameEventLog.inMemory();
+    private static final Pattern KEY_SEPARATOR = Pattern.compile(", | and ");
     private GamePanelFixture game;
 
     @Given("a closed door at \\({int}, {int})")
@@ -85,9 +90,19 @@ public class InteractableWorldObjectsSteps {
         // The hint bar is static on the world screen, so there is nothing to set up.
     }
 
-    @When("the player presses {word}")
-    public void thePlayerPresses(String keyName) {
-        game().pressKey(keyFor(keyName));
+    /**
+     * Presses keys in order: "E", "Down, Down" or "Down and Up 5 times" (the pair repeated). Also
+     * drives the dialogue popup, which shares this step.
+     */
+    @When("^the player presses ((?:\\w+)(?:(?:, | and )\\w+)*)(?: (\\d+) times)?$")
+    public void thePlayerPresses(String keys, @Nullable String times) {
+        int repeats = times == null ? 1 : Integer.parseInt(times);
+        List<String> names = KEY_SEPARATOR.splitAsStream(keys).toList();
+        for (int repeat = 0; repeat < repeats; repeat++) {
+            for (String keyName : names) {
+                game().pressKey(keyFor(keyName));
+            }
+        }
     }
 
     @Then("the door at \\({int}, {int}) is {word}")
@@ -135,6 +150,15 @@ public class InteractableWorldObjectsSteps {
         assertFalse(game().chestPanel().isVisible());
     }
 
+    /** Shared with dialogue-tree.feature: the other screens' keys must not open them over a popup. */
+    @Then("^the (inventory|codex) is not shown$")
+    public void theInventoryOrCodexIsNotShown(String screen) {
+        boolean shown = "inventory".equals(screen)
+                ? game().inventoryPanel().isVisible()
+                : game().codexPanel().isVisible();
+        assertFalse(shown, "expected the " + screen + " not to be shown");
+    }
+
     @Then("it lists the names of {string} and {string}")
     public void itListsTheNamesOf(String firstItemId, String secondItemId) {
         List<String> labels = game().chestPanel().slotLabels();
@@ -163,18 +187,33 @@ public class InteractableWorldObjectsSteps {
         assertTrue(Main.gameHints().contains(expected), "world screen hints are " + Main.gameHints());
     }
 
+    /** The scenario's flat-floor game, shared with the dialogue steps; the first step to need it builds it. */
     private GamePanelFixture game() {
+        if (game == null) {
+            game = SharedScenarioContext.getGameFixture();
+        }
         if (game == null) {
             game = GamePanelFixture.onFlatFloor(eventLog);
             SharedScenarioContext.setGameFixture(game);
+        }
+        if (SharedScenarioContext.getTurnGame() == null) {
+            SharedScenarioContext.setTurnGame(game);
         }
         return game;
     }
 
     private static KeyStroke keyFor(String keyName) {
+        if (DIGIT_KEY.matcher(keyName).matches()) {
+            return KeyStroke.getKeyStroke(KeyEvent.VK_0 + Integer.parseInt(keyName), 0);
+        }
         return switch (keyName) {
             case "E" -> Keybindings.INTERACT;
+            case "I" -> Keybindings.TOGGLE_INVENTORY;
+            case "X" -> Keybindings.TOGGLE_CODEX;
             case "Esc" -> Keybindings.MENU_CANCEL;
+            case "Up" -> Keybindings.MENU_UP;
+            case "Down" -> Keybindings.MENU_DOWN;
+            case "Enter" -> Keybindings.MENU_CONFIRM;
             default -> throw new IllegalArgumentException("No key mapped for: " + keyName);
         };
     }

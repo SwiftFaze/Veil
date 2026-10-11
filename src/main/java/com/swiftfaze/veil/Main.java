@@ -10,6 +10,8 @@ import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.mods.WidgetColorTheme;
 import com.swiftfaze.veil.ui.ChestPanel;
 import com.swiftfaze.veil.ui.ChestPanelListener;
+import com.swiftfaze.veil.ui.DialoguePanel;
+import com.swiftfaze.veil.ui.DialoguePanelListener;
 import com.swiftfaze.veil.ui.CodexPanel;
 import com.swiftfaze.veil.ui.GameWindow;
 import com.swiftfaze.veil.ui.InventoryPanel;
@@ -165,12 +167,15 @@ public final class Main {
         ChestPanel chestPanel = new ChestPanel(hintBar::setHints);
         FocusManager focusManager = wirePopups(gamePanel, new PopupPanels(inventoryPanel, codexPanel, pauseMenuPopup), hintBar, eventLog);
         wireChestPanel(gamePanel, chestPanel, focusManager, hintBar);
+        DialoguePanel dialoguePanel = new DialoguePanel(hintBar::setHints);
+        wireDialoguePanel(gamePanel, dialoguePanel, focusManager, hintBar);
 
         JLayeredPane gameContentArea = GameWindow.buildContentArea(gamePanel);
         gameContentArea.add(inventoryPanel, JLayeredPane.POPUP_LAYER);
         gameContentArea.add(codexPanel, JLayeredPane.POPUP_LAYER);
         gameContentArea.add(pauseMenuPopup, JLayeredPane.POPUP_LAYER);
         gameContentArea.add(chestPanel, JLayeredPane.POPUP_LAYER);
+        gameContentArea.add(dialoguePanel, JLayeredPane.POPUP_LAYER);
         gameContentArea.add(inventoryPanel.getDropConfirmationPopup(), JLayeredPane.DRAG_LAYER);
 
         JPanel gameCardPanel = new JPanel(new BorderLayout());
@@ -211,6 +216,12 @@ public final class Main {
         chestPanel.setFocusManager(focusManager);
         chestPanel.setOnDismiss(() -> restoreGameFocus(gamePanel, hintBar));
         gamePanel.addGameListener(new ChestPanelListener(chestPanel, gamePanel.getWorldPause()));
+    }
+
+    private static void wireDialoguePanel(GamePanel gamePanel, DialoguePanel dialoguePanel, FocusManager focusManager, ControlsHintBarWidget hintBar) {
+        dialoguePanel.setFocusManager(focusManager);
+        dialoguePanel.setOnDismiss(() -> restoreGameFocus(gamePanel, hintBar));
+        gamePanel.addGameListener(new DialoguePanelListener(dialoguePanel, gamePanel.getWorldPause()));
     }
 
     private static void restoreGameFocus(GamePanel gamePanel, ControlsHintBarWidget hintBar) {

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.swiftfaze.veil.entities.buildings.Building;
+import com.swiftfaze.veil.entities.dialogue.Dialogue;
 import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.entities.npc.NpcDefinition;
 import com.swiftfaze.veil.entities.npc.Patrol;
@@ -74,6 +75,7 @@ public final class ModLoader {
         Map<String, String> owningThemeModById = new LinkedHashMap<>();
         Map<String, NpcDefinition> npcsById = new LinkedHashMap<>();
         Map<String, String> owningNpcModById = new LinkedHashMap<>();
+        Map<String, Dialogue> dialoguesById = loadAllDialogues(modsRoot, loadOrder);
         RegistryTarget<Building> buildings = new RegistryTarget<>(buildingsById, owningBuildingModById);
         RegistryTarget<PlayerClass> classes = new RegistryTarget<>(classesById, owningClassModById);
         RegistryTarget<Item> items = new RegistryTarget<>(itemsById, owningItemModById);
@@ -90,14 +92,14 @@ public final class ModLoader {
             loadBuildings(modsRoot, manifest, lookups, buildings);
             loadQuests(modsRoot, manifest, itemsById, quests);
             loadThemes(modsRoot, manifest, themesById, owningThemeModById);
-            loadNpcs(modsRoot, manifest, npcs);
+            loadNpcs(modsRoot, manifest, npcs, dialoguesById);
         }
 
         logger.info("Loaded {} mod(s) [{}]: {} tiles, {} buildings, {} classes, {} items, {} objects, {} quests, {} themes, {} NPCs",
                 modLoadOrder.size(), String.join(", ", modLoadOrder), tilesById.size(), buildingsById.size(),
                 classesById.size(), itemsById.size(), objectsById.size(), questsById.size(), themesById.size(), npcsById.size());
 
-        ModRegistry.RegistryMaps maps = new ModRegistry.RegistryMaps(buildingsById, tilesById, classesById, itemsById, questsById, themesById, objectsById, npcsById);
+        ModRegistry.RegistryMaps maps = new ModRegistry.RegistryMaps(buildingsById, tilesById, classesById, itemsById, questsById, themesById, objectsById, npcsById, dialoguesById);
         return new ModRegistry(maps, modLoadOrder);
     }
 
@@ -668,7 +670,55 @@ public final class ModLoader {
         return colorsByKey;
     }
 
-    private static void loadNpcs(Path modsRoot, ModManifest manifest, RegistryTarget<NpcDefinition> npcs) {
+    /** Dialogues load before any NPC, across every mod, so an NPC can name a dialogue from any mod. */
+    private static Map<String, Dialogue> loadAllDialogues(Path modsRoot, List<ModManifest> loadOrder) {
+        RegistryTarget<Dialogue> dialogues = new RegistryTarget<>(new LinkedHashMap<>(), new LinkedHashMap<>());
+        for (ModManifest manifest : loadOrder) {
+            loadDialogues(modsRoot, manifest, dialogues);
+        }
+        return dialogues.registry();
+    }
+
+    private static void loadDialogues(Path modsRoot, ModManifest manifest, RegistryTarget<Dialogue> dialogues) {
+        Path dialoguesDir = modsRoot.resolve(manifest.id()).resolve("dialogues");
+        if (!Files.isDirectory(dialoguesDir)) {
+            return;
+        }
+
+        try {
+            for (Path file : jsonFilesIn(dialoguesDir)) {
+                loadDialogue(file, manifest.id(), dialogues);
+            }
+        } catch (IOException e) {
+            throw new ModLoadException("Failed to scan dialogues for mod: " + manifest.id(), e);
+        }
+    }
+
+    private static void loadDialogue(Path file, String modId, RegistryTarget<Dialogue> dialogues) {
+        try (Reader reader = Files.newBufferedReader(file)) {
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            validateDialogue(json, file);
+            String id = json.get("id").getAsString();
+            Dialogue dialogue = DialogueReader.read(json, id, file);
+            RegistrationContext<Dialogue> dialogueContext = new RegistrationContext<>(dialogues.registry(), dialogues.owningModById(), json.has("overrides"), "Dialogue");
+            registerWithCollisionCheck(id, dialogue, modId, dialogueContext);
+        } catch (JsonSyntaxException | IOException e) {
+            throw new ModLoadException("Failed to load dialogue from file: " + file, e);
+        }
+    }
+
+    /** Schema failures are re-thrown with the dialogue id prepended, naming the dialogue and the file. */
+    private static void validateDialogue(JsonObject json, Path file) {
+        try {
+            ModSchemaValidator.validate("dialogue", json, file);
+        } catch (ModLoadException e) {
+            String id = json.has("id") ? json.get("id").toString() : "(unknown)";
+            throw new ModLoadException("Dialogue " + id + " is invalid: " + e.getMessage(), e);
+        }
+    }
+
+    private static void loadNpcs(Path modsRoot, ModManifest manifest, RegistryTarget<NpcDefinition> npcs,
+                                 Map<String, Dialogue> dialoguesById) {
         Path npcsDir = modsRoot.resolve(manifest.id()).resolve("npcs");
         if (!Files.isDirectory(npcsDir)) {
             return;
@@ -676,19 +726,20 @@ public final class ModLoader {
 
         try {
             for (Path file : jsonFilesIn(npcsDir)) {
-                loadNpc(file, manifest.id(), npcs);
+                loadNpc(file, manifest.id(), npcs, dialoguesById);
             }
         } catch (IOException e) {
             throw new ModLoadException("Failed to scan npcs for mod: " + manifest.id(), e);
         }
     }
 
-    private static void loadNpc(Path file, String modId, RegistryTarget<NpcDefinition> npcs) {
+    private static void loadNpc(Path file, String modId, RegistryTarget<NpcDefinition> npcs,
+                                Map<String, Dialogue> dialoguesById) {
         try (Reader reader = Files.newBufferedReader(file)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             validateNpc(json, file);
             String id = json.get("id").getAsString();
-            NpcDefinition definition = readNpcDefinition(json, id, file);
+            NpcDefinition definition = readNpcDefinition(json, id, file, dialoguesById);
             RegistrationContext<NpcDefinition> npcContext = new RegistrationContext<>(npcs.registry(), npcs.owningModById(), json.has("overrides"), "NPC");
             registerWithCollisionCheck(id, definition, modId, npcContext);
         } catch (JsonSyntaxException | IOException e) {
@@ -706,13 +757,25 @@ public final class ModLoader {
         }
     }
 
-    private static NpcDefinition readNpcDefinition(JsonObject json, String id, Path file) {
+    private static NpcDefinition readNpcDefinition(JsonObject json, String id, Path file,
+                                                   Map<String, Dialogue> dialoguesById) {
         String name = json.get("name").getAsString();
         char symbol = json.get("symbol").getAsString().charAt(0);
         Color color = readColor(json.getAsJsonObject("color"));
         TileCoord spawn = readTileCoord(json.getAsJsonObject("spawn"));
         Patrol patrol = json.has("patrol") ? readPatrol(json.getAsJsonObject("patrol"), id, spawn, file) : null;
-        return new NpcDefinition(id, name, symbol, color, spawn, patrol);
+        Dialogue dialogue = json.has("dialogue")
+                ? requireDialogue(json.get("dialogue").getAsString(), id, file, dialoguesById)
+                : null;
+        return new NpcDefinition(id, name, symbol, color, spawn, patrol, dialogue);
+    }
+
+    private static Dialogue requireDialogue(String dialogueId, String npcId, Path file, Map<String, Dialogue> dialoguesById) {
+        Dialogue dialogue = dialoguesById.get(dialogueId);
+        if (dialogue == null) {
+            throw new ModLoadException("NPC '" + npcId + "' refers to unknown dialogue '" + dialogueId + "' in file: " + file);
+        }
+        return dialogue;
     }
 
     private static TileCoord readTileCoord(JsonObject tile) {

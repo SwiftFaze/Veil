@@ -133,5 +133,17 @@ NPC id and file; a malformed file does the same. `patrol.mode` is `ping_pong` (d
 one step toward its current waypoint. **Blocked-step rule:** `GamePanel.canNpcEnter` allows a
 step only onto a walkable tile holding neither the player nor another NPC; when the step is
 refused the NPC stays put and retries the same step next turn, never skipping or
-re-targeting a waypoint. An NPC with no patrol never moves. NPCs have no interaction,
-dialogue or collision effects on the player yet.
+re-targeting a waypoint. An NPC with no patrol never moves. NPCs are not solid: they do not
+block the player, and an NPC may share the player's tile. Talking to one is covered below.
+
+**Dialogues** (`entities/dialogue/`, `mods/DialogueReader`): a `Dialogue` (id, start node id,
+nodes) is registry content from `mods/<mod>/dialogues/*.json`. `ModLoader` loads every dialogue
+across all mods before any NPC, so an NPC's optional `dialogue` id resolves to the `Dialogue`
+held by its `NpcDefinition`; an unknown id is a `ModLoadException`. `DialogueReader` checks the
+graph the schema cannot (see `mod-format.md`). A `Conversation` is one run through a dialogue:
+the chat log and the current node. `GamePanel` builds a new one each time the player presses E
+next to an NPC that has a dialogue (N, E, S, W order; on one tile an NPC beats an object; an NPC
+without a dialogue is skipped) and fires `GameListener.openDialogue`. `DialoguePanel` (`ui/`)
+shows it, and `DialoguePanelListener` holds `WorldPause.DIALOGUE` while it is open. The engine
+builds the `Conversation` rather than the popup, because `ui/` may not construct engine classes
+(`ModuleDependencyTest`).

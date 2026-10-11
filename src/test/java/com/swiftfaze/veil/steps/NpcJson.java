@@ -31,6 +31,11 @@ final class NpcJson {
         return this;
     }
 
+    NpcJson dialogue(String dialogueId) {
+        json.addProperty("dialogue", dialogueId);
+        return this;
+    }
+
     NpcJson symbol(String symbol) {
         json.addProperty("symbol", symbol);
         return this;

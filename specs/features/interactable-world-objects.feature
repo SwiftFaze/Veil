@@ -126,6 +126,17 @@ Feature: Interactable world objects (chest, door)
       | E   |
       | Esc |
 
+  Scenario Outline: Another screen's key does nothing while the chest panel is open
+    Given the chest panel is open
+    When the player presses <key>
+    Then the <screen> is not shown
+    And the chest panel is shown
+
+    Examples:
+      | key | screen    |
+      | I   | inventory |
+      | X   | codex     |
+
   Scenario: A chest blocks movement
     Given a chest at (5, 4) with 1 slot containing nothing
     And the player stands at (5, 5)

@@ -55,6 +55,11 @@
         }
       }
     },
+    "dialogue": {
+      "type": "string",
+      "description": "Optional id of a dialogue (dialogues/*.json) the player talks to this NPC with. Omit for an NPC that cannot be talked to. The loader rejects an id no mod defines.",
+      "pattern": "^[a-z0-9][a-z0-9_-]*:[a-z0-9][a-z0-9_-]*$"
+    },
     "overrides": {
       "type": "string",
       "description": "If present, this NPC overrides another NPC with the same id"

@@ -55,6 +55,15 @@ class WorldPauseTest {
     }
 
     @Test
+    void isHeldByReportsOnlyTheScreenThatHoldsIt() {
+        WorldPause pause = new WorldPause();
+        pause.hold(WorldPause.DIALOGUE);
+
+        assertTrue(pause.isHeldBy(WorldPause.DIALOGUE));
+        assertFalse(pause.isHeldBy(WorldPause.CHEST));
+    }
+
+    @Test
     void clearResumesTheWorldWhateverIsHeld() {
         WorldPause pause = new WorldPause();
         pause.hold(WorldPause.INVENTORY);

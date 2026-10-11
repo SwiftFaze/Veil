@@ -109,13 +109,12 @@ focus, Escape dismisses it, and `onUp()`/`onDown()`/`onLeft()`/`onRight()`
 hooks — bound at `WHEN_ANCESTOR_OF_FOCUSED_COMPONENT`, so they fire whether
 the popup itself or a descendant has real Swing focus — let a subclass wire
 keyboard navigation to
-its own content; `isFullScreen()` returns true by default, but subclasses can
-return false to be centered at their preferred size instead of stretched);
+its own content; `placement()` says where `FillLayout` puts the popup: `FULL_SCREEN` (the default, from `isFullScreen()`), `CENTERED` at its preferred size (`isFullScreen()` returning false), or `BOTTOM_CENTER`, a box along the bottom edge that `DialoguePanel` uses);
 `SliderWidget` (a bounded numeric slider with left/right adjustment within a
 [min, max] range by fixed steps, with hard bounds—no wrap-around), `FillLayout`
 (a `LayoutManager` stretching every child to the parent's full bounds by
-default, for `JLayeredPane` overlays; now respects `PopupWidget.isFullScreen()`
-to center non-full-screen popups at their preferred size instead),
+default, for `JLayeredPane` overlays; follows each popup's `PopupWidget.placement()`
+(full screen, centred, or the bottom-anchored box, sized from the parent within clamps),
 `TerminalScrollBarUi` (a flat black-track/solid-thumb `BasicScrollBarUI`
 replacing the platform look-and-feel's default scrollbar chrome), and
 `ControlsHintBarWidget` (a single persistent bar, one shared instance built

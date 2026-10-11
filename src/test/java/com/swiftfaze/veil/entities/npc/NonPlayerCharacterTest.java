@@ -72,7 +72,7 @@ class NonPlayerCharacterTest {
 
     @Test
     void stationaryNpcNeverMoves() {
-        NpcDefinition definition = new NpcDefinition("core:statue", "Statue", 'S', Color.GRAY, new TileCoord(2, 2), null);
+        NpcDefinition definition = new NpcDefinition("core:statue", "Statue", 'S', Color.GRAY, new TileCoord(2, 2), null, null);
         NonPlayerCharacter npc = new NonPlayerCharacter(definition, (x, y) -> true);
 
         stepTurns(npc, 3);
@@ -82,7 +82,7 @@ class NonPlayerCharacterTest {
 
     @Test
     void rendersItsSymbolInItsColorAtItsTileRelativeToTheCamera() {
-        NpcDefinition definition = new NpcDefinition("core:statue", "Statue", '#', Color.RED, new TileCoord(6, 5), null);
+        NpcDefinition definition = new NpcDefinition("core:statue", "Statue", '#', Color.RED, new TileCoord(6, 5), null, null);
         NonPlayerCharacter npc = new NonPlayerCharacter(definition, (x, y) -> true);
         BufferedImage image = new BufferedImage(RENDER_TILE * 10, RENDER_TILE * 10, BufferedImage.TYPE_INT_ARGB);
         Camera camera = new Camera(10, 10);
@@ -101,7 +101,7 @@ class NonPlayerCharacterTest {
 
     @Test
     void rendersWithTheMonospacedGlyphFont() {
-        NpcDefinition definition = new NpcDefinition("core:statue", "Statue", '#', Color.RED, new TileCoord(6, 5), null);
+        NpcDefinition definition = new NpcDefinition("core:statue", "Statue", '#', Color.RED, new TileCoord(6, 5), null, null);
         NonPlayerCharacter npc = new NonPlayerCharacter(definition, (x, y) -> true);
         BufferedImage image = new BufferedImage(RENDER_TILE, RENDER_TILE, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
@@ -114,7 +114,7 @@ class NonPlayerCharacterTest {
 
     private static NonPlayerCharacter patrolling(PatrolMode mode, List<TileCoord> blocked, TileCoord... waypoints) {
         Patrol patrol = new Patrol(mode, List.of(waypoints));
-        NpcDefinition definition = new NpcDefinition("core:test", "Test", 'T', Color.WHITE, waypoints[0], patrol);
+        NpcDefinition definition = new NpcDefinition("core:test", "Test", 'T', Color.WHITE, waypoints[0], patrol, null);
         return new NonPlayerCharacter(definition, (x, y) -> !blocked.contains(new TileCoord(x, y)));
     }
 

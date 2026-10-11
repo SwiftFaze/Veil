@@ -4,11 +4,14 @@ import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.GamePanel;
 import com.swiftfaze.veil.game.TurnScheduler;
+import com.swiftfaze.veil.game.WorldPause;
 import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.render.Positionable;
 import com.swiftfaze.veil.ui.ChestPanel;
 import com.swiftfaze.veil.ui.ChestPanelListener;
+import com.swiftfaze.veil.ui.DialoguePanel;
+import com.swiftfaze.veil.ui.DialoguePanelListener;
 import com.swiftfaze.veil.ui.CodexPanel;
 import com.swiftfaze.veil.ui.InventoryPanel;
 import com.swiftfaze.veil.ui.PauseMenuPopup;
@@ -40,6 +43,7 @@ final class GamePanelFixture {
     private final Player player;
     private final WorldScene scene;
     private final ChestPanel chestPanel;
+    private final DialoguePanel dialoguePanel;
     private InventoryPanel inventoryPanel;
     private CodexPanel codexPanel;
     private PauseMenuPopup pauseMenuPopup;
@@ -74,7 +78,9 @@ final class GamePanelFixture {
         this.scene = scene;
         this.panel = new GamePanel(log, player, scene);
         this.chestPanel = new ChestPanel(new ControlsHintBarWidget()::setHints);
+        this.dialoguePanel = new DialoguePanel(new ControlsHintBarWidget()::setHints);
         panel.addGameListener(new ChestPanelListener(chestPanel, panel.getWorldPause()));
+        panel.addGameListener(new DialoguePanelListener(dialoguePanel, panel.getWorldPause()));
     }
 
     /** A game panel on an open floor with the player at (5, 5), wired to {@code log} and a chest panel. */
@@ -82,18 +88,24 @@ final class GamePanelFixture {
         WorldScene floor = new WorldScene(FLAT_FLOOR_SIZE, FLAT_FLOOR_SIZE) {
         };
         floor.fillAll(FLOOR);
-        return new GamePanelFixture(log, new Player(5, 5), floor);
+        GamePanelFixture fixture = new GamePanelFixture(log, new Player(5, 5), floor);
+        fixture.wireInventoryAndCodex(log);
+        return fixture;
     }
 
     /** A game panel wired to {@code log}, with the inventory and codex popup listener attached. */
     static GamePanelFixture withInventory(GameEventLog log) {
         GamePanelFixture fixture = new GamePanelFixture(log);
-        ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
-        fixture.inventoryPanel = new InventoryPanel(hintBar);
-        fixture.codexPanel = new CodexPanel(hintBar);
-        fixture.panel.addGameListener(new PopupToggleListener(
-                fixture.inventoryPanel, fixture.codexPanel, fixture.panel.getWorldPause(), log));
+        fixture.wireInventoryAndCodex(log);
         return fixture;
+    }
+
+    /** Attaches the inventory and codex popups as Main does, so their I and X keys reach the toggle listener. */
+    private void wireInventoryAndCodex(GameEventLog log) {
+        ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
+        inventoryPanel = new InventoryPanel(hintBar);
+        codexPanel = new CodexPanel(hintBar);
+        panel.addGameListener(new PopupToggleListener(inventoryPanel, codexPanel, panel.getWorldPause(), log));
     }
 
     /** A game panel wired as Main wires it: all three screens toggle the shared world pause. */
@@ -132,6 +144,10 @@ final class GamePanelFixture {
         return scene;
     }
 
+    DialoguePanel dialoguePanel() {
+        return dialoguePanel;
+    }
+
     ChestPanel chestPanel() {
         return chestPanel;
     }
@@ -159,6 +175,9 @@ final class GamePanelFixture {
      */
     void pressKey(KeyStroke key) {
         if (chestPanel.isVisible() && fireBound(chestPanel, chestPanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT), key)) {
+            return;
+        }
+        if (dialoguePanel.isVisible() && fireBound(dialoguePanel, dialoguePanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT), key)) {
             return;
         }
         fireBound(panel, panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW), key);
@@ -194,6 +213,20 @@ final class GamePanelFixture {
     /** Runs one world turn, as a player action would. */
     void advanceTurn() {
         turnScheduler().advance();
+    }
+
+    /** The current world turn; a fresh world starts at 0. */
+    int currentTurn() {
+        return turnScheduler().getTurn();
+    }
+
+    /** Holds the world pause under {@code holder}, as an open screen would. */
+    void holdWorldPause(String holder) {
+        worldPause().hold(holder);
+    }
+
+    private WorldPause worldPause() {
+        return panel.getWorldPause();
     }
 
     private TurnScheduler turnScheduler() {

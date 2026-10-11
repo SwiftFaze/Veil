@@ -4,6 +4,7 @@ import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.render.DrawableAsciiEntity;
 import com.swiftfaze.veil.render.Positionable;
+import com.swiftfaze.veil.entities.dialogue.Conversation;
 import com.swiftfaze.veil.entities.npc.NonPlayerCharacter;
 import com.swiftfaze.veil.entities.npc.NpcDefinition;
 import com.swiftfaze.veil.entities.player.Player;
@@ -32,6 +33,7 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.LongSupplier;
@@ -284,6 +286,11 @@ public final class GamePanel extends JPanel {
             for (Offset offset : INTERACT_OFFSETS) {
                 int x = player.getX() + offset.dx();
                 int y = player.getY() + offset.dy();
+                Optional<Conversation> conversation = conversationAt(x, y);
+                if (conversation.isPresent()) {
+                    openConversation(conversation.get());
+                    return;
+                }
                 InteractableObject object = scene.getObject(x, y);
                 if (object != null) {
                     interactWith(x, y, object);
@@ -291,6 +298,21 @@ public final class GamePanel extends JPanel {
                 }
             }
         }
+    }
+
+    /** A new conversation with the NPC on (x, y), if it has a dialogue; an NPC without one is skipped. */
+    private Optional<Conversation> conversationAt(int x, int y) {
+        return npcs.stream()
+                .filter(npc -> npc.getX() == x && npc.getY() == y && npc.getDialogue() != null)
+                .findFirst()
+                .map(npc -> new Conversation(npc.getName(), npc.getDialogue()));
+    }
+
+    private void openConversation(Conversation conversation) {
+        for (GameListener l : listeners) {
+            l.openDialogue(conversation);
+        }
+        repaint();
     }
 
     private void interactWith(int x, int y, InteractableObject object) {
