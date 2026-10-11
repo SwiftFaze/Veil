@@ -10,9 +10,12 @@ import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.event.GameEvent;
 import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.input.Keybindings;
+import com.swiftfaze.veil.game.worldgen.GeneratedWorldScene;
 import com.swiftfaze.veil.mods.ModRegistry;
-import com.swiftfaze.veil.world.TileTestScene2;
 import com.swiftfaze.veil.world.WorldScene;
+import com.swiftfaze.veil.world.WorldSeeds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -26,13 +29,18 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.LongSupplier;
 
 
 public final class GamePanel extends JPanel {
 
+    private static final Logger logger = LoggerFactory.getLogger(GamePanel.class);
+
     private Player player;
     private WorldScene scene;
+    private final LongSupplier worldSeeds;
     private final Camera camera = new Camera(GameConst.GAME_WINDOW_WIDTH, GameConst.GAME_WINDOW_HEIGHT);
     private final List<Positionable> entitiesToDraw = new ArrayList<>();
     private final List<GameListener> listeners = new ArrayList<>();
@@ -40,19 +48,38 @@ public final class GamePanel extends JPanel {
     private final WorldPause worldPause = new WorldPause();
     private final TurnScheduler turnScheduler = new TurnScheduler();
     private final List<NonPlayerCharacter> npcs = new ArrayList<>();
+    /** The definitions last passed to {@link #spawnNpcs}; regenerateWorld respawns from these. */
+    private List<NpcDefinition> npcDefinitions = List.of();
+
+    /** What a new game starts with: the player on the scene's spawn point, and the scene. */
+    private record NewGame(Player player, GeneratedWorldScene scene) {
+    }
 
     public GamePanel() {
         this(GameEventLog.noOp());
     }
 
     public GamePanel(GameEventLog eventLog) {
-        this(eventLog, new Player(GameConst.DEFAULT_PLAYER_START_X, GameConst.DEFAULT_PLAYER_START_Y),
-                new TileTestScene2(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT));
+        this(eventLog, WorldSeeds.fromSystemProperty(new Random()::nextLong));
+    }
+
+    /** @param worldSeeds supplies the seed for each new game (and each {@link #resetState()}) */
+    public GamePanel(GameEventLog eventLog, LongSupplier worldSeeds) {
+        this(eventLog, worldSeeds, newGame(worldSeeds));
     }
 
     public GamePanel(GameEventLog eventLog, Player player, WorldScene scene) {
+        this(eventLog, WorldSeeds.fromSystemProperty(new Random()::nextLong), player, scene);
+    }
+
+    private GamePanel(GameEventLog eventLog, LongSupplier worldSeeds, NewGame game) {
+        this(eventLog, worldSeeds, game.player(), game.scene());
+    }
+
+    private GamePanel(GameEventLog eventLog, LongSupplier worldSeeds, Player player, WorldScene scene) {
         this.player = player;
         this.scene = scene;
+        this.worldSeeds = worldSeeds;
         this.eventLog = eventLog;
         setPreferredSize(new Dimension(GameConst.GAME_WINDOW_WIDTH * GameConst.TILE_WIDTH, GameConst.GAME_WINDOW_HEIGHT * GameConst.TILE_HEIGHT));
         setBackground(Color.BLACK);
@@ -104,7 +131,8 @@ public final class GamePanel extends JPanel {
 
     /** Spawns every NPC in {@code registry}, in load order. Call at setup and after resetState(). */
     public void spawnNpcs(ModRegistry registry) {
-        for (NpcDefinition definition : registry.getAllNpcs()) {
+        npcDefinitions = registry.getAllNpcs();
+        for (NpcDefinition definition : npcDefinitions) {
             spawnNpc(definition);
         }
     }
@@ -144,6 +172,47 @@ public final class GamePanel extends JPanel {
         return player;
     }
 
+    public WorldScene getScene() {
+        return scene;
+    }
+
+    /** Builds a fresh world from the next seed and spawns the player on its spawn point. */
+    private static NewGame newGame(LongSupplier worldSeeds) {
+        GeneratedWorldScene scene = generateWorld(worldSeeds.getAsLong());
+        return new NewGame(new Player(scene.getSpawnX(), scene.getSpawnY()), scene);
+    }
+
+    private static GeneratedWorldScene generateWorld(long seed) {
+        GeneratedWorldScene scene = new GeneratedWorldScene(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT, seed);
+        logger.info("World generated from seed {}", seed);
+        return scene;
+    }
+
+    /**
+     * Replaces the running world with one generated from {@code seed}. The same Player stays
+     * (stats, class, inventory untouched) and moves to the new spawn point; pause state is kept.
+     * NPCs are respawned from the last {@link #spawnNpcs} definitions at their spawn points,
+     * and the old NPCs are unregistered from the turn scheduler. The turn counter is kept.
+     */
+    public void regenerateWorld(long seed) {
+        GeneratedWorldScene regenerated = generateWorld(seed);
+        entitiesToDraw.set(entitiesToDraw.indexOf(scene), regenerated);
+        scene = regenerated;
+        player.setPosition(regenerated.getSpawnX(), regenerated.getSpawnY());
+        respawnNpcs();
+        notifyPlayerUpdated();
+    }
+
+    /** Drops every NPC from the draw list and the scheduler, then spawns the remembered definitions afresh. */
+    private void respawnNpcs() {
+        entitiesToDraw.removeAll(npcs);
+        npcs.clear();
+        turnScheduler.clearRegistrations();
+        for (NpcDefinition definition : npcDefinitions) {
+            spawnNpc(definition);
+        }
+    }
+
     public WorldPause getWorldPause() {
         return worldPause;
     }
@@ -164,8 +233,9 @@ public final class GamePanel extends JPanel {
      * an in-place reset of just this panel's own state.
      */
     public void resetState() {
-        player = new Player(GameConst.DEFAULT_PLAYER_START_X, GameConst.DEFAULT_PLAYER_START_Y);
-        scene = new TileTestScene2(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT);
+        NewGame game = newGame(worldSeeds);
+        player = game.player();
+        scene = game.scene();
         entitiesToDraw.clear();
         npcs.clear();
         addEntity(scene);

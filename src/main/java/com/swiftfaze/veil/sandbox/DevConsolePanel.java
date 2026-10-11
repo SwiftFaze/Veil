@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Top-level dev-console shell: an append-only log transcript of every typed command and its
@@ -55,11 +56,15 @@ public final class DevConsolePanel extends JPanel {
     private final DocumentListener liveFilterListener = new LiveFilterListener();
 
     public DevConsolePanel(DevConsoleModel model) {
+        this(model, WorldRegenerator.noGame(new Random()::nextLong));
+    }
+
+    public DevConsolePanel(DevConsoleModel model, WorldRegenerator regenerator) {
         this.cardLayout = new CardLayout();
         this.cards = new JPanel(cardLayout);
         this.commandField = new PatternFieldWidget(".*", "Command");
         this.transcript = new TranscriptWidget();
-        this.commandRunner = new DevConsoleCommandRunner(model, transcript, this::showProvider);
+        this.commandRunner = new DevConsoleCommandRunner(model, transcript, this::showProvider, regenerator);
         this.providerContainer = new JPanel(new BorderLayout());
         providerContainer.setBackground(WidgetTheme.background());
         this.completion = new DevConsoleCompletion(model);

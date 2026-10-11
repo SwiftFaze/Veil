@@ -20,6 +20,16 @@ public class Building {
         return blueprint;
     }
 
+    /** Footprint width in tiles: the first row's length, or 0 for an empty blueprint. */
+    public int getWidth() {
+        return blueprint.isEmpty() ? 0 : blueprint.get(0).size();
+    }
+
+    /** Footprint height in tiles: the number of rows. */
+    public int getHeight() {
+        return blueprint.size();
+    }
+
     public int getWorldX() {
         return worldX;
     }
@@ -34,5 +44,10 @@ public class Building {
 
     public void setWorldY(int worldY) {
         this.worldY = worldY;
+    }
+
+    /** Whether the world tile {@code (x, y)} lies inside this building's footprint. */
+    public boolean covers(int x, int y) {
+        return x >= worldX && x < worldX + getWidth() && y >= worldY && y < worldY + getHeight();
     }
 }

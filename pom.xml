@@ -400,6 +400,7 @@
                         <param>com.swiftfaze.veil.sandbox.TileSandboxProvider</param>
                         <param>com.swiftfaze.veil.sandbox.DevConsoleCompletion</param>
                         <param>com.swiftfaze.veil.sandbox.DevConsoleCommandHistory</param>
+                        <param>com.swiftfaze.veil.sandbox.WorldRegenerator*</param>
                         <param>com.swiftfaze.veil.sandbox.KitchenSinkModel</param>
                         <param>com.swiftfaze.veil.sandbox.KitchenSinkPreviewPanel</param>
                         <param>com.swiftfaze.veil.sandbox.KitchenSinkProvider</param>

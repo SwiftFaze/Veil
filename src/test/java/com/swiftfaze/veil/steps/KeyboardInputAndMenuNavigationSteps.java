@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.steps;
 
+import com.swiftfaze.veil.testing.FlatFloorWorld;
 import com.swiftfaze.veil.game.GamePanel;
 import com.swiftfaze.veil.input.Keybindings;
 import io.cucumber.java.en.Given;
@@ -20,7 +21,7 @@ public class KeyboardInputAndMenuNavigationSteps {
 
     @Given("a game panel with a player at position \\({int}, {int})")
     public void aGamePanelWithAPlayerAtPosition(int x, int y) {
-        gamePanel = new GamePanel();
+        gamePanel = FlatFloorWorld.panel();
         gamePanel.getPlayer().setPosition(x, y);
         listenerNotified = false;
         gamePanel.addGameListener(player -> listenerNotified = true);
