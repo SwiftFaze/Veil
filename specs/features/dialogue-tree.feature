@@ -254,6 +254,18 @@ Feature: Branching dialogue trees and the dialogue popup
     When the player moves up
     Then the player has not moved
 
+  Scenario Outline: Another screen's key does nothing while the popup is open
+    Given a conversation is open
+    When the player presses <key>
+    Then the <screen> is not shown
+    And the dialogue popup is shown
+    And the world is paused
+
+    Examples:
+      | key | screen    |
+      | I   | inventory |
+      | X   | codex     |
+
   # ---- Ending ----
 
   Scenario: A choice with no next ends the conversation
