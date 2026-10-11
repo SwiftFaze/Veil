@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.48](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.47...v0.5.0-beta.48) (2026-10-11)
+
+
+### Features
+
+* add interactable world objects (chest, door) ([#277](https://github.com/SwiftFaze/Veil/issues/277)) ([b0f6120](https://github.com/SwiftFaze/Veil/commit/b0f612069afa8f8fe5f333fc259352e17b46c24f))
+
 ## [0.5.0-beta.47](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.46...v0.5.0-beta.47) (2026-10-11)
 
 
