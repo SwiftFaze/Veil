@@ -22,18 +22,21 @@ import org.slf4j.LoggerFactory;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public final class ModLoader {
+    private static final Comparator<Path> BY_FILE_NAME = Comparator.comparing(path -> path.getFileName().toString());
     public record RegistrationContext<T>(
             Map<String, T> registry,
             Map<String, String> owningModById,
@@ -102,6 +105,27 @@ public final class ModLoader {
         return new ModRegistry(maps, modLoadOrder);
     }
 
+    /**
+     * The {@code .json} files directly in {@code dir}, sorted by file name. Directory iteration order
+     * is unspecified (NTFS and ext4 differ), so every loader goes through here to load deterministically.
+     */
+    private static List<Path> jsonFilesIn(Path dir) throws IOException {
+        return childrenSortedByName(dir, path -> path.getFileName().toString().endsWith(".json"));
+    }
+
+    /** The subdirectories of {@code dir}, sorted by directory name. */
+    private static List<Path> subdirectoriesIn(Path dir) throws IOException {
+        return childrenSortedByName(dir, Files::isDirectory);
+    }
+
+    private static List<Path> childrenSortedByName(Path dir, Predicate<Path> keep) throws IOException {
+        try (Stream<Path> children = Files.list(dir)) {
+            return children.filter(keep)
+                    .sorted(BY_FILE_NAME)
+                    .toList();
+        }
+    }
+
     private static List<ModManifest> readManifests(Path modsRoot) {
         List<ModManifest> manifests = new ArrayList<>();
 
@@ -109,8 +133,8 @@ public final class ModLoader {
             return manifests;
         }
 
-        try (DirectoryStream<Path> modDirs = Files.newDirectoryStream(modsRoot, Files::isDirectory)) {
-            for (Path modDir : modDirs) {
+        try {
+            for (Path modDir : subdirectoriesIn(modsRoot)) {
                 Path manifestFile = modDir.resolve("mod.json");
                 if (Files.exists(manifestFile)) {
                     manifests.add(readManifest(manifestFile));
@@ -181,8 +205,8 @@ public final class ModLoader {
             return;
         }
 
-        try (DirectoryStream<Path> files = Files.newDirectoryStream(tilesDir, "*.json")) {
-            for (Path file : files) {
+        try {
+            for (Path file : jsonFilesIn(tilesDir)) {
                 loadTile(file, manifest.id(), tilesById, owningModById);
             }
         } catch (IOException e) {
@@ -241,8 +265,8 @@ public final class ModLoader {
             return;
         }
 
-        try (DirectoryStream<Path> files = Files.newDirectoryStream(buildingsDir, "*.json")) {
-            for (Path file : files) {
+        try {
+            for (Path file : jsonFilesIn(buildingsDir)) {
                 loadBuilding(file, manifest.id(), lookups, buildings);
             }
         } catch (IOException e) {
@@ -347,8 +371,8 @@ public final class ModLoader {
             return;
         }
 
-        try (DirectoryStream<Path> files = Files.newDirectoryStream(classesDir, "*.json")) {
-            for (Path file : files) {
+        try {
+            for (Path file : jsonFilesIn(classesDir)) {
                 loadClass(file, manifest.id(), validStatNames, classes);
             }
         } catch (IOException e) {
@@ -399,8 +423,8 @@ public final class ModLoader {
             return;
         }
 
-        try (DirectoryStream<Path> files = Files.newDirectoryStream(itemsDir, "*.json")) {
-            for (Path file : files) {
+        try {
+            for (Path file : jsonFilesIn(itemsDir)) {
                 loadItem(file, manifest.id(), validStatNames, items);
             }
         } catch (IOException e) {
@@ -439,8 +463,8 @@ public final class ModLoader {
             return;
         }
 
-        try (DirectoryStream<Path> files = Files.newDirectoryStream(objectsDir, "*.json")) {
-            for (Path file : files) {
+        try {
+            for (Path file : jsonFilesIn(objectsDir)) {
                 loadObject(file, manifest.id(), itemsById, objects);
             }
         } catch (IOException e) {
@@ -510,8 +534,8 @@ public final class ModLoader {
             return;
         }
 
-        try (DirectoryStream<Path> files = Files.newDirectoryStream(questsDir, "*.json")) {
-            for (Path file : files) {
+        try {
+            for (Path file : jsonFilesIn(questsDir)) {
                 loadQuest(file, manifest.id(), itemsById, quests);
             }
         } catch (IOException e) {
@@ -599,8 +623,8 @@ public final class ModLoader {
             return;
         }
 
-        try (DirectoryStream<Path> files = Files.newDirectoryStream(themesDir, "*.json")) {
-            for (Path file : files) {
+        try {
+            for (Path file : jsonFilesIn(themesDir)) {
                 loadTheme(file, manifest.id(), themesById, owningModById);
             }
         } catch (IOException e) {
@@ -644,8 +668,8 @@ public final class ModLoader {
             return;
         }
 
-        try (DirectoryStream<Path> files = Files.newDirectoryStream(npcsDir, "*.json")) {
-            for (Path file : files) {
+        try {
+            for (Path file : jsonFilesIn(npcsDir)) {
                 loadNpc(file, manifest.id(), npcs);
             }
         } catch (IOException e) {
