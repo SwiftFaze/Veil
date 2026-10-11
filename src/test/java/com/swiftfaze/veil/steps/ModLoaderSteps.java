@@ -4,6 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.swiftfaze.veil.entities.buildings.Building;
 import com.swiftfaze.veil.entities.items.Item;
+import com.swiftfaze.veil.entities.npc.NpcDefinition;
+import com.swiftfaze.veil.entities.npc.Patrol;
+import com.swiftfaze.veil.entities.npc.TileCoord;
 import com.swiftfaze.veil.entities.player.Stats;
 import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.exceptions.ModLoadException;
@@ -58,6 +61,9 @@ public class ModLoaderSteps {
 
     private String lastBuildingId;
     private InteractableObject lastPlacedObject;
+    private static final String NPC_KIND = "npc";
+    private final Map<String, List<JsonObject>> npcsByMod = new LinkedHashMap<>();
+    private String lastCheckedNpcId;
 
     private record BuildingFixture(String id, String overrides, String explicitTileId) {
     }
@@ -587,6 +593,103 @@ public class ModLoaderSteps {
                 "expected message to reference a theme file or color key: " + message);
     }
 
+    @Given("a mods directory containing the {string} mod with an NPC declaring id {string}")
+    public void aModsDirectoryContainingTheModWithAnNpcDeclaringId(String modId, String npcId) {
+        addNpc(modId, NpcJson.npc(npcId).toJson());
+    }
+
+    @Given("the mods directory also contains mod {string} with an NPC declaring id {string} and no {string} field")
+    public void theModsDirectoryAlsoContainsModWithAnNpcDeclaringIdAndNoField(String modId, String npcId, String fieldName) {
+        addNpc(modId, NpcJson.npc(npcId).toJson());
+    }
+
+    @ParameterType("name \"([^\"]*)\", symbol \"([^\"]*)\", color (-?\\d+),(-?\\d+),(-?\\d+), spawn \\((-?\\d+), (-?\\d+)\\)")
+    public NpcLookFixture npcLook(String... groups) {
+        return new NpcLookFixture(groups[0], groups[1], Integer.parseInt(groups[2]), Integer.parseInt(groups[3]),
+                Integer.parseInt(groups[4]), Integer.parseInt(groups[5]), Integer.parseInt(groups[6]));
+    }
+
+    @ParameterType("\\((-?\\d+), (-?\\d+)\\) and \\((-?\\d+), (-?\\d+)\\)")
+    public List<TileCoord> waypointPair(String... groups) {
+        return List.of(new TileCoord(Integer.parseInt(groups[0]), Integer.parseInt(groups[1])),
+                new TileCoord(Integer.parseInt(groups[2]), Integer.parseInt(groups[3])));
+    }
+
+    @Given("a mods directory containing the {string} mod with an NPC declaring id {string}, {npcLook}, and a {string} patrol of waypoints {waypointPair}")
+    public void aModsDirectoryContainingAnNpcWithAPatrol(String modId, String npcId, NpcLookFixture look, String mode,
+                                                         List<TileCoord> waypoints) {
+        addNpc(modId, npcJson(npcId, look).patrol(mode, waypoints.toArray(TileCoord[]::new)).toJson());
+    }
+
+    @Given("a mods directory containing the {string} mod with an NPC declaring id {string}, {npcLook}, and no patrol")
+    public void aModsDirectoryContainingAStationaryNpc(String modId, String npcId, NpcLookFixture look) {
+        addNpc(modId, npcJson(npcId, look).toJson());
+    }
+
+    @Given("a mods directory containing the {string} mod with an NPC declaring id {string}, spawn \\({int}, {int}\\), and a patrol of waypoints {waypointPair} with no mode")
+    public void aModsDirectoryContainingAnNpcWithAPatrolWithNoMode(String modId, String npcId, int spawnX, int spawnY,
+                                                                    List<TileCoord> waypoints) {
+        addNpc(modId, NpcJson.npc(npcId).spawn(spawnX, spawnY).patrol(null, waypoints.toArray(TileCoord[]::new)).toJson());
+    }
+
+    @Given("^a mods directory containing the \"([^\"]+)\" mod with an NPC declaring id \"([^\"]+)\" whose (.+)$")
+    public void aModsDirectoryContainingAnNpcWhoseDefectIs(String modId, String npcId, String defect) {
+        addNpc(modId, brokenNpc(npcId, defect));
+    }
+
+    @Given("a mods directory containing mod {string} with a malformed NPC file")
+    public void aModsDirectoryContainingModWithAMalformedNpcFile(String modId) throws IOException {
+        Path modDir = modsRoot.resolve(modId);
+        Files.createDirectories(modDir.resolve("npcs"));
+        Files.writeString(modDir.resolve("mod.json"), "{\"id\":\"" + modId + "\",\"dependsOn\":[]}");
+        Files.writeString(modDir.resolve("npcs").resolve("broken.json"), "{ not valid json");
+    }
+
+    @Then("an NPC with ID {string} is available")
+    public void anNpcWithIdIsAvailable(String id) {
+        assertNotNull(registry, "loading did not complete: " + (thrown == null ? "unknown" : thrown.getMessage()));
+        assertNotNull(registry.getNpc(id), "expected NPC '" + id + "' to be loaded");
+        lastCheckedNpcId = id;
+        lastCheckedEntityKind = NPC_KIND;
+    }
+
+    @Then("its symbol is {string} and its color is {int},{int},{int}")
+    public void itsNpcSymbolAndColorAre(String symbol, int r, int g, int b) {
+        NpcDefinition npc = registry.getNpc(lastCheckedNpcId);
+        assertEquals(symbol.charAt(0), npc.symbol());
+        assertEquals(new Color(r, g, b), npc.color());
+    }
+
+    @Then("its spawn is \\({int}, {int}\\)")
+    public void itsNpcSpawnIs(int x, int y) {
+        assertEquals(new TileCoord(x, y), registry.getNpc(lastCheckedNpcId).spawn());
+    }
+
+    @Then("its patrol mode is {string} with waypoints \\({int}, {int}\\) and \\({int}, {int}\\)")
+    public void itsNpcPatrolIs(String mode, int firstX, int firstY, int secondX, int secondY) {
+        Patrol patrol = registry.getNpc(lastCheckedNpcId).patrol();
+        assertNotNull(patrol, "expected NPC '" + lastCheckedNpcId + "' to have a patrol");
+        assertEquals(mode, patrol.mode().jsonName());
+        assertEquals(List.of(new TileCoord(firstX, firstY), new TileCoord(secondX, secondY)), patrol.waypoints());
+    }
+
+    @Then("it has no patrol")
+    public void itHasNoPatrol() {
+        assertNull(registry.getNpc(lastCheckedNpcId).patrol(), "expected NPC '" + lastCheckedNpcId + "' to be stationary");
+    }
+
+    @Then("the patrol mode of NPC {string} is {string}")
+    public void thePatrolModeOfNpcIs(String npcId, String mode) {
+        assertEquals(mode, registry.getNpc(npcId).patrol().mode().jsonName());
+    }
+
+    @Then("loading fails with a ModLoadException naming NPC {string}, the reason, and the file it came from")
+    public void loadingFailsWithAModLoadExceptionNamingNpcReasonAndFile(String npcId) {
+        assertNotNull(thrown, "expected a ModLoadException to be thrown");
+        assertTrue(thrown.getMessage().contains(npcId), "expected message to name NPC: " + thrown.getMessage());
+        assertTrue(thrown.getMessage().contains(".json"), "expected message to name the file: " + thrown.getMessage());
+    }
+
     private void assertWidgetThemeMatches(String themeId) {
         WidgetColorTheme theme = registry.getTheme(themeId);
         assertNotNull(theme, "expected theme '" + themeId + "' to be loaded");
@@ -788,6 +891,8 @@ public class ModLoaderSteps {
             assertEquals(expectedName, registry.getItem(lastCheckedItemId).getName());
         } else if ("quest".equals(lastCheckedEntityKind)) {
             assertEquals(expectedName, registry.getQuest(lastCheckedQuestId).getName());
+        } else if (NPC_KIND.equals(lastCheckedEntityKind)) {
+            assertEquals(expectedName, registry.getNpc(lastCheckedNpcId).name());
         } else {
             assertEquals(expectedName, registry.getPlayerClass(lastCheckedClassId).getName());
         }
@@ -1056,6 +1161,7 @@ public class ModLoaderSteps {
         allMods.addAll(itemsByMod.keySet());
         allMods.addAll(questsByMod.keySet());
         allMods.addAll(themesByMod.keySet());
+        allMods.addAll(npcsByMod.keySet());
         allMods.addAll(dependsOnByMod.keySet());
 
         if (needsMarkerTiles) {
@@ -1076,7 +1182,47 @@ public class ModLoaderSteps {
             writeItems(modDir, itemsByMod.getOrDefault(modId, List.of()));
             writeQuests(modDir, questsByMod.getOrDefault(modId, List.of()));
             writeThemes(modDir, themesByMod.getOrDefault(modId, List.of()));
+            writeNpcs(modDir, npcsByMod.getOrDefault(modId, List.of()));
         }
+    }
+
+    private void addNpc(String modId, JsonObject npc) {
+        dependsOnByMod.computeIfAbsent(modId, k -> new ArrayList<>());
+        npcsByMod.computeIfAbsent(modId, k -> new ArrayList<>()).add(npc);
+    }
+
+    private static void writeNpcs(Path modDir, List<JsonObject> npcs) throws IOException {
+        if (npcs.isEmpty()) {
+            return;
+        }
+        Path npcsDir = modDir.resolve("npcs");
+        Files.createDirectories(npcsDir);
+        for (int i = 0; i < npcs.size(); i++) {
+            Files.writeString(npcsDir.resolve("npc_" + i + ".json"), npcs.get(i).toString());
+        }
+    }
+
+    private static NpcJson npcJson(String npcId, NpcLookFixture look) {
+        return NpcJson.npc(npcId).named(look.name()).symbol(look.symbol())
+                .color(look.r(), look.g(), look.b()).spawn(look.spawnX(), look.spawnY());
+    }
+
+    /** The NPC for an outline row: each defect is one way the NPC file breaks the NPC contract. */
+    private static JsonObject brokenNpc(String npcId, String defect) {
+        return switch (defect) {
+            case "spawn is missing" -> NpcJson.npc(npcId).withoutSpawn().toJson();
+            case "patrol mode is \"zigzag\"" ->
+                    NpcJson.npc(npcId).patrol("zigzag", new TileCoord(1, 1), new TileCoord(1, 3)).toJson();
+            case "patrol has only one waypoint" ->
+                    NpcJson.npc(npcId).patrol("ping_pong", new TileCoord(1, 1)).toJson();
+            case "patrol has a diagonal leg from (1, 1) to (2, 2)" ->
+                    NpcJson.npc(npcId).patrol("ping_pong", new TileCoord(1, 1), new TileCoord(2, 2)).toJson();
+            case "patrol first waypoint (1, 1) differs from spawn (5, 5)" ->
+                    NpcJson.npc(npcId).spawn(5, 5).patrol("ping_pong", new TileCoord(1, 1), new TileCoord(1, 3)).toJson();
+            case "loop patrol of (1, 1), (4, 1), (4, 3) closes diagonally back to (1, 1)" ->
+                    NpcJson.npc(npcId).patrol("loop", new TileCoord(1, 1), new TileCoord(4, 1), new TileCoord(4, 3)).toJson();
+            default -> throw new IllegalArgumentException("unknown NPC defect: " + defect);
+        };
     }
 
     private void writeMarkerTiles() throws IOException {
@@ -1528,5 +1674,8 @@ public class ModLoaderSteps {
         Files.createDirectories(buildingsDir);
         Files.writeString(buildingsDir.resolve("hut.json"), "{\"id\":\"test:hut\",\"tiles\":[" + rows + "],"
                 + "\"objects\":[{\"id\":\"" + objectId + "\",\"x\":" + x + ",\"y\":" + y + "}]}");
+    }
+
+    record NpcLookFixture(String name, String symbol, int r, int g, int b, int spawnX, int spawnY) {
     }
 }

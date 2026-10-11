@@ -41,7 +41,9 @@ registered mid-tick first runs next turn. `WorldPause` is the single source of t
 "the world is paused": a set of held screen ids (`INVENTORY`, `CODEX`, `PAUSE_MENU`).
 Each popup holds its id when it opens and releases it from `PopupWidget.addDismissListener`
 on any dismiss (wired in `PopupToggleListener` / `PauseToggleListener`), so closing one
-screen cannot unpause the world while another is open. `GamePanel.resetState()` resets both.
+screen cannot unpause the world while another is open. `GamePanel.resetState()` resets both. `GamePanel.spawnNpc` registers each `NonPlayerCharacter`'s `onTurn` as a `Tickable` (see "NPCs" in
+`architecture-mod-content.md`), so NPCs move once per successful player move; `resetState()`
+also clears the NPC list, and `Main` respawns them.
 
 **Player movement** (`entities/player/Player.java`): each directional move
 checks whether the target tile is walkable and, if so, moves onto it —

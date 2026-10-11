@@ -154,6 +154,7 @@ public final class Main {
 
     private static GamePanel buildGameCard(JPanel cardPanel, Map<String, JComponent> cards, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
         GamePanel gamePanel = new GamePanel(eventLog);
+        gamePanel.spawnNpcs(ModLoader.load(Paths.get("mods")));
         InventoryPanel inventoryPanel = new InventoryPanel(hintBar);
         CodexPanel codexPanel = new CodexPanel(hintBar);
         PauseMenuPopup pauseMenuPopup = new PauseMenuPopup();
@@ -265,6 +266,7 @@ public final class Main {
                 deck.navigateTo("settings");
             } else if (PauseMenuPopup.EXIT_TO_MAIN_MENU.equals(item)) {
                 gamePanel.resetState();
+                gamePanel.spawnNpcs(ModLoader.load(Paths.get("mods")));
                 deck.navigateTo("title");
             }
         });

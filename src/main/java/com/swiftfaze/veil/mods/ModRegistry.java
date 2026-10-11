@@ -2,6 +2,7 @@ package com.swiftfaze.veil.mods;
 
 import com.swiftfaze.veil.entities.buildings.Building;
 import com.swiftfaze.veil.entities.items.Item;
+import com.swiftfaze.veil.entities.npc.NpcDefinition;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.world.Tile;
@@ -20,6 +21,7 @@ public class ModRegistry {
     private final Map<String, Quest> questsById = new LinkedHashMap<>();
     private final Map<String, WidgetColorTheme> themesById = new LinkedHashMap<>();
     private final Map<String, InteractableObject> objectsById = new LinkedHashMap<>();
+    private final Map<String, NpcDefinition> npcsById = new LinkedHashMap<>();
     private final List<String> modLoadOrder;
 
     public record RegistryMaps(
@@ -29,7 +31,8 @@ public class ModRegistry {
             Map<String, Item> itemsById,
             Map<String, Quest> questsById,
             Map<String, WidgetColorTheme> themesById,
-            Map<String, InteractableObject> objectsById
+            Map<String, InteractableObject> objectsById,
+            Map<String, NpcDefinition> npcsById
     ) {
         public RegistryMaps {
             buildingsById = copyOfOrdered(buildingsById);
@@ -39,6 +42,7 @@ public class ModRegistry {
             questsById = copyOfOrdered(questsById);
             themesById = copyOfOrdered(themesById);
             objectsById = copyOfOrdered(objectsById);
+            npcsById = copyOfOrdered(npcsById);
         }
     }
 
@@ -55,7 +59,16 @@ public class ModRegistry {
         this.questsById.putAll(maps.questsById());
         this.themesById.putAll(maps.themesById());
         this.objectsById.putAll(maps.objectsById());
+        this.npcsById.putAll(maps.npcsById());
         this.modLoadOrder = List.copyOf(modLoadOrder);
+    }
+
+    public NpcDefinition getNpc(String id) {
+        return npcsById.get(id);
+    }
+
+    public List<NpcDefinition> getAllNpcs() {
+        return List.copyOf(npcsById.values());
     }
 
     public Building getBuilding(String id) {
