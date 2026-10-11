@@ -25,6 +25,7 @@ public class DevConsoleCompletion {
     private static final String SNAPSHOT_VERB = "snapshot";
     private static final String RESTORE_VERB = "restore";
     private static final String RELOAD_VERB = "reload";
+    private static final String REGEN_VERB = "regen";
     private static final String DEFAULT_VALUE = "default";
 
     private final DevConsoleModel model;
@@ -128,7 +129,7 @@ public class DevConsoleCompletion {
      */
     private static List<String> verbCandidates(String prefix) {
         List<String> verbs = List.of(SEARCH_VERB, EDIT_VERB, SET_VERB, ADD_VERB, SUBTRACT_VERB, RELOAD_VERB,
-                SNAPSHOT_VERB, RESTORE_VERB);
+                SNAPSHOT_VERB, RESTORE_VERB, REGEN_VERB);
         return verbs.stream()
                 .filter(v -> v.startsWith(prefix.toLowerCase(Locale.ROOT)))
                 .toList();

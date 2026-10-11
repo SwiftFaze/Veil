@@ -1,5 +1,6 @@
 package com.swiftfaze.veil.game;
 
+import com.swiftfaze.veil.testing.FlatFloorWorld;
 import com.swiftfaze.veil.entities.player.Player;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +36,7 @@ class GamePanelRealKeyEventTest {
 
     @Test
     void aRealKeyPressRoutesThroughFocusToMovePlayer() throws InterruptedException {
-        GamePanel panel = new GamePanel();
+        GamePanel panel = FlatFloorWorld.panel();
         JFrame frame = new JFrame("GamePanelRealKeyEventTest");
         frame.add(panel);
         frame.pack();

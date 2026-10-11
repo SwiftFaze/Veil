@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -33,6 +34,8 @@ public class DevConsoleCommandRunner {
     private static final String SNAPSHOT_VERB = "snapshot";
     private static final String RESTORE_VERB = "restore";
     private static final String RELOAD_VERB = "reload";
+    private static final String REGEN_VERB = "regen";
+    private static final String WHITESPACE_RUN = "\\s+";
     private static final int MUTATION_MIN_PARTS = 3;
     private static final int SNAPSHOT_MIN_PARTS = 2;
     private static final List<String> RESULT_HEADERS = List.of("#", "ID", "Name", "Category", "Mod");
@@ -40,13 +43,21 @@ public class DevConsoleCommandRunner {
     private final DevConsoleModel model;
     private final TranscriptWidget transcript;
     private final Consumer<DevConsoleModel.SearchResult> onEditResolved;
+    private final WorldRegenerator regenerator;
     private final Map<String, Consumer<String>> verbHandlers;
 
     public DevConsoleCommandRunner(DevConsoleModel model, TranscriptWidget transcript,
                                     Consumer<DevConsoleModel.SearchResult> onEditResolved) {
+        this(model, transcript, onEditResolved, WorldRegenerator.noGame(new Random()::nextLong));
+    }
+
+    public DevConsoleCommandRunner(DevConsoleModel model, TranscriptWidget transcript,
+                                    Consumer<DevConsoleModel.SearchResult> onEditResolved,
+                                    WorldRegenerator regenerator) {
         this.model = model;
         this.transcript = transcript;
         this.onEditResolved = onEditResolved;
+        this.regenerator = regenerator;
         this.verbHandlers = Map.of(
                 SEARCH_VERB, this::runSearch,
                 EDIT_VERB, this::runEdit,
@@ -55,7 +66,8 @@ public class DevConsoleCommandRunner {
                 SUBTRACT_VERB, argument -> runMutation(DevConsoleMutationVerb.SUBTRACT, argument),
                 SNAPSHOT_VERB, this::runSnapshot,
                 RESTORE_VERB, this::runRestore,
-                RELOAD_VERB, this::runReload);
+                RELOAD_VERB, this::runReload,
+                REGEN_VERB, this::runRegen);
     }
 
     public void run(String commandLine) {
@@ -110,8 +122,43 @@ public class DevConsoleCommandRunner {
         }
     }
 
+    private void runRegen(String argument) {
+        if (argument.isBlank()) {
+            regenerateAndReport(regenerator.freshSeed());
+            return;
+        }
+        String[] parts = argument.split(WHITESPACE_RUN, 2);
+        if (parts.length > 1) {
+            transcript.appendError("Usage: regen [seed]");
+            return;
+        }
+        Optional<Long> seed = parseSeed(parts[0]);
+        if (seed.isEmpty()) {
+            transcript.appendError("Not a valid seed: " + parts[0]);
+            return;
+        }
+        regenerateAndReport(seed.get());
+    }
+
+    private static Optional<Long> parseSeed(String token) {
+        try {
+            return Optional.of(Long.parseLong(token));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+    }
+
+    private void regenerateAndReport(long seed) {
+        Optional<String> problem = regenerator.regenerate(seed);
+        if (problem.isPresent()) {
+            transcript.appendError(problem.get());
+        } else {
+            transcript.appendSuccess("World regenerated from seed " + seed);
+        }
+    }
+
     private void runMutation(DevConsoleMutationVerb verb, String argument) {
-        String[] parts = argument.split("\\s+", MUTATION_MIN_PARTS);
+        String[] parts = argument.split(WHITESPACE_RUN, MUTATION_MIN_PARTS);
         if (parts.length < MUTATION_MIN_PARTS) {
             transcript.appendError("Usage: " + verb.name().toLowerCase(Locale.ROOT) + " <entry> <field> <value>");
             return;
@@ -155,7 +202,7 @@ public class DevConsoleCommandRunner {
     }
 
     private void withSnapshotter(String verb, String argument, BiConsumer<DevConsoleSnapshotter, String> action) {
-        String[] parts = argument.split("\\s+", SNAPSHOT_MIN_PARTS);
+        String[] parts = argument.split(WHITESPACE_RUN, SNAPSHOT_MIN_PARTS);
         if (parts.length < SNAPSHOT_MIN_PARTS) {
             transcript.appendError("Usage: " + verb + " <entry> <name>");
             return;

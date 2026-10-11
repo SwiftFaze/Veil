@@ -35,10 +35,13 @@ class ModLoaderIt {
         assertEquals(7, blueprint.get(0).size(), "fixture is 7 columns wide");
         assertEquals(registry.getTile("core:stone"), blueprint.get(0).get(0), "top-left corner is a stone wall");
         assertEquals(registry.getTile("core:wood"), blueprint.get(6).get(3), "the south-wall cell under the door is floor, not a door tile");
-        assertEquals(1, building.getObjects().size(), "the house places one object");
+        assertEquals(2, building.getObjects().size(), "the house places a door and a starter chest");
         assertEquals(registry.getObject("core:wooden_door").getId(), building.getObjects().get(0).object().getId());
         assertEquals(3, building.getObjects().get(0).x());
         assertEquals(6, building.getObjects().get(0).y());
+        assertEquals(registry.getObject("core:starter_chest").getId(), building.getObjects().get(1).object().getId());
+        assertEquals(2, building.getObjects().get(1).x());
+        assertEquals(5, building.getObjects().get(1).y());
     }
 
     @Test

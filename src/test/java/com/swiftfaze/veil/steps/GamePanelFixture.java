@@ -15,8 +15,8 @@ import com.swiftfaze.veil.ui.PauseMenuPopup;
 import com.swiftfaze.veil.ui.PauseToggleListener;
 import com.swiftfaze.veil.ui.PopupToggleListener;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
+import com.swiftfaze.veil.testing.FlatFloorWorld;
 import com.swiftfaze.veil.world.Tile;
-import com.swiftfaze.veil.world.TileTestScene2;
 import com.swiftfaze.veil.world.WorldScene;
 import com.swiftfaze.veil.world.object.InteractableObject;
 
@@ -66,8 +66,7 @@ final class GamePanelFixture {
 
     /** A game panel wired to {@code log} alone. */
     GamePanelFixture(GameEventLog log) {
-        this(log, new Player(GameConst.DEFAULT_PLAYER_START_X, GameConst.DEFAULT_PLAYER_START_Y),
-                new TileTestScene2(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT));
+        this(log, new Player(GameConst.DEFAULT_PLAYER_START_X, GameConst.DEFAULT_PLAYER_START_Y), FlatFloorWorld.create());
     }
 
     private GamePanelFixture(GameEventLog log, Player player, WorldScene scene) {

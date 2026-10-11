@@ -16,6 +16,7 @@
   ],
 
   "objects": [
-    {"id": "core:wooden_door", "x": 3, "y": 6}
+    {"id": "core:wooden_door", "x": 3, "y": 6},
+    {"id": "core:starter_chest", "x": 2, "y": 5}
   ]
 }

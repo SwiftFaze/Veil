@@ -32,6 +32,29 @@ class DevConsoleCommandRunnerTest {
     }
 
     @Test
+    void regenReportsTheRegeneratorsProblemAsAnError() {
+        TranscriptWidget transcript = new TranscriptWidget();
+        WorldRegenerator failing = new WorldRegenerator() {
+            @Override
+            public long freshSeed() {
+                return 1L;
+            }
+
+            @Override
+            public Optional<String> regenerate(long seed) {
+                return Optional.of("world refused seed " + seed);
+            }
+        };
+        DevConsoleCommandRunner runner = new DevConsoleCommandRunner(new DevConsoleModel(List.of()), transcript, (r) -> {}, failing);
+
+        runner.run("regen 7");
+
+        TranscriptWidget.TranscriptEntry lastEntry = lastEntryOf(transcript);
+        assertEquals(TranscriptWidget.Level.ERROR, lastEntry.level());
+        assertEquals("world refused seed 7", lastEntry.text());
+    }
+
+    @Test
     void restoreSuccessWritesSUCCESSLine() {
         TranscriptWidget transcript = new TranscriptWidget();
         RecordingSnapshotter snapshotter = new RecordingSnapshotter();

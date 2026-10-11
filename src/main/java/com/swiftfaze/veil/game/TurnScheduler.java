@@ -32,8 +32,13 @@ public final class TurnScheduler {
         return tickables.size();
     }
 
-    public void reset() {
+    /** Drops every registration but keeps the turn counter. */
+    public void clearRegistrations() {
         tickables.clear();
+    }
+
+    public void reset() {
+        clearRegistrations();
         turn = 0;
     }
 }

@@ -25,7 +25,11 @@ provider opts in by returning a `DevConsoleFieldMutator` from
 `ItemFieldMutator`/`ItemField`, editing `mindmg`/`maxdmg` by swapping in an immutable
 `Item.withBaseDamage` copy; min above max is rejected) do. Player edits reuse the same
 field floors/clamping rules as `PlayerDetailPanel`'s arm+Left/Right editing.
-Every mutation writes a SUCCESS or ERROR line to the transcript. `reload`
+Every mutation writes a SUCCESS or ERROR line to the transcript.
+`regen [seed]` replaces the running game's world (`GamePanel.regenerateWorld`) via the
+`WorldRegenerator` seam `Main` hands the panel: a bare `regen` draws a fresh random seed, a numeric
+argument uses it, a non-number is an ERROR line, and a console with no game attached reports
+`WorldRegenerator.NO_GAME_MESSAGE`. Success logs the seed and writes a SUCCESS line naming it. `reload`
 re-reads `mods/` without restarting: `DevConsoleModel.reload()` calls each
 provider's `DevConsoleProvider.reload()` (default no-op; mod-backed providers
 override it), then rebuilds the entry list from every provider's `entries()`.

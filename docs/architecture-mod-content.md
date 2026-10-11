@@ -6,9 +6,9 @@ The JSON contract itself is in [`mod-format.md`](mod-format.md). Overview:
 [`architecture.md`](architecture.md).
 
 **World representation** (`world/WorldScene.java`): an abstract base holding
-a `Tile[width][height]` grid. The concrete scene (`TileTestScene2`)
-subclasses it and populates tiles in its constructor; `GamePanel` hardcodes
-`TileTestScene2` as the active scene. `Tile` (`world/Tile.java`) is a plain
+a `Tile[width][height]` grid. The game's scene is `GeneratedWorldScene`
+(`game/worldgen/`), built from a seed (see "Seeded world generation" below);
+`GamePanel` builds one per new game. `Tile` (`world/Tile.java`) is a plain
 glyph/color/walkability data class — no longer an enum — with instances
 loaded from JSON (`mods/core/tiles/*.json`) via `ModLoader` into a
 `ModRegistry`, keyed by namespaced ID (`core:grass`, etc.). `CoreTiles`
@@ -18,6 +18,18 @@ some compile-time safety without `Tile` itself being an enum. Walkability
 and rendering are entirely data-driven off these tile definitions, there's
 no separate collision or sprite system. This is phase 2 of the
 data-driven-mod-content initiative.
+
+**Seeded world generation** (`game/worldgen/`, `world/PerlinNoise`, `TerrainBuckets`,
+`WorldSeeds`): `new GeneratedWorldScene(width, height, seed)` derives the whole map
+from one `long`. Terrain is `PerlinNoise` (the seed only shuffles its permutation
+table) bucketed by `TerrainBuckets` into core tiles, water through ice.
+`BuildingScatter` then places up to 5 registered blueprints on walkable ground without
+overlap, keeping the tile outside each door (`DoorApproaches`) walkable and free.
+`SpawnFinder` picks the walkable, building-free tile nearest the centre. The same seed
+gives the same map. A test can pass `GeneratedWorldScene.Sources` to supply its own
+registry and noise field. `WorldSeeds.fromSystemProperty` picks each new game's seed:
+`-Dveil.worldSeed=<n>` if set, else random (a malformed value logs a warning and falls
+back to random). `GamePanel` logs `World generated from seed <n>` at INFO.
 
 **Buildings** are authored as JSON blueprints under `mods/core/buildings/`
 (a flat 2D array of namespaced tile IDs — `{"id", "name", "type", "width",

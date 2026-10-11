@@ -1,6 +1,9 @@
 package com.swiftfaze.veil.steps;
 
 import com.swiftfaze.veil.entities.player.Player;
+import com.swiftfaze.veil.game.GamePanel;
+import com.swiftfaze.veil.game.event.GameEventLog;
+import com.swiftfaze.veil.game.worldgen.GeneratedWorldScene;
 import com.swiftfaze.veil.entities.player.PlayerInfo;
 import com.swiftfaze.veil.entities.player.QuestLog;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
@@ -22,7 +25,9 @@ import com.swiftfaze.veil.sandbox.PlayerSandboxProvider;
 import com.swiftfaze.veil.world.KitchenSinkScene;
 import com.swiftfaze.veil.sandbox.QuestSandboxProvider;
 import com.swiftfaze.veil.sandbox.TileSandboxProvider;
+import com.swiftfaze.veil.sandbox.WorldRegenerator;
 import com.swiftfaze.veil.sandbox.ReloadableFakeProvider;
+import com.swiftfaze.veil.testing.FlatFloorWorld;
 import com.swiftfaze.veil.ui.widget.TableWidget;
 import com.swiftfaze.veil.ui.widget.TranscriptWidget;
 import io.cucumber.datatable.DataTable;
@@ -41,6 +46,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -80,6 +86,9 @@ public class DevConsoleSteps {
     private ReloadableFakeProvider fakeProvider;
     private ReloadableFakeProvider secondProvider;
     private int transcriptSizeWhenItemRowArmed;
+    private GamePanel gameForRegen;
+    private Player runningPlayer;
+    private long nextFreshWorldSeed = 1L;
 
     @Given("the dev console is running with the {string} provider registered")
     public void theDevConsoleIsRunningWithTheProviderRegistered(String providerName) {
@@ -665,6 +674,64 @@ public class DevConsoleSteps {
         assertEquals(lastEditedFieldValue, getStatValue(stats, fieldName));
     }
 
+    @Given("the dev console is attached to a running game")
+    public void theDevConsoleIsAttachedToARunningGame() {
+        runningPlayer = new Player(0, 0);
+        gameForRegen = new GamePanel(GameEventLog.noOp(), runningPlayer, FlatFloorWorld.create());
+        startConsole(new DevConsoleModel(List.of()), gameRegenerator());
+    }
+
+    /** Regenerates the attached game panel; the fresh seed comes from the scenario, not the wall clock. */
+    private WorldRegenerator gameRegenerator() {
+        return new WorldRegenerator() {
+            @Override
+            public long freshSeed() {
+                return nextFreshWorldSeed;
+            }
+
+            @Override
+            public Optional<String> regenerate(long seed) {
+                gameForRegen.regenerateWorld(seed);
+                return Optional.empty();
+            }
+        };
+    }
+
+    @Given("the next fresh world seed is {int}")
+    public void theNextFreshWorldSeedIs(int seed) {
+        nextFreshWorldSeed = seed;
+    }
+
+    @Given("the running game's world was generated from seed {int}")
+    public void theRunningGameSWorldWasGeneratedFromSeed(int seed) {
+        gameForRegen.regenerateWorld(seed);
+    }
+
+    @Given("the running player has {int} Strength and is at a position other than the new world's spawn")
+    public void theRunningPlayerHasStrengthAndIsAwayFromSpawn(int strength) {
+        Optional.of(runningPlayer).map(Player::getStats).ifPresent(stats -> stats.setStrength(strength));
+        runningPlayer.setPosition(0, 0);
+    }
+
+    @Then("the running game's world matches a world generated from seed {int}")
+    public void theRunningGameSWorldMatchesAWorldGeneratedFromSeed(int seed) {
+        WorldComparison.assertSameWorld(SeededWorldGenerationSteps.worldFromSeed(seed),
+                gameForRegen::getScene);
+    }
+
+    @Then("the running player is the same player with {int} Strength")
+    public void theRunningPlayerIsTheSamePlayerWithStrength(int strength) {
+        assertSame(runningPlayer, gameForRegen.getPlayer());
+        assertEquals(Optional.of(strength), Optional.of(runningPlayer).map(Player::getStats).map(Stats::getStrength));
+    }
+
+    @Then("the running player is at the spawn point of a world generated from seed {int}")
+    public void theRunningPlayerIsAtTheSpawnPointOfAWorldGeneratedFromSeed(int seed) {
+        GeneratedWorldScene expected = SeededWorldGenerationSteps.worldFromSeed(seed);
+        assertEquals(expected.getSpawnX(), runningPlayer.getX());
+        assertEquals(expected.getSpawnY(), runningPlayer.getY());
+    }
+
     @When("the command bar is set to {string}")
     public void theCommandBarIsSetTo(String command) {
         Optional<PlayerInfo> playerInfo = Optional.ofNullable(livePlayer).map(Player::getPlayerInfo);
@@ -1046,8 +1113,12 @@ public class DevConsoleSteps {
      * so a later step in the same scenario can't be shadowed by a model an earlier step shared.
      */
     private void startConsole(DevConsoleModel newModel) {
+        startConsole(newModel, WorldRegenerator.noGame(new Random()::nextLong));
+    }
+
+    private void startConsole(DevConsoleModel newModel, WorldRegenerator regenerator) {
         model = newModel;
-        panel = new DevConsolePanel(newModel);
+        panel = new DevConsolePanel(newModel, regenerator);
         SharedScenarioContext.setDevConsoleModel(model);
         SharedScenarioContext.setDevConsolePanel(panel);
         SharedScenarioContext.setDevConsoleSteps(this);

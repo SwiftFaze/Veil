@@ -1,11 +1,20 @@
 package com.swiftfaze.veil.game;
 
 import com.swiftfaze.veil.GameConst;
+import com.swiftfaze.veil.entities.buildings.Building;
+import com.swiftfaze.veil.entities.npc.NonPlayerCharacter;
+import com.swiftfaze.veil.entities.npc.NpcDefinition;
+import com.swiftfaze.veil.entities.npc.Patrol;
+import com.swiftfaze.veil.entities.npc.PatrolMode;
+import com.swiftfaze.veil.entities.npc.TileCoord;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.event.GameEventLog;
+import com.swiftfaze.veil.game.worldgen.GeneratedWorldScene;
 import com.swiftfaze.veil.input.Keybindings;
+import com.swiftfaze.veil.mods.RegistryFixtures;
+import com.swiftfaze.veil.testing.FlatFloorWorld;
 import com.swiftfaze.veil.world.Tile;
-import com.swiftfaze.veil.world.TileTestScene2;
+import com.swiftfaze.veil.world.WorldScene;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.Action;
@@ -14,6 +23,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
@@ -27,6 +37,10 @@ class GamePanelTest {
     private static final int PAINT_HEIGHT = 225;
     private static final int START_X = 5;
     private static final int START_Y = 5;
+    /** A seed whose generated world leaves the tile above the spawn point walkable (asserted by the test that uses it). */
+    private static final long OPEN_ABOVE_SPAWN_SEED = 1L;
+    private static final long FIRST_HOUSES_SEED = 42L;
+    private static final long SECOND_HOUSES_SEED = 43L;
     private static final int TILE_RIGHT_X = START_X + 1;
     private static final int ELSEWHERE = 8;
     private static final Tile FLOOR = new Tile("test:floor", '.', Color.GRAY, true);
@@ -36,7 +50,7 @@ class GamePanelTest {
     void constructorInitializes() {
         GamePanel panel = new GamePanel();
 
-        assertPlayerAtDefaultStart(panel::getPlayer);
+        assertPlayerOnSpawn(panel);
     }
 
     /**
@@ -95,7 +109,7 @@ class GamePanelTest {
 
     @Test
     void heldWorldPausePreventsMovement() {
-        GamePanel panel = new GamePanel();
+        GamePanel panel = FlatFloorWorld.panel();
         Player player = playerOf(panel);
         int originalX = player.getX();
         int originalY = player.getY();
@@ -192,7 +206,7 @@ class GamePanelTest {
 
         panel.resetState();
 
-        assertPlayerAtDefaultStart(panel::getPlayer);
+        assertPlayerOnSpawn(panel);
         assertFalse(panel.isPaused());
     }
 
@@ -211,13 +225,38 @@ class GamePanelTest {
 
     @Test
     void movementStillWorksAfterResetState() {
-        GamePanel panel = new GamePanel();
+        GeneratedWorldScene expectedWorld = worldFromSeed(OPEN_ABOVE_SPAWN_SEED);
+        assertTrue(expectedWorld.isWalkable(expectedWorld.getSpawnX(), expectedWorld.getSpawnY() - 1),
+                "fixture seed must leave the tile above the spawn open, or this test asserts nothing");
+        GamePanel panel = new GamePanel(GameEventLog.noOp(), () -> OPEN_ABOVE_SPAWN_SEED);
         panel.resetState();
-        int startY = panel.getPlayer().getY();
+        Player player = playerOf(panel);
+        int startY = player.getY();
 
         fireAction(panel, Keybindings.ACTION_MOVE_UP);
 
-        assertEquals(startY - 1, panel.getPlayer().getY());
+        assertEquals(startY - 1, player.getY());
+    }
+
+    @Test
+    void regeneratingTheWorldNotifiesListenersOfTheMovedPlayer() {
+        GamePanel panel = FlatFloorWorld.panel();
+        Player[] notified = {null};
+        panel.addGameListener(new GameListener() {
+            @Override
+            public void updatePlayer(Player player) {
+                notified[0] = player;
+            }
+
+            @Override
+            public void toggleDevConsole() {
+                // Not needed for this test
+            }
+        });
+
+        panel.regenerateWorld(OPEN_ABOVE_SPAWN_SEED);
+
+        assertEquals(playerOf(panel), notified[0]);
     }
 
     @Test
@@ -242,10 +281,92 @@ class GamePanelTest {
         assertTrue(listenerCalled[0]);
     }
 
+    @Test
+    void regeneratingTheWorldRespawnsNpcsAtTheirSpawnPoints() {
+        GamePanel panel = panelWithPatrollingGuardAfterTwoTurns();
+
+        panel.regenerateWorld(OPEN_ABOVE_SPAWN_SEED);
+
+        NonPlayerCharacter guard = panel.getNpcs().get(0);
+        assertEquals(1, panel.getNpcs().size());
+        assertEquals(3, guard.getX());
+        assertEquals(4, guard.getY());
+    }
+
+    @Test
+    void regeneratingTheWorldLeavesOneSchedulerRegistrationPerNpc() {
+        GamePanel panel = panelWithPatrollingGuardAfterTwoTurns();
+
+        panel.regenerateWorld(OPEN_ABOVE_SPAWN_SEED);
+
+        assertEquals(1, schedulerOf(panel).registeredCount());
+        assertEquals(1, panel.getEntitiesToDraw().stream().filter(NonPlayerCharacter.class::isInstance).count());
+    }
+
+    @Test
+    void regeneratingTheWorldDropsTheOldObjectsAndPlacesOnlyTheNewWorldsObjects() {
+        GamePanel panel = FlatFloorWorld.panel();
+        panel.regenerateWorld(FIRST_HOUSES_SEED);
+        int objectsBefore = objectCount(panel.getScene());
+
+        panel.regenerateWorld(SECOND_HOUSES_SEED);
+
+        assertTrue(objectsBefore > 0, "the first world should have objects to drop");
+        assertEquals(expectedObjectCount(SECOND_HOUSES_SEED), objectCount(panel.getScene()));
+    }
+
+    private static int objectCount(WorldScene scene) {
+        int count = 0;
+        for (int x = 0; x < scene.getWidth(); x++) {
+            for (int y = 0; y < scene.getHeight(); y++) {
+                if (scene.getObject(x, y) != null) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    /** The objects a generated world from {@code seed} should hold: every building placement's object. */
+    private static int expectedObjectCount(long seed) {
+        GeneratedWorldScene world = new GeneratedWorldScene(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT, seed);
+        int expected = 0;
+        for (Building building : world.getBuildings()) {
+            expected += building.getObjects().size();
+        }
+        return expected;
+    }
+
+    /** A flat-floor panel with one patrolling guard that has walked from (3, 4) to (5, 4). */
+    private static GamePanel panelWithPatrollingGuardAfterTwoTurns() {
+        GamePanel panel = FlatFloorWorld.panel();
+        NpcDefinition guard = new NpcDefinition("core:guard", "Guard", 'G', Color.RED, new TileCoord(3, 4),
+                new Patrol(PatrolMode.PING_PONG, List.of(new TileCoord(3, 4), new TileCoord(6, 4))));
+        panel.spawnNpcs(RegistryFixtures.withNpcs(List.of(guard)));
+        schedulerOf(panel).advance();
+        schedulerOf(panel).advance();
+        assertEquals(5, panel.getNpcs().get(0).getX(), "fixture guard must have moved before the regen");
+        return panel;
+    }
+
+    private static GeneratedWorldScene worldFromSeed(long seed) {
+        return new GeneratedWorldScene(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT, seed);
+    }
+
+    private static void assertPlayerOnSpawn(GamePanel panel) {
+        assertPlayerOnSpawn(panel::getPlayer, panel::getScene);
+    }
+
+    private static void assertPlayerOnSpawn(Supplier<Player> playerSource, Supplier<WorldScene> sceneSource) {
+        Player player = playerSource.get();
+        GeneratedWorldScene world = (GeneratedWorldScene) sceneSource.get();
+        assertEquals(world.getSpawnX(), player.getX());
+        assertEquals(world.getSpawnY(), player.getY());
+    }
+
     /** A panel with the player at (START_X, START_Y) on floor, and {@code tileToTheRight} beside it. */
     private static GamePanel panelWithTileToTheRight(Tile tileToTheRight) {
-        TileTestScene2 scene = new TileTestScene2(GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT);
-        scene.fillRegion(new Rectangle(0, 0, GameConst.DEFAULT_MAP_WIDTH, GameConst.DEFAULT_MAP_HEIGHT), FLOOR);
+        WorldScene scene = FlatFloorWorld.create();
         scene.fillRegion(new Rectangle(TILE_RIGHT_X, START_Y, 1, 1), tileToTheRight);
         return new GamePanel(GameEventLog.noOp(), new Player(START_X, START_Y), scene);
     }
@@ -257,12 +378,6 @@ class GamePanelTest {
         public void onTurn(int turn) {
             steps++;
         }
-    }
-
-    private static void assertPlayerAtDefaultStart(Supplier<Player> playerSource) {
-        Player player = playerSource.get();
-        assertEquals(GameConst.DEFAULT_PLAYER_START_X, player.getX());
-        assertEquals(GameConst.DEFAULT_PLAYER_START_Y, player.getY());
     }
 
     private static Player playerOf(GamePanel panel) {
