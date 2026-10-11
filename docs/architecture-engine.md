@@ -48,6 +48,8 @@ generates a fresh world (new seed from `WorldSeeds`) and a new `Player` at its s
 The dialogue popup (`ui/DialoguePanel`, opened by `GameListener.openDialogue(Conversation)` when the
 player presses E beside an NPC that has a dialogue; see `architecture-mod-content.md`) holds `WorldPause.DIALOGUE`
 while it is open, so the NPCs stop patrolling mid-conversation.
+While `DIALOGUE` or `CHEST` is held, `PopupToggleListener` ignores the inventory and codex keys (`WorldPause.isHeldBy`): those popups only take keys while focused, and opening another screen over
+them would hand focus back to `GamePanel` on close and strand the player behind the still-open popup.
 `GamePanel.spawnNpc` registers each `NonPlayerCharacter`'s `onTurn` as a `Tickable` (see "NPCs" in
 `architecture-mod-content.md`), so NPCs move once per successful player move; `resetState()`
 also clears the NPC list, and `Main` respawns them.
