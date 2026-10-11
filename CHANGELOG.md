@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.47](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.46...v0.5.0-beta.47) (2026-10-11)
+
+
+### Features
+
+* seeded terrain and building-scatter world generation ([#278](https://github.com/SwiftFaze/Veil/issues/278)) ([ad31217](https://github.com/SwiftFaze/Veil/commit/ad3121794d87b2ae71b08b149f13f363d06affa9))
+
 ## [0.5.0-beta.46](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.45...v0.5.0-beta.46) (2026-10-11)
 
 
