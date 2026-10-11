@@ -38,11 +38,16 @@ minimum clamps to that floor rather than shrinking to zero or negative tiles.
 moves while paused, and direct `Player.setPosition` calls do not), which bumps the turn and
 calls each `Tickable.onTurn(turn)` in registration order over a snapshot, so a tickable
 registered mid-tick first runs next turn. `WorldPause` is the single source of truth for
-"the world is paused": a set of held screen ids (`INVENTORY`, `CODEX`, `PAUSE_MENU`).
+"the world is paused": a set of held screen ids (`INVENTORY`, `CODEX`, `PAUSE_MENU`, `CHEST`,
+`DIALOGUE`).
 Each popup holds its id when it opens and releases it from `PopupWidget.addDismissListener`
-on any dismiss (wired in `PopupToggleListener` / `PauseToggleListener`), so closing one
+on any dismiss (wired in `PopupToggleListener` / `PauseToggleListener` / `ChestPanelListener` /
+`DialoguePanelListener`), so closing one
 screen cannot unpause the world while another is open. `GamePanel.resetState()` resets both, and also
 generates a fresh world (new seed from `WorldSeeds`) and a new `Player` at its spawn point.
+The dialogue popup (`ui/DialoguePanel`, opened by `GameListener.openDialogue(Conversation)` when the
+player presses E beside an NPC that has a dialogue; see `architecture-mod-content.md`) holds `WorldPause.DIALOGUE`
+while it is open, so the NPCs stop patrolling mid-conversation.
 `GamePanel.spawnNpc` registers each `NonPlayerCharacter`'s `onTurn` as a `Tickable` (see "NPCs" in
 `architecture-mod-content.md`), so NPCs move once per successful player move; `resetState()`
 also clears the NPC list, and `Main` respawns them.
