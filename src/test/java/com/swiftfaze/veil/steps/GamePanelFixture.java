@@ -10,6 +10,8 @@ import com.swiftfaze.veil.ui.ChestPanel;
 import com.swiftfaze.veil.ui.ChestPanelListener;
 import com.swiftfaze.veil.ui.CodexPanel;
 import com.swiftfaze.veil.ui.InventoryPanel;
+import com.swiftfaze.veil.ui.PauseMenuPopup;
+import com.swiftfaze.veil.ui.PauseToggleListener;
 import com.swiftfaze.veil.ui.PopupToggleListener;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
 import com.swiftfaze.veil.world.Tile;
@@ -37,6 +39,9 @@ final class GamePanelFixture {
     private final Player player;
     private final WorldScene scene;
     private final ChestPanel chestPanel;
+    private InventoryPanel inventoryPanel;
+    private CodexPanel codexPanel;
+    private PauseMenuPopup pauseMenuPopup;
 
     /** An entity that is not the player, standing on a tile. */
     record Occupant(int x, int y) implements Positionable {
@@ -62,7 +67,7 @@ final class GamePanelFixture {
         this.scene = scene;
         this.panel = new GamePanel(log, player, scene);
         this.chestPanel = new ChestPanel(new ControlsHintBarWidget()::setHints);
-        panel.addGameListener(new ChestPanelListener(chestPanel::show));
+        panel.addGameListener(new ChestPanelListener(chestPanel, panel.getWorldPause()));
     }
 
     /** A game panel on an open floor with the player at (5, 5), wired to {@code log} and a chest panel. */
@@ -73,11 +78,22 @@ final class GamePanelFixture {
         return new GamePanelFixture(log, new Player(5, 5), floor);
     }
 
-    /** A game panel wired to {@code log}, with the inventory popup listener attached. */
+    /** A game panel wired to {@code log}, with the inventory and codex popup listener attached. */
     static GamePanelFixture withInventory(GameEventLog log) {
         GamePanelFixture fixture = new GamePanelFixture(log);
         ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
-        fixture.panel.addGameListener(new PopupToggleListener(new InventoryPanel(hintBar), new CodexPanel(hintBar), log));
+        fixture.inventoryPanel = new InventoryPanel(hintBar);
+        fixture.codexPanel = new CodexPanel(hintBar);
+        fixture.panel.addGameListener(new PopupToggleListener(
+                fixture.inventoryPanel, fixture.codexPanel, fixture.panel.getWorldPause(), log));
+        return fixture;
+    }
+
+    /** A game panel wired as Main wires it: all three screens toggle the shared world pause. */
+    static GamePanelFixture withAllScreens(GameEventLog log) {
+        GamePanelFixture fixture = withInventory(log);
+        fixture.pauseMenuPopup = new PauseMenuPopup();
+        fixture.panel.addGameListener(new PauseToggleListener(fixture.panel.getWorldPause(), fixture.pauseMenuPopup));
         return fixture;
     }
 
@@ -114,11 +130,8 @@ final class GamePanelFixture {
     }
 
     int playerX() {
-        return player.getX();
-    }
-
-    int playerY() {
-        return player.getY();
+        Player livePlayer = playerOf(panel);
+        return livePlayer.getX();
     }
 
     void pressMoveRight() {
@@ -142,6 +155,49 @@ final class GamePanelFixture {
             return;
         }
         fireBound(panel, panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW), key);
+    }
+
+    void pressCodexKey() {
+        fire(Keybindings.ACTION_TOGGLE_CODEX);
+    }
+
+    void pressPauseKey() {
+        fire(Keybindings.ACTION_TOGGLE_PAUSE);
+    }
+
+    /** Makes (x, y) an unwalkable wall, so a move into it is blocked. */
+    void blockAt(int x, int y) {
+        scene.fillRegion(new Rectangle(x, y, 1, 1), WALL);
+    }
+
+    /** Reads the live player, so it is still right after {@code GamePanel.resetState()} swaps it. */
+    int playerY() {
+        Player livePlayer = playerOf(panel);
+        return livePlayer.getY();
+    }
+
+    private static Player playerOf(GamePanel gamePanel) {
+        return gamePanel.getPlayer();
+    }
+
+    boolean worldPaused() {
+        return panel.isPaused();
+    }
+
+    GamePanel panel() {
+        return panel;
+    }
+
+    InventoryPanel inventoryPanel() {
+        return inventoryPanel;
+    }
+
+    CodexPanel codexPanel() {
+        return codexPanel;
+    }
+
+    PauseMenuPopup pauseMenuPopup() {
+        return pauseMenuPopup;
     }
 
     private void placePlayer(int x, int y, Tile tileToTheRight) {

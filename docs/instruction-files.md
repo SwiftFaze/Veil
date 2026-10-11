@@ -70,6 +70,7 @@ restatement — two copies drift, and the reader cannot tell which is current.
 | Pipeline sequencing, gates, thresholds | `.claude/workflow.md` |
 | Test layers, runners, test mechanics | `docs/testing.md` |
 | Delegating Steps 4-7 to subagents | `implement-issue` skill; each role in `.claude/agents/` |
+| Scheduling a milestone's issues in parallel | `run-milestone` skill |
 | Release, versioning, changelog | `docs/release.md` |
 | Swing layout, spacing, colour | `docs/ui-styling.md` |
 | Repo-wide hard prohibitions, entry points | `CLAUDE.md` |

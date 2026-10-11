@@ -196,20 +196,17 @@ public final class Main {
         codexPanel.setOnDismiss(() -> restoreGameFocus(gamePanel, hintBar));
 
         pauseMenuPopup.setFocusManager(focusManager);
-        pauseMenuPopup.setOnDismiss(() -> {
-            gamePanel.setPaused(false);
-            restoreGameFocus(gamePanel, hintBar);
-        });
+        pauseMenuPopup.setOnDismiss(() -> restoreGameFocus(gamePanel, hintBar));
 
-        gamePanel.addGameListener(new PopupToggleListener(inventoryPanel, codexPanel, eventLog));
-        gamePanel.addGameListener(new PauseToggleListener(gamePanel, pauseMenuPopup));
+        gamePanel.addGameListener(new PopupToggleListener(inventoryPanel, codexPanel, gamePanel.getWorldPause(), eventLog));
+        gamePanel.addGameListener(new PauseToggleListener(gamePanel.getWorldPause(), pauseMenuPopup));
         return focusManager;
     }
 
     private static void wireChestPanel(GamePanel gamePanel, ChestPanel chestPanel, FocusManager focusManager, ControlsHintBarWidget hintBar) {
         chestPanel.setFocusManager(focusManager);
         chestPanel.setOnDismiss(() -> restoreGameFocus(gamePanel, hintBar));
-        gamePanel.addGameListener(new ChestPanelListener(chestPanel::show));
+        gamePanel.addGameListener(new ChestPanelListener(chestPanel, gamePanel.getWorldPause()));
     }
 
     private static void restoreGameFocus(GamePanel gamePanel, ControlsHintBarWidget hintBar) {

@@ -37,7 +37,8 @@ public final class GamePanel extends JPanel {
     private final List<Positionable> entitiesToDraw = new ArrayList<>();
     private final List<GameListener> listeners = new ArrayList<>();
     private final GameEventLog eventLog;
-    private boolean paused = false;
+    private final WorldPause worldPause = new WorldPause();
+    private final TurnScheduler turnScheduler = new TurnScheduler();
     private static final String BLOCKED_MESSAGE = "Something is in the way.";
     // Interact range: the four orthogonal neighbours, in this order; the first object found wins.
     private static final List<Offset> INTERACT_OFFSETS = List.of(new Offset(0, -1), new Offset(1, 0), new Offset(0, 1), new Offset(-1, 0));
@@ -117,12 +118,16 @@ public final class GamePanel extends JPanel {
         return player;
     }
 
-    public void setPaused(boolean paused) {
-        this.paused = paused;
+    public WorldPause getWorldPause() {
+        return worldPause;
+    }
+
+    public TurnScheduler getTurnScheduler() {
+        return turnScheduler;
     }
 
     public boolean isPaused() {
-        return paused;
+        return worldPause.isPaused();
     }
 
     /**
@@ -138,7 +143,8 @@ public final class GamePanel extends JPanel {
         entitiesToDraw.clear();
         addEntity(scene);
         addEntity(player);
-        paused = false;
+        turnScheduler.reset();
+        worldPause.releaseAll();
     }
 
     @Override
@@ -167,7 +173,7 @@ public final class GamePanel extends JPanel {
     private final class InteractAction extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (paused) {
+            if (worldPause.isPaused()) {
                 return;
             }
             for (Offset offset : INTERACT_OFFSETS) {
@@ -210,7 +216,7 @@ public final class GamePanel extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (paused) {
+            if (worldPause.isPaused()) {
                 return;
             }
             int beforeX = player.getX();
@@ -220,6 +226,7 @@ public final class GamePanel extends JPanel {
             int afterY = player.getY();
             if (beforeX != afterX || beforeY != afterY) {
                 eventLog.recordEvent(GameEvent.playerMoved(afterX, afterY));
+                turnScheduler.advance();
             }
             notifyPlayerUpdated();
         }
