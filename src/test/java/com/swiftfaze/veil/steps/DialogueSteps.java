@@ -19,6 +19,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Assertions;
 
 import javax.swing.KeyStroke;
 import java.awt.Color;
@@ -30,11 +31,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Steps for dialogue-tree.feature, past the loader: an NPC's dialogue reached through the E key, the
@@ -53,30 +49,30 @@ public class DialogueSteps {
 
     /** Hello, a second node "who" by choice 1, and an ending "Goodbye." as choice 2. */
     private static final Dialogue GREETING = dialogue("hello", nodes(
-            node("hello", "Well met.", to("Who are you?", "who"), end("Goodbye.")),
+            node("hello", "Well met.", leadingTo("Who are you?", "who"), end("Goodbye.")),
             node("who", "Nobody special.", end("Farewell."))));
     private static final Dialogue THREE_CHOICES = dialogue("hello", nodes(
             node("hello", "Pick one.", end("One."), end("Two."), end("Three."))));
     private static final Dialogue TWO_CHOICES = dialogue("hello", nodes(
             node("hello", "Pick one.", end("One."), end("Two."))));
     private static final Dialogue WHO_ON_CHOICE_TWO = dialogue("hello", nodes(
-            node("hello", "Well met.", end("Goodbye."), to("Who are you?", "who")),
+            node("hello", "Well met.", end("Goodbye."), leadingTo("Who are you?", "who")),
             node("who", "Nobody special.", end("Farewell."))));
     private static final Dialogue EACH_CHOICE_DIFFERENT = dialogue("hello", nodes(
-            node("hello", "Pick a number.", to("One.", "n1"), to("Two.", "n2"), to("Three.", "n3")),
+            node("hello", "Pick a number.", leadingTo("One.", "n1"), leadingTo("Two.", "n2"), leadingTo("Three.", "n3")),
             node("n1", "Node one.", end("Bye one.")),
             node("n2", "Node two.", end("Bye two.")),
             node("n3", "Node three.", end("Bye three."))));
     private static final Dialogue LEFT_OR_RIGHT = dialogue("hello", nodes(
-            node("hello", "Pick a side.", to("Left.", "left"), to("Right.", "right")),
+            node("hello", "Pick a side.", leadingTo("Left.", "left"), leadingTo("Right.", "right")),
             node("left", "Left node.", end("Left choice.")),
             node("right", "Right node.", end("Right choice."))));
     private static final Dialogue LOOP_BACK = dialogue("a", nodes(
-            node("a", "Ask away.", to("Again?", "b")),
-            node("b", "Sure.", to("Back.", "a"), end("Enough."))));
+            node("a", "Ask away.", leadingTo("Again?", "b")),
+            node("b", "Sure.", leadingTo("Back.", "a"), end("Enough."))));
     private static final Dialogue THREE_DEEP = dialogue("start", nodes(
-            node("start", "Hello there.", to("Tell me more.", "a"), end("Goodbye.")),
-            node("a", "Ask on.", to("Go deeper.", "b"), end("Enough.")),
+            node("start", "Hello there.", leadingTo("Tell me more.", "a"), end("Goodbye.")),
+            node("a", "Ask on.", leadingTo("Go deeper.", "b"), end("Enough.")),
             node("b", "Deepest.", end("Farewell."), end("Thanks."))));
 
     /** The dialogue of the NPC the scenario talks to; the expected text is read from it. */
@@ -122,9 +118,9 @@ public class DialogueSteps {
     @Given("the player stands next to the town guard")
     public void thePlayerStandsNextToTheTownGuard() {
         NpcDefinition guard = ModLoader.load(Paths.get("mods")).getNpc("core:town_guard");
-        assertNotNull(guard, "core should define core:town_guard");
+        Assertions.assertNotNull(guard, "core should define core:town_guard");
         Dialogue dialogue = guard.dialogue();
-        assertNotNull(dialogue, "core:town_guard should have a dialogue");
+        Assertions.assertNotNull(dialogue, "core:town_guard should have a dialogue");
         talkedTo = dialogue;
         npcName = guard.name();
         game().panel().spawnNpc(new NpcDefinition(guard.id(), guard.name(), guard.symbol(), guard.color(),
@@ -211,12 +207,12 @@ public class DialogueSteps {
 
     @Given("another screen also holds the world pause")
     public void anotherScreenAlsoHoldsTheWorldPause() {
-        game().panel().getWorldPause().hold(WorldPause.CODEX);
+        game().holdWorldPause(WorldPause.CODEX);
     }
 
     @Given("the inventory is open")
     public void theInventoryIsOpen() {
-        game().panel().getWorldPause().hold(WorldPause.INVENTORY);
+        game().holdWorldPause(WorldPause.INVENTORY);
     }
 
     // ---- Keys and moves ----
@@ -278,76 +274,76 @@ public class DialogueSteps {
 
     @Then("the dialogue popup is shown")
     public void theDialoguePopupIsShown() {
-        assertTrue(dialoguePanel().isVisible(), "expected the dialogue popup to be shown");
+        Assertions.assertTrue(dialoguePanel().isVisible(), "expected the dialogue popup to be shown");
     }
 
     @Then("the dialogue popup is not shown")
     public void theDialoguePopupIsNotShown() {
-        assertFalse(dialoguePanel().isVisible(), "expected the dialogue popup to be closed");
+        Assertions.assertFalse(dialoguePanel().isVisible(), "expected the dialogue popup to be closed");
     }
 
     @Then("the popup is headed {string}")
     public void thePopupIsHeaded(String name) {
-        assertEquals(name, dialoguePanel().title());
+        Assertions.assertEquals(name, dialoguePanel().title());
     }
 
     @Then("the chat log shows {string} followed by the start node's text")
     public void theChatLogShowsPrefixFollowedByTheStartNodeText(String prefix) {
-        assertEquals(List.of(prefix + talkedTo.node(talkedTo.start()).text()), dialoguePanel().logLines());
+        Assertions.assertEquals(List.of(prefix + talkedTo.node(talkedTo.start()).text()), dialoguePanel().logLines());
     }
 
     @Then("the chat log shows only the start node's line")
     public void theChatLogShowsOnlyTheStartNodesLine() {
-        assertEquals(List.of(npcName + ": " + talkedTo.node(talkedTo.start()).text()), dialoguePanel().logLines());
+        Assertions.assertEquals(List.of(npcName + ": " + talkedTo.node(talkedTo.start()).text()), dialoguePanel().logLines());
     }
 
     @Then("the chat log is unchanged")
     public void theChatLogIsUnchanged() {
-        assertEquals(logWhenOpened, dialoguePanel().logLines());
+        Assertions.assertEquals(logWhenOpened, dialoguePanel().logLines());
     }
 
     @Then("the chat log lists, in order, each NPC line and each picked choice")
     public void theChatLogListsInOrderEachNpcLineAndEachPickedChoice() {
-        assertEquals(replayedLog(), dialoguePanel().logLines());
+        Assertions.assertEquals(replayedLog(), dialoguePanel().logLines());
     }
 
     @Then("the log still holds the earlier lines")
     public void theChatLogStillHoldsTheEarlierLines() {
-        assertEquals(replayedLog(), dialoguePanel().logLines());
+        Assertions.assertEquals(replayedLog(), dialoguePanel().logLines());
     }
 
     @Then("the chat log ends with {string} followed by choice {int}'s text")
     public void theChatLogEndsWithPrefixFollowedByChoiceText(String prefix, int number) {
         List<String> log = dialoguePanel().logLines();
         DialogueNode answered = nodeWithLine(log.get(log.size() - 3));
-        assertEquals(prefix + answered.choices().get(number - 1).text(), log.get(log.size() - 2));
+        Assertions.assertEquals(prefix + answered.choices().get(number - 1).text(), log.get(log.size() - 2));
     }
 
     @Then("the chat log then ends with {string} followed by node {string}'s text")
     public void theChatLogThenEndsWithPrefixFollowedByNodeText(String prefix, String nodeId) {
-        assertEquals(prefix.replace("<NPC name>", npcName) + talkedTo.node(nodeId).text(), lastLogLine());
+        Assertions.assertEquals(prefix.replace("<NPC name>", npcName) + talkedTo.node(nodeId).text(), lastLogLine());
     }
 
     @Then("the chat log ends with node {string}'s text")
     public void theChatLogEndsWithNodeText(String nodeId) {
-        assertEquals(npcName + ": " + talkedTo.node(nodeId).text(), lastLogLine());
+        Assertions.assertEquals(npcName + ": " + talkedTo.node(nodeId).text(), lastLogLine());
     }
 
     @Then("the chat log shows the text of the node that choice {int} leads to")
     public void theChatLogShowsTheTextOfTheNodeThatChoiceLeadsTo(int number) {
         String next = talkedTo.node(talkedTo.start()).choices().get(number - 1).next();
-        assertNotNull(next, "choice " + number + " of the start node should lead to a node");
-        assertEquals(npcName + ": " + talkedTo.node(next).text(), lastLogLine());
+        Assertions.assertNotNull(next, "choice " + number + " of the start node should lead to a node");
+        Assertions.assertEquals(npcName + ": " + talkedTo.node(next).text(), lastLogLine());
     }
 
     @Then("the first choice is highlighted")
     public void theFirstChoiceIsHighlighted() {
-        assertEquals(1, dialoguePanel().highlightedChoice());
+        Assertions.assertEquals(1, dialoguePanel().highlightedChoice());
     }
 
     @Then("choice {int} is highlighted")
     public void choiceIsHighlighted(int number) {
-        assertEquals(number, dialoguePanel().highlightedChoice());
+        Assertions.assertEquals(number, dialoguePanel().highlightedChoice());
     }
 
     @Then("the choices show the start node's choices numbered from 1")
@@ -357,33 +353,33 @@ public class DialogueSteps {
 
     @Then("the choices show the start node's choices")
     public void theChoicesShowTheStartNodesChoices() {
-        assertEquals(numbered(talkedTo.node(talkedTo.start())), dialoguePanel().choiceLabels());
+        Assertions.assertEquals(numbered(talkedTo.node(talkedTo.start())), dialoguePanel().choiceLabels());
     }
 
     @Then("the choices show node {string}'s choices")
     public void theChoicesShowNodesChoices(String nodeId) {
-        assertEquals(numbered(talkedTo.node(nodeId)), dialoguePanel().choiceLabels());
+        Assertions.assertEquals(numbered(talkedTo.node(nodeId)), dialoguePanel().choiceLabels());
     }
 
     @Then("the choices show the nodes reached by choice {int}")
     public void theChoicesShowTheNodesReachedByChoice(int number) {
-        assertEquals(numbered(currentNode()), dialoguePanel().choiceLabels());
+        Assertions.assertEquals(numbered(currentNode()), dialoguePanel().choiceLabels());
     }
 
     @Then("the choices show only the third node's choices")
     public void theChoicesShowOnlyTheThirdNodesChoices() {
-        assertEquals(numbered(currentNode()), dialoguePanel().choiceLabels());
+        Assertions.assertEquals(numbered(currentNode()), dialoguePanel().choiceLabels());
     }
 
     @Then("the player has not moved")
     public void thePlayerHasNotMoved() {
-        assertEquals(playerXWhenOpened, game().playerX());
-        assertEquals(playerYWhenOpened, game().playerY());
+        Assertions.assertEquals(playerXWhenOpened, game().playerX());
+        Assertions.assertEquals(playerYWhenOpened, game().playerY());
     }
 
     @Then("the pause menu is not shown")
     public void thePauseMenuIsNotShown() {
-        assertEquals(0, pauseMenuToggles, "Esc should not reach the pause menu while the popup is open");
+        Assertions.assertEquals(0, pauseMenuToggles, "Esc should not reach the pause menu while the popup is open");
     }
 
     // ---- Patrols and turns ----
@@ -391,25 +387,25 @@ public class DialogueSteps {
     @Then("^the NPC is still at \\((\\d+), (\\d+)\\)$")
     public void theNpcIsStillAt(int x, int y) {
         NonPlayerCharacter npc = onlyNpc();
-        assertEquals(new TileCoord(x, y), new TileCoord(npc.getX(), npc.getY()));
+        Assertions.assertEquals(new TileCoord(x, y), new TileCoord(npc.getX(), npc.getY()));
     }
 
     @Then("the NPC has taken a step along its patrol")
     public void theNpcHasTakenAStepAlongItsPatrol() {
         NonPlayerCharacter npc = onlyNpc();
         int distance = Math.abs(npc.getX() - TALK_X) + Math.abs(npc.getY() - TALK_Y);
-        assertNotEquals(0, distance, "the NPC should have moved off its spawn tile");
-        assertEquals(1, distance, "the NPC should have moved one tile along its patrol");
+        Assertions.assertNotEquals(0, distance, "the NPC should have moved off its spawn tile");
+        Assertions.assertEquals(1, distance, "the NPC should have moved one tile along its patrol");
     }
 
     @Then("the turn counter has not changed")
     public void theTurnCounterHasNotChanged() {
-        assertEquals(0, game().panel().getTurnScheduler().getTurn(), "a fresh world starts at turn 0");
+        Assertions.assertEquals(0, game().currentTurn(), "a fresh world starts at turn 0");
     }
 
     @Then("the turn counter advances by 1")
     public void theTurnCounterAdvancesByOne() {
-        assertEquals(1, game().panel().getTurnScheduler().getTurn(), "a fresh world starts at turn 0");
+        Assertions.assertEquals(1, game().currentTurn(), "a fresh world starts at turn 0");
     }
 
     // ---- Helpers ----
@@ -459,6 +455,7 @@ public class DialogueSteps {
         game().panel().addGameListener(new GameListener() {
             @Override
             public void updatePlayer(Player player) {
+                // Only the toggle events are recorded here.
             }
 
             @Override
@@ -520,7 +517,7 @@ public class DialogueSteps {
 
     private static NonPlayerCharacter onlyNpc() {
         List<NonPlayerCharacter> npcs = game().panel().getNpcs();
-        assertEquals(1, npcs.size(), "expected exactly one NPC in the world");
+        Assertions.assertEquals(1, npcs.size(), "expected exactly one NPC in the world");
         return npcs.get(0);
     }
 
@@ -560,7 +557,7 @@ public class DialogueSteps {
         return Map.entry(id, new DialogueNode(text, List.of(choices)));
     }
 
-    private static DialogueChoice to(String text, String next) {
+    private static DialogueChoice leadingTo(String text, String next) {
         return new DialogueChoice(text, next);
     }
 

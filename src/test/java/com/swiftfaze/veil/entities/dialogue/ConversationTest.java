@@ -34,6 +34,14 @@ class ConversationTest {
         assertTrue(conversation.choose(0));
 
         assertEquals(List.of("Mira: Well met.", "You: Who are you?", "Mira: Nobody special."), texts(conversation));
+    }
+
+    @Test
+    void choosingALinkedChoiceMovesToTheNextNodeWithoutEnding() {
+        Conversation conversation = new Conversation("Mira", GREETING);
+
+        conversation.choose(0);
+
         assertEquals("Nobody special.", conversation.currentNode().text());
         assertFalse(conversation.isEnded());
     }
@@ -56,6 +64,15 @@ class ConversationTest {
         assertFalse(conversation.choose(-1));
 
         assertEquals(List.of("Mira: Well met."), texts(conversation));
+    }
+
+    @Test
+    void anOutOfRangeChoiceDoesNotEndTheConversation() {
+        Conversation conversation = new Conversation("Mira", GREETING);
+
+        conversation.choose(2);
+        conversation.choose(-1);
+
         assertFalse(conversation.isEnded());
     }
 

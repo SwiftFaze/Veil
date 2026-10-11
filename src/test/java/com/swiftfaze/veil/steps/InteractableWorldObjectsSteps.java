@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** Interact key, doors and chests on a flat floor, and the chest panel, driven through GamePanel. */
 public class InteractableWorldObjectsSteps {
 
+    private static final Pattern DIGIT_KEY = Pattern.compile("[1-9]");
     private static final char OPEN_SYMBOL = '/';
     private static final char CLOSED_SYMBOL = '+';
     private static final char CHEST_SYMBOL = 'C';
@@ -193,7 +194,7 @@ public class InteractableWorldObjectsSteps {
     }
 
     private static KeyStroke keyFor(String keyName) {
-        if (keyName.matches("[1-9]")) {
+        if (DIGIT_KEY.matcher(keyName).matches()) {
             return KeyStroke.getKeyStroke(KeyEvent.VK_0 + Integer.parseInt(keyName), 0);
         }
         return switch (keyName) {

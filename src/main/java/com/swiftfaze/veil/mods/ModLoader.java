@@ -702,14 +702,12 @@ public final class ModLoader {
             Dialogue dialogue = DialogueReader.read(json, id, file);
             RegistrationContext<Dialogue> dialogueContext = new RegistrationContext<>(dialogues.registry(), dialogues.owningModById(), json.has("overrides"), "Dialogue");
             registerWithCollisionCheck(id, dialogue, modId, dialogueContext);
-        } catch (ModLoadException e) {
-            throw e;
         } catch (JsonSyntaxException | IOException e) {
             throw new ModLoadException("Failed to load dialogue from file: " + file, e);
         }
     }
 
-    /** Schema failures are re-thrown with the dialogue id prepended, naming the dialogue as well as the file. */
+    /** Schema failures are re-thrown with the dialogue id prepended, naming the dialogue and the file. */
     private static void validateDialogue(JsonObject json, Path file) {
         try {
             ModSchemaValidator.validate("dialogue", json, file);

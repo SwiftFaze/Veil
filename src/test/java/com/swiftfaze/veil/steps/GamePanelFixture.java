@@ -4,6 +4,7 @@ import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.GamePanel;
 import com.swiftfaze.veil.game.TurnScheduler;
+import com.swiftfaze.veil.game.WorldPause;
 import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.render.Positionable;
@@ -206,6 +207,20 @@ final class GamePanelFixture {
     /** Runs one world turn, as a player action would. */
     void advanceTurn() {
         turnScheduler().advance();
+    }
+
+    /** The current world turn; a fresh world starts at 0. */
+    int currentTurn() {
+        return turnScheduler().getTurn();
+    }
+
+    /** Holds the world pause under {@code holder}, as an open screen would. */
+    void holdWorldPause(String holder) {
+        worldPause().hold(holder);
+    }
+
+    private WorldPause worldPause() {
+        return panel.getWorldPause();
     }
 
     private TurnScheduler turnScheduler() {

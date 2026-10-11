@@ -10,10 +10,6 @@ import java.util.List;
  */
 public final class Conversation {
 
-    /** One chat-log line. {@code text} is the full display text, such as "Mira: Well met.". */
-    public record Line(boolean fromPlayer, String text) {
-    }
-
     private final String npcName;
     private final Dialogue dialogue;
     private final List<Line> log = new ArrayList<>();
@@ -65,5 +61,9 @@ public final class Conversation {
     private void enter(String nodeId) {
         node = dialogue.node(nodeId);
         log.add(new Line(/* fromPlayer= */ false, npcName + ": " + node.text()));
+    }
+
+    /** One chat-log line. {@code text} is the full display text, such as "Mira: Well met.". */
+    public record Line(boolean fromPlayer, String text) {
     }
 }

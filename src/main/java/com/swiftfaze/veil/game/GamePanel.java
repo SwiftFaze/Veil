@@ -5,7 +5,6 @@ import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.render.DrawableAsciiEntity;
 import com.swiftfaze.veil.render.Positionable;
 import com.swiftfaze.veil.entities.dialogue.Conversation;
-import com.swiftfaze.veil.entities.dialogue.Dialogue;
 import com.swiftfaze.veil.entities.npc.NonPlayerCharacter;
 import com.swiftfaze.veil.entities.npc.NpcDefinition;
 import com.swiftfaze.veil.entities.player.Player;
@@ -301,15 +300,12 @@ public final class GamePanel extends JPanel {
         }
     }
 
-    /** A new conversation with the NPC standing on (x, y), if it has a dialogue. An NPC without one is skipped. */
+    /** A new conversation with the NPC on (x, y), if it has a dialogue; an NPC without one is skipped. */
     private Optional<Conversation> conversationAt(int x, int y) {
-        for (NonPlayerCharacter npc : npcs) {
-            Dialogue dialogue = npc.getDialogue();
-            if (npc.getX() == x && npc.getY() == y && dialogue != null) {
-                return Optional.of(new Conversation(npc.getName(), dialogue));
-            }
-        }
-        return Optional.empty();
+        return npcs.stream()
+                .filter(npc -> npc.getX() == x && npc.getY() == y && npc.getDialogue() != null)
+                .findFirst()
+                .map(npc -> new Conversation(npc.getName(), npc.getDialogue()));
     }
 
     private void openConversation(Conversation conversation) {

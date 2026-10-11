@@ -19,12 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -43,8 +38,7 @@ public final class DialoguePanel extends PopupWidget {
 
     private static final int PADDING = 10;
     private static final int MAX_CHOICES = 9;
-    private static final int LOG_FONT_SIZE = 16;
-    private static final float LINE_SPACING = 4f;
+    private static final int LOG_MARGIN = 4;
     private static final List<ControlsHintBarWidget.Hint> HINTS = List.of(
             new ControlsHintBarWidget.Hint("up/down", "Choose"),
             new ControlsHintBarWidget.Hint("enter", "Pick"),
@@ -71,7 +65,7 @@ public final class DialoguePanel extends PopupWidget {
         logText.setEditable(false);
         logText.setFocusable(false);
         logText.setBackground(WidgetTheme.background());
-        logText.setMargin(new Insets(4, 4, 4, 4));
+        logText.setMargin(new Insets(LOG_MARGIN, LOG_MARGIN, LOG_MARGIN, LOG_MARGIN));
         JScrollPane logScroll = ListDetailLayoutUtility.buildScrollPane(logText);
         logScroll.setAlignmentX(LEFT_ALIGNMENT);
         addContent(logScroll);
@@ -103,6 +97,16 @@ public final class DialoguePanel extends PopupWidget {
     public List<String> logLines() {
         Conversation current = conversation;
         return current == null ? List.of() : current.log().stream().map(Conversation.Line::text).toList();
+    }
+
+    /** The text the log pane displays, as opposed to {@link #logLines()}, which is the conversation's. */
+    String displayedLog() {
+        return logText.getText().replace(System.lineSeparator(), "\n");
+    }
+
+    /** Where the log's caret sits; at the end of the text once the log has scrolled to the newest line. */
+    int logCaretPosition() {
+        return logText.getCaretPosition();
     }
 
     /** The current node's choices as shown, numbered from 1. */
@@ -155,39 +159,11 @@ public final class DialoguePanel extends PopupWidget {
 
     /** Rewrites the log from the conversation, then scrolls it to the newest line. */
     private void renderLog(Conversation current) {
-        StyledDocument document = logText.getStyledDocument();
-        try {
-            document.remove(0, document.getLength());
-            for (Conversation.Line line : current.log()) {
-                appendLine(document, line);
-            }
-        } catch (BadLocationException e) {
-            throw new IllegalStateException("the chat log could not be written", e);
-        }
-        // The new text is laid out later on the event thread; move the caret after that so the scroll lands on it.
-        SwingUtilities.invokeLater(() -> logText.setCaretPosition(logText.getDocument().getLength()));
-    }
-
-    private static void appendLine(StyledDocument document, Conversation.Line line) throws BadLocationException {
-        int start = document.getLength();
-        document.insertString(start, line.text() + "\n", lineStyle(line.fromPlayer()));
-        document.setParagraphAttributes(start, line.text().length() + 1, lineSpacing(), false);
-    }
-
-    private static AttributeSet lineStyle(boolean fromPlayer) {
-        SimpleAttributeSet style = new SimpleAttributeSet();
-        StyleConstants.setFontFamily(style, Font.MONOSPACED);
-        StyleConstants.setFontSize(style, LOG_FONT_SIZE);
-        StyleConstants.setForeground(style, fromPlayer ? WidgetTheme.accent() : WidgetTheme.normalText());
-        return style;
-    }
-
-    /** 4px above and below each line, so neighbouring lines sit 8px apart. */
-    private static AttributeSet lineSpacing() {
-        SimpleAttributeSet spacing = new SimpleAttributeSet();
-        StyleConstants.setSpaceAbove(spacing, LINE_SPACING);
-        StyleConstants.setSpaceBelow(spacing, LINE_SPACING);
-        return spacing;
+        StyledDocument document = ChatLogDocument.build(current.log());
+        logText.setStyledDocument(document);
+        int end = document.getLength();
+        // The text is laid out later on the event thread; move the caret after that so the scroll lands.
+        SwingUtilities.invokeLater(() -> logText.setCaretPosition(end));
     }
 
     private static List<String> numberedChoices(Conversation current) {

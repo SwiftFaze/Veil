@@ -63,6 +63,7 @@ public class ModLoaderSteps {
     private static final String TEST_COLOR = "\"color\":{\"r\":160,\"g\":110,\"b\":60}";
     private static final String DOOR_SYMBOLS = "\"symbolOpen\":\"/\",\"symbolClosed\":\"+\"";
     private static final String CORE_WOOD = "core:wood";
+    private static final Pattern CHOICE_IN_STEP = Pattern.compile("\"([^\"]*)\" (?:leading to \"([^\"]*)\"|ending the conversation)");
 
     private String lastBuildingId;
     private InteractableObject lastPlacedObject;
@@ -1691,8 +1692,6 @@ public class ModLoaderSteps {
     }
 
     // ---- Dialogues (dialogue-tree.feature): written as mods/<mod>/dialogues/*.json and loaded for real ----
-
-    private static final Pattern CHOICE_IN_STEP = Pattern.compile("\"([^\"]*)\" (?:leading to \"([^\"]*)\"|ending the conversation)");
 
     @Given("a mod declaring dialogue {string} starting at node {string}")
     public void aModDeclaringDialogueStartingAtNode(String id, String start) {
