@@ -1,6 +1,7 @@
 package com.swiftfaze.veil.mods;
 
 import com.swiftfaze.veil.entities.buildings.Building;
+import com.swiftfaze.veil.entities.dialogue.Dialogue;
 import com.swiftfaze.veil.entities.items.Item;
 import com.swiftfaze.veil.entities.npc.NpcDefinition;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
@@ -22,6 +23,7 @@ public class ModRegistry {
     private final Map<String, WidgetColorTheme> themesById = new LinkedHashMap<>();
     private final Map<String, InteractableObject> objectsById = new LinkedHashMap<>();
     private final Map<String, NpcDefinition> npcsById = new LinkedHashMap<>();
+    private final Map<String, Dialogue> dialoguesById = new LinkedHashMap<>();
     private final List<String> modLoadOrder;
 
     public record RegistryMaps(
@@ -32,7 +34,8 @@ public class ModRegistry {
             Map<String, Quest> questsById,
             Map<String, WidgetColorTheme> themesById,
             Map<String, InteractableObject> objectsById,
-            Map<String, NpcDefinition> npcsById
+            Map<String, NpcDefinition> npcsById,
+            Map<String, Dialogue> dialoguesById
     ) {
         public RegistryMaps {
             buildingsById = copyOfOrdered(buildingsById);
@@ -43,6 +46,7 @@ public class ModRegistry {
             themesById = copyOfOrdered(themesById);
             objectsById = copyOfOrdered(objectsById);
             npcsById = copyOfOrdered(npcsById);
+            dialoguesById = copyOfOrdered(dialoguesById);
         }
     }
 
@@ -60,6 +64,7 @@ public class ModRegistry {
         this.themesById.putAll(maps.themesById());
         this.objectsById.putAll(maps.objectsById());
         this.npcsById.putAll(maps.npcsById());
+        this.dialoguesById.putAll(maps.dialoguesById());
         this.modLoadOrder = List.copyOf(modLoadOrder);
     }
 
@@ -69,6 +74,14 @@ public class ModRegistry {
 
     public List<NpcDefinition> getAllNpcs() {
         return List.copyOf(npcsById.values());
+    }
+
+    public Dialogue getDialogue(String id) {
+        return dialoguesById.get(id);
+    }
+
+    public List<Dialogue> getAllDialogues() {
+        return List.copyOf(dialoguesById.values());
     }
 
     public Building getBuilding(String id) {

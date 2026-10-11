@@ -9,6 +9,8 @@ import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.render.Positionable;
 import com.swiftfaze.veil.ui.ChestPanel;
 import com.swiftfaze.veil.ui.ChestPanelListener;
+import com.swiftfaze.veil.ui.DialoguePanel;
+import com.swiftfaze.veil.ui.DialoguePanelListener;
 import com.swiftfaze.veil.ui.CodexPanel;
 import com.swiftfaze.veil.ui.InventoryPanel;
 import com.swiftfaze.veil.ui.PauseMenuPopup;
@@ -40,6 +42,7 @@ final class GamePanelFixture {
     private final Player player;
     private final WorldScene scene;
     private final ChestPanel chestPanel;
+    private final DialoguePanel dialoguePanel;
     private InventoryPanel inventoryPanel;
     private CodexPanel codexPanel;
     private PauseMenuPopup pauseMenuPopup;
@@ -74,7 +77,9 @@ final class GamePanelFixture {
         this.scene = scene;
         this.panel = new GamePanel(log, player, scene);
         this.chestPanel = new ChestPanel(new ControlsHintBarWidget()::setHints);
+        this.dialoguePanel = new DialoguePanel(new ControlsHintBarWidget()::setHints);
         panel.addGameListener(new ChestPanelListener(chestPanel, panel.getWorldPause()));
+        panel.addGameListener(new DialoguePanelListener(dialoguePanel, panel.getWorldPause()));
     }
 
     /** A game panel on an open floor with the player at (5, 5), wired to {@code log} and a chest panel. */
@@ -132,6 +137,10 @@ final class GamePanelFixture {
         return scene;
     }
 
+    DialoguePanel dialoguePanel() {
+        return dialoguePanel;
+    }
+
     ChestPanel chestPanel() {
         return chestPanel;
     }
@@ -159,6 +168,9 @@ final class GamePanelFixture {
      */
     void pressKey(KeyStroke key) {
         if (chestPanel.isVisible() && fireBound(chestPanel, chestPanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT), key)) {
+            return;
+        }
+        if (dialoguePanel.isVisible() && fireBound(dialoguePanel, dialoguePanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT), key)) {
             return;
         }
         fireBound(panel, panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW), key);

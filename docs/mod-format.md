@@ -19,7 +19,8 @@ mods/<mod-id>/
 ├── items/                # Item definitions (optional)
 ├── objects/              # Interactable world objects: chests, doors (optional)
 ├── quests/               # Quest definitions (optional)
-├── npcs/                 # NPC definitions, with optional patrol routes (optional)
+├── npcs/                 # NPC definitions, with optional patrol routes and dialogue (optional)
+├── dialogues/            # Branching NPC conversations (optional)
 └── themes/               # UI color themes (optional)
 ```
 
@@ -35,7 +36,8 @@ Each file type has a corresponding JSON Schema under `docs/schemas/`:
 - **Object files** — [`object.schema.json`](../schemas/object.schema.json): Chests (`"type": "chest"`) and doors (`"type": "door"`) under `objects/`; a building places them through its `"objects"` list of `{"id", "x", "y"}`
 - **Item files** — [`item.schema.json`](../schemas/item.schema.json): Item definitions under `items/`
 - **Quest files** — [`quest.schema.json`](../schemas/quest.schema.json): Quest definitions under `quests/`
-- **NPC files** — [`npc.schema.json`](../schemas/npc.schema.json): NPC definitions under `npcs/`. A `patrol` is `ping_pong` (default) or `loop` over orthogonal legs; the first waypoint must equal `spawn`. Loader-side checks beyond the schema (leg shape, spawn match) fail the mod load with the NPC id and file.
+- **NPC files** — [`npc.schema.json`](../schemas/npc.schema.json): NPC definitions under `npcs/`. An optional `"dialogue"` names a dialogue id from `dialogues/`. A `patrol` is `ping_pong` (default) or `loop` over orthogonal legs; the first waypoint must equal `spawn`. Loader-side checks beyond the schema (leg shape, spawn match) fail the mod load with the NPC id and file.
+- **Dialogue files** — [`dialogue.schema.json`](../schemas/dialogue.schema.json): Branching conversations under `dialogues/`, as `{"id", "start", "nodes": {<node id>: {"text", "choices": [{"text", "next"?}]}}}`. A choice with no `next` ends the conversation. An NPC opts in with `"dialogue": "<dialogue id>"`. The loader also rejects, naming the dialogue, its file, and the node or choice: a `start` that is not a node, a `next` that is not a node, a node with no choices or more than 9, blank text, and a node the start cannot reach. An NPC naming an unknown dialogue id fails the load too.
 - **Theme files** — [`theme.schema.json`](../schemas/theme.schema.json): UI color themes under `themes/`
 
 Read the schema files directly for the authoritative field-by-field specification. This document explains concepts that span multiple schemas.

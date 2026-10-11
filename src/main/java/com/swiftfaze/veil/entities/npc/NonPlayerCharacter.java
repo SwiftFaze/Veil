@@ -1,7 +1,9 @@
 package com.swiftfaze.veil.entities.npc;
 
+import com.swiftfaze.veil.entities.dialogue.Dialogue;
 import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.render.DrawableAsciiEntity;
+import org.jspecify.annotations.Nullable;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -49,6 +51,15 @@ public final class NonPlayerCharacter implements DrawableAsciiEntity {
 
     public String getId() {
         return definition.id();
+    }
+
+    public String getName() {
+        return definition.name();
+    }
+
+    /** The dialogue the player talks to this NPC with, or null if it has none. */
+    public @Nullable Dialogue getDialogue() {
+        return definition.dialogue();
     }
 
     private boolean isAt(TileCoord tile) {

@@ -341,7 +341,7 @@ class GamePanelTest {
     private static GamePanel panelWithPatrollingGuardAfterTwoTurns() {
         GamePanel panel = FlatFloorWorld.panel();
         NpcDefinition guard = new NpcDefinition("core:guard", "Guard", 'G', Color.RED, new TileCoord(3, 4),
-                new Patrol(PatrolMode.PING_PONG, List.of(new TileCoord(3, 4), new TileCoord(6, 4))));
+                new Patrol(PatrolMode.PING_PONG, List.of(new TileCoord(3, 4), new TileCoord(6, 4))), null);
         panel.spawnNpcs(RegistryFixtures.withNpcs(List.of(guard)));
         schedulerOf(panel).advance();
         schedulerOf(panel).advance();

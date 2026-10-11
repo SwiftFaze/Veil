@@ -62,6 +62,9 @@ class ModSchemaValidationIt {
         // Validate all NPCs
         validateDirectory(coreModDir.resolve("npcs"), "npc", errors);
 
+        // Validate all dialogues
+        validateDirectory(coreModDir.resolve("dialogues"), "dialogue", errors);
+
         // Validate all themes
         validateDirectory(coreModDir.resolve("themes"), "theme", errors);
 

@@ -1,0 +1,223 @@
+package com.swiftfaze.veil.ui;
+
+import com.swiftfaze.veil.entities.dialogue.Conversation;
+import com.swiftfaze.veil.entities.dialogue.DialogueChoice;
+import com.swiftfaze.veil.input.Keybindings;
+import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
+import com.swiftfaze.veil.ui.widget.HeaderWidget;
+import com.swiftfaze.veil.ui.widget.ListWidget;
+import com.swiftfaze.veil.ui.widget.PopupWidget;
+import com.swiftfaze.veil.ui.widget.WidgetTheme;
+import org.jspecify.annotations.Nullable;
+
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.InputMap;
+import javax.swing.JTextPane;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.IntStream;
+
+/**
+ * The talk popup for one {@link Conversation}: the chat log (every NPC line and picked choice so
+ * far) above, and the current node's numbered choices below. Up/Down move the highlight, Enter or a
+ * number key picks, and Esc ends the conversation. The world pause is held by
+ * {@link DialoguePanelListener}, not here, so every close path releases it.
+ */
+public final class DialoguePanel extends PopupWidget {
+
+    private static final int PADDING = 10;
+    private static final int MAX_CHOICES = 9;
+    private static final int LOG_FONT_SIZE = 16;
+    private static final float LINE_SPACING = 4f;
+    private static final List<ControlsHintBarWidget.Hint> HINTS = List.of(
+            new ControlsHintBarWidget.Hint("up/down", "Choose"),
+            new ControlsHintBarWidget.Hint("enter", "Pick"),
+            new ControlsHintBarWidget.Hint("escape", "End"));
+
+    private final HeaderWidget header = new HeaderWidget("");
+    private final JTextPane logText = new JTextPane();
+    private final ListWidget<String> choiceList;
+    private final Consumer<List<ControlsHintBarWidget.Hint>> hintSink;
+
+    private @Nullable Conversation conversation;
+
+    /** @param hintSink receives the controls hints to show while the popup is open */
+    public DialoguePanel(Consumer<List<ControlsHintBarWidget.Hint>> hintSink) {
+        this.hintSink = hintSink;
+        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.border());
+        Border padding = BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING);
+        setBorder(BorderFactory.createCompoundBorder(bottomLine, padding));
+
+        addContent(header);
+
+        // A text pane wraps long lines to the viewport width. Not focusable, so the caret never takes
+        // Up/Down away from the choice highlight.
+        logText.setEditable(false);
+        logText.setFocusable(false);
+        logText.setBackground(WidgetTheme.background());
+        logText.setMargin(new Insets(4, 4, 4, 4));
+        JScrollPane logScroll = ListDetailLayoutUtility.buildScrollPane(logText);
+        logScroll.setAlignmentX(LEFT_ALIGNMENT);
+        addContent(logScroll);
+
+        choiceList = new ListWidget<>(Function.identity());
+        choiceList.setWrapAround(false);
+        choiceList.setFocusTraversalKeysEnabled(false);
+        choiceList.setAlignmentX(LEFT_ALIGNMENT);
+        addContent(choiceList);
+
+        bindTalkKeys();
+    }
+
+    /** Opens the popup on a conversation; each conversation starts from its own log. */
+    public void show(Conversation next) {
+        conversation = next;
+        header.setTitle(next.npcName());
+        hintSink.accept(HINTS);
+        refresh(next);
+        open();
+    }
+
+    /** The name the popup is headed with: the NPC being talked to. */
+    public String title() {
+        return header.getTitle();
+    }
+
+    /** The chat log's lines, oldest first; empty before the first show. */
+    public List<String> logLines() {
+        Conversation current = conversation;
+        return current == null ? List.of() : current.log().stream().map(Conversation.Line::text).toList();
+    }
+
+    /** The current node's choices as shown, numbered from 1. */
+    public List<String> choiceLabels() {
+        Conversation current = conversation;
+        return current == null ? List.of() : numberedChoices(current);
+    }
+
+    /** The 1-based number of the highlighted choice. */
+    public int highlightedChoice() {
+        return choiceList.getSelectedIndex() + 1;
+    }
+
+    @Override
+    protected void onUp() {
+        choiceList.moveUp();
+    }
+
+    @Override
+    protected void onDown() {
+        choiceList.moveDown();
+    }
+
+    /** Picks the highlighted choice (Enter). */
+    void chooseHighlighted() {
+        choose(choiceList.getSelectedIndex());
+    }
+
+    /** Picks choice {@code number}, counted from 1 (the number keys). A number with no choice is ignored. */
+    void chooseNumber(int number) {
+        choose(number - 1);
+    }
+
+    private void choose(int index) {
+        Conversation current = conversation;
+        if (current == null || !current.choose(index)) {
+            return;
+        }
+        if (current.isEnded()) {
+            dismiss();
+        } else {
+            refresh(current);
+        }
+    }
+
+    private void refresh(Conversation current) {
+        renderLog(current);
+        choiceList.setItems(numberedChoices(current));
+    }
+
+    /** Rewrites the log from the conversation, then scrolls it to the newest line. */
+    private void renderLog(Conversation current) {
+        StyledDocument document = logText.getStyledDocument();
+        try {
+            document.remove(0, document.getLength());
+            for (Conversation.Line line : current.log()) {
+                appendLine(document, line);
+            }
+        } catch (BadLocationException e) {
+            throw new IllegalStateException("the chat log could not be written", e);
+        }
+        // The new text is laid out later on the event thread; move the caret after that so the scroll lands on it.
+        SwingUtilities.invokeLater(() -> logText.setCaretPosition(logText.getDocument().getLength()));
+    }
+
+    private static void appendLine(StyledDocument document, Conversation.Line line) throws BadLocationException {
+        int start = document.getLength();
+        document.insertString(start, line.text() + "\n", lineStyle(line.fromPlayer()));
+        document.setParagraphAttributes(start, line.text().length() + 1, lineSpacing(), false);
+    }
+
+    private static AttributeSet lineStyle(boolean fromPlayer) {
+        SimpleAttributeSet style = new SimpleAttributeSet();
+        StyleConstants.setFontFamily(style, Font.MONOSPACED);
+        StyleConstants.setFontSize(style, LOG_FONT_SIZE);
+        StyleConstants.setForeground(style, fromPlayer ? WidgetTheme.accent() : WidgetTheme.normalText());
+        return style;
+    }
+
+    /** 4px above and below each line, so neighbouring lines sit 8px apart. */
+    private static AttributeSet lineSpacing() {
+        SimpleAttributeSet spacing = new SimpleAttributeSet();
+        StyleConstants.setSpaceAbove(spacing, LINE_SPACING);
+        StyleConstants.setSpaceBelow(spacing, LINE_SPACING);
+        return spacing;
+    }
+
+    private static List<String> numberedChoices(Conversation current) {
+        List<DialogueChoice> choices = current.currentNode().choices();
+        return IntStream.range(0, choices.size())
+                .mapToObj(i -> (i + 1) + ". " + choices.get(i).text())
+                .toList();
+    }
+
+    private void bindTalkKeys() {
+        InputMap inputMap = getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        ActionMap actionMap = getActionMap();
+
+        inputMap.put(Keybindings.MENU_CONFIRM, "dialogue-pick");
+        actionMap.put("dialogue-pick", action(this::chooseHighlighted));
+
+        for (int number = 1; number <= MAX_CHOICES; number++) {
+            String name = "dialogue-choose-" + number;
+            int picked = number;
+            inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_0 + number, 0), name);
+            actionMap.put(name, action(() -> chooseNumber(picked)));
+        }
+    }
+
+    private static AbstractAction action(Runnable task) {
+        return new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                task.run();
+            }
+        };
+    }
+}
