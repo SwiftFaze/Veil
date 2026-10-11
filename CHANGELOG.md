@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.49](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.48...v0.5.0-beta.49) (2026-10-11)
+
+
+### Features
+
+* add branching dialogue trees with a bottom-anchored dialogue box ([#283](https://github.com/SwiftFaze/Veil/issues/283)) ([2461011](https://github.com/SwiftFaze/Veil/commit/24610110fa841b9a0fa7fdd4f457138389a7f173))
+
 ## [0.5.0-beta.48](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.47...v0.5.0-beta.48) (2026-10-11)
 
 
