@@ -67,6 +67,16 @@ public class PopupWidget extends Widget {
         contentPanel.removeAll();
     }
 
+    /** Where {@link FillLayout} puts a popup inside its parent. */
+    public enum Placement {
+        /** Stretched over the whole parent. */
+        FULL_SCREEN,
+        /** Centred at its preferred size. */
+        CENTERED,
+        /** A box along the bottom edge, sized from the parent (the RPG dialogue box). */
+        BOTTOM_CENTER
+    }
+
     /**
      * Returns true if this popup should stretch to fill the parent container,
      * false if it should be sized and centered at its preferred size.
@@ -74,6 +84,14 @@ public class PopupWidget extends Widget {
      */
     public boolean isFullScreen() {
         return true;
+    }
+
+    /**
+     * The placement {@link FillLayout} honours. Defaults from {@link #isFullScreen()}; a popup
+     * that needs another placement overrides this directly.
+     */
+    public Placement placement() {
+        return isFullScreen() ? Placement.FULL_SCREEN : Placement.CENTERED;
     }
 
     public void open() {

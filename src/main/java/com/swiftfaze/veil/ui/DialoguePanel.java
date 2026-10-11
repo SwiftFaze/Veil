@@ -20,6 +20,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.text.StyledDocument;
+import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -39,6 +40,8 @@ public final class DialoguePanel extends PopupWidget {
     private static final int PADDING = 10;
     private static final int MAX_CHOICES = 9;
     private static final int LOG_MARGIN = 4;
+    /** About three lines of 16pt log text, including its margin. */
+    private static final int LOG_MIN_HEIGHT = 72;
     private static final List<ControlsHintBarWidget.Hint> HINTS = List.of(
             new ControlsHintBarWidget.Hint("up/down", "Choose"),
             new ControlsHintBarWidget.Hint("enter", "Pick"),
@@ -66,17 +69,34 @@ public final class DialoguePanel extends PopupWidget {
         logText.setFocusable(false);
         logText.setBackground(WidgetTheme.background());
         logText.setMargin(new Insets(LOG_MARGIN, LOG_MARGIN, LOG_MARGIN, LOG_MARGIN));
+        // Sized to about three lines, not to its whole text, so the choices keep their full height when
+        // they fit. Its minimum keeps those lines visible when the choices need the rest of the box.
         JScrollPane logScroll = ListDetailLayoutUtility.buildScrollPane(logText);
         logScroll.setAlignmentX(LEFT_ALIGNMENT);
+        logScroll.setPreferredSize(new Dimension(0, LOG_MIN_HEIGHT));
+        logScroll.setMinimumSize(new Dimension(0, LOG_MIN_HEIGHT));
         addContent(logScroll);
 
+        // Scrolls when there are more choices than fit; ListWidget scrolls the highlight into view.
         choiceList = new ListWidget<>(Function.identity());
         choiceList.setWrapAround(false);
         choiceList.setFocusTraversalKeysEnabled(false);
-        choiceList.setAlignmentX(LEFT_ALIGNMENT);
-        addContent(choiceList);
+        JScrollPane choiceScroll = ListDetailLayoutUtility.buildScrollPane(choiceList);
+        choiceScroll.setAlignmentX(LEFT_ALIGNMENT);
+        addContent(choiceScroll);
 
         bindTalkKeys();
+    }
+
+    /** A box along the bottom of the game area, not a full-screen popup, so the player stays visible above it. */
+    @Override
+    public boolean isFullScreen() {
+        return false;
+    }
+
+    @Override
+    public Placement placement() {
+        return Placement.BOTTOM_CENTER;
     }
 
     /** Opens the popup on a conversation; each conversation starts from its own log. */

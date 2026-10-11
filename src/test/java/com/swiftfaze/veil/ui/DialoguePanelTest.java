@@ -5,6 +5,7 @@ import com.swiftfaze.veil.entities.dialogue.Dialogue;
 import com.swiftfaze.veil.entities.dialogue.DialogueChoice;
 import com.swiftfaze.veil.entities.dialogue.DialogueNode;
 import com.swiftfaze.veil.ui.widget.ControlsHintBarWidget;
+import com.swiftfaze.veil.ui.widget.PopupWidget;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.JComponent;
@@ -170,5 +171,13 @@ class DialoguePanelTest {
         panel.getActionMap().get(binding).actionPerformed(null);
 
         assertFalse(panel.isVisible());
+    }
+
+    @Test
+    void isABoxAlongTheBottomNotAFullScreenPopup() {
+        DialoguePanel panel = new DialoguePanel(hints -> { });
+
+        assertFalse(panel.isFullScreen());
+        assertEquals(PopupWidget.Placement.BOTTOM_CENTER, panel.placement());
     }
 }
