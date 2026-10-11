@@ -16,12 +16,12 @@ public class FillLayout implements LayoutManager {
 
     /** Gap between a bottom-anchored popup and the parent's bottom edge (the outer padding token). */
     private static final int BOTTOM_MARGIN = 10;
-    private static final double BOTTOM_WIDTH_FRACTION = 0.6;
-    private static final int BOTTOM_MIN_WIDTH = 360;
-    private static final int BOTTOM_MAX_WIDTH = 720;
-    private static final double BOTTOM_HEIGHT_FRACTION = 1.0 / 3.0;
-    private static final int BOTTOM_MIN_HEIGHT = 200;
-    private static final int BOTTOM_MAX_HEIGHT = 360;
+    private static final double BOTTOM_WIDTH_FRACTION = 0.8;
+    private static final int BOTTOM_MIN_WIDTH = 480;
+    private static final int BOTTOM_MAX_WIDTH = 960;
+    private static final double BOTTOM_HEIGHT_FRACTION = 0.45;
+    private static final int BOTTOM_MIN_HEIGHT = 260;
+    private static final int BOTTOM_MAX_HEIGHT = 480;
 
     @Override
     public void addLayoutComponent(String name, Component comp) {

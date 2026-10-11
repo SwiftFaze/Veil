@@ -11,9 +11,12 @@ import org.junit.jupiter.api.Test;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import java.awt.Container;
+import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -38,6 +41,26 @@ class DialoguePanelTest {
 
     private static DialoguePanel panel() {
         return new DialoguePanel(hints -> { });
+    }
+
+    /** Swing work runs on the event thread here: off it, revalidate() is deferred and sizes go stale. */
+    private static void layOut(DialoguePanel panel, int height) throws InterruptedException, InvocationTargetException {
+        SwingUtilities.invokeAndWait(() -> {
+            panel.setSize(600, height);
+            layOutTree(panel);
+        });
+    }
+
+    /**
+     * validate() needs a native peer. Headless, lay out each container top-down instead, dropping its
+     * layout's cached child sizes first as an invalid container would have.
+     */
+    private static void layOutTree(Container container) {
+        container.invalidate();
+        container.doLayout();
+        Arrays.stream(container.getComponents())
+                .filter(Container.class::isInstance)
+                .forEach(child -> layOutTree((Container) child));
     }
 
     @Test
@@ -179,5 +202,42 @@ class DialoguePanelTest {
 
         assertFalse(panel.isFullScreen());
         assertEquals(PopupWidget.Placement.BOTTOM_CENTER, panel.placement());
+    }
+
+    @Test
+    void isOutlinedOnAllFourSides() {
+        DialoguePanel panel = panel();
+
+        Insets insets = panel.getInsets();
+
+        // The 2px outline plus the 10px outer padding, on every side rather than only along the bottom.
+        assertEquals(new Insets(12, 12, 12, 12), insets);
+    }
+
+    @Test
+    void aTallerBoxGivesTheExtraRoomToTheLogNotTheChoices() throws InterruptedException, InvocationTargetException {
+        DialoguePanel panel = panel();
+        SwingUtilities.invokeAndWait(() -> panel.show(new Conversation("Mira", GREETING)));
+        layOut(panel, 337);
+        int choicesHeight = panel.choicesHeight();
+        int logHeight = panel.logHeight();
+
+        layOut(panel, 437);
+
+        assertEquals(choicesHeight, panel.choicesHeight());
+        assertEquals(logHeight + 100, panel.logHeight());
+    }
+
+    @Test
+    void theChoicesShrinkToANodeWithFewerChoices() throws InterruptedException, InvocationTargetException {
+        DialoguePanel panel = panel();
+        SwingUtilities.invokeAndWait(() -> panel.show(new Conversation("Mira", GREETING)));
+        layOut(panel, 337);
+        int twoChoicesHeight = panel.choicesHeight();
+
+        SwingUtilities.invokeAndWait(() -> panel.chooseNumber(1));
+        layOut(panel, 337);
+
+        assertTrue(panel.choicesHeight() < twoChoicesHeight);
     }
 }

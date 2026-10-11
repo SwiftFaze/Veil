@@ -33,23 +33,23 @@ class FillLayoutTest {
     }
 
     @Test
-    void bottomCentrePopupIsAboutAThirdTallAndSixTenthsWideWithATenPixelBottomMargin() {
-        assertEquals(new Rectangle(200, 390, 600, 200), bottomPopupIn(1000, 600));
+    void bottomCentrePopupIsAlmostHalfTallAndEightTenthsWideWithATenPixelBottomMargin() {
+        assertEquals(new Rectangle(100, 320, 800, 270), bottomPopupIn(1000, 600));
     }
 
     @Test
     void bottomCentrePopupWidthIsCappedAtTheMaximum() {
-        assertEquals(new Rectangle(640, 590, 720, 300), bottomPopupIn(2000, 900));
+        assertEquals(new Rectangle(520, 485, 960, 405), bottomPopupIn(2000, 900));
     }
 
     @Test
     void bottomCentrePopupWidthIsRaisedToTheMinimum() {
-        assertEquals(new Rectangle(20, 390, 360, 200), bottomPopupIn(400, 600));
+        assertEquals(new Rectangle(10, 320, 480, 270), bottomPopupIn(500, 600));
     }
 
     @Test
     void bottomCentrePopupHeightIsRaisedToTheMinimum() {
-        assertEquals(new Rectangle(200, 90, 600, 200), bottomPopupIn(1000, 300));
+        assertEquals(new Rectangle(100, 30, 800, 260), bottomPopupIn(1000, 300));
     }
 
     @Test

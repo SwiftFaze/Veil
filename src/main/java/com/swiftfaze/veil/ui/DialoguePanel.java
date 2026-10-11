@@ -49,7 +49,9 @@ public final class DialoguePanel extends PopupWidget {
 
     private final HeaderWidget header = new HeaderWidget("");
     private final JTextPane logText = new JTextPane();
+    private final JScrollPane logScroll;
     private final ListWidget<String> choiceList;
+    private final JScrollPane choiceScroll;
     private final Consumer<List<ControlsHintBarWidget.Hint>> hintSink;
 
     private @Nullable Conversation conversation;
@@ -57,9 +59,9 @@ public final class DialoguePanel extends PopupWidget {
     /** @param hintSink receives the controls hints to show while the popup is open */
     public DialoguePanel(Consumer<List<ControlsHintBarWidget.Hint>> hintSink) {
         this.hintSink = hintSink;
-        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0, WidgetTheme.border());
+        Border outline = BorderFactory.createLineBorder(WidgetTheme.border(), 2);
         Border padding = BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING);
-        setBorder(BorderFactory.createCompoundBorder(bottomLine, padding));
+        setBorder(BorderFactory.createCompoundBorder(outline, padding));
 
         addContent(header);
 
@@ -71,7 +73,7 @@ public final class DialoguePanel extends PopupWidget {
         logText.setMargin(new Insets(LOG_MARGIN, LOG_MARGIN, LOG_MARGIN, LOG_MARGIN));
         // Sized to about three lines, not to its whole text, so the choices keep their full height when
         // they fit. Its minimum keeps those lines visible when the choices need the rest of the box.
-        JScrollPane logScroll = ListDetailLayoutUtility.buildScrollPane(logText);
+        logScroll = ListDetailLayoutUtility.buildScrollPane(logText);
         logScroll.setAlignmentX(LEFT_ALIGNMENT);
         logScroll.setPreferredSize(new Dimension(0, LOG_MIN_HEIGHT));
         logScroll.setMinimumSize(new Dimension(0, LOG_MIN_HEIGHT));
@@ -81,7 +83,7 @@ public final class DialoguePanel extends PopupWidget {
         choiceList = new ListWidget<>(Function.identity());
         choiceList.setWrapAround(false);
         choiceList.setFocusTraversalKeysEnabled(false);
-        JScrollPane choiceScroll = ListDetailLayoutUtility.buildScrollPane(choiceList);
+        choiceScroll = ListDetailLayoutUtility.buildScrollPane(choiceList);
         choiceScroll.setAlignmentX(LEFT_ALIGNMENT);
         addContent(choiceScroll);
 
@@ -127,6 +129,16 @@ public final class DialoguePanel extends PopupWidget {
     /** Where the log's caret sits; at the end of the text once the log has scrolled to the newest line. */
     int logCaretPosition() {
         return logText.getCaretPosition();
+    }
+
+    /** How tall the log section is laid out; it takes whatever the choices leave. */
+    int logHeight() {
+        return logScroll.getHeight();
+    }
+
+    /** How tall the choices section is laid out; its own content's height, pinned to the bottom. */
+    int choicesHeight() {
+        return choiceScroll.getHeight();
     }
 
     /** The current node's choices as shown, numbered from 1. */
@@ -175,6 +187,19 @@ public final class DialoguePanel extends PopupWidget {
     private void refresh(Conversation current) {
         renderLog(current);
         choiceList.setItems(numberedChoices(current));
+        fitChoicesToContent();
+    }
+
+    /**
+     * Pins the choices to the bottom of the box at their own height, so the log above takes all the
+     * spare room. BoxLayout only hands extra height to a child whose maximum exceeds its preferred size.
+     */
+    private void fitChoicesToContent() {
+        Insets insets = choiceScroll.getInsets();
+        int height = choiceList.getPreferredSize().height + insets.top + insets.bottom;
+        choiceScroll.setPreferredSize(new Dimension(0, height));
+        choiceScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+        revalidate();
     }
 
     /** Rewrites the log from the conversation, then scrolls it to the newest line. */
