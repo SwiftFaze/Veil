@@ -1,10 +1,16 @@
 package com.swiftfaze.veil.game;
 
 import com.swiftfaze.veil.GameConst;
+import com.swiftfaze.veil.entities.npc.NonPlayerCharacter;
+import com.swiftfaze.veil.entities.npc.NpcDefinition;
+import com.swiftfaze.veil.entities.npc.Patrol;
+import com.swiftfaze.veil.entities.npc.PatrolMode;
+import com.swiftfaze.veil.entities.npc.TileCoord;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.game.worldgen.GeneratedWorldScene;
 import com.swiftfaze.veil.input.Keybindings;
+import com.swiftfaze.veil.mods.RegistryFixtures;
 import com.swiftfaze.veil.testing.FlatFloorWorld;
 import com.swiftfaze.veil.world.Tile;
 import com.swiftfaze.veil.world.WorldScene;
@@ -16,6 +22,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
@@ -269,6 +276,40 @@ class GamePanelTest {
         fireAction(panel, Keybindings.ACTION_TOGGLE_DEV_CONSOLE);
 
         assertTrue(listenerCalled[0]);
+    }
+
+    @Test
+    void regeneratingTheWorldRespawnsNpcsAtTheirSpawnPoints() {
+        GamePanel panel = panelWithPatrollingGuardAfterTwoTurns();
+
+        panel.regenerateWorld(OPEN_ABOVE_SPAWN_SEED);
+
+        NonPlayerCharacter guard = panel.getNpcs().get(0);
+        assertEquals(1, panel.getNpcs().size());
+        assertEquals(3, guard.getX());
+        assertEquals(4, guard.getY());
+    }
+
+    @Test
+    void regeneratingTheWorldLeavesOneSchedulerRegistrationPerNpc() {
+        GamePanel panel = panelWithPatrollingGuardAfterTwoTurns();
+
+        panel.regenerateWorld(OPEN_ABOVE_SPAWN_SEED);
+
+        assertEquals(1, schedulerOf(panel).registeredCount());
+        assertEquals(1, panel.getEntitiesToDraw().stream().filter(NonPlayerCharacter.class::isInstance).count());
+    }
+
+    /** A flat-floor panel with one patrolling guard that has walked from (3, 4) to (5, 4). */
+    private static GamePanel panelWithPatrollingGuardAfterTwoTurns() {
+        GamePanel panel = FlatFloorWorld.panel();
+        NpcDefinition guard = new NpcDefinition("core:guard", "Guard", 'G', Color.RED, new TileCoord(3, 4),
+                new Patrol(PatrolMode.PING_PONG, List.of(new TileCoord(3, 4), new TileCoord(6, 4))));
+        panel.spawnNpcs(RegistryFixtures.withNpcs(List.of(guard)));
+        schedulerOf(panel).advance();
+        schedulerOf(panel).advance();
+        assertEquals(5, panel.getNpcs().get(0).getX(), "fixture guard must have moved before the regen");
+        return panel;
     }
 
     private static GeneratedWorldScene worldFromSeed(long seed) {

@@ -4,11 +4,14 @@ import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.render.Camera;
 import com.swiftfaze.veil.render.DrawableAsciiEntity;
 import com.swiftfaze.veil.render.Positionable;
+import com.swiftfaze.veil.entities.npc.NonPlayerCharacter;
+import com.swiftfaze.veil.entities.npc.NpcDefinition;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.event.GameEvent;
 import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.game.worldgen.GeneratedWorldScene;
+import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.world.WorldScene;
 import com.swiftfaze.veil.world.WorldSeeds;
 import org.slf4j.Logger;
@@ -44,6 +47,9 @@ public final class GamePanel extends JPanel {
     private final GameEventLog eventLog;
     private final WorldPause worldPause = new WorldPause();
     private final TurnScheduler turnScheduler = new TurnScheduler();
+    private final List<NonPlayerCharacter> npcs = new ArrayList<>();
+    /** The definitions last passed to {@link #spawnNpcs}; regenerateWorld respawns from these. */
+    private List<NpcDefinition> npcDefinitions = List.of();
 
     /** What a new game starts with: the player on the scene's spawn point, and the scene. */
     private record NewGame(Player player, GeneratedWorldScene scene) {
@@ -123,6 +129,37 @@ public final class GamePanel extends JPanel {
         entitiesToDraw.add(entity);
     }
 
+    /** Spawns every NPC in {@code registry}, in load order. Call at setup and after resetState(). */
+    public void spawnNpcs(ModRegistry registry) {
+        npcDefinitions = registry.getAllNpcs();
+        for (NpcDefinition definition : npcDefinitions) {
+            spawnNpc(definition);
+        }
+    }
+
+    /** Spawns one NPC: draws it, and registers it with the turn scheduler after any earlier NPCs. */
+    public void spawnNpc(NpcDefinition definition) {
+        NonPlayerCharacter npc = new NonPlayerCharacter(definition, this::canNpcEnter);
+        npcs.add(npc);
+        addEntity(npc);
+        turnScheduler.register(npc::onTurn);
+    }
+
+    public List<NonPlayerCharacter> getNpcs() {
+        return List.copyOf(npcs);
+    }
+
+    public List<Positionable> getEntitiesToDraw() {
+        return List.copyOf(entitiesToDraw);
+    }
+
+    /** NPCs may step on a walkable tile that holds neither the player nor another NPC. */
+    private boolean canNpcEnter(int x, int y) {
+        boolean occupiedByPlayer = player.getX() == x && player.getY() == y;
+        boolean occupiedByNpc = npcs.stream().anyMatch(npc -> npc.getX() == x && npc.getY() == y);
+        return scene.isWalkable(x, y) && !occupiedByPlayer && !occupiedByNpc;
+    }
+
     public void startGameLoop() {
         requestFocusInWindow();
     }
@@ -154,13 +191,26 @@ public final class GamePanel extends JPanel {
     /**
      * Replaces the running world with one generated from {@code seed}. The same Player stays
      * (stats, class, inventory untouched) and moves to the new spawn point; pause state is kept.
+     * NPCs are respawned from the last {@link #spawnNpcs} definitions at their spawn points,
+     * and the old NPCs are unregistered from the turn scheduler. The turn counter is kept.
      */
     public void regenerateWorld(long seed) {
         GeneratedWorldScene regenerated = generateWorld(seed);
         entitiesToDraw.set(entitiesToDraw.indexOf(scene), regenerated);
         scene = regenerated;
         player.setPosition(regenerated.getSpawnX(), regenerated.getSpawnY());
+        respawnNpcs();
         notifyPlayerUpdated();
+    }
+
+    /** Drops every NPC from the draw list and the scheduler, then spawns the remembered definitions afresh. */
+    private void respawnNpcs() {
+        entitiesToDraw.removeAll(npcs);
+        npcs.clear();
+        turnScheduler.clearRegistrations();
+        for (NpcDefinition definition : npcDefinitions) {
+            spawnNpc(definition);
+        }
     }
 
     public WorldPause getWorldPause() {
@@ -187,6 +237,7 @@ public final class GamePanel extends JPanel {
         player = game.player();
         scene = game.scene();
         entitiesToDraw.clear();
+        npcs.clear();
         addEntity(scene);
         addEntity(player);
         turnScheduler.reset();

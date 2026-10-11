@@ -2,31 +2,50 @@ package com.swiftfaze.veil.mods;
 
 import com.swiftfaze.veil.entities.buildings.Building;
 import com.swiftfaze.veil.entities.items.Item;
+import com.swiftfaze.veil.entities.npc.NpcDefinition;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.world.Tile;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ModRegistry {
-    public record RegistryMaps(
-            Map<String, Building> buildingsById,
-            Map<String, Tile> tilesById,
-            Map<String, PlayerClass> classesById,
-            Map<String, Item> itemsById,
-            Map<String, Quest> questsById,
-            Map<String, WidgetColorTheme> themesById
-    ) {
-    }
     private final Map<String, Building> buildingsById = new LinkedHashMap<>();
     private final Map<String, Tile> tilesById = new LinkedHashMap<>();
     private final Map<String, PlayerClass> classesById = new LinkedHashMap<>();
     private final Map<String, Item> itemsById = new LinkedHashMap<>();
     private final Map<String, Quest> questsById = new LinkedHashMap<>();
     private final Map<String, WidgetColorTheme> themesById = new LinkedHashMap<>();
+    private final Map<String, NpcDefinition> npcsById = new LinkedHashMap<>();
     private final List<String> modLoadOrder;
+
+    public record RegistryMaps(
+            Map<String, Building> buildingsById,
+            Map<String, Tile> tilesById,
+            Map<String, PlayerClass> classesById,
+            Map<String, Item> itemsById,
+            Map<String, Quest> questsById,
+            Map<String, WidgetColorTheme> themesById,
+            Map<String, NpcDefinition> npcsById
+    ) {
+        public RegistryMaps {
+            buildingsById = copyOf(buildingsById);
+            tilesById = copyOf(tilesById);
+            classesById = copyOf(classesById);
+            itemsById = copyOf(itemsById);
+            questsById = copyOf(questsById);
+            themesById = copyOf(themesById);
+            npcsById = copyOf(npcsById);
+        }
+
+        /** An unmodifiable copy that keeps the source's iteration (load) order. */
+        private static <V> Map<String, V> copyOf(Map<String, V> source) {
+            return Collections.unmodifiableMap(new LinkedHashMap<>(source));
+        }
+    }
 
     ModRegistry(RegistryMaps maps, List<String> modLoadOrder) {
         this.buildingsById.putAll(maps.buildingsById());
@@ -35,7 +54,16 @@ public class ModRegistry {
         this.itemsById.putAll(maps.itemsById());
         this.questsById.putAll(maps.questsById());
         this.themesById.putAll(maps.themesById());
+        this.npcsById.putAll(maps.npcsById());
         this.modLoadOrder = List.copyOf(modLoadOrder);
+    }
+
+    public NpcDefinition getNpc(String id) {
+        return npcsById.get(id);
+    }
+
+    public List<NpcDefinition> getAllNpcs() {
+        return List.copyOf(npcsById.values());
     }
 
     public Building getBuilding(String id) {

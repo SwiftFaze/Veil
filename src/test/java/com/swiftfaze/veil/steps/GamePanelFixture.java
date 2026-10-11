@@ -3,6 +3,7 @@ package com.swiftfaze.veil.steps;
 import com.swiftfaze.veil.GameConst;
 import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.game.GamePanel;
+import com.swiftfaze.veil.game.TurnScheduler;
 import com.swiftfaze.veil.game.event.GameEventLog;
 import com.swiftfaze.veil.input.Keybindings;
 import com.swiftfaze.veil.ui.CodexPanel;
@@ -33,6 +34,13 @@ final class GamePanelFixture {
     private InventoryPanel inventoryPanel;
     private CodexPanel codexPanel;
     private PauseMenuPopup pauseMenuPopup;
+
+    /** A game panel with every tile walkable, so a scenario can place NPCs freely. */
+    static GamePanelFixture withAllWalkableMap() {
+        GamePanelFixture fixture = withAllScreens(GameEventLog.noOp());
+        fixture.scene.fillAll(FLOOR);
+        return fixture;
+    }
 
     /** A game panel wired to {@code log} alone. */
     GamePanelFixture(GameEventLog log) {
@@ -114,6 +122,19 @@ final class GamePanelFixture {
 
     boolean worldPaused() {
         return panel.isPaused();
+    }
+
+    /** Runs one world turn, as a player action would. */
+    void advanceTurn() {
+        turnScheduler().advance();
+    }
+
+    private TurnScheduler turnScheduler() {
+        return panel.getTurnScheduler();
+    }
+
+    int registeredTurnListeners() {
+        return turnScheduler().registeredCount();
     }
 
     GamePanel panel() {

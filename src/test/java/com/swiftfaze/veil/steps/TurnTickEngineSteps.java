@@ -25,14 +25,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class TurnTickEngineSteps {
 
-    private GamePanelFixture game;
     private final List<CountingTickConsumer> consumers = new ArrayList<>();
     private final List<String> steppedOrder = new ArrayList<>();
 
     @Given("a turn-ticking game with the player at \\({int}, {int}\\)")
     public void aTurnTickingGameWithThePlayerAt(int x, int y) {
-        game = GamePanelFixture.withAllScreens(GameEventLog.noOp());
-        game.movePlayerTo(x, y);
+        SharedScenarioContext.setTurnGame(GamePanelFixture.withAllScreens(GameEventLog.noOp()));
+        game().movePlayerTo(x, y);
     }
 
     @Given("a counting tick consumer is registered with the turn scheduler")
@@ -47,46 +46,46 @@ public class TurnTickEngineSteps {
 
     @Given("map tile \\({int}, {int}\\) is walkable")
     public void mapTileIsWalkable(int x, int y) {
-        game.openFloorAt(x, y);
+        game().openFloorAt(x, y);
     }
 
     @Given("map tile \\({int}, {int}\\) is not walkable")
     public void mapTileIsNotWalkable(int x, int y) {
-        game.blockAt(x, y);
+        game().blockAt(x, y);
     }
 
     @Given("map tiles \\({int}, {int}\\), \\({int}, {int}\\) and \\({int}, {int}\\) are walkable")
     public void mapTilesAreWalkable(int firstX, int firstY, int secondX, int secondY, int thirdX, int thirdY) {
-        game.openFloorAt(firstX, firstY);
-        game.openFloorAt(secondX, secondY);
-        game.openFloorAt(thirdX, thirdY);
+        game().openFloorAt(firstX, firstY);
+        game().openFloorAt(secondX, secondY);
+        game().openFloorAt(thirdX, thirdY);
     }
 
     @Given("the player has stepped right")
     public void thePlayerHasSteppedRight() {
-        game.pressMoveRight();
+        game().pressMoveRight();
     }
 
     @When("the player steps right")
     public void thePlayerStepsRight() {
-        game.pressMoveRight();
+        game().pressMoveRight();
     }
 
     @When("the player steps right {int} times")
     public void thePlayerStepsRightTimes(int times) {
         for (int i = 0; i < times; i++) {
-            game.pressMoveRight();
+            game().pressMoveRight();
         }
     }
 
     @When("the player is repositioned directly to \\({int}, {int}\\)")
     public void thePlayerIsRepositionedDirectlyTo(int x, int y) {
-        game.movePlayerTo(x, y);
+        game().movePlayerTo(x, y);
     }
 
     @When("the game state is reset by exiting to the main menu")
     public void theGameStateIsResetByExitingToTheMainMenu() {
-        game.panel().resetState();
+        game().panel().resetState();
     }
 
     @Given("^the (inventory|codex|pause menu) screen is open$")
@@ -114,12 +113,12 @@ public class TurnTickEngineSteps {
 
     @Then("the world is paused")
     public void theWorldIsPaused() {
-        assertTrue(game.worldPaused(), "expected the world to be paused");
+        assertTrue(game().worldPaused(), "expected the world to be paused");
     }
 
     @Then("the world is not paused")
     public void theWorldIsNotPaused() {
-        assertFalse(game.worldPaused(), "expected the world not to be paused");
+        assertFalse(game().worldPaused(), "expected the world not to be paused");
     }
 
     @Then("the turn counter is {int}")
@@ -129,8 +128,8 @@ public class TurnTickEngineSteps {
 
     @Then("the player is at position \\({int}, {int}\\)")
     public void thePlayerIsAtPosition(int x, int y) {
-        assertEquals(x, game.playerX());
-        assertEquals(y, game.playerY());
+        assertEquals(x, game().playerX());
+        assertEquals(y, game().playerY());
     }
 
     @Then("the counting tick consumer has been stepped {int} time(s)")
@@ -167,31 +166,35 @@ public class TurnTickEngineSteps {
         steppedOrder.add(name);
     }
 
-    private TurnScheduler scheduler() {
-        return game.panel().getTurnScheduler();
+    private static GamePanelFixture game() {
+        return SharedScenarioContext.getTurnGame();
     }
 
-    private void ensureOpen(String screen) {
+    private static TurnScheduler scheduler() {
+        return game().panel().getTurnScheduler();
+    }
+
+    private static void ensureOpen(String screen) {
         if (!isOpen(screen)) {
             toggle(screen);
         }
         assertTrue(isOpen(screen), "expected the " + screen + " screen to be open");
     }
 
-    private boolean isOpen(String screen) {
+    private static boolean isOpen(String screen) {
         return switch (screen) {
-            case "inventory" -> game.inventoryPanel().isVisible();
-            case "codex" -> game.codexPanel().isVisible();
-            case "pause menu" -> game.pauseMenuPopup().isVisible();
+            case "inventory" -> game().inventoryPanel().isVisible();
+            case "codex" -> game().codexPanel().isVisible();
+            case "pause menu" -> game().pauseMenuPopup().isVisible();
             default -> throw new IllegalArgumentException("unknown screen: " + screen);
         };
     }
 
-    private void toggle(String screen) {
+    private static void toggle(String screen) {
         switch (screen) {
-            case "inventory" -> game.pressInventoryKey();
-            case "codex" -> game.pressCodexKey();
-            case "pause menu" -> game.pressPauseKey();
+            case "inventory" -> game().pressInventoryKey();
+            case "codex" -> game().pressCodexKey();
+            case "pause menu" -> game().pressPauseKey();
             default -> throw new IllegalArgumentException("unknown screen: " + screen);
         }
     }

@@ -18,6 +18,7 @@ mods/<mod-id>/
 ├── classes/              # Player class definitions (optional)
 ├── items/                # Item definitions (optional)
 ├── quests/               # Quest definitions (optional)
+├── npcs/                 # NPC definitions, with optional patrol routes (optional)
 └── themes/               # UI color themes (optional)
 ```
 
@@ -32,6 +33,7 @@ Each file type has a corresponding JSON Schema under `docs/schemas/`:
 - **Class files** — [`class.schema.json`](../schemas/class.schema.json): Player class definitions under `classes/`
 - **Item files** — [`item.schema.json`](../schemas/item.schema.json): Item definitions under `items/`
 - **Quest files** — [`quest.schema.json`](../schemas/quest.schema.json): Quest definitions under `quests/`
+- **NPC files** — [`npc.schema.json`](../schemas/npc.schema.json): NPC definitions under `npcs/`. A `patrol` is `ping_pong` (default) or `loop` over orthogonal legs; the first waypoint must equal `spawn`. Loader-side checks beyond the schema (leg shape, spawn match) fail the mod load with the NPC id and file.
 - **Theme files** — [`theme.schema.json`](../schemas/theme.schema.json): UI color themes under `themes/`
 
 Read the schema files directly for the authoritative field-by-field specification. This document explains concepts that span multiple schemas.
