@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0-beta.46](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.45...v0.5.0-beta.46) (2026-10-11)
+
+
+### Features
+
+* add JSON-driven NPCs with patrol movement ([#279](https://github.com/SwiftFaze/Veil/issues/279)) ([2b11140](https://github.com/SwiftFaze/Veil/commit/2b111403fd612248986d3bdcd9254996155a7da8))
+
 ## [0.5.0-beta.45](https://github.com/SwiftFaze/Veil/compare/v0.5.0-beta.44...v0.5.0-beta.45) (2026-10-10)
 
 
