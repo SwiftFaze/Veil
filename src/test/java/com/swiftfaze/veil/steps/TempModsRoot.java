@@ -30,8 +30,9 @@ final class TempModsRoot {
               "tiles": [
                 ["core:stone", "core:stone", "core:stone"],
                 ["core:stone", "core:wood", "core:stone"],
-                ["core:stone", "core:door", "core:stone"]
-              ]
+                ["core:stone", "core:wood", "core:stone"]
+              ],
+              "objects": [{"id": "core:wooden_door", "x": 1, "y": 2}]
             }
             """;
 

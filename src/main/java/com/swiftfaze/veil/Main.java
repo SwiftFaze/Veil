@@ -8,6 +8,8 @@ import com.swiftfaze.veil.entities.player.Player;
 import com.swiftfaze.veil.mods.ModLoader;
 import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.mods.WidgetColorTheme;
+import com.swiftfaze.veil.ui.ChestPanel;
+import com.swiftfaze.veil.ui.ChestPanelListener;
 import com.swiftfaze.veil.ui.CodexPanel;
 import com.swiftfaze.veil.ui.GameWindow;
 import com.swiftfaze.veil.ui.InventoryPanel;
@@ -120,7 +122,13 @@ public final class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static final List<ControlsHintBarWidget.Hint> GAME_HINTS = List.of(
             new ControlsHintBarWidget.Hint("i", "Inventory"),
-            new ControlsHintBarWidget.Hint("x", "Codex"));
+            new ControlsHintBarWidget.Hint("x", "Codex"),
+            new ControlsHintBarWidget.Hint("e", "Interact"));
+    /** The static controls hints shown on the world screen. */
+    public static List<ControlsHintBarWidget.Hint> gameHints() {
+        return GAME_HINTS;
+    }
+
     private static final boolean DEV_CONSOLE_ENABLED = Boolean.getBoolean("veil.devConsole");
 
     public static void main(String[] args) {
@@ -154,12 +162,15 @@ public final class Main {
         CodexPanel codexPanel = new CodexPanel(hintBar);
         PauseMenuPopup pauseMenuPopup = new PauseMenuPopup();
         cards.put("pause", pauseMenuPopup);
-        wirePopups(gamePanel, new PopupPanels(inventoryPanel, codexPanel, pauseMenuPopup), hintBar, eventLog);
+        ChestPanel chestPanel = new ChestPanel(hintBar::setHints);
+        FocusManager focusManager = wirePopups(gamePanel, new PopupPanels(inventoryPanel, codexPanel, pauseMenuPopup), hintBar, eventLog);
+        wireChestPanel(gamePanel, chestPanel, focusManager, hintBar);
 
         JLayeredPane gameContentArea = GameWindow.buildContentArea(gamePanel);
         gameContentArea.add(inventoryPanel, JLayeredPane.POPUP_LAYER);
         gameContentArea.add(codexPanel, JLayeredPane.POPUP_LAYER);
         gameContentArea.add(pauseMenuPopup, JLayeredPane.POPUP_LAYER);
+        gameContentArea.add(chestPanel, JLayeredPane.POPUP_LAYER);
         gameContentArea.add(inventoryPanel.getDropConfirmationPopup(), JLayeredPane.DRAG_LAYER);
 
         JPanel gameCardPanel = new JPanel(new BorderLayout());
@@ -171,7 +182,7 @@ public final class Main {
     // Minimal stopgap wiring so the I/X toggles keep working with EastPanel gone — no
     // sidebar, no player-info display, just enough plumbing for the two popups to open/close/exclude
     // each other and hand focus back to the game on dismiss, same as EastPanel used to.
-    private static void wirePopups(GamePanel gamePanel, PopupPanels popups, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
+    private static FocusManager wirePopups(GamePanel gamePanel, PopupPanels popups, ControlsHintBarWidget hintBar, GameEventLog eventLog) {
         ModRegistry mods = ModLoader.load(Paths.get("mods"));
         FocusManager focusManager = new FocusManager();
         InventoryPanel inventoryPanel = popups.inventory();
@@ -193,6 +204,13 @@ public final class Main {
 
         gamePanel.addGameListener(new PopupToggleListener(inventoryPanel, codexPanel, gamePanel.getWorldPause(), eventLog));
         gamePanel.addGameListener(new PauseToggleListener(gamePanel.getWorldPause(), pauseMenuPopup));
+        return focusManager;
+    }
+
+    private static void wireChestPanel(GamePanel gamePanel, ChestPanel chestPanel, FocusManager focusManager, ControlsHintBarWidget hintBar) {
+        chestPanel.setFocusManager(focusManager);
+        chestPanel.setOnDismiss(() -> restoreGameFocus(gamePanel, hintBar));
+        gamePanel.addGameListener(new ChestPanelListener(chestPanel, gamePanel.getWorldPause()));
     }
 
     private static void restoreGameFocus(GamePanel gamePanel, ControlsHintBarWidget hintBar) {

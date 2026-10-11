@@ -16,7 +16,7 @@ public final class RegistryFixtures {
     /** A registry with exactly these buildings (by id) and no tiles, classes, items, quests, themes or NPCs. */
     public static ModRegistry withBuildings(Map<String, Building> buildingsById) {
         ModRegistry.RegistryMaps maps = new ModRegistry.RegistryMaps(
-                buildingsById, Map.of(), Map.of(), Map.of(), Map.of(), Map.of(), Map.of());
+                buildingsById, Map.of(), Map.of(), Map.of(), Map.of(), Map.of(), Map.of(), Map.of());
         return new ModRegistry(maps, List.of());
     }
 
@@ -27,7 +27,7 @@ public final class RegistryFixtures {
             npcsById.put(npc.id(), npc);
         }
         ModRegistry.RegistryMaps maps = new ModRegistry.RegistryMaps(
-                Map.of(), Map.of(), Map.of(), Map.of(), Map.of(), Map.of(), npcsById);
+                Map.of(), Map.of(), Map.of(), Map.of(), Map.of(), Map.of(), Map.of(), npcsById);
         return new ModRegistry(maps, List.of());
     }
 }

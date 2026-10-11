@@ -1,8 +1,7 @@
 package com.swiftfaze.veil.game.worldgen;
 
-import com.swiftfaze.veil.world.CoreTiles;
-
 import com.swiftfaze.veil.entities.buildings.Building;
+import com.swiftfaze.veil.world.object.Door;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -10,8 +9,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * The world tiles directly outside a building's doors. A door on an edge row or column
- * contributes the tile just beyond that edge; a corner door contributes both.
+ * The world tiles directly outside a building's doors. A door is a {@link Door} object placed on
+ * the building; a door on an edge row or column contributes the tile just beyond that edge, and a
+ * corner door contributes both.
  */
 final class DoorApproaches {
 
@@ -20,11 +20,9 @@ final class DoorApproaches {
 
     static List<Point> outsideDoorsOf(Building building) {
         List<Point> approaches = new ArrayList<>();
-        for (int y = 0; y < building.getHeight(); y++) {
-            for (int x = 0; x < building.getWidth(); x++) {
-                if (CoreTiles.DOOR.equals(building.getBlueprint().get(y).get(x).getId())) {
-                    addOutsideEdges(building, x, y, approaches);
-                }
+        for (Building.ObjectPlacement placement : building.getObjects()) {
+            if (placement.object() instanceof Door) {
+                addOutsideEdges(building, placement.x(), placement.y(), approaches);
             }
         }
         return approaches;

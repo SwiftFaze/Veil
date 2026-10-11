@@ -6,6 +6,7 @@ import com.swiftfaze.veil.entities.npc.NpcDefinition;
 import com.swiftfaze.veil.entities.player.classes.PlayerClass;
 import com.swiftfaze.veil.entities.quests.Quest;
 import com.swiftfaze.veil.world.Tile;
+import com.swiftfaze.veil.world.object.InteractableObject;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -19,6 +20,7 @@ public class ModRegistry {
     private final Map<String, Item> itemsById = new LinkedHashMap<>();
     private final Map<String, Quest> questsById = new LinkedHashMap<>();
     private final Map<String, WidgetColorTheme> themesById = new LinkedHashMap<>();
+    private final Map<String, InteractableObject> objectsById = new LinkedHashMap<>();
     private final Map<String, NpcDefinition> npcsById = new LinkedHashMap<>();
     private final List<String> modLoadOrder;
 
@@ -29,22 +31,24 @@ public class ModRegistry {
             Map<String, Item> itemsById,
             Map<String, Quest> questsById,
             Map<String, WidgetColorTheme> themesById,
+            Map<String, InteractableObject> objectsById,
             Map<String, NpcDefinition> npcsById
     ) {
         public RegistryMaps {
-            buildingsById = copyOf(buildingsById);
-            tilesById = copyOf(tilesById);
-            classesById = copyOf(classesById);
-            itemsById = copyOf(itemsById);
-            questsById = copyOf(questsById);
-            themesById = copyOf(themesById);
-            npcsById = copyOf(npcsById);
+            buildingsById = copyOfOrdered(buildingsById);
+            tilesById = copyOfOrdered(tilesById);
+            classesById = copyOfOrdered(classesById);
+            itemsById = copyOfOrdered(itemsById);
+            questsById = copyOfOrdered(questsById);
+            themesById = copyOfOrdered(themesById);
+            objectsById = copyOfOrdered(objectsById);
+            npcsById = copyOfOrdered(npcsById);
         }
+    }
 
-        /** An unmodifiable copy that keeps the source's iteration (load) order. */
-        private static <V> Map<String, V> copyOf(Map<String, V> source) {
-            return Collections.unmodifiableMap(new LinkedHashMap<>(source));
-        }
+
+    private static <V> Map<String, V> copyOfOrdered(Map<String, V> source) {
+        return Collections.unmodifiableMap(new LinkedHashMap<>(source));
     }
 
     ModRegistry(RegistryMaps maps, List<String> modLoadOrder) {
@@ -54,6 +58,7 @@ public class ModRegistry {
         this.itemsById.putAll(maps.itemsById());
         this.questsById.putAll(maps.questsById());
         this.themesById.putAll(maps.themesById());
+        this.objectsById.putAll(maps.objectsById());
         this.npcsById.putAll(maps.npcsById());
         this.modLoadOrder = List.copyOf(modLoadOrder);
     }
@@ -113,6 +118,11 @@ public class ModRegistry {
 
     public List<WidgetColorTheme> getAllThemes() {
         return List.copyOf(themesById.values());
+    }
+
+    /** A template to copy with {@link InteractableObject#newInstance()} before placing it. */
+    public InteractableObject getObject(String id) {
+        return objectsById.get(id);
     }
 
     public List<String> getModLoadOrder() {

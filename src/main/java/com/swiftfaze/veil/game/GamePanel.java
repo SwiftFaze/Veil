@@ -14,6 +14,9 @@ import com.swiftfaze.veil.game.worldgen.GeneratedWorldScene;
 import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.world.WorldScene;
 import com.swiftfaze.veil.world.WorldSeeds;
+import com.swiftfaze.veil.world.object.Chest;
+import com.swiftfaze.veil.world.object.InteractableObject;
+import com.swiftfaze.veil.world.object.InteractionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +53,9 @@ public final class GamePanel extends JPanel {
     private final List<NonPlayerCharacter> npcs = new ArrayList<>();
     /** The definitions last passed to {@link #spawnNpcs}; regenerateWorld respawns from these. */
     private List<NpcDefinition> npcDefinitions = List.of();
+    private static final String BLOCKED_MESSAGE = "Something is in the way.";
+    // Interact range: the four orthogonal neighbours, in this order; the first object found wins.
+    private static final List<Offset> INTERACT_OFFSETS = List.of(new Offset(0, -1), new Offset(1, 0), new Offset(0, 1), new Offset(-1, 0));
 
     /** What a new game starts with: the player on the scene's spawn point, and the scene. */
     private record NewGame(Player player, GeneratedWorldScene scene) {
@@ -106,6 +112,7 @@ public final class GamePanel extends JPanel {
         inputMap.put(Keybindings.TOGGLE_INVENTORY, Keybindings.ACTION_TOGGLE_INVENTORY);
         inputMap.put(Keybindings.TOGGLE_CODEX, Keybindings.ACTION_TOGGLE_CODEX);
         inputMap.put(Keybindings.TOGGLE_DEV_CONSOLE, Keybindings.ACTION_TOGGLE_DEV_CONSOLE);
+        inputMap.put(Keybindings.INTERACT, Keybindings.ACTION_INTERACT);
         inputMap.put(Keybindings.MENU_CANCEL, Keybindings.ACTION_TOGGLE_PAUSE);
 
         actionMap.put(Keybindings.ACTION_MOVE_UP, new MoveAction(worldScene -> player.moveUp(worldScene)));
@@ -115,6 +122,7 @@ public final class GamePanel extends JPanel {
         actionMap.put(Keybindings.ACTION_TOGGLE_INVENTORY, new ToggleInventoryAction());
         actionMap.put(Keybindings.ACTION_TOGGLE_CODEX, new ToggleCodexAction());
         actionMap.put(Keybindings.ACTION_TOGGLE_DEV_CONSOLE, new ToggleDevConsoleAction());
+        actionMap.put(Keybindings.ACTION_INTERACT, new InteractAction());
         actionMap.put(Keybindings.ACTION_TOGGLE_PAUSE, new TogglePauseAction());
     }
 
@@ -262,6 +270,46 @@ public final class GamePanel extends JPanel {
                 ascii.render(g2d, GameConst.TILE_WIDTH, GameConst.TILE_HEIGHT, camera);
             }
         }
+    }
+
+    private record Offset(int dx, int dy) {
+    }
+
+    private final class InteractAction extends AbstractAction {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (worldPause.isPaused()) {
+                return;
+            }
+            for (Offset offset : INTERACT_OFFSETS) {
+                int x = player.getX() + offset.dx();
+                int y = player.getY() + offset.dy();
+                InteractableObject object = scene.getObject(x, y);
+                if (object != null) {
+                    interactWith(x, y, object);
+                    return;
+                }
+            }
+        }
+    }
+
+    private void interactWith(int x, int y, InteractableObject object) {
+        InteractionResult result = object.interact(isOccupied(x, y));
+        if (result == InteractionResult.REFUSED) {
+            eventLog.recordEvent(GameEvent.interactionRefused(BLOCKED_MESSAGE));
+        } else if (result == InteractionResult.SHOW_CONTENTS && object instanceof Chest chest) {
+            for (GameListener l : listeners) {
+                l.openChest(chest);
+            }
+        }
+        repaint();
+    }
+
+    /** Whether any positioned entity other than the scene stands on the tile. */
+    private boolean isOccupied(int x, int y) {
+        return entitiesToDraw.stream()
+                .filter(entity -> !Objects.equals(entity, scene))
+                .anyMatch(entity -> entity.getX() == x && entity.getY() == y);
     }
 
     private class MoveAction extends AbstractAction {

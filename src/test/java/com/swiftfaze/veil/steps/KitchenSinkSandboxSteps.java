@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -206,16 +207,34 @@ public class KitchenSinkSandboxSteps {
     @Then("the marker is at its start position")
     public void theMarkerIsAtItsStartPosition() {
         assertPreviewShown();
-        // The start position is the first walkable tile, scanning row by row.
+        // The start position is the first walkable tile with a walkable neighbour, scanning row by row
+        // (KitchenSinkModel.initializeMarkerPosition); with none, the first walkable tile.
+        Point start = findStart(true).or(() -> findStart(false))
+                .orElseThrow(() -> new AssertionError("No walkable tile to start on"));
+        Assertions.assertEquals(start.x, model.getMarkerX(), "Marker X not at start");
+        Assertions.assertEquals(start.y, model.getMarkerY(), "Marker Y not at start");
+    }
+
+    private Optional<Point> findStart(boolean needsWalkableNeighbour) {
         for (int y = 0; y < scene.getHeight(); y++) {
             for (int x = 0; x < scene.getWidth(); x++) {
-                if (scene.isWalkable(x, y)) {
-                    Assertions.assertEquals(x, model.getMarkerX(), "Marker X not at start");
-                    Assertions.assertEquals(y, model.getMarkerY(), "Marker Y not at start");
-                    return;
+                if (scene.isWalkable(x, y) && (!needsWalkableNeighbour || hasWalkableNeighbour(x, y))) {
+                    return Optional.of(new Point(x, y));
                 }
             }
         }
+        return Optional.empty();
+    }
+
+    private boolean hasWalkableNeighbour(int x, int y) {
+        for (int dy = -1; dy <= 1; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                if ((dx != 0 || dy != 0) && scene.isWalkable(x + dx, y + dy)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Then("the opened detail panel shows {string}")

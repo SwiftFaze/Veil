@@ -13,6 +13,7 @@ import com.swiftfaze.veil.game.worldgen.GeneratedWorldScene;
 import com.swiftfaze.veil.world.PerlinNoise;
 import com.swiftfaze.veil.world.TerrainBuckets;
 import com.swiftfaze.veil.world.WorldSeeds;
+import com.swiftfaze.veil.world.object.Door;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
@@ -425,11 +426,9 @@ public class SeededWorldGenerationSteps {
     /** Tiles directly outside each door on an edge row or column (corner doors give two). */
     private static List<Point> outsideDoorTiles(Building building) {
         List<Point> tiles = new ArrayList<>();
-        for (int y = 0; y < building.getHeight(); y++) {
-            for (int x = 0; x < building.getWidth(); x++) {
-                if (CoreTiles.DOOR.equals(building.getBlueprint().get(y).get(x).getId())) {
-                    tiles.addAll(edgeNeighbours(building, x, y));
-                }
+        for (Building.ObjectPlacement placement : building.getObjects()) {
+            if (placement.object() instanceof Door) {
+                tiles.addAll(edgeNeighbours(building, placement.x(), placement.y()));
             }
         }
         return tiles;

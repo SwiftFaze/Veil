@@ -61,7 +61,7 @@ final class BuildingScatter {
             return Optional.empty();
         }
         for (int attempt = 0; attempt < ATTEMPTS_PER_BUILDING; attempt++) {
-            Building candidate = new Building(template.getBlueprint());
+            Building candidate = new Building(template.getBlueprint(), template.getObjects());
             candidate.setWorldX(random.nextInt(scene.getWidth() - width + 1));
             candidate.setWorldY(random.nextInt(scene.getHeight() - height + 1));
             if (fits(candidate)) {

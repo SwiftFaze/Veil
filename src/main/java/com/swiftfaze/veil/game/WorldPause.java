@@ -13,6 +13,7 @@ public final class WorldPause {
     public static final String INVENTORY = "inventory";
     public static final String CODEX = "codex";
     public static final String PAUSE_MENU = "pause";
+    public static final String CHEST = "chest";
 
     private final Set<String> heldBy = new HashSet<>();
 

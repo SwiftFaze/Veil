@@ -4,6 +4,7 @@ import com.swiftfaze.veil.entities.buildings.Building;
 import com.swiftfaze.veil.mods.ModRegistry;
 import com.swiftfaze.veil.mods.RegistryFixtures;
 import com.swiftfaze.veil.world.CoreTiles;
+import com.swiftfaze.veil.world.object.Door;
 import com.swiftfaze.veil.world.WorldScene;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /** Uses the one real core blueprint: a 7x7 house with its only door at the bottom-middle (3, 6). */
 class BuildingScatterTest {
@@ -69,9 +71,18 @@ class BuildingScatterTest {
 
         scatter(scene);
 
-        assertEquals(CoreTiles.DOOR, scene.getTile(DOOR_COLUMN, DOOR_ROW).getId());
+        assertEquals(CoreTiles.WOOD, scene.getTile(DOOR_COLUMN, DOOR_ROW).getId());
         assertEquals(CoreTiles.WOOD, scene.getTile(1, 1).getId());
         assertEquals(CoreTiles.GRASS, scene.getTile(DOOR_COLUMN, HOUSE).getId());
+    }
+
+    @Test
+    void placedDoorIsAnObjectOnTheDoorTile() {
+        WorldScene scene = WorldgenFixtures.sceneOf(HOUSE, HOUSE + 1, CoreTiles.GRASS);
+
+        scatter(scene);
+
+        assertInstanceOf(Door.class, scene.getObject(DOOR_COLUMN, DOOR_ROW));
     }
 
     @Test
