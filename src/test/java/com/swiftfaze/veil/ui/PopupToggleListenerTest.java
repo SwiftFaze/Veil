@@ -122,6 +122,58 @@ class PopupToggleListenerTest {
     }
 
     @Test
+    void toggleInventoryDoesNothingWhileADialogueIsOpen() {
+        InventoryPanel inventoryPanel = new InventoryPanel(new ControlsHintBarWidget());
+        WorldPause worldPause = new WorldPause();
+        PopupToggleListener listener = listenerFor(inventoryPanel, new CodexPanel(new ControlsHintBarWidget()), worldPause);
+        worldPause.hold(WorldPause.DIALOGUE);
+
+        listener.toggleInventory();
+
+        assertFalse(inventoryPanel.isVisible());
+        assertFalse(worldPause.isHeldBy(WorldPause.INVENTORY));
+    }
+
+    @Test
+    void toggleCodexDoesNothingWhileADialogueIsOpen() {
+        CodexPanel codexPanel = new CodexPanel(new ControlsHintBarWidget());
+        WorldPause worldPause = new WorldPause();
+        PopupToggleListener listener = listenerFor(new InventoryPanel(new ControlsHintBarWidget()), codexPanel, worldPause);
+        worldPause.hold(WorldPause.DIALOGUE);
+
+        listener.toggleCodex();
+
+        assertFalse(codexPanel.isVisible());
+        assertFalse(worldPause.isHeldBy(WorldPause.CODEX));
+    }
+
+    @Test
+    void toggleInventoryDoesNothingWhileTheChestPanelIsOpen() {
+        InventoryPanel inventoryPanel = new InventoryPanel(new ControlsHintBarWidget());
+        WorldPause worldPause = new WorldPause();
+        PopupToggleListener listener = listenerFor(inventoryPanel, new CodexPanel(new ControlsHintBarWidget()), worldPause);
+        worldPause.hold(WorldPause.CHEST);
+
+        listener.toggleInventory();
+
+        assertFalse(inventoryPanel.isVisible());
+        assertFalse(worldPause.isHeldBy(WorldPause.INVENTORY));
+    }
+
+    @Test
+    void toggleCodexDoesNothingWhileTheChestPanelIsOpen() {
+        CodexPanel codexPanel = new CodexPanel(new ControlsHintBarWidget());
+        WorldPause worldPause = new WorldPause();
+        PopupToggleListener listener = listenerFor(new InventoryPanel(new ControlsHintBarWidget()), codexPanel, worldPause);
+        worldPause.hold(WorldPause.CHEST);
+
+        listener.toggleCodex();
+
+        assertFalse(codexPanel.isVisible());
+        assertFalse(worldPause.isHeldBy(WorldPause.CODEX));
+    }
+
+    @Test
     void updatePlayerDoesNotThrow() {
         PopupToggleListener listener = listenerFor(
                 new InventoryPanel(new ControlsHintBarWidget()),

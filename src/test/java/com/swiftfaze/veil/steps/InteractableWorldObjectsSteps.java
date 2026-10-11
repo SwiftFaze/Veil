@@ -150,6 +150,15 @@ public class InteractableWorldObjectsSteps {
         assertFalse(game().chestPanel().isVisible());
     }
 
+    /** Shared with dialogue-tree.feature: the other screens' keys must not open them over a popup. */
+    @Then("^the (inventory|codex) is not shown$")
+    public void theInventoryOrCodexIsNotShown(String screen) {
+        boolean shown = "inventory".equals(screen)
+                ? game().inventoryPanel().isVisible()
+                : game().codexPanel().isVisible();
+        assertFalse(shown, "expected the " + screen + " not to be shown");
+    }
+
     @Then("it lists the names of {string} and {string}")
     public void itListsTheNamesOf(String firstItemId, String secondItemId) {
         List<String> labels = game().chestPanel().slotLabels();
@@ -199,6 +208,8 @@ public class InteractableWorldObjectsSteps {
         }
         return switch (keyName) {
             case "E" -> Keybindings.INTERACT;
+            case "I" -> Keybindings.TOGGLE_INVENTORY;
+            case "X" -> Keybindings.TOGGLE_CODEX;
             case "Esc" -> Keybindings.MENU_CANCEL;
             case "Up" -> Keybindings.MENU_UP;
             case "Down" -> Keybindings.MENU_DOWN;

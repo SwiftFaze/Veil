@@ -88,18 +88,24 @@ final class GamePanelFixture {
         WorldScene floor = new WorldScene(FLAT_FLOOR_SIZE, FLAT_FLOOR_SIZE) {
         };
         floor.fillAll(FLOOR);
-        return new GamePanelFixture(log, new Player(5, 5), floor);
+        GamePanelFixture fixture = new GamePanelFixture(log, new Player(5, 5), floor);
+        fixture.wireInventoryAndCodex(log);
+        return fixture;
     }
 
     /** A game panel wired to {@code log}, with the inventory and codex popup listener attached. */
     static GamePanelFixture withInventory(GameEventLog log) {
         GamePanelFixture fixture = new GamePanelFixture(log);
-        ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
-        fixture.inventoryPanel = new InventoryPanel(hintBar);
-        fixture.codexPanel = new CodexPanel(hintBar);
-        fixture.panel.addGameListener(new PopupToggleListener(
-                fixture.inventoryPanel, fixture.codexPanel, fixture.panel.getWorldPause(), log));
+        fixture.wireInventoryAndCodex(log);
         return fixture;
+    }
+
+    /** Attaches the inventory and codex popups as Main does, so their I and X keys reach the toggle listener. */
+    private void wireInventoryAndCodex(GameEventLog log) {
+        ControlsHintBarWidget hintBar = new ControlsHintBarWidget();
+        inventoryPanel = new InventoryPanel(hintBar);
+        codexPanel = new CodexPanel(hintBar);
+        panel.addGameListener(new PopupToggleListener(inventoryPanel, codexPanel, panel.getWorldPause(), log));
     }
 
     /** A game panel wired as Main wires it: all three screens toggle the shared world pause. */

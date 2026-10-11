@@ -30,6 +30,10 @@ public final class WorldPause {
         return !heldBy.isEmpty();
     }
 
+    public boolean isHeldBy(String screenId) {
+        return heldBy.contains(screenId);
+    }
+
     public void releaseAll() {
         heldBy.clear();
     }
